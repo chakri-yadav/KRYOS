@@ -1,0 +1,18 @@
+# Local runtime and OS noise
+.DS_Store
+Thumbs.db
+*.log
+
+# Dependency/build folders if KRYOS later gets a build step
+node_modules/
+dist/
+build/
+.next/
+.vite/
+
+# Local environment files
+.env
+.env.*
+
+# Codex/agent scratch state
+.agents/

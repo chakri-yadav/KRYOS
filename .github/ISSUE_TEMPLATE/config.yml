@@ -1,0 +1,6 @@
+blank_issues_enabled: true
+contact_links:
+  - name: KRYOS Documentation
+    url: https://github.com/
+    about: Use the local docs folder as the source of truth until a public docs site exists.
+
