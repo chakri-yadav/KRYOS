@@ -40,7 +40,7 @@ Target version: `0.003.x`
 - Add last-synced status.
 - Keep secrets out of sync until the security model is clear.
 
-Status: architecture decisions drafted; implementation not started.
+Status: foundation delivered in `0.003.000`; real Supabase connection and cross-device testing remain.
 
 ## Phase 4 - Daily Operating System Refinement
 

@@ -9,14 +9,14 @@ major.minor.patch
 Current version:
 
 ```text
-0.002.002
+0.003.000
 ```
 
 ## Meaning
 
 - `0`: private pre-public era.
-- `002`: personal/demo separation line.
-- `002`: manual QA hardening, active profile polish, and sync planning decisions.
+- `003`: free sync backend foundation line.
+- `000`: sync readiness UI, Supabase schema, auth boundary, and conflict rules.
 
 ## Version Bands
 

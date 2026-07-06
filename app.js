@@ -5,23 +5,24 @@ const JOURNAL_STORAGE_KEY = "kryos-journal-v1";
 const SECURITY_STORAGE_KEY = "kryos-security-v1";
 const SECURITY_SESSION_KEY = "kryos-security-session-v1";
 const UI_STATE_STORAGE_KEY = "kryos-ui-state-v1";
+const SYNC_STATE_STORAGE_KEY = "kryos-sync-state-v1";
 const ACCOUNT_MODE_STORAGE_KEY = "kryos-account-mode-v1";
 const ACCOUNT_MODES = ["personal", "demo"];
 const DEMO_STORAGE_PREFIX = "kryos-demo";
 const DEMO_PROFILE_PIN = "9619";
 const KRYOS_BACKUP_VERSION = 3;
-const APP_VERSION = "0.002.002";
-const APP_STAGE = "Manual QA Hardening";
+const APP_VERSION = "0.003.000";
+const APP_STAGE = "Free Sync Foundation";
 const APP_RELEASE_DATE = "2026-07-06";
-const APP_STATUS = "Profile login verified and product-control backlog active";
-const APP_NEXT_MILESTONE = "0.003.000 Free Sync Foundation";
+const APP_STATUS = "Local-first sync architecture is defined and readiness checks are visible";
+const APP_NEXT_MILESTONE = "0.003.001 Demo Sync Prototype";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
-  "Real-file Personal/Demo login QA is completed and tracked in GitHub.",
-  "A visible active-profile badge now appears in the topbar and Settings identity panel.",
-  "Demo profile remains unmistakable without adding an in-app profile switch.",
-  "Sync architecture and backend decisions are documented before implementation.",
-  "Demo walkthrough documentation is available for safe product sharing.",
+  "Settings now shows a local-first sync readiness panel without enabling remote sync.",
+  "Supabase schema, auth, and conflict rules are documented before credentials are added.",
+  "Demo profile is the required first target for sync testing.",
+  "Security secrets, recovery answers, and active sessions remain outside the sync payload.",
+  "Personal cloud sync stays blocked until Demo sync proves the path.",
 ];
 const DATA_STORAGE_KEYS = [
   FOUNDATION_STORAGE_KEY,
@@ -29,6 +30,19 @@ const DATA_STORAGE_KEYS = [
   TASKS_STORAGE_KEY,
   JOURNAL_STORAGE_KEY,
   SECURITY_STORAGE_KEY,
+  SYNC_STATE_STORAGE_KEY,
+];
+const SYNC_SAFE_BLOCKS = [
+  FOUNDATION_STORAGE_KEY,
+  CAREER_STORAGE_KEY,
+  TASKS_STORAGE_KEY,
+  JOURNAL_STORAGE_KEY,
+  UI_STATE_STORAGE_KEY,
+];
+const SYNC_EXCLUDED_BLOCKS = [
+  SECURITY_STORAGE_KEY,
+  SECURITY_SESSION_KEY,
+  SYNC_STATE_STORAGE_KEY,
 ];
 
 const TASK_DOMAINS = [
@@ -467,6 +481,7 @@ let careerState = loadCareer();
 let taskState = loadTasks();
 let journalState = loadJournal();
 let securityState = loadSecurity();
+let syncState = loadSyncState();
 const savedUiState = loadUiState();
 let mode = savedUiState.mode === "edit" ? "edit" : "read";
 let currentPage = APP_PAGES.includes(savedUiState.currentPage) ? savedUiState.currentPage : "foundation";
@@ -487,6 +502,7 @@ let isSecurityUnlocked = !securityState.configured || hasActiveSecuritySession()
 let lockTimer = null;
 let lastSecurityActivityWrite = 0;
 let securityNotice = "";
+let syncNotice = "";
 let recoveryMode = false;
 
 const readView = document.querySelector("#read-view");
@@ -1160,6 +1176,46 @@ function createDemoUiState() {
   };
 }
 
+function createDefaultSyncState(overrides = {}) {
+  const now = new Date().toISOString();
+  return {
+    provider: "supabase",
+    enabled: false,
+    status: "not-configured",
+    lastSyncAt: null,
+    lastAttemptAt: null,
+    lastReadinessAt: null,
+    conflictCount: 0,
+    remoteProfileId: "",
+    endpointConfigured: false,
+    demoFirstRequired: true,
+    updatedAt: now,
+    ...overrides,
+  };
+}
+
+function normalizeSyncState(saved = {}) {
+  const base = createDefaultSyncState();
+  const status = ["not-configured", "demo-ready", "personal-blocked", "blocked"].includes(saved.status)
+    ? saved.status
+    : base.status;
+  return {
+    ...base,
+    ...saved,
+    provider: saved.provider || base.provider,
+    enabled: Boolean(saved.enabled),
+    status,
+    lastSyncAt: saved.lastSyncAt || null,
+    lastAttemptAt: saved.lastAttemptAt || null,
+    lastReadinessAt: saved.lastReadinessAt || null,
+    conflictCount: Number.isFinite(Number(saved.conflictCount)) ? Number(saved.conflictCount) : 0,
+    remoteProfileId: saved.remoteProfileId || "",
+    endpointConfigured: Boolean(saved.endpointConfigured),
+    demoFirstRequired: saved.demoFirstRequired !== false,
+    updatedAt: saved.updatedAt || base.updatedAt,
+  };
+}
+
 function loadFoundation() {
   try {
     const saved = getModeStorageValue(FOUNDATION_STORAGE_KEY);
@@ -1248,6 +1304,16 @@ function loadSecurity(modeName = accountMode) {
     };
   } catch {
     return structuredClone(defaultSecurity);
+  }
+}
+
+function loadSyncState() {
+  try {
+    const saved = getModeStorageValue(SYNC_STATE_STORAGE_KEY);
+    if (!saved) return createDefaultSyncState();
+    return normalizeSyncState(JSON.parse(saved));
+  } catch {
+    return createDefaultSyncState();
   }
 }
 
@@ -1471,6 +1537,11 @@ function saveJournal() {
 function saveSecurity() {
   securityState.updatedAt = new Date().toISOString();
   setModeStorageValue(SECURITY_STORAGE_KEY, JSON.stringify(securityState));
+}
+
+function saveSyncState() {
+  syncState.updatedAt = new Date().toISOString();
+  setModeStorageValue(SYNC_STATE_STORAGE_KEY, JSON.stringify(syncState));
 }
 
 function readSecuritySessionForMode(modeName = accountMode) {
@@ -1742,6 +1813,11 @@ function formatTime(value) {
     hour: "numeric",
     minute: "2-digit",
   }).format(new Date(value));
+}
+
+function formatDateTime(value, fallback = "Never") {
+  if (!value) return fallback;
+  return `${formatDate(value)}, ${formatTime(value)}`;
 }
 
 function getTaskById(id) {
@@ -5000,6 +5076,149 @@ function renderCareerProgressRow(roadmap) {
   `;
 }
 
+function getSyncStatusLabel() {
+  const labels = {
+    "not-configured": "Not configured",
+    "demo-ready": "Demo ready",
+    "personal-blocked": "Personal blocked",
+    blocked: "Blocked",
+  };
+  return labels[syncState.status] || "Not configured";
+}
+
+function getSyncTone() {
+  if (syncState.status === "demo-ready") return "green";
+  if (syncState.status === "personal-blocked" || syncState.status === "blocked") return "amber";
+  return "blue";
+}
+
+function getLatestProfileUpdatedAt() {
+  const candidates = [
+    state?.meta?.updatedAt,
+    careerState?.meta?.updatedAt,
+    taskState?.meta?.updatedAt,
+    journalState?.meta?.updatedAt,
+  ].filter(Boolean);
+  return candidates.sort().at(-1) || null;
+}
+
+function createSyncPayloadPreview() {
+  return {
+    app: "KRYOS",
+    appVersion: APP_VERSION,
+    syncSchemaVersion: 1,
+    accountMode,
+    profile: getModeLabel(),
+    generatedAt: new Date().toISOString(),
+    latestLocalUpdateAt: getLatestProfileUpdatedAt(),
+    blocks: {
+      foundation: {
+        storageKey: FOUNDATION_STORAGE_KEY,
+        updatedAt: state?.meta?.updatedAt || null,
+        value: state,
+      },
+      career: {
+        storageKey: CAREER_STORAGE_KEY,
+        updatedAt: careerState?.meta?.updatedAt || null,
+        value: careerState,
+      },
+      tasks: {
+        storageKey: TASKS_STORAGE_KEY,
+        updatedAt: taskState?.meta?.updatedAt || null,
+        value: taskState,
+      },
+      journal: {
+        storageKey: JOURNAL_STORAGE_KEY,
+        updatedAt: journalState?.meta?.updatedAt || null,
+        value: journalState,
+      },
+      uiState: {
+        storageKey: UI_STATE_STORAGE_KEY,
+        updatedAt: getCurrentUiState().updatedAt,
+        value: getCurrentUiState(),
+      },
+    },
+    excluded: {
+      storageKeys: SYNC_EXCLUDED_BLOCKS,
+      reason: "Phase 1 lock, recovery, session, and sync metadata stay local.",
+    },
+  };
+}
+
+function getSyncReadiness() {
+  const payload = createSyncPayloadPreview();
+  const safeStorageKeys = Object.values(payload.blocks).map((block) => block.storageKey);
+  const expectedSafeBlockCount = SYNC_SAFE_BLOCKS.length;
+  const securityExcluded = !safeStorageKeys.includes(SECURITY_STORAGE_KEY)
+    && !safeStorageKeys.includes(SECURITY_SESSION_KEY);
+  const checks = [
+    {
+      label: "Local profile data is grouped into syncable blocks",
+      detail: `${Object.keys(payload.blocks).length}/${expectedSafeBlockCount} safe blocks are available for a future remote write.`,
+      passed: SYNC_SAFE_BLOCKS.every((key) => safeStorageKeys.includes(key)),
+    },
+    {
+      label: "Security data is excluded",
+      detail: "PIN hash, recovery answers, and active lock sessions are not in the sync preview.",
+      passed: securityExcluded,
+    },
+    {
+      label: "Export/import remains available",
+      detail: "Backup remains the rollback path before any remote experiment.",
+      passed: typeof collectBackupData === "function" && typeof importBackupFile === "function",
+    },
+    {
+      label: "Demo profile is selected for first sync test",
+      detail: isDemoMode() ? "Safe showcase data is active." : "Open Demo with PIN 9619 before remote testing.",
+      passed: isDemoMode(),
+    },
+    {
+      label: "Supabase project is connected",
+      detail: "URL and anon key are not configured in this local build yet.",
+      passed: Boolean(syncState.endpointConfigured),
+    },
+  ];
+  const localReady = checks.slice(0, 4).every((check) => check.passed);
+  const remoteReady = checks.every((check) => check.passed);
+  const status = !isDemoMode() ? "personal-blocked" : remoteReady ? "demo-ready" : "not-configured";
+  const message = !isDemoMode()
+    ? "Personal sync is intentionally blocked. Open Demo first before any remote experiment."
+    : remoteReady
+      ? "Demo profile is ready for a real Supabase prototype."
+      : localReady
+        ? "Demo local readiness is good. Create the Supabase project before remote sync."
+        : "Sync readiness needs cleanup before a remote prototype.";
+  return { checks, localReady, remoteReady, status, message };
+}
+
+function runSyncReadinessCheck() {
+  const readiness = getSyncReadiness();
+  syncState = {
+    ...syncState,
+    status: readiness.status,
+    lastReadinessAt: new Date().toISOString(),
+    conflictCount: Math.max(0, Number(syncState.conflictCount) || 0),
+  };
+  syncNotice = readiness.message;
+  saveSyncState();
+  render();
+}
+
+function runSyncDryRun() {
+  const readiness = getSyncReadiness();
+  syncState = {
+    ...syncState,
+    status: readiness.status,
+    lastAttemptAt: new Date().toISOString(),
+    lastReadinessAt: new Date().toISOString(),
+  };
+  syncNotice = isDemoMode()
+    ? "Dry run completed locally. No remote data was sent."
+    : "Dry run blocked for Personal. Use Demo first.";
+  saveSyncState();
+  render();
+}
+
 function renderSettingsView() {
   settingsView.innerHTML = `
     <article class="settings-hero">
@@ -5019,6 +5238,7 @@ function renderSettingsView() {
 
     <div class="settings-layout">
       ${renderProductIdentityPanel()}
+      ${renderSyncSettingsPanel()}
 
       <section class="section-card">
         <div class="section-header">
@@ -5086,6 +5306,72 @@ function renderSettingsView() {
         </div>
       </section>
     </div>
+  `;
+}
+
+function renderSyncSettingsPanel() {
+  const readiness = getSyncReadiness();
+  const payload = createSyncPayloadPreview();
+  const safeBlockCount = Object.keys(payload.blocks).length;
+  return `
+    <section class="section-card sync-status-card">
+      <div class="section-header">
+        <div>
+          <p class="section-kicker">Sync foundation</p>
+          <h2>Cross-device readiness</h2>
+          <p class="principle-body">KRYOS stays local-first. Remote sync is blocked until Demo proves the path safely.</p>
+        </div>
+        <span class="space-badge sync-${readiness.status}">${getSyncStatusLabel()}</span>
+      </div>
+
+      ${syncNotice ? `<p class="security-notice inline">${escapeHtml(syncNotice)}</p>` : ""}
+
+      <div class="product-version-grid sync-version-grid">
+        ${metricTile("Provider", "Supabase", "Free prototype candidate", "blue")}
+        ${metricTile("Status", getSyncStatusLabel(), syncState.enabled ? "Remote enabled" : "Remote disabled", getSyncTone())}
+        ${metricTile("Profile", getModeLabel(), isDemoMode() ? "Allowed first" : "Protected", isDemoMode() ? "green" : "amber")}
+        ${metricTile("Last sync", formatDateTime(syncState.lastSyncAt), "No remote write yet", "blue")}
+        ${metricTile("Safe blocks", String(safeBlockCount), "Foundation, Career, Tasks, Journal, UI", "green")}
+      </div>
+
+      <div class="sync-readiness-layout">
+        <div class="sync-check-panel">
+          <div>
+            <p class="section-kicker">Readiness checks</p>
+            <h3>Before real sync</h3>
+          </div>
+          <ul class="sync-check-list">
+            ${readiness.checks.map((check) => `
+              <li class="${check.passed ? "passed" : "pending"}">
+                <span class="sync-check-token">${check.passed ? "OK" : "Hold"}</span>
+                <span>
+                  <strong>${escapeHtml(check.label)}</strong>
+                  <em>${escapeHtml(check.detail)}</em>
+                </span>
+              </li>
+            `).join("")}
+          </ul>
+        </div>
+
+        <div class="sync-boundary-panel">
+          <div>
+            <p class="section-kicker">Never synced in 0.003.x</p>
+            <h3>Privacy boundary</h3>
+          </div>
+          <p class="meta">PIN hash, recovery answers, active lock sessions, and local sync metadata stay on this device until a stronger security model exists.</p>
+          <div class="sync-meta-grid">
+            <span>Last readiness: <strong>${formatDateTime(syncState.lastReadinessAt)}</strong></span>
+            <span>Last dry run: <strong>${formatDateTime(syncState.lastAttemptAt)}</strong></span>
+            <span>Conflicts: <strong>${syncState.conflictCount}</strong></span>
+          </div>
+          <div class="sync-actions">
+            <button class="primary-button" type="button" data-sync-action="readiness-check">Run readiness check</button>
+            <button class="secondary-button" type="button" data-sync-action="dry-run">Dry run locally</button>
+            <button class="secondary-button" type="button" disabled title="Needs Supabase project URL and anon key">Connect Supabase</button>
+          </div>
+        </div>
+      </div>
+    </section>
   `;
 }
 
@@ -5207,6 +5493,7 @@ function collectBackupData() {
       [TASKS_STORAGE_KEY]: taskState,
       [JOURNAL_STORAGE_KEY]: journalState,
       [SECURITY_STORAGE_KEY]: securityState,
+      [SYNC_STATE_STORAGE_KEY]: syncState,
       [UI_STATE_STORAGE_KEY]: getCurrentUiState(),
     },
   };
@@ -6672,6 +6959,17 @@ document.addEventListener("click", async (event) => {
     }
     if (settingsAction.dataset.settingsAction === "reset-app") {
       resetAppData();
+    }
+    return;
+  }
+
+  const syncAction = target.closest("[data-sync-action]");
+  if (syncAction) {
+    if (syncAction.dataset.syncAction === "readiness-check") {
+      runSyncReadinessCheck();
+    }
+    if (syncAction.dataset.syncAction === "dry-run") {
+      runSyncDryRun();
     }
     return;
   }

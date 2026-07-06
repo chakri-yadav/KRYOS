@@ -2,6 +2,37 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.003.000 - Free Sync Foundation
+
+Date: 2026-07-06
+
+### Added
+
+- Settings sync readiness panel with status, safe blocks, local checks, dry run, and disabled Supabase connection action.
+- Profile-aware sync state in local storage.
+- Sync payload preview that includes safe data blocks only.
+- Supabase schema documentation.
+- Sync auth model documentation.
+- Sync conflict behavior documentation.
+
+### Changed
+
+- Version identity moved to `0.003.000`.
+- Sync plan now separates completed foundation work from unproven remote sync.
+- Supabase backend ADR is accepted for prototype, not public production.
+
+### Verification
+
+- `app.js` syntax check passed.
+- Static review confirmed the sync preview excludes security/session storage keys.
+- Browser smoke check confirmed Settings sync panel renders on desktop and narrow mobile width without horizontal overflow.
+
+### Known Limitations
+
+- Supabase is not connected yet.
+- Demo profile has not completed phone/laptop round-trip sync.
+- Personal sync remains intentionally blocked.
+
 ## 0.002.002 - Manual QA Hardening
 
 Date: 2026-07-06
