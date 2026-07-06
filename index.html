@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KRYOS</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Primary navigation">
+        <div class="brand">
+          <div class="brand-mark">K</div>
+          <div>
+            <p class="brand-title">KRYOS</p>
+            <p class="brand-subtitle">Inner alignment</p>
+          </div>
+        </div>
+
+        <nav class="nav-list">
+          <button class="nav-item is-active" type="button" data-page="foundation">Foundation</button>
+          <button class="nav-item" type="button" data-page="career">Career</button>
+          <button class="nav-item" type="button" data-page="today">Today</button>
+          <button class="nav-item" type="button" data-page="habits">Habits</button>
+          <button class="nav-item" type="button" data-page="journal">Journal</button>
+          <button class="nav-item" type="button" data-page="progress">Progress</button>
+          <button class="nav-item" type="button" data-page="settings">Settings</button>
+        </nav>
+      </aside>
+
+      <main class="main" id="app">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Foundation</p>
+            <h1>Why I Started</h1>
+          </div>
+          <div class="topbar-actions">
+            <button class="secondary-button top-lock-button" type="button" data-security-action="manual-lock">Lock</button>
+            <div class="mode-switch" aria-label="View mode">
+              <button class="mode-button is-active" type="button" data-mode="read">Read</button>
+              <button class="mode-button" type="button" data-mode="edit">Edit</button>
+            </div>
+          </div>
+        </header>
+
+        <section id="read-view" class="view"></section>
+        <section id="edit-view" class="view is-hidden"></section>
+        <section id="career-view" class="view is-hidden"></section>
+        <section id="today-view" class="view is-hidden"></section>
+        <section id="habits-view" class="view is-hidden"></section>
+        <section id="journal-view" class="view is-hidden"></section>
+        <section id="progress-view" class="view is-hidden"></section>
+        <section id="settings-view" class="view is-hidden"></section>
+        <section id="field-view" class="mobile-field-view"></section>
+      </main>
+    </div>
+
+    <nav class="mobile-nav" aria-label="Mobile navigation">
+      <button class="mobile-nav-item is-active" type="button" data-field-tab="today">Today</button>
+      <button class="mobile-nav-item" type="button" data-field-tab="add">Add</button>
+      <button class="mobile-nav-item" type="button" data-field-tab="habits">Habits</button>
+      <button class="mobile-nav-item" type="button" data-field-tab="pulse">Pulse</button>
+    </nav>
+
+    <section id="security-overlay" class="security-overlay is-hidden" aria-live="polite"></section>
+
+    <script src="app.js"></script>
+  </body>
+</html>
