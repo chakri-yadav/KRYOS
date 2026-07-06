@@ -8,7 +8,7 @@ No sync until local data is stable.
 
 ## Candidate Backend
 
-Supabase Free is the first candidate because it offers:
+Supabase Free is the first prototype candidate because it offers:
 
 - free tier
 - authentication
@@ -21,14 +21,20 @@ Supabase Free is the first candidate because it offers:
 Start simple:
 
 - one user
+- separate Personal and Demo profile records
 - block-level JSON sync
-- foundation block
-- career block
-- tasks block
-- journal block
-- settings metadata
+- Foundation block
+- Career block
+- Tasks and habits block
+- Journal block
+- safe settings metadata
 
 Do not normalize everything at first unless a real need appears.
+
+## Current Decisions
+
+- Sync boundary: `docs/decisions/ADR-0005-sync-boundary.md`
+- Backend candidate: `docs/decisions/ADR-0006-free-backend-choice.md`
 
 ## Sync Status UI
 
@@ -52,4 +58,4 @@ Future Settings should show:
 - backup/restore confidence
 - local data audit
 - documented sync schema
-
+- rollback plan before enabling sync
