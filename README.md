@@ -6,8 +6,8 @@ It is not a generic todo app. KRYOS is designed to help one person keep life, wo
 
 ## Current Status
 
-- Version: `0.002.001`
-- Stage: Profile Login Correction
+- Version: `0.002.002`
+- Stage: Manual QA Hardening
 - Audience: personal daily use plus safe demo/interview showcase
 - App type: local-first browser application
 - Sync status: not enabled yet
@@ -31,6 +31,7 @@ KRYOS should answer three questions every day:
 - Progress: read-only analytics from the other areas.
 - Settings: privacy, lock behavior, export, import, and reset.
 - Field Mode: mobile quick capture and checkoff.
+- Demo Walkthrough: safe script for showing KRYOS without personal data.
 
 ## Product Rules
 

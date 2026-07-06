@@ -2,6 +2,35 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.002.002 - Manual QA Hardening
+
+Date: 2026-07-06
+
+### Added
+
+- Active profile badge in the desktop topbar.
+- Active profile identity in Settings product identity.
+- Demo walkthrough script for safe product sharing.
+- Sync boundary ADR.
+- Free backend choice ADR.
+
+### Changed
+
+- Version identity moved to `0.002.002`.
+- Product roadmap and backlog now reflect completed GitHub setup and manual QA hardening.
+- Sync plan now references accepted/planned architecture decisions before implementation.
+
+### Verification
+
+- Real-file Personal/Demo profile QA was manually confirmed by the product owner.
+- `app.js` syntax check passed.
+- Browser-isolated profile QA from `0.002.001` remains valid.
+
+### Known Limitations
+
+- Sync is not implemented.
+- GitHub milestones exist, but GitHub Projects board automation is not configured.
+
 ## 0.002.001 - Profile Login Correction
 
 Date: 2026-07-06

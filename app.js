@@ -10,18 +10,18 @@ const ACCOUNT_MODES = ["personal", "demo"];
 const DEMO_STORAGE_PREFIX = "kryos-demo";
 const DEMO_PROFILE_PIN = "9619";
 const KRYOS_BACKUP_VERSION = 3;
-const APP_VERSION = "0.002.001";
-const APP_STAGE = "Profile Login Correction";
+const APP_VERSION = "0.002.002";
+const APP_STAGE = "Manual QA Hardening";
 const APP_RELEASE_DATE = "2026-07-06";
-const APP_STATUS = "Personal and demo profiles use separate credentials";
-const APP_NEXT_MILESTONE = "0.002.002 Manual QA Hardening";
+const APP_STATUS = "Profile login verified and product-control backlog active";
+const APP_NEXT_MILESTONE = "0.003.000 Free Sync Foundation";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
-  "Demo access now happens from the lock screen with the fixed demo PIN.",
-  "The Settings Personal/Demo switch has been removed from the product UI.",
-  "Personal credentials open Personal; demo PIN opens the safe showcase profile.",
-  "Demo sample data is created automatically and stays separate from Personal data.",
-  "Backup, import, reset, lock session, and UI state still apply to the active profile only.",
+  "Real-file Personal/Demo login QA is completed and tracked in GitHub.",
+  "A visible active-profile badge now appears in the topbar and Settings identity panel.",
+  "Demo profile remains unmistakable without adding an in-app profile switch.",
+  "Sync architecture and backend decisions are documented before implementation.",
+  "Demo walkthrough documentation is available for safe product sharing.",
 ];
 const DATA_STORAGE_KEYS = [
   FOUNDATION_STORAGE_KEY,
@@ -505,6 +505,7 @@ const fieldButtons = document.querySelectorAll("[data-field-tab]");
 const modeSwitch = document.querySelector(".mode-switch");
 const topbarEyebrow = document.querySelector(".topbar .eyebrow");
 const topbarTitle = document.querySelector(".topbar h1");
+const activeProfileBadge = document.querySelector("[data-profile-badge]");
 const appShell = document.querySelector(".app-shell");
 const mobileNav = document.querySelector(".mobile-nav");
 
@@ -2244,6 +2245,11 @@ function render() {
   saveUiState();
   document.body.classList.toggle("demo-mode", isDemoMode());
   appShell?.classList.toggle("is-demo-mode", isDemoMode());
+  if (activeProfileBadge) {
+    activeProfileBadge.textContent = getModeLabel();
+    activeProfileBadge.classList.toggle("demo", isDemoMode());
+    activeProfileBadge.classList.toggle("personal", !isDemoMode());
+  }
   const pageCopy = {
     foundation: ["Foundation", "Why I Started"],
     career: ["Execution", "Career Roadmaps"],
@@ -5096,12 +5102,14 @@ function renderProductIdentityPanel() {
           <span>Version</span>
           <strong>${escapeHtml(APP_VERSION)}</strong>
         </div>
+        <span class="space-badge ${isDemoMode() ? "demo" : "personal"}">${getModeLabel()} Profile</span>
       </div>
 
       <div class="product-version-grid">
         ${metricTile("Stage", APP_STAGE, "Current release line", "signal")}
         ${metricTile("Released", formatDateKey(APP_RELEASE_DATE), "Private build date", "blue")}
         ${metricTile("Backup", `v${KRYOS_BACKUP_VERSION}`, "Export format", "green")}
+        ${metricTile("Profile", getModeLabel(), isDemoMode() ? "Showcase data" : "Private data", isDemoMode() ? "amber" : "green")}
         ${metricTile("Next", APP_NEXT_MILESTONE, "Planned milestone", "amber")}
       </div>
 

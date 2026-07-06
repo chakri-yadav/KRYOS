@@ -9,14 +9,14 @@ major.minor.patch
 Current version:
 
 ```text
-0.002.001
+0.002.002
 ```
 
 ## Meaning
 
 - `0`: private pre-public era.
 - `002`: personal/demo separation line.
-- `001`: correction from in-app mode switch to credential-based profile login.
+- `002`: manual QA hardening, active profile polish, and sync planning decisions.
 
 ## Version Bands
 
