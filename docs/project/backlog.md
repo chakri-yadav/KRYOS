@@ -50,12 +50,25 @@ Target: `0.002.002`
 - Architecture: sync boundary ADR. Done in `0.002.002`.
 - Architecture: free backend choice ADR. Done in `0.002.002`.
 
-## Epic: Free Sync Planning
+## Done: Free Sync Foundation
 
 Target: `0.003.000`
 
-- Architecture: define Supabase sync schema.
-- Security: define what must not sync.
-- Feature: add last synced status.
-- Feature: add manual sync trigger.
-- QA: test phone/laptop sync with demo data first.
+- Architecture: define Supabase sync schema. Done in `0.003.000`.
+- Security: define what must not sync. Done in `0.003.000`.
+- Architecture: define sync auth model. Done in `0.003.000`.
+- Architecture: define conflict behavior. Done in `0.003.000`.
+- Feature: add sync readiness status. Done in `0.003.000`.
+- Feature: add local dry-run trigger. Done in `0.003.000`.
+
+## Epic: Demo Sync Prototype
+
+Target: `0.003.001`
+
+- Task: create Supabase Free project.
+- Task: apply schema and RLS policies.
+- Task: add environment/config loading for Supabase URL and anon key.
+- Feature: write Demo profile blocks to Supabase.
+- Feature: read Demo profile blocks from Supabase.
+- QA: test phone/laptop sync with Demo data first.
+- Guardrail: Personal sync stays blocked until Demo round trip is proven.

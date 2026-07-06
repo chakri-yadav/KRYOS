@@ -6,11 +6,11 @@ It is not a generic todo app. KRYOS is designed to help one person keep life, wo
 
 ## Current Status
 
-- Version: `0.002.002`
-- Stage: Manual QA Hardening
+- Version: `0.003.000`
+- Stage: Free Sync Foundation
 - Audience: personal daily use plus safe demo/interview showcase
 - App type: local-first browser application
-- Sync status: not enabled yet
+- Sync status: readiness UI only, not connected yet
 - Backend status: not enabled yet
 
 ## Product Promise
@@ -41,7 +41,7 @@ KRYOS should answer three questions every day:
 - Career roadmaps are visual by default and editable only through a deliberate editor.
 - Personal data and demo data must stay separated.
 - Demo profile opens from login credentials, not from an in-app switch.
-- Sync comes after local trust.
+- Sync comes after local trust and starts with Demo only.
 
 ## Documentation Map
 

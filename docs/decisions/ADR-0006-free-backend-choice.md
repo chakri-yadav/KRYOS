@@ -4,7 +4,7 @@ Date: 2026-07-06
 
 ## Status
 
-Proposed. Build is blocked until manual QA hardening is complete.
+Accepted for prototype. Remote sync remains blocked until a Supabase project, schema, RLS policies, and Demo-only round-trip test exist.
 
 ## Context
 
@@ -89,5 +89,8 @@ The prototype should store each major KRYOS block as profile-scoped JSON first. 
 - real-file Personal/Demo QA completed
 - backup/export still works
 - sync boundary ADR accepted
-- rollback process documented
-- one small prototype branch planned
+- schema documented in `docs/architecture/supabase-schema.md`
+- auth model documented in `docs/architecture/sync-auth-model.md`
+- conflict behavior documented in `docs/architecture/sync-conflicts.md`
+- rollback process documented before Personal sync
+- one small Demo-only prototype planned

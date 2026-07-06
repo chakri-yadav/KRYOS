@@ -1,6 +1,6 @@
 # Sync Plan
 
-Sync is planned but intentionally deferred.
+Sync is in foundation stage. KRYOS has architecture docs and a Settings readiness surface, but remote sync is not connected yet.
 
 ## CEO Rule
 
@@ -35,15 +35,22 @@ Do not normalize everything at first unless a real need appears.
 
 - Sync boundary: `docs/decisions/ADR-0005-sync-boundary.md`
 - Backend candidate: `docs/decisions/ADR-0006-free-backend-choice.md`
+- Supabase schema: `docs/architecture/supabase-schema.md`
+- Sync auth model: `docs/architecture/sync-auth-model.md`
+- Conflict behavior: `docs/architecture/sync-conflicts.md`
 
 ## Sync Status UI
 
-Future Settings should show:
+Settings now shows:
 
 - last synced
 - sync enabled or disabled
 - current account
 - conflict warning if needed
+- local readiness checks
+- Demo-first safety rule
+
+The Supabase connection button stays disabled until a project URL, anon key, RLS policies, and Demo test plan are ready.
 
 ## Risks
 
@@ -54,8 +61,20 @@ Future Settings should show:
 
 ## Required Before Build
 
-- personal/demo separation
-- backup/restore confidence
-- local data audit
-- documented sync schema
-- rollback plan before enabling sync
+- personal/demo separation: done
+- backup/restore confidence: done locally, keep validating
+- local data audit: in progress
+- documented sync schema: done in `0.003.000`
+- auth boundary: done in `0.003.000`
+- conflict rule: done in `0.003.000`
+- rollback plan before enabling sync: required before Personal sync
+
+## Next Build Gate
+
+Do not connect Supabase until:
+
+- a free Supabase project exists
+- `kryos_profiles`, `kryos_sync_blocks`, and `kryos_sync_conflicts` are created
+- RLS policies are reviewed
+- Demo account/profile is created
+- Demo can dry-run and then round-trip between laptop and phone
