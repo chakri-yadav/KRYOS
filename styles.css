@@ -2995,6 +2995,7 @@ h3 {
 }
 
 .space-badge.sync-not-configured,
+.space-badge.sync-signed-out,
 .space-badge.sync-blocked {
   border-color: rgba(37, 99, 235, 0.22);
   background: var(--blue-soft);
@@ -3007,10 +3008,17 @@ h3 {
   color: #92400e;
 }
 
-.space-badge.sync-demo-ready {
+.space-badge.sync-demo-ready,
+.space-badge.sync-connected {
   border-color: rgba(4, 120, 87, 0.22);
   background: var(--signal-soft);
   color: var(--signal-deep);
+}
+
+.space-badge.sync-sync-error {
+  border-color: rgba(220, 38, 38, 0.22);
+  background: var(--red-soft);
+  color: var(--red);
 }
 
 .sync-status-card {
@@ -3118,6 +3126,17 @@ h3 {
   background: var(--surface);
   color: var(--muted);
   font-size: 13px;
+}
+
+.sync-auth-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.sync-auth-grid .field {
+  min-width: 0;
 }
 
 .sync-meta-grid strong {
@@ -3552,6 +3571,7 @@ body.privacy-mode .career-detail:hover {
   .task-edit-grid,
   .why-grid,
   .sync-readiness-layout,
+  .sync-auth-grid,
   .edit-layout,
   .form-grid.two {
     grid-template-columns: 1fr;

@@ -2,6 +2,23 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.003.001 - Manual Supabase Sync
+
+Date: 2026-07-07
+
+### Added
+
+- Supabase project URL and publishable key configuration.
+- Settings email magic-link sign-in.
+- Manual push from this device to Supabase.
+- Manual pull from Supabase to this device.
+- SQL schema file for one-time Supabase setup.
+
+### Known Limitations
+
+- You must paste `supabase-schema.sql` into Supabase SQL Editor before sync works.
+- First sync is manual push/pull, not automatic realtime sync.
+
 ## 0.003.000 - Free Sync Foundation
 
 Date: 2026-07-06
