@@ -5242,6 +5242,7 @@ async function ensureSupabaseProfile(session) {
   const { data: created, error: insertError } = await client
     .from("kryos_profiles")
     .insert({
+      user_id: session.user.id,
       profile_type: profileType,
       display_name: displayName,
     })
@@ -5262,8 +5263,11 @@ function getSyncErrorMessage(error) {
   if (/relation .* does not exist/i.test(message) || /schema cache/i.test(message)) {
     return `${message} Run supabase-schema.sql in Supabase SQL Editor first.`;
   }
+  if (/permission denied for table/i.test(message)) {
+    return `${message} Rerun the updated supabase-schema.sql so the authenticated role gets table grants.`;
+  }
   if (/row-level security/i.test(message) || /permission denied/i.test(message)) {
-    return `${message} Check that the SQL policies were created.`;
+    return `${message} Check that the SQL policies and grants were created.`;
   }
   if (/invalid login credentials/i.test(message)) {
     return "Invalid Supabase email or password. Use Create account first, or enter the password you used.";

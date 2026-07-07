@@ -26,6 +26,10 @@ create table if not exists public.kryos_sync_blocks (
 create index if not exists kryos_profiles_user_id_idx on public.kryos_profiles(user_id);
 create index if not exists kryos_sync_blocks_profile_id_idx on public.kryos_sync_blocks(profile_id);
 
+grant usage on schema public to anon, authenticated;
+grant select, insert, update, delete on public.kryos_profiles to authenticated;
+grant select, insert, update, delete on public.kryos_sync_blocks to authenticated;
+
 alter table public.kryos_profiles enable row level security;
 alter table public.kryos_sync_blocks enable row level security;
 
