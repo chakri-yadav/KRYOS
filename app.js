@@ -22,7 +22,7 @@ const APP_NEXT_MILESTONE = "0.003.002 Sync QA";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
   "Supabase project configuration is now wired into KRYOS.",
-  "Settings can send a sign-in link, push this device to cloud, and pull cloud data back.",
+  "Settings can sign in with email and password, push this device to cloud, and pull cloud data back.",
   "Personal and Demo are stored as separate cloud profiles.",
   "Manual push/pull keeps the first sync version simple.",
   "Use export backup before the first Personal cloud push.",
@@ -5251,10 +5251,35 @@ async function ensureSupabaseProfile(session) {
   return created.id;
 }
 
-async function sendSupabaseSignInLink() {
+function getSyncCredentials() {
   const email = getFormValue("sync-email");
+  const password = getFormValue("sync-password");
+  return { email, password };
+}
+
+function getSyncErrorMessage(error) {
+  const message = error?.message || "Unknown Supabase error.";
+  if (/relation .* does not exist/i.test(message) || /schema cache/i.test(message)) {
+    return `${message} Run supabase-schema.sql in Supabase SQL Editor first.`;
+  }
+  if (/row-level security/i.test(message) || /permission denied/i.test(message)) {
+    return `${message} Check that the SQL policies were created.`;
+  }
+  if (/invalid login credentials/i.test(message)) {
+    return "Invalid Supabase email or password. Use Create account first, or enter the password you used.";
+  }
+  return message;
+}
+
+async function createSupabaseAccount() {
+  const { email, password } = getSyncCredentials();
   if (!email || !email.includes("@")) {
-    syncNotice = "Enter your email before sending the Supabase sign-in link.";
+    syncNotice = "Enter your email before creating the Supabase sync account.";
+    render();
+    return;
+  }
+  if (!password || password.length < 6) {
+    syncNotice = "Use a Supabase sync password with at least 6 characters.";
     render();
     return;
   }
@@ -5264,17 +5289,48 @@ async function sendSupabaseSignInLink() {
     render();
     return;
   }
-  const { error } = await client.auth.signInWithOtp({
+  const { data, error } = await client.auth.signUp({
     email,
+    password,
     options: { emailRedirectTo: window.location.href.split("#")[0] },
   });
   if (error) {
-    syncNotice = `Sign-in link failed: ${error.message}`;
+    syncNotice = `Account creation failed: ${getSyncErrorMessage(error)}`;
     syncState.status = "sync-error";
   } else {
-    syncNotice = `Sign-in link sent to ${email}. Open it, then return to KRYOS.`;
+    syncNotice = data.session
+      ? `Signed in as ${email}.`
+      : `Account created for ${email}. If Supabase asks for email confirmation, confirm it once, then sign in here.`;
     syncState.userEmail = email;
-    syncState.status = "signed-out";
+    syncState.userId = data.session?.user?.id || "";
+    syncState.status = data.session ? "connected" : "signed-out";
+  }
+  saveSyncState();
+  render();
+}
+
+async function signInSupabaseWithPassword() {
+  const { email, password } = getSyncCredentials();
+  if (!email || !email.includes("@") || !password) {
+    syncNotice = "Enter Supabase email and password before signing in.";
+    render();
+    return;
+  }
+  const client = getSupabaseClient();
+  if (!client) {
+    syncNotice = "Supabase library did not load. Check your internet connection and reload.";
+    render();
+    return;
+  }
+  const { data, error } = await client.auth.signInWithPassword({ email, password });
+  if (error) {
+    syncNotice = `Sign in failed: ${getSyncErrorMessage(error)}`;
+    syncState.status = "sync-error";
+  } else {
+    syncNotice = `Signed in as ${email}.`;
+    syncState.userEmail = email;
+    syncState.userId = data.session?.user?.id || "";
+    syncState.status = "connected";
   }
   saveSyncState();
   render();
@@ -5330,7 +5386,7 @@ async function pushToSupabase() {
   } catch (error) {
     syncState.status = "sync-error";
     syncState.lastAttemptAt = new Date().toISOString();
-    syncNotice = `Cloud push failed: ${error.message || "Check Supabase schema and RLS."}`;
+    syncNotice = `Cloud push failed: ${getSyncErrorMessage(error)}`;
     saveSyncState();
     render();
   }
@@ -5380,7 +5436,7 @@ async function pullFromSupabase() {
   } catch (error) {
     syncState.status = "sync-error";
     syncState.lastAttemptAt = new Date().toISOString();
-    syncNotice = `Cloud pull failed: ${error.message || "Check Supabase schema and RLS."}`;
+    syncNotice = `Cloud pull failed: ${getSyncErrorMessage(error)}`;
     saveSyncState();
     render();
   }
@@ -5415,7 +5471,7 @@ function getSyncReadiness() {
     },
     {
       label: "Supabase account is signed in",
-      detail: syncState.userEmail ? `Using ${syncState.userEmail}.` : "Send the sign-in link, open it, then return.",
+      detail: syncState.userEmail ? `Using ${syncState.userEmail}.` : "Create or sign in with email and password.",
       passed: syncState.status === "connected" && Boolean(syncState.userId),
     },
   ];
@@ -5568,7 +5624,7 @@ function renderSyncSettingsPanel() {
 
       <div class="product-version-grid sync-version-grid">
         ${metricTile("Provider", "Supabase", "Free prototype candidate", "blue")}
-        ${metricTile("Status", getSyncStatusLabel(), signedIn ? "Signed in" : "Needs email link", getSyncTone())}
+        ${metricTile("Status", getSyncStatusLabel(), signedIn ? "Signed in" : "Needs login", getSyncTone())}
         ${metricTile("Profile", getModeLabel(), "Cloud profile scope", isDemoMode() ? "amber" : "green")}
         ${metricTile("Last sync", formatDateTime(syncState.lastSyncAt), "Manual push or pull", "blue")}
         ${metricTile("Cloud blocks", String(safeBlockCount), "Foundation, Career, Tasks, Journal, Security, UI", "green")}
@@ -5604,7 +5660,12 @@ function renderSyncSettingsPanel() {
               <label class="field-label" for="sync-email">Supabase email</label>
               <input id="sync-email" type="email" autocomplete="email" value="${escapeHtml(syncState.userEmail || "")}" placeholder="your@email.com" />
             </div>
-            <button class="secondary-button" type="button" data-sync-action="send-link">Send sign-in link</button>
+            <div class="field">
+              <label class="field-label" for="sync-password">Supabase password</label>
+              <input id="sync-password" type="password" autocomplete="current-password" placeholder="Minimum 6 characters" />
+            </div>
+            <button class="secondary-button" type="button" data-sync-action="create-account">Create account</button>
+            <button class="primary-button" type="button" data-sync-action="sign-in">Sign in</button>
             <button class="secondary-button" type="button" ${signedIn ? "" : "disabled"} data-sync-action="sign-out">Sign out</button>
           </div>
           <div class="sync-meta-grid">
@@ -7220,8 +7281,11 @@ document.addEventListener("click", async (event) => {
     if (syncAction.dataset.syncAction === "dry-run") {
       runSyncDryRun();
     }
-    if (syncAction.dataset.syncAction === "send-link") {
-      await sendSupabaseSignInLink();
+    if (syncAction.dataset.syncAction === "create-account") {
+      await createSupabaseAccount();
+    }
+    if (syncAction.dataset.syncAction === "sign-in") {
+      await signInSupabaseWithPassword();
     }
     if (syncAction.dataset.syncAction === "sign-out") {
       await signOutSupabase();
