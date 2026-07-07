@@ -9,7 +9,7 @@ Date: 2026-07-07
 ### Added
 
 - Supabase project URL and publishable key configuration.
-- Settings email magic-link sign-in.
+- Settings email/password Supabase sign-in.
 - Manual push from this device to Supabase.
 - Manual pull from Supabase to this device.
 - SQL schema file for one-time Supabase setup.
