@@ -5268,6 +5268,12 @@ function getSyncErrorMessage(error) {
   if (/invalid login credentials/i.test(message)) {
     return "Invalid Supabase email or password. Use Create account first, or enter the password you used.";
   }
+  if (/email not confirmed/i.test(message) || /confirm/i.test(message)) {
+    return "Email is not confirmed yet. Open the Supabase confirmation email, or click Resend confirmation. Fastest: in Supabase Auth settings, turn off Confirm email for this private app.";
+  }
+  if (/signup disabled/i.test(message)) {
+    return "Supabase signups are disabled. Enable Email signup in Supabase Auth settings.";
+  }
   return message;
 }
 
@@ -5331,6 +5337,36 @@ async function signInSupabaseWithPassword() {
     syncState.userEmail = email;
     syncState.userId = data.session?.user?.id || "";
     syncState.status = "connected";
+  }
+  saveSyncState();
+  render();
+}
+
+async function resendSupabaseConfirmation() {
+  const email = getFormValue("sync-email");
+  if (!email || !email.includes("@")) {
+    syncNotice = "Enter your email before resending confirmation.";
+    render();
+    return;
+  }
+  const client = getSupabaseClient();
+  if (!client) {
+    syncNotice = "Supabase library did not load. Check your internet connection and reload.";
+    render();
+    return;
+  }
+  const { error } = await client.auth.resend({
+    type: "signup",
+    email,
+    options: { emailRedirectTo: window.location.href.split("#")[0] },
+  });
+  if (error) {
+    syncNotice = `Confirmation resend failed: ${getSyncErrorMessage(error)}`;
+    syncState.status = "sync-error";
+  } else {
+    syncNotice = `Confirmation email sent to ${email}. Confirm it once, then sign in.`;
+    syncState.userEmail = email;
+    syncState.status = "signed-out";
   }
   saveSyncState();
   render();
@@ -5630,7 +5666,7 @@ function renderSyncSettingsPanel() {
           <div class="sync-step-body">
             <p class="section-kicker">Account</p>
             <h3>Sign in once</h3>
-            <p class="meta">Use the same Supabase email and password on laptop and phone.</p>
+            <p class="meta">Use the same Supabase email and password on laptop and phone. If sign-in says email not confirmed, confirm the email once or disable Confirm email in Supabase Auth settings.</p>
             <div class="sync-auth-grid">
               <div class="field">
                 <label class="field-label" for="sync-email">Email</label>
@@ -5643,6 +5679,7 @@ function renderSyncSettingsPanel() {
               <div class="sync-button-row">
                 <button class="secondary-button" type="button" data-sync-action="create-account">Create account</button>
                 <button class="primary-button" type="button" data-sync-action="sign-in">Sign in</button>
+                <button class="secondary-button" type="button" data-sync-action="resend-confirmation">Resend confirmation</button>
                 <button class="secondary-button" type="button" ${signedIn ? "" : "disabled"} data-sync-action="sign-out">Sign out</button>
               </div>
             </div>
@@ -7301,6 +7338,9 @@ document.addEventListener("click", async (event) => {
     }
     if (syncAction.dataset.syncAction === "sign-in") {
       await signInSupabaseWithPassword();
+    }
+    if (syncAction.dataset.syncAction === "resend-confirmation") {
+      await resendSupabaseConfirmation();
     }
     if (syncAction.dataset.syncAction === "sign-out") {
       await signOutSupabase();
