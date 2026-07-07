@@ -53,7 +53,7 @@ const SYNC_BLOCKS = [
   { key: "tasks", storageKey: TASKS_STORAGE_KEY },
   { key: "journal", storageKey: JOURNAL_STORAGE_KEY },
   { key: "security", storageKey: SECURITY_STORAGE_KEY },
-  { key: "ui_state", storageKey: UI_STATE_STORAGE_KEY },
+  { key: "ui_state", payloadKey: "uiState", storageKey: UI_STATE_STORAGE_KEY },
 ];
 
 const TASK_DOMAINS = [
@@ -5215,8 +5215,9 @@ function createSyncPayloadPreview() {
 function getSyncBlockPayloads() {
   const payload = createSyncPayloadPreview();
   return SYNC_BLOCKS.map((block) => {
-    const value = payload.blocks[block.key]?.value;
-    const updatedAt = payload.blocks[block.key]?.updatedAt || getLatestProfileUpdatedAt() || new Date().toISOString();
+    const payloadKey = block.payloadKey || block.key;
+    const value = payload.blocks[payloadKey]?.value ?? {};
+    const updatedAt = payload.blocks[payloadKey]?.updatedAt || getLatestProfileUpdatedAt() || new Date().toISOString();
     return {
       block_key: block.key,
       schema_version: KRYOS_SYNC_SCHEMA_VERSION,
