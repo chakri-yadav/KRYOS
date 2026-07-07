@@ -10,19 +10,22 @@ const ACCOUNT_MODE_STORAGE_KEY = "kryos-account-mode-v1";
 const ACCOUNT_MODES = ["personal", "demo"];
 const DEMO_STORAGE_PREFIX = "kryos-demo";
 const DEMO_PROFILE_PIN = "9619";
+const SUPABASE_URL = "https://ogpkaxprhjhrewoxsyla.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
+const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
-const APP_VERSION = "0.003.000";
-const APP_STAGE = "Free Sync Foundation";
+const APP_VERSION = "0.003.001";
+const APP_STAGE = "Manual Supabase Sync";
 const APP_RELEASE_DATE = "2026-07-06";
-const APP_STATUS = "Local-first sync architecture is defined and readiness checks are visible";
-const APP_NEXT_MILESTONE = "0.003.001 Demo Sync Prototype";
+const APP_STATUS = "Manual Supabase sync is wired for laptop and phone continuity";
+const APP_NEXT_MILESTONE = "0.003.002 Sync QA";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
-  "Settings now shows a local-first sync readiness panel without enabling remote sync.",
-  "Supabase schema, auth, and conflict rules are documented before credentials are added.",
-  "Demo profile is the required first target for sync testing.",
-  "Security secrets, recovery answers, and active sessions remain outside the sync payload.",
-  "Personal cloud sync stays blocked until Demo sync proves the path.",
+  "Supabase project configuration is now wired into KRYOS.",
+  "Settings can send a sign-in link, push this device to cloud, and pull cloud data back.",
+  "Personal and Demo are stored as separate cloud profiles.",
+  "Manual push/pull keeps the first sync version simple.",
+  "Use export backup before the first Personal cloud push.",
 ];
 const DATA_STORAGE_KEYS = [
   FOUNDATION_STORAGE_KEY,
@@ -37,12 +40,20 @@ const SYNC_SAFE_BLOCKS = [
   CAREER_STORAGE_KEY,
   TASKS_STORAGE_KEY,
   JOURNAL_STORAGE_KEY,
+  SECURITY_STORAGE_KEY,
   UI_STATE_STORAGE_KEY,
 ];
 const SYNC_EXCLUDED_BLOCKS = [
-  SECURITY_STORAGE_KEY,
   SECURITY_SESSION_KEY,
   SYNC_STATE_STORAGE_KEY,
+];
+const SYNC_BLOCKS = [
+  { key: "foundation", storageKey: FOUNDATION_STORAGE_KEY },
+  { key: "career", storageKey: CAREER_STORAGE_KEY },
+  { key: "tasks", storageKey: TASKS_STORAGE_KEY },
+  { key: "journal", storageKey: JOURNAL_STORAGE_KEY },
+  { key: "security", storageKey: SECURITY_STORAGE_KEY },
+  { key: "ui_state", storageKey: UI_STATE_STORAGE_KEY },
 ];
 
 const TASK_DOMAINS = [
@@ -1188,6 +1199,9 @@ function createDefaultSyncState(overrides = {}) {
     conflictCount: 0,
     remoteProfileId: "",
     endpointConfigured: false,
+    userEmail: "",
+    userId: "",
+    authCheckedAt: null,
     demoFirstRequired: true,
     updatedAt: now,
     ...overrides,
@@ -1211,6 +1225,9 @@ function normalizeSyncState(saved = {}) {
     conflictCount: Number.isFinite(Number(saved.conflictCount)) ? Number(saved.conflictCount) : 0,
     remoteProfileId: saved.remoteProfileId || "",
     endpointConfigured: Boolean(saved.endpointConfigured),
+    userEmail: saved.userEmail || "",
+    userId: saved.userId || "",
+    authCheckedAt: saved.authCheckedAt || null,
     demoFirstRequired: saved.demoFirstRequired !== false,
     updatedAt: saved.updatedAt || base.updatedAt,
   };
@@ -5080,6 +5097,9 @@ function getSyncStatusLabel() {
   const labels = {
     "not-configured": "Not configured",
     "demo-ready": "Demo ready",
+    connected: "Connected",
+    "signed-out": "Signed out",
+    "sync-error": "Sync error",
     "personal-blocked": "Personal blocked",
     blocked: "Blocked",
   };
@@ -5088,6 +5108,8 @@ function getSyncStatusLabel() {
 
 function getSyncTone() {
   if (syncState.status === "demo-ready") return "green";
+  if (syncState.status === "connected") return "green";
+  if (syncState.status === "signed-out") return "amber";
   if (syncState.status === "personal-blocked" || syncState.status === "blocked") return "amber";
   return "blue";
 }
@@ -5102,11 +5124,51 @@ function getLatestProfileUpdatedAt() {
   return candidates.sort().at(-1) || null;
 }
 
+function getSupabaseClient() {
+  if (!window.supabase?.createClient) return null;
+  if (!getSupabaseClient.instance) {
+    getSupabaseClient.instance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      },
+    });
+  }
+  return getSupabaseClient.instance;
+}
+
+async function getSupabaseSession() {
+  const client = getSupabaseClient();
+  if (!client) return null;
+  const { data, error } = await client.auth.getSession();
+  if (error) return null;
+  return data?.session || null;
+}
+
+async function refreshSyncAuthState({ silent = true } = {}) {
+  const session = await getSupabaseSession();
+  syncState = {
+    ...syncState,
+    endpointConfigured: Boolean(getSupabaseClient()),
+    userEmail: session?.user?.email || syncState.userEmail || "",
+    userId: session?.user?.id || "",
+    status: session ? "connected" : "signed-out",
+    authCheckedAt: new Date().toISOString(),
+  };
+  saveSyncState();
+  if (!silent) {
+    syncNotice = session ? `Signed in as ${session.user.email}.` : "Supabase is connected, but you are signed out.";
+    render();
+  }
+  return session;
+}
+
 function createSyncPayloadPreview() {
   return {
     app: "KRYOS",
     appVersion: APP_VERSION,
-    syncSchemaVersion: 1,
+    syncSchemaVersion: KRYOS_SYNC_SCHEMA_VERSION,
     accountMode,
     profile: getModeLabel(),
     generatedAt: new Date().toISOString(),
@@ -5132,6 +5194,11 @@ function createSyncPayloadPreview() {
         updatedAt: journalState?.meta?.updatedAt || null,
         value: journalState,
       },
+      security: {
+        storageKey: SECURITY_STORAGE_KEY,
+        updatedAt: securityState?.updatedAt || null,
+        value: securityState,
+      },
       uiState: {
         storageKey: UI_STATE_STORAGE_KEY,
         updatedAt: getCurrentUiState().updatedAt,
@@ -5140,17 +5207,191 @@ function createSyncPayloadPreview() {
     },
     excluded: {
       storageKeys: SYNC_EXCLUDED_BLOCKS,
-      reason: "Phase 1 lock, recovery, session, and sync metadata stay local.",
+      reason: "Active lock sessions and local sync metadata stay local.",
     },
   };
+}
+
+function getSyncBlockPayloads() {
+  const payload = createSyncPayloadPreview();
+  return SYNC_BLOCKS.map((block) => {
+    const value = payload.blocks[block.key]?.value;
+    const updatedAt = payload.blocks[block.key]?.updatedAt || getLatestProfileUpdatedAt() || new Date().toISOString();
+    return {
+      block_key: block.key,
+      schema_version: KRYOS_SYNC_SCHEMA_VERSION,
+      payload: value,
+      payload_updated_at: updatedAt,
+      client_updated_at: new Date().toISOString(),
+    };
+  });
+}
+
+async function ensureSupabaseProfile(session) {
+  const client = getSupabaseClient();
+  if (!client || !session) throw new Error("Sign in before syncing.");
+  const profileType = accountMode;
+  const displayName = `${getModeLabel()} Profile`;
+  const { data: existing, error: selectError } = await client
+    .from("kryos_profiles")
+    .select("id")
+    .eq("profile_type", profileType)
+    .maybeSingle();
+  if (selectError) throw selectError;
+  if (existing?.id) return existing.id;
+  const { data: created, error: insertError } = await client
+    .from("kryos_profiles")
+    .insert({
+      profile_type: profileType,
+      display_name: displayName,
+    })
+    .select("id")
+    .single();
+  if (insertError) throw insertError;
+  return created.id;
+}
+
+async function sendSupabaseSignInLink() {
+  const email = getFormValue("sync-email");
+  if (!email || !email.includes("@")) {
+    syncNotice = "Enter your email before sending the Supabase sign-in link.";
+    render();
+    return;
+  }
+  const client = getSupabaseClient();
+  if (!client) {
+    syncNotice = "Supabase library did not load. Check your internet connection and reload.";
+    render();
+    return;
+  }
+  const { error } = await client.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.href.split("#")[0] },
+  });
+  if (error) {
+    syncNotice = `Sign-in link failed: ${error.message}`;
+    syncState.status = "sync-error";
+  } else {
+    syncNotice = `Sign-in link sent to ${email}. Open it, then return to KRYOS.`;
+    syncState.userEmail = email;
+    syncState.status = "signed-out";
+  }
+  saveSyncState();
+  render();
+}
+
+async function signOutSupabase() {
+  const client = getSupabaseClient();
+  if (!client) return;
+  await client.auth.signOut();
+  syncState = {
+    ...syncState,
+    status: "signed-out",
+    userId: "",
+  };
+  syncNotice = "Signed out of Supabase on this browser.";
+  saveSyncState();
+  render();
+}
+
+async function pushToSupabase() {
+  const session = await refreshSyncAuthState({ silent: true });
+  if (!session) {
+    syncNotice = "Sign in to Supabase before pushing this device to cloud.";
+    render();
+    return;
+  }
+  try {
+    const client = getSupabaseClient();
+    const profileId = await ensureSupabaseProfile(session);
+    const rows = getSyncBlockPayloads().map((row) => ({
+      ...row,
+      profile_id: profileId,
+      updated_at: new Date().toISOString(),
+    }));
+    const { error } = await client
+      .from("kryos_sync_blocks")
+      .upsert(rows, { onConflict: "profile_id,block_key" });
+    if (error) throw error;
+    syncState = {
+      ...syncState,
+      enabled: true,
+      endpointConfigured: true,
+      status: "connected",
+      lastSyncAt: new Date().toISOString(),
+      lastAttemptAt: new Date().toISOString(),
+      remoteProfileId: profileId,
+      userEmail: session.user.email || syncState.userEmail,
+      userId: session.user.id,
+    };
+    syncNotice = `${getModeLabel()} data pushed to Supabase.`;
+    saveSyncState();
+    render();
+  } catch (error) {
+    syncState.status = "sync-error";
+    syncState.lastAttemptAt = new Date().toISOString();
+    syncNotice = `Cloud push failed: ${error.message || "Check Supabase schema and RLS."}`;
+    saveSyncState();
+    render();
+  }
+}
+
+function applyRemoteBlock(blockKey, payload) {
+  const block = SYNC_BLOCKS.find((item) => item.key === blockKey);
+  if (!block) return;
+  setModeStorageValue(block.storageKey, JSON.stringify(payload));
+}
+
+async function pullFromSupabase() {
+  const session = await refreshSyncAuthState({ silent: true });
+  if (!session) {
+    syncNotice = "Sign in to Supabase before pulling cloud data.";
+    render();
+    return;
+  }
+  try {
+    const client = getSupabaseClient();
+    const profileId = await ensureSupabaseProfile(session);
+    const { data, error } = await client
+      .from("kryos_sync_blocks")
+      .select("block_key,payload")
+      .eq("profile_id", profileId);
+    if (error) throw error;
+    if (!Array.isArray(data) || !data.length) {
+      syncNotice = `No cloud data found for ${getModeLabel()}. Push from your old browser first.`;
+      render();
+      return;
+    }
+    data.forEach((row) => applyRemoteBlock(row.block_key, row.payload));
+    syncState = {
+      ...syncState,
+      enabled: true,
+      endpointConfigured: true,
+      status: "connected",
+      lastSyncAt: new Date().toISOString(),
+      lastAttemptAt: new Date().toISOString(),
+      remoteProfileId: profileId,
+      userEmail: session.user.email || syncState.userEmail,
+      userId: session.user.id,
+    };
+    saveSyncState();
+    syncNotice = `${getModeLabel()} cloud data pulled. Reloading KRYOS.`;
+    window.setTimeout(() => window.location.reload(), 650);
+  } catch (error) {
+    syncState.status = "sync-error";
+    syncState.lastAttemptAt = new Date().toISOString();
+    syncNotice = `Cloud pull failed: ${error.message || "Check Supabase schema and RLS."}`;
+    saveSyncState();
+    render();
+  }
 }
 
 function getSyncReadiness() {
   const payload = createSyncPayloadPreview();
   const safeStorageKeys = Object.values(payload.blocks).map((block) => block.storageKey);
   const expectedSafeBlockCount = SYNC_SAFE_BLOCKS.length;
-  const securityExcluded = !safeStorageKeys.includes(SECURITY_STORAGE_KEY)
-    && !safeStorageKeys.includes(SECURITY_SESSION_KEY);
+  const localSessionExcluded = !safeStorageKeys.includes(SECURITY_SESSION_KEY)
+    && !safeStorageKeys.includes(SYNC_STATE_STORAGE_KEY);
   const checks = [
     {
       label: "Local profile data is grouped into syncable blocks",
@@ -5158,9 +5399,9 @@ function getSyncReadiness() {
       passed: SYNC_SAFE_BLOCKS.every((key) => safeStorageKeys.includes(key)),
     },
     {
-      label: "Security data is excluded",
-      detail: "PIN hash, recovery answers, and active lock sessions are not in the sync preview.",
-      passed: securityExcluded,
+      label: "Security setup can move with your data",
+      detail: "PIN and recovery setup sync so a new browser does not stay blank after pull.",
+      passed: localSessionExcluded && safeStorageKeys.includes(SECURITY_STORAGE_KEY),
     },
     {
       label: "Export/import remains available",
@@ -5168,26 +5409,24 @@ function getSyncReadiness() {
       passed: typeof collectBackupData === "function" && typeof importBackupFile === "function",
     },
     {
-      label: "Demo profile is selected for first sync test",
-      detail: isDemoMode() ? "Safe showcase data is active." : "Open Demo with PIN 9619 before remote testing.",
-      passed: isDemoMode(),
+      label: "Supabase project is configured",
+      detail: SUPABASE_URL && SUPABASE_ANON_KEY ? "Project URL and publishable key are wired." : "Project URL or publishable key is missing.",
+      passed: Boolean(SUPABASE_URL && SUPABASE_ANON_KEY),
     },
     {
-      label: "Supabase project is connected",
-      detail: "URL and anon key are not configured in this local build yet.",
-      passed: Boolean(syncState.endpointConfigured),
+      label: "Supabase account is signed in",
+      detail: syncState.userEmail ? `Using ${syncState.userEmail}.` : "Send the sign-in link, open it, then return.",
+      passed: syncState.status === "connected" && Boolean(syncState.userId),
     },
   ];
   const localReady = checks.slice(0, 4).every((check) => check.passed);
   const remoteReady = checks.every((check) => check.passed);
-  const status = !isDemoMode() ? "personal-blocked" : remoteReady ? "demo-ready" : "not-configured";
-  const message = !isDemoMode()
-    ? "Personal sync is intentionally blocked. Open Demo first before any remote experiment."
-    : remoteReady
-      ? "Demo profile is ready for a real Supabase prototype."
-      : localReady
-        ? "Demo local readiness is good. Create the Supabase project before remote sync."
-        : "Sync readiness needs cleanup before a remote prototype.";
+  const status = remoteReady ? "connected" : "signed-out";
+  const message = remoteReady
+    ? `${getModeLabel()} is ready for manual cloud push/pull.`
+    : localReady
+      ? "Supabase is wired. Sign in before pushing or pulling cloud data."
+      : "Sync readiness needs cleanup before cloud sync.";
   return { checks, localReady, remoteReady, status, message };
 }
 
@@ -5313,13 +5552,14 @@ function renderSyncSettingsPanel() {
   const readiness = getSyncReadiness();
   const payload = createSyncPayloadPreview();
   const safeBlockCount = Object.keys(payload.blocks).length;
+  const signedIn = syncState.status === "connected" && Boolean(syncState.userId);
   return `
     <section class="section-card sync-status-card">
       <div class="section-header">
         <div>
-          <p class="section-kicker">Sync foundation</p>
-          <h2>Cross-device readiness</h2>
-          <p class="principle-body">KRYOS stays local-first. Remote sync is blocked until Demo proves the path safely.</p>
+          <p class="section-kicker">Cloud sync</p>
+          <h2>Supabase manual sync</h2>
+          <p class="principle-body">Use this to move KRYOS between laptop and phone. Push from the device with the newest data, then pull on the other device.</p>
         </div>
         <span class="space-badge sync-${readiness.status}">${getSyncStatusLabel()}</span>
       </div>
@@ -5328,10 +5568,10 @@ function renderSyncSettingsPanel() {
 
       <div class="product-version-grid sync-version-grid">
         ${metricTile("Provider", "Supabase", "Free prototype candidate", "blue")}
-        ${metricTile("Status", getSyncStatusLabel(), syncState.enabled ? "Remote enabled" : "Remote disabled", getSyncTone())}
-        ${metricTile("Profile", getModeLabel(), isDemoMode() ? "Allowed first" : "Protected", isDemoMode() ? "green" : "amber")}
-        ${metricTile("Last sync", formatDateTime(syncState.lastSyncAt), "No remote write yet", "blue")}
-        ${metricTile("Safe blocks", String(safeBlockCount), "Foundation, Career, Tasks, Journal, UI", "green")}
+        ${metricTile("Status", getSyncStatusLabel(), signedIn ? "Signed in" : "Needs email link", getSyncTone())}
+        ${metricTile("Profile", getModeLabel(), "Cloud profile scope", isDemoMode() ? "amber" : "green")}
+        ${metricTile("Last sync", formatDateTime(syncState.lastSyncAt), "Manual push or pull", "blue")}
+        ${metricTile("Cloud blocks", String(safeBlockCount), "Foundation, Career, Tasks, Journal, Security, UI", "green")}
       </div>
 
       <div class="sync-readiness-layout">
@@ -5355,19 +5595,28 @@ function renderSyncSettingsPanel() {
 
         <div class="sync-boundary-panel">
           <div>
-            <p class="section-kicker">Never synced in 0.003.x</p>
-            <h3>Privacy boundary</h3>
+            <p class="section-kicker">Manual control</p>
+            <h3>Push or pull</h3>
           </div>
-          <p class="meta">PIN hash, recovery answers, active lock sessions, and local sync metadata stay on this device until a stronger security model exists.</p>
+          <p class="meta">First use: push from the browser that already has your correct data. On the deployed site or phone, sign in and pull.</p>
+          <div class="sync-auth-grid">
+            <div class="field">
+              <label class="field-label" for="sync-email">Supabase email</label>
+              <input id="sync-email" type="email" autocomplete="email" value="${escapeHtml(syncState.userEmail || "")}" placeholder="your@email.com" />
+            </div>
+            <button class="secondary-button" type="button" data-sync-action="send-link">Send sign-in link</button>
+            <button class="secondary-button" type="button" ${signedIn ? "" : "disabled"} data-sync-action="sign-out">Sign out</button>
+          </div>
           <div class="sync-meta-grid">
             <span>Last readiness: <strong>${formatDateTime(syncState.lastReadinessAt)}</strong></span>
-            <span>Last dry run: <strong>${formatDateTime(syncState.lastAttemptAt)}</strong></span>
+            <span>Last attempt: <strong>${formatDateTime(syncState.lastAttemptAt)}</strong></span>
             <span>Conflicts: <strong>${syncState.conflictCount}</strong></span>
+            <span>Account: <strong>${escapeHtml(syncState.userEmail || "Not signed in")}</strong></span>
           </div>
           <div class="sync-actions">
             <button class="primary-button" type="button" data-sync-action="readiness-check">Run readiness check</button>
-            <button class="secondary-button" type="button" data-sync-action="dry-run">Dry run locally</button>
-            <button class="secondary-button" type="button" disabled title="Needs Supabase project URL and anon key">Connect Supabase</button>
+            <button class="primary-button" type="button" ${signedIn ? "" : "disabled"} data-sync-action="push-cloud">Push this device to cloud</button>
+            <button class="secondary-button" type="button" ${signedIn ? "" : "disabled"} data-sync-action="pull-cloud">Pull cloud to this device</button>
           </div>
         </div>
       </div>
@@ -6971,6 +7220,18 @@ document.addEventListener("click", async (event) => {
     if (syncAction.dataset.syncAction === "dry-run") {
       runSyncDryRun();
     }
+    if (syncAction.dataset.syncAction === "send-link") {
+      await sendSupabaseSignInLink();
+    }
+    if (syncAction.dataset.syncAction === "sign-out") {
+      await signOutSupabase();
+    }
+    if (syncAction.dataset.syncAction === "push-cloud") {
+      await pushToSupabase();
+    }
+    if (syncAction.dataset.syncAction === "pull-cloud") {
+      await pullFromSupabase();
+    }
     return;
   }
 
@@ -7381,3 +7642,6 @@ if (isSecurityUnlocked) touchSecuritySession(true);
 render();
 renderSecurityOverlay();
 resetLockTimer();
+refreshSyncAuthState({ silent: true }).then(() => {
+  if (currentPage === "settings") render();
+});

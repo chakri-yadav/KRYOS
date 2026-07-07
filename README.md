@@ -6,12 +6,12 @@ It is not a generic todo app. KRYOS is designed to help one person keep life, wo
 
 ## Current Status
 
-- Version: `0.003.000`
-- Stage: Free Sync Foundation
+- Version: `0.003.001`
+- Stage: Manual Supabase Sync
 - Audience: personal daily use plus safe demo/interview showcase
 - App type: local-first browser application
-- Sync status: readiness UI only, not connected yet
-- Backend status: not enabled yet
+- Sync status: manual push/pull wired
+- Backend status: Supabase project configured, schema must be applied
 
 ## Product Promise
 
