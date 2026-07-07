@@ -5606,81 +5606,96 @@ function renderSettingsView() {
 
 function renderSyncSettingsPanel() {
   const readiness = getSyncReadiness();
-  const payload = createSyncPayloadPreview();
-  const safeBlockCount = Object.keys(payload.blocks).length;
   const signedIn = syncState.status === "connected" && Boolean(syncState.userId);
+  const readyCount = readiness.checks.filter((check) => check.passed).length;
   return `
     <section class="section-card sync-status-card">
-      <div class="section-header">
+      <div class="sync-command-head">
         <div>
           <p class="section-kicker">Cloud sync</p>
-          <h2>Supabase manual sync</h2>
-          <p class="principle-body">Use this to move KRYOS between laptop and phone. Push from the device with the newest data, then pull on the other device.</p>
+          <h2>Move KRYOS between devices</h2>
+          <p class="principle-body">Push from the device that has your newest data. Pull on the phone or GitHub Pages device.</p>
         </div>
-        <span class="space-badge sync-${readiness.status}">${getSyncStatusLabel()}</span>
+        <div class="sync-command-status">
+          <span class="space-badge sync-${readiness.status}">${getSyncStatusLabel()}</span>
+          <strong>${signedIn ? escapeHtml(syncState.userEmail || "Signed in") : "Not signed in"}</strong>
+        </div>
       </div>
 
       ${syncNotice ? `<p class="security-notice inline">${escapeHtml(syncNotice)}</p>` : ""}
 
-      <div class="product-version-grid sync-version-grid">
-        ${metricTile("Provider", "Supabase", "Free prototype candidate", "blue")}
-        ${metricTile("Status", getSyncStatusLabel(), signedIn ? "Signed in" : "Needs login", getSyncTone())}
-        ${metricTile("Profile", getModeLabel(), "Cloud profile scope", isDemoMode() ? "amber" : "green")}
-        ${metricTile("Last sync", formatDateTime(syncState.lastSyncAt), "Manual push or pull", "blue")}
-        ${metricTile("Cloud blocks", String(safeBlockCount), "Foundation, Career, Tasks, Journal, Security, UI", "green")}
-      </div>
-
-      <div class="sync-readiness-layout">
-        <div class="sync-check-panel">
-          <div>
-            <p class="section-kicker">Readiness checks</p>
-            <h3>Before real sync</h3>
+      <div class="sync-command-grid">
+        <div class="sync-step-panel">
+          <div class="sync-step-number">1</div>
+          <div class="sync-step-body">
+            <p class="section-kicker">Account</p>
+            <h3>Sign in once</h3>
+            <p class="meta">Use the same Supabase email and password on laptop and phone.</p>
+            <div class="sync-auth-grid">
+              <div class="field">
+                <label class="field-label" for="sync-email">Email</label>
+                <input id="sync-email" type="email" autocomplete="email" value="${escapeHtml(syncState.userEmail || "")}" placeholder="your@email.com" />
+              </div>
+              <div class="field">
+                <label class="field-label" for="sync-password">Password</label>
+                <input id="sync-password" type="password" autocomplete="current-password" placeholder="Minimum 6 characters" />
+              </div>
+              <div class="sync-button-row">
+                <button class="secondary-button" type="button" data-sync-action="create-account">Create account</button>
+                <button class="primary-button" type="button" data-sync-action="sign-in">Sign in</button>
+                <button class="secondary-button" type="button" ${signedIn ? "" : "disabled"} data-sync-action="sign-out">Sign out</button>
+              </div>
+            </div>
           </div>
-          <ul class="sync-check-list">
-            ${readiness.checks.map((check) => `
-              <li class="${check.passed ? "passed" : "pending"}">
-                <span class="sync-check-token">${check.passed ? "OK" : "Hold"}</span>
-                <span>
-                  <strong>${escapeHtml(check.label)}</strong>
-                  <em>${escapeHtml(check.detail)}</em>
-                </span>
-              </li>
-            `).join("")}
-          </ul>
         </div>
 
-        <div class="sync-boundary-panel">
-          <div>
-            <p class="section-kicker">Manual control</p>
-            <h3>Push or pull</h3>
-          </div>
-          <p class="meta">First use: push from the browser that already has your correct data. On the deployed site or phone, sign in and pull.</p>
-          <div class="sync-auth-grid">
-            <div class="field">
-              <label class="field-label" for="sync-email">Supabase email</label>
-              <input id="sync-email" type="email" autocomplete="email" value="${escapeHtml(syncState.userEmail || "")}" placeholder="your@email.com" />
+        <div class="sync-step-panel sync-transfer-panel">
+          <div class="sync-step-number">2</div>
+          <div class="sync-step-body">
+            <p class="section-kicker">Transfer</p>
+            <h3>Choose direction</h3>
+            <div class="sync-transfer-actions">
+              <button class="sync-transfer-button push" type="button" ${signedIn ? "" : "disabled"} data-sync-action="push-cloud">
+                <strong>Push this device</strong>
+                <span>Upload the data currently on this browser.</span>
+              </button>
+              <button class="sync-transfer-button pull" type="button" ${signedIn ? "" : "disabled"} data-sync-action="pull-cloud">
+                <strong>Pull from cloud</strong>
+                <span>Replace this browser with your cloud data.</span>
+              </button>
             </div>
-            <div class="field">
-              <label class="field-label" for="sync-password">Supabase password</label>
-              <input id="sync-password" type="password" autocomplete="current-password" placeholder="Minimum 6 characters" />
+          </div>
+        </div>
+
+        <div class="sync-step-panel">
+          <div class="sync-step-number">3</div>
+          <div class="sync-step-body">
+            <p class="section-kicker">Status</p>
+            <h3>Quick check</h3>
+            <div class="sync-status-list">
+              <span><strong>Profile</strong>${getModeLabel()}</span>
+              <span><strong>Last sync</strong>${formatDateTime(syncState.lastSyncAt)}</span>
+              <span><strong>Ready</strong>${readyCount}/${readiness.checks.length} checks</span>
             </div>
-            <button class="secondary-button" type="button" data-sync-action="create-account">Create account</button>
-            <button class="primary-button" type="button" data-sync-action="sign-in">Sign in</button>
-            <button class="secondary-button" type="button" ${signedIn ? "" : "disabled"} data-sync-action="sign-out">Sign out</button>
-          </div>
-          <div class="sync-meta-grid">
-            <span>Last readiness: <strong>${formatDateTime(syncState.lastReadinessAt)}</strong></span>
-            <span>Last attempt: <strong>${formatDateTime(syncState.lastAttemptAt)}</strong></span>
-            <span>Conflicts: <strong>${syncState.conflictCount}</strong></span>
-            <span>Account: <strong>${escapeHtml(syncState.userEmail || "Not signed in")}</strong></span>
-          </div>
-          <div class="sync-actions">
-            <button class="primary-button" type="button" data-sync-action="readiness-check">Run readiness check</button>
-            <button class="primary-button" type="button" ${signedIn ? "" : "disabled"} data-sync-action="push-cloud">Push this device to cloud</button>
-            <button class="secondary-button" type="button" ${signedIn ? "" : "disabled"} data-sync-action="pull-cloud">Pull cloud to this device</button>
+            <button class="secondary-button" type="button" data-sync-action="readiness-check">Refresh status</button>
           </div>
         </div>
       </div>
+
+      <details class="sync-details">
+        <summary>Technical checks</summary>
+        <ul class="sync-check-list compact">
+          ${readiness.checks.map((check) => `
+            <li class="${check.passed ? "passed" : "pending"}">
+              <span class="sync-check-token">${check.passed ? "OK" : "Hold"}</span>
+              <span>
+                <strong>${escapeHtml(check.label)}</strong>
+                <em>${escapeHtml(check.detail)}</em>
+              </span>
+            </li>
+          `).join("")}
+        </ul>
+      </details>
     </section>
   `;
 }
