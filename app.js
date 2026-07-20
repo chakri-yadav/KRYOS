@@ -503,6 +503,8 @@ let selectedRoadmapId = careerState.roadmaps.some((roadmap) => roadmap.id === sa
   ? savedUiState.selectedRoadmapId
   : careerState.roadmaps[0]?.id ?? null;
 let editingCareerRoadmapId = null;
+let careerEditorDraft = null;
+let careerEditorNotice = "";
 let selectedTaskDate = isDateKey(savedUiState.selectedTaskDate) ? savedUiState.selectedTaskDate : toDateKey();
 let activeTaskView = TASK_VIEWS.includes(savedUiState.activeTaskView) ? savedUiState.activeTaskView : "today";
 let activeFieldTab = FIELD_TABS.includes(savedUiState.activeFieldTab) ? savedUiState.activeFieldTab : "today";
@@ -5936,8 +5938,80 @@ function careerIcon(name) {
   const icons = {
     edit: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>`,
     done: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>`,
+    close: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>`,
+    trash: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg>`,
   };
   return icons[name] || "";
+}
+
+function startCareerEditor(roadmapId) {
+  const roadmap = findRoadmap(roadmapId);
+  if (!roadmap) return;
+  editingCareerRoadmapId = roadmap.id;
+  selectedRoadmapId = roadmap.id;
+  careerEditorDraft = structuredClone(roadmap);
+  careerEditorNotice = "";
+  render();
+}
+
+function cancelCareerEditor() {
+  editingCareerRoadmapId = null;
+  careerEditorDraft = null;
+  careerEditorNotice = "";
+  render();
+}
+
+function getCareerEditorRoadmap(roadmapId) {
+  if (editingCareerRoadmapId === roadmapId && careerEditorDraft?.id === roadmapId) {
+    return { roadmap: careerEditorDraft, isDraft: true };
+  }
+  return { roadmap: findRoadmap(roadmapId), isDraft: false };
+}
+
+function normalizeCareerDraft() {
+  if (!careerEditorDraft) return "No roadmap is open in the editor.";
+  careerEditorDraft.title = careerEditorDraft.title.trim();
+  careerEditorDraft.purpose = String(careerEditorDraft.purpose || "").trim();
+  careerEditorDraft.targetDate = careerEditorDraft.targetDate || "";
+  if (!careerEditorDraft.title) return "Roadmap name cannot be empty.";
+
+  for (const module of careerEditorDraft.modules) {
+    module.title = String(module.title || "").trim();
+    if (!module.title) return "Module names cannot be empty.";
+    for (const topic of module.topics) {
+      topic.title = String(topic.title || "").trim();
+      if (!topic.title) return "Topic names cannot be empty.";
+      topic.confidence = ["Low", "Medium", "High"].includes(topic.confidence) ? topic.confidence : "Low";
+      for (const check of topic.checklist) {
+        check.text = String(check.text || "").trim();
+        if (!check.text) return "Checklist items cannot be empty.";
+        check.done = Boolean(check.done);
+      }
+    }
+  }
+
+  return "";
+}
+
+function saveCareerEditor() {
+  const error = normalizeCareerDraft();
+  if (error) {
+    careerEditorNotice = error;
+    render();
+    return;
+  }
+  const index = careerState.roadmaps.findIndex((roadmap) => roadmap.id === editingCareerRoadmapId);
+  if (index === -1 || !careerEditorDraft) {
+    cancelCareerEditor();
+    return;
+  }
+  careerState.roadmaps[index] = structuredClone(careerEditorDraft);
+  selectedRoadmapId = careerEditorDraft.id;
+  editingCareerRoadmapId = null;
+  careerEditorDraft = null;
+  careerEditorNotice = "Roadmap saved.";
+  saveCareer();
+  render();
 }
 
 function careerTextBlock(label, value, size = "normal") {
@@ -5971,63 +6045,73 @@ function careerTitleInput({ label, value, roadmapId, moduleId = "", topicId = ""
 }
 
 function renderRoadmapDetail(roadmap) {
-  const stats = getRoadmapStats(roadmap);
   const isEditing = editingCareerRoadmapId === roadmap.id;
+  const editorRoadmap = isEditing && careerEditorDraft?.id === roadmap.id ? careerEditorDraft : roadmap;
+  const stats = getRoadmapStats(editorRoadmap);
   return `
     <section class="section-card career-detail ${isEditing ? "is-editing" : ""}">
       <div class="section-header career-detail-header">
         <div>
-          <p class="section-kicker">Selected roadmap</p>
+          <p class="section-kicker">${isEditing ? "Roadmap editor" : "Selected roadmap"}</p>
           ${isEditing
-            ? careerTitleInput({ label: "Roadmap name", value: roadmap.title, roadmapId: roadmap.id })
-            : careerTextBlock("Roadmap", roadmap.title)}
+            ? careerTitleInput({ label: "Roadmap name", value: editorRoadmap.title, roadmapId: editorRoadmap.id })
+            : careerTextBlock("Roadmap", editorRoadmap.title)}
           <p class="meta">${stats.done}/${stats.total} checklist items completed</p>
         </div>
-        <div class="row-actions">
+        <div class="row-actions ${isEditing ? "career-editor-actions" : ""}">
           <span class="chip signal">${stats.percent}% complete</span>
-          <button
-            class="icon-button career-edit-toggle"
-            type="button"
-            title="${isEditing ? "Close roadmap editor" : "Edit roadmap"}"
-            aria-label="${isEditing ? "Close roadmap editor" : "Edit roadmap"}"
-            data-career-edit-toggle="${roadmap.id}"
-          >${careerIcon(isEditing ? "done" : "edit")}</button>
-          ${isEditing ? `<button class="danger-button" type="button" data-career-delete="roadmap" data-roadmap-id="${roadmap.id}">Delete roadmap</button>` : ""}
+          ${isEditing
+            ? `
+              <button class="primary-button" type="button" data-career-editor-action="save">Save changes</button>
+              <button class="secondary-button" type="button" data-career-editor-action="cancel">Cancel</button>
+              <button class="icon-button danger-icon" type="button" title="Delete roadmap" aria-label="Delete roadmap" data-career-delete="roadmap" data-roadmap-id="${roadmap.id}">${careerIcon("trash")}</button>
+            `
+            : `
+              <button
+                class="icon-button career-edit-toggle"
+                type="button"
+                title="Edit roadmap"
+                aria-label="Edit roadmap"
+                data-career-edit-toggle="${roadmap.id}"
+              >${careerIcon("edit")}</button>
+            `}
         </div>
       </div>
+
+      ${careerEditorNotice ? `<p class="security-notice inline">${escapeHtml(careerEditorNotice)}</p>` : ""}
 
       <div class="form-grid two career-roadmap-meta">
         ${isEditing
           ? `
             <div class="field">
-              <label class="field-label" for="roadmap-purpose-${roadmap.id}">Purpose</label>
-              <textarea id="roadmap-purpose-${roadmap.id}" data-career-field="purpose" data-roadmap-id="${roadmap.id}">${escapeHtml(roadmap.purpose)}</textarea>
+              <label class="field-label" for="roadmap-purpose-${editorRoadmap.id}">Purpose</label>
+              <textarea id="roadmap-purpose-${editorRoadmap.id}" data-career-field="purpose" data-roadmap-id="${editorRoadmap.id}">${escapeHtml(editorRoadmap.purpose)}</textarea>
             </div>
             <div class="field">
-              <label class="field-label" for="roadmap-target-${roadmap.id}">Target date</label>
-              <input id="roadmap-target-${roadmap.id}" type="date" value="${escapeHtml(roadmap.targetDate)}" data-career-field="targetDate" data-roadmap-id="${roadmap.id}" />
+              <label class="field-label" for="roadmap-target-${editorRoadmap.id}">Target date</label>
+              <input id="roadmap-target-${editorRoadmap.id}" type="date" value="${escapeHtml(editorRoadmap.targetDate)}" data-career-field="targetDate" data-roadmap-id="${editorRoadmap.id}" />
             </div>
           `
           : `
             <div class="career-read-panel">
               <p class="field-label">Purpose</p>
-              <p class="principle-body">${escapeHtml(roadmap.purpose || "No purpose written yet.")}</p>
+              <p class="principle-body">${escapeHtml(editorRoadmap.purpose || "No purpose written yet.")}</p>
             </div>
             <div class="career-read-panel">
               <p class="field-label">Target date</p>
-              <strong>${roadmap.targetDate ? formatDateKey(roadmap.targetDate) : "No target date"}</strong>
+              <strong>${editorRoadmap.targetDate ? formatDateKey(editorRoadmap.targetDate) : "No target date"}</strong>
             </div>
           `}
       </div>
 
       <div class="module-stack">
-        ${roadmap.modules.length ? roadmap.modules.map((module) => renderModuleBlock(roadmap, module, isEditing)).join("") : emptyState("No modules yet. Use the roadmap editor to add the first module.")}
+        ${editorRoadmap.modules.length ? editorRoadmap.modules.map((module) => renderModuleBlock(editorRoadmap, module, isEditing)).join("") : emptyState("No modules yet. Use the roadmap editor to add the first module.")}
       </div>
 
       ${isEditing ? `
         <div class="quick-add footer-add">
-          <input type="text" id="new-module-title-${roadmap.id}" placeholder="New module, e.g. Graphs" />
-          <button class="primary-button" type="button" data-career-add="module" data-roadmap-id="${roadmap.id}">Add module</button>
+          <input type="text" id="new-module-title-${editorRoadmap.id}" placeholder="New module, e.g. Graphs" />
+          <button class="primary-button" type="button" data-career-add="module" data-roadmap-id="${editorRoadmap.id}">Add module</button>
         </div>
       ` : ""}
     </section>
@@ -6045,7 +6129,7 @@ function renderModuleBlock(roadmap, module, isEditing) {
             : careerTextBlock("Module", module.title, "compact")}
           <p class="meta">${stats.percent}% - ${stats.done}/${stats.total} checks</p>
         </div>
-        ${isEditing ? `<button class="icon-button" type="button" title="Delete module" data-career-delete="module" data-roadmap-id="${roadmap.id}" data-module-id="${module.id}">X</button>` : ""}
+        ${isEditing ? `<button class="icon-button danger-icon" type="button" title="Delete module" aria-label="Delete module" data-career-delete="module" data-roadmap-id="${roadmap.id}" data-module-id="${module.id}">${careerIcon("trash")}</button>` : ""}
       </div>
       <span class="progress-track"><span style="width: ${stats.percent}%"></span></span>
 
@@ -6082,7 +6166,7 @@ function renderTopicBlock(roadmap, module, topic, isEditing) {
                   .map((option) => `<option value="${option}" ${topic.confidence === option ? "selected" : ""}>${option}</option>`)
                   .join("")}
               </select>
-              <button class="icon-button" type="button" title="Delete topic" data-career-delete="topic" data-roadmap-id="${roadmap.id}" data-module-id="${module.id}" data-topic-id="${topic.id}">X</button>
+              <button class="icon-button danger-icon" type="button" title="Delete topic" aria-label="Delete topic" data-career-delete="topic" data-roadmap-id="${roadmap.id}" data-module-id="${module.id}" data-topic-id="${topic.id}">${careerIcon("trash")}</button>
             `
             : `<span class="chip blue">${escapeHtml(topic.confidence)}</span>`}
         </div>
@@ -6104,13 +6188,28 @@ function renderTopicBlock(roadmap, module, topic, isEditing) {
 }
 
 function renderChecklistItem(roadmap, module, topic, item, isEditing) {
+  if (isEditing) {
+    return `
+      <div class="check-item checklist-editor-row ${item.done ? "is-done" : ""}">
+        <input type="checkbox" ${item.done ? "checked" : ""} data-career-check="${item.id}" data-roadmap-id="${roadmap.id}" data-module-id="${module.id}" data-topic-id="${topic.id}" />
+        <input
+          type="text"
+          value="${escapeHtml(item.text)}"
+          data-career-field="text"
+          data-roadmap-id="${roadmap.id}"
+          data-module-id="${module.id}"
+          data-topic-id="${topic.id}"
+          data-check-id="${item.id}"
+        />
+        <button class="icon-button danger-icon" type="button" title="Delete check" aria-label="Delete check" data-career-delete="checklist" data-roadmap-id="${roadmap.id}" data-module-id="${module.id}" data-topic-id="${topic.id}" data-check-id="${item.id}">${careerIcon("trash")}</button>
+      </div>
+    `;
+  }
+
   return `
-    <label class="check-item ${isEditing ? "" : "read-only"} ${item.done ? "is-done" : ""}">
+    <label class="check-item read-only ${item.done ? "is-done" : ""}">
       <input type="checkbox" ${item.done ? "checked" : ""} data-career-check="${item.id}" data-roadmap-id="${roadmap.id}" data-module-id="${module.id}" data-topic-id="${topic.id}" />
-      ${isEditing
-        ? `<input type="text" value="${escapeHtml(item.text)}" data-career-field="text" data-roadmap-id="${roadmap.id}" data-module-id="${module.id}" data-topic-id="${topic.id}" data-check-id="${item.id}" />`
-        : `<span class="check-text">${escapeHtml(item.text)}</span>`}
-      ${isEditing ? `<button class="icon-button" type="button" title="Delete check" data-career-delete="checklist" data-roadmap-id="${roadmap.id}" data-module-id="${module.id}" data-topic-id="${topic.id}" data-check-id="${item.id}">X</button>` : ""}
+      <span class="check-text">${escapeHtml(item.text)}</span>
     </label>
   `;
 }
@@ -6508,14 +6607,14 @@ function addCareerItem(type, dataset) {
   }
 
   if (type === "module") {
-    const roadmap = findRoadmap(dataset.roadmapId);
+    const { roadmap } = getCareerEditorRoadmap(dataset.roadmapId);
     const title = getInputValue(`new-module-title-${dataset.roadmapId}`);
     if (!roadmap || !title) return;
     roadmap.modules.push({ id: createId(), title, topics: [] });
   }
 
   if (type === "topic") {
-    const roadmap = findRoadmap(dataset.roadmapId);
+    const { roadmap } = getCareerEditorRoadmap(dataset.roadmapId);
     const module = findModule(roadmap, dataset.moduleId);
     const title = getInputValue(`new-topic-title-${dataset.moduleId}`);
     if (!module || !title) return;
@@ -6523,7 +6622,7 @@ function addCareerItem(type, dataset) {
   }
 
   if (type === "checklist") {
-    const roadmap = findRoadmap(dataset.roadmapId);
+    const { roadmap } = getCareerEditorRoadmap(dataset.roadmapId);
     const module = findModule(roadmap, dataset.moduleId);
     const topic = findTopic(module, dataset.topicId);
     const title = getInputValue(`new-check-title-${dataset.topicId}`);
@@ -6531,15 +6630,17 @@ function addCareerItem(type, dataset) {
     topic.checklist.push({ id: createId(), text: title, done: false });
   }
 
-  saveCareer();
+  if (editingCareerRoadmapId !== dataset.roadmapId) {
+    saveCareer();
+  }
   render();
 }
 
 function updateCareerField(dataset, field, value) {
-  const roadmap = findRoadmap(dataset.roadmapId);
+  const { roadmap, isDraft } = getCareerEditorRoadmap(dataset.roadmapId);
   if (!roadmap) return;
-  const nextValue = field === "title" ? value.trim() : value;
-  if (field === "title" && !nextValue) return;
+  const nextValue = field === "title" && !isDraft ? value.trim() : value;
+  if (field === "title" && !isDraft && !nextValue) return;
 
   if (!dataset.moduleId) {
     roadmap[field] = nextValue;
@@ -6561,18 +6662,20 @@ function updateCareerField(dataset, field, value) {
     }
   }
 
-  saveCareer();
+  if (!isDraft) {
+    saveCareer();
+  }
 }
 
 function toggleCareerCheck(dataset, checked) {
-  const roadmap = findRoadmap(dataset.roadmapId);
+  const { roadmap, isDraft } = getCareerEditorRoadmap(dataset.roadmapId);
   const module = findModule(roadmap, dataset.moduleId);
   const topic = findTopic(module, dataset.topicId);
   const check = topic?.checklist.find((item) => item.id === dataset.careerCheck);
   if (!check) return;
 
   check.done = checked;
-  if (checked) {
+  if (checked && !isDraft) {
     logCareerAction({
       roadmapId: roadmap.id,
       roadmapTitle: roadmap.title,
@@ -6582,7 +6685,9 @@ function toggleCareerCheck(dataset, checked) {
       checkText: check.text,
     });
   }
-  saveCareer();
+  if (!isDraft) {
+    saveCareer();
+  }
   render();
 }
 
@@ -6602,28 +6707,31 @@ function logCareerAction(details) {
 
 function deleteCareerItem(type, dataset) {
   if (type === "roadmap") {
+    if (!window.confirm("Delete this roadmap? This cannot be undone.")) return;
     careerState.roadmaps = careerState.roadmaps.filter((roadmap) => roadmap.id !== dataset.roadmapId);
     selectedRoadmapId = careerState.roadmaps[0]?.id ?? null;
     if (editingCareerRoadmapId === dataset.roadmapId) {
       editingCareerRoadmapId = null;
+      careerEditorDraft = null;
+      careerEditorNotice = "";
     }
   }
 
   if (type === "module") {
-    const roadmap = findRoadmap(dataset.roadmapId);
+    const { roadmap } = getCareerEditorRoadmap(dataset.roadmapId);
     if (!roadmap) return;
     roadmap.modules = roadmap.modules.filter((module) => module.id !== dataset.moduleId);
   }
 
   if (type === "topic") {
-    const roadmap = findRoadmap(dataset.roadmapId);
+    const { roadmap } = getCareerEditorRoadmap(dataset.roadmapId);
     const module = findModule(roadmap, dataset.moduleId);
     if (!module) return;
     module.topics = module.topics.filter((topic) => topic.id !== dataset.topicId);
   }
 
   if (type === "checklist") {
-    const roadmap = findRoadmap(dataset.roadmapId);
+    const { roadmap } = getCareerEditorRoadmap(dataset.roadmapId);
     const module = findModule(roadmap, dataset.moduleId);
     const topic = findTopic(module, dataset.topicId);
     if (!topic) return;
@@ -6633,7 +6741,9 @@ function deleteCareerItem(type, dataset) {
   if (editingCareerRoadmapId && !findRoadmap(editingCareerRoadmapId)) {
     editingCareerRoadmapId = null;
   }
-  saveCareer();
+  if (editingCareerRoadmapId !== dataset.roadmapId || type === "roadmap") {
+    saveCareer();
+  }
   render();
 }
 
@@ -7481,10 +7591,18 @@ document.addEventListener("click", async (event) => {
 
   const careerEditToggle = target.closest("[data-career-edit-toggle]");
   if (careerEditToggle) {
-    const roadmapId = careerEditToggle.dataset.careerEditToggle;
-    editingCareerRoadmapId = editingCareerRoadmapId === roadmapId ? null : roadmapId;
-    selectedRoadmapId = roadmapId || selectedRoadmapId;
-    render();
+    startCareerEditor(careerEditToggle.dataset.careerEditToggle);
+    return;
+  }
+
+  const careerEditorAction = target.closest("[data-career-editor-action]");
+  if (careerEditorAction) {
+    if (careerEditorAction.dataset.careerEditorAction === "save") {
+      saveCareerEditor();
+    }
+    if (careerEditorAction.dataset.careerEditorAction === "cancel") {
+      cancelCareerEditor();
+    }
     return;
   }
 
@@ -7492,6 +7610,8 @@ document.addEventListener("click", async (event) => {
   if (roadmapSelect) {
     selectedRoadmapId = roadmapSelect.dataset.careerSelectRoadmap;
     editingCareerRoadmapId = null;
+    careerEditorDraft = null;
+    careerEditorNotice = "";
     render();
     return;
   }
@@ -7557,7 +7677,7 @@ document.addEventListener("click", async (event) => {
 
 document.addEventListener("change", (event) => {
   const target = event.target;
-  if (!(target instanceof HTMLInputElement || target instanceof HTMLSelectElement)) return;
+  if (!(target instanceof HTMLInputElement || target instanceof HTMLSelectElement || target instanceof HTMLTextAreaElement)) return;
   if (target.dataset.settingsImport !== undefined) {
     importBackupFile(target.files?.[0]);
     target.value = "";
@@ -7567,7 +7687,10 @@ document.addEventListener("change", (event) => {
   const careerField = target.dataset.careerField;
   if (careerField) {
     updateCareerField(target.dataset, careerField, target.value);
-    render();
+    const isDraftEdit = editingCareerRoadmapId === target.dataset.roadmapId && careerEditorDraft?.id === target.dataset.roadmapId;
+    if (!isDraftEdit) {
+      render();
+    }
     return;
   }
 
