@@ -73,29 +73,7 @@ function lifeDay(date) {
   return { date, minutes, reported, completed, outcome, level, records };
 }
 function renderLifeProgress() {
-  const store = lifeStore();
-  const days = Array.from({length:84}, (_,i) => lifeDay(toDateKey(addDays(new Date(), i - 83))));
-  const today = days.at(-1);
-  const planned = d => {
-    const schedule = [...store.schedules].reverse().find(s => s.from <= d.date);
-    return (schedule?.days || [1,2,3,4,5]).includes(new Date(`${d.date}T12:00:00`).getDay());
-  };
-  const elapsed = days.filter(d => planned(d) && d.date < toDateKey());
-  const successful = elapsed.filter(d => d.level > 0).length;
-  let streak = 0;
-  for (const d of [...days].reverse()) { if (!planned(d)) continue; if (d.date === toDateKey() && !d.level) continue; if (!d.level) break; streak++; }
-  const lifetime = getBehavior().pointEvents.reduce((n,e) => n + Number(e.points || 0),0);
-  const level = Math.floor(lifetime / 100) + 1;
-  const selected = lifeDay(lifeSelectedDate || toDateKey());
-  const weekly = Array.from({length:12},(_,i) => days.slice(i*7,i*7+7).reduce((n,d) => n+d.minutes,0));
-  const peak = Math.max(1,...weekly);
-  progressView.innerHTML = `<section class="life-progress-header"><div><p class="section-kicker">Your progress, made visible</p><h2>Every return leaves a mark.</h2><p>${successful} completed scheduled days in this 84-day view</p></div><div class="life-level"><span>Level ${level}</span><strong>${lifetime} <small>lifetime VP</small></strong><progress value="${lifetime % 100}" max="100"></progress><span>${100-lifetime%100} VP to level ${level+1}</span></div></section>
-    <section class="life-summary"><div><span>Current streak</span><strong>${streak}<small> scheduled days</small></strong></div><div><span>Today, timer work</span><strong>${today.minutes}<small> minutes</small></strong></div><div><span>Available rewards</span><strong>${getPointBalance()}<small> VP</small></strong></div><div><span>Recorded completions</span><strong>${store.records.filter(r=>r.completed).length}</strong></div></section>
-    <section class="life-section"><div class="life-heading"><h2>Your consistency</h2><span>Last 84 days</span></div><div class="life-heatmap">${days.map(d => `<button class="life-cell level-${d.level} ${planned(d)?'':'rest'} ${d.date === (lifeSelectedDate || toDateKey())?'selected':''}" data-life="day" data-date="${d.date}" aria-label="${d.date}: ${d.outcome?'outcome complete':d.level?'activity recorded':'no activity logged'}" title="${d.date}: ${d.minutes} timer minutes; ${d.completed} records"><span>${Number(d.date.slice(-2))}</span></button>`).join('')}</div><p class="life-legend">Outline: not logged · Light green: started · Green: activity · Deep green: outcome · Dashed: rest day</p>
-    <details><summary>Weekly schedule</summary><div class="life-days">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((n,i)=>`<label><input type="checkbox" data-life-schedule="${i}" ${store.plannedDays.includes(i)?'checked':''}>${n}</label>`).join('')}</div><p>Schedule changes apply to this view; no VP is awarded for changing the schedule.</p></details>
-    <div class="life-evidence"><h3>${selected.date}</h3><p>${selected.minutes} timer minutes · ${selected.reported} journal-reported minutes (shown separately) · ${selected.completed} completed records</p>${selected.records.map(r=>`<p><strong>${escapeHtml(r.domain)}</strong> · ${escapeHtml(r.title)}</p>`).join('') || '<p>No structured journal records for this date.</p>'}</div></section>
-    <section class="life-section"><h2>Focus across twelve weeks</h2><div class="life-bars" role="img" aria-label="Weekly timer focus minutes: ${weekly.join(', ')}">${weekly.map((n,i)=>`<div><span>${n}m</span><i style="height:${Math.max(2,n/peak*130)}px"></i><small>W${i+1}</small></div>`).join('')}</div></section>
-    <section class="life-section"><h2>Across your life</h2><div class="life-domains">${LIFE_DOMAINS.map(domain=>{const records=store.records.filter(r=>r.domain===domain);return records.length?`<div><strong>${domain}</strong><span>${records.length} records · ${records.filter(r=>r.completed).length} completions</span></div>`:'';}).join('') || '<p>Skincare, sleep, mood, food and work appear here as you record them.</p>'}</div></section>`;
+  renderProgressDashboard();
 }
 document.addEventListener('input', e => {
   if (e.target.id === 'life-draft') { lifeStore().draft = e.target.value; saveTasks(); document.querySelector('#life-draft-status').textContent = 'Draft saved on this device'; }
