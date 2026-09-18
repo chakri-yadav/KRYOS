@@ -14,13 +14,14 @@ const SUPABASE_URL = "https://ogpkaxprhjhrewoxsyla.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
-const APP_VERSION = "0.004.001";
+const APP_VERSION = "0.004.002";
 const APP_STAGE = "Journal and Progress";
 const APP_RELEASE_DATE = "2026-09-17";
 const APP_STATUS = "Journal capture, reviewed imports and visual progress";
 const APP_NEXT_MILESTONE = "Reviewed VP awards and media capture";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Refined daily outcome progress, weekly consistency, metric-specific heatmaps and selected reward progress.",
   "Added journal drafts, structured life records, reviewed imports and timeline search.",
   "Added an 84-day progress grid, scheduled streaks, focus bars and domain summaries.",
   "Replaced broad tracking with a six-screen behavior-routing system.",
@@ -2477,7 +2478,7 @@ function renderBehaviorToday() {
           <div><span>Analyze</span><strong>${metrics.analyze}m</strong></div>
           <div><span>Ratio</span><strong>${metrics.ratio.toFixed(1)} : 1</strong></div>
         </div>
-        <div class="xp-panel"><span>Alignment XP</span><strong>${getPointBalance()}</strong></div>
+        <div class="xp-panel"><span>Available VP</span><strong>${getPointBalance()}</strong></div>
         <div class="support-box">
           <p class="section-kicker">Maximum two support tasks</p>
           ${plan.supportTasks.map((task, index) => `<input data-behavior-support="${index}" value="${escapeHtml(task)}" placeholder="Support task ${index + 1}" maxlength="100" />`).join("")}
@@ -2658,7 +2659,7 @@ function renderBehaviorRewards() {
   if (!rewardsView) return;
   const behavior = getBehavior();
   const balance = getPointBalance();
-  rewardsView.innerHTML = `<section class="reward-header"><p class="section-kicker">Available balance</p><strong>${balance} XP</strong><p>XP records useful actions. It is not a moral score.</p></section><section class="reward-grid">${behavior.rewards.filter((item) => item.active).map((item) => `<article><h3>${escapeHtml(item.title)}</h3><strong>${item.cost} XP</strong><button class="secondary-button" data-behavior-action="redeem-reward" data-reward-id="${item.id}" ${balance < item.cost ? "disabled" : ""}>Redeem</button></article>`).join("")}</section><section class="compact-form"><h2>Add a bounded reward</h2><input id="reward-title" placeholder="One episode, meal, outing" maxlength="80" /><input id="reward-cost" type="number" min="1" value="40" /><button class="primary-button" data-behavior-action="add-reward">Add reward</button><p>Never use open-ended scrolling, checking, pornography or another compulsion as a reward.</p></section>`;
+  rewardsView.innerHTML = `<section class="reward-header"><p class="section-kicker">Available balance</p><strong>${balance} VP</strong><p>VP records useful actions. It is not a moral score.</p></section><section class="reward-grid">${behavior.rewards.filter((item) => item.active).map((item) => `<article><h3>${escapeHtml(item.title)}</h3><strong>${item.cost} VP</strong><button class="secondary-button" data-behavior-action="redeem-reward" data-reward-id="${item.id}" ${balance < item.cost ? "disabled" : ""}>Redeem</button></article>`).join("")}</section><section class="compact-form"><h2>Add a bounded reward</h2><input id="reward-title" placeholder="One episode, meal, outing" maxlength="80" /><input id="reward-cost" type="number" min="1" value="40" /><button class="primary-button" data-behavior-action="add-reward">Add reward</button><p>Never use open-ended scrolling, checking, pornography or another compulsion as a reward.</p></section>`;
 }
 
 function renderBehaviorProject() {

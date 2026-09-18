@@ -2,6 +2,14 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.002 - Visual Progress
+
+- Added a daily outcome finish line, weekly status strip and full-history personal-best streaks.
+- Split calendar measures into outcomes, timed focus and journal domains, with 12/52-week views.
+- Added a saved reward selection and VP progress bar, separate from lifetime VP.
+- Added calendar-week focus bars, reduced-motion support and responsive controls.
+- See docs/releases/0.004.002.md for calculation rules and limitations.
+
 ## 0.004.001 - Journal and Progress
 
 - Added text journal, locally saved drafts, dated life records and timeline search.
