@@ -9,14 +9,14 @@ major.minor.patch
 Current version:
 
 ```text
-0.003.001
+0.004.001
 ```
 
 ## Meaning
 
 - `0`: private pre-public era.
-- `003`: free sync backend foundation line.
-- `001`: Supabase project wiring and manual push/pull sync.
+- `004`: directed-attention operating system line.
+- `001`: journal records, reviewed imports and visual progress.
 
 ## Version Bands
 
