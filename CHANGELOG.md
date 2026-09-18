@@ -2,6 +2,51 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.001 - Journal and Progress
+
+- Added text journal, locally saved drafts, dated life records and timeline search.
+- Added JSON import validation, evidence preview, confirmation and duplicate package rejection.
+- Added progress calendar, scheduled streaks, VP level display, timer bars and domain summaries.
+- Schedule changes take effect tomorrow; historical schedules are retained.
+- Journal-reported duration stays separate from timer duration to avoid double counting.
+- New data is included in the existing task block export and manual sync path.
+- Validation: four data tests and isolated desktop/mobile browser workflow checks passed.
+- Not yet implemented: media storage, automatic transcription, reviewed import VP awards,
+  specialized health charts and feature-proposal management. No cloud round-trip was performed.
+
+## 0.004.000 - Directed Attention
+
+Date: 2026-09-17
+
+### Changed
+
+- Replaced the broad dashboard navigation with Today, Focus, Redirect, Rewards, Project, Weekly Review, and Settings.
+- Reframed KRYOS from a journal-heavy life dashboard into a behavior-routing execution system.
+- Reduced Today to one outcome, one first physical action, two optional support tasks, and four non-negotiables.
+- Added separate Build and Analyze focus modes with five- and twenty-five-minute sessions.
+- Added redirect flows for urges, distraction, slips, and minimum viable recovery.
+- Added one-breakthrough-project constraints and artifact shipping.
+- Added a weekly evidence review instead of another planning surface.
+
+### Data
+
+- Added normalized behavior state inside the existing task block.
+- Added append-only point events with idempotency keys and daily caps.
+- Existing personal data, export/import, profile separation, and Supabase push/pull remain compatible.
+- No database migration is required.
+
+### Verification
+
+- JavaScript syntax check passed.
+- Diff whitespace check passed.
+- Desktop browser smoke test confirmed the new navigation and Today command screen render.
+
+### Known Limitations
+
+- Focus countdown state is not restored after closing the page.
+- Supabase synchronization remains manual push/pull.
+- Historical legacy data remains stored for compatibility but is not exposed in primary navigation.
+
 ## 0.003.001 - Manual Supabase Sync
 
 Date: 2026-07-07

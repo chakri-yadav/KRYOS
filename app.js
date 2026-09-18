@@ -14,18 +14,19 @@ const SUPABASE_URL = "https://ogpkaxprhjhrewoxsyla.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
-const APP_VERSION = "0.003.001";
-const APP_STAGE = "Manual Supabase Sync";
-const APP_RELEASE_DATE = "2026-07-06";
-const APP_STATUS = "Manual Supabase sync is wired for laptop and phone continuity";
-const APP_NEXT_MILESTONE = "0.003.002 Sync QA";
+const APP_VERSION = "0.004.001";
+const APP_STAGE = "Journal and Progress";
+const APP_RELEASE_DATE = "2026-09-17";
+const APP_STATUS = "Journal capture, reviewed imports and visual progress";
+const APP_NEXT_MILESTONE = "Reviewed VP awards and media capture";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
-  "Supabase project configuration is now wired into KRYOS.",
-  "Settings can sign in with email and password, push this device to cloud, and pull cloud data back.",
-  "Personal and Demo are stored as separate cloud profiles.",
-  "Manual push/pull keeps the first sync version simple.",
-  "Use export backup before the first Personal cloud push.",
+  "Added journal drafts, structured life records, reviewed imports and timeline search.",
+  "Added an 84-day progress grid, scheduled streaks, focus bars and domain summaries.",
+  "Replaced broad tracking with a six-screen behavior-routing system.",
+  "Added One Outcome, ignition timers, Build versus Analyze, redirects, slips, recovery, rewards, and one breakthrough project.",
+  "Behavior events live inside the existing synced task block, so the Supabase schema does not need a migration.",
+  "Legacy KRYOS records remain preserved locally and in backups.",
 ];
 const DATA_STORAGE_KEYS = [
   FOUNDATION_STORAGE_KEY,
@@ -70,7 +71,7 @@ const TASK_TYPES = ["Task", "Checklist", "Goal", "Routine", "Habit"];
 const TASK_PRIORITIES = ["Low", "Medium", "High", "Critical"];
 const TASK_REPEATS = ["none", "daily", "weekdays", "weekly", "selected"];
 const TASK_VIEWS = ["today", "inbox", "upcoming"];
-const APP_PAGES = ["foundation", "career", "today", "habits", "journal", "progress", "settings"];
+const APP_PAGES = ["today", "journal", "progress", "focus", "redirect", "rewards", "project", "review", "settings"];
 const FIELD_TABS = ["today", "add", "habits", "pulse"];
 const HABIT_RANGES = [14, 30, 60, 90];
 const HABIT_PERIODS = ["day", "week", "month"];
@@ -388,6 +389,35 @@ const defaultCareer = {
 };
 
 const defaultTasks = {
+  behavior: {
+    dailyPlans: {},
+    sessions: [],
+    urgeEvents: [],
+    slipEvents: [],
+    pointEvents: [],
+    rewards: [
+      { id: "reward-coffee", title: "Specialty coffee", cost: 20, active: true },
+      { id: "reward-game", title: "30 minutes gaming", cost: 40, active: true },
+      { id: "reward-meal", title: "Favorite meal", cost: 75, active: true },
+      { id: "reward-movie", title: "Movie or outing", cost: 150, active: true },
+    ],
+    redemptions: [],
+    project: {
+      title: "",
+      purpose: "",
+      mission: "",
+      weeklyOutput: "",
+      nextAction: "",
+      status: "IDEA",
+      artifacts: [],
+    },
+    weeklyReviews: {},
+    settings: {
+      buildRatioTarget: 2,
+      dailyFocusTarget: 50,
+      instantRewards: ["One song", "Coffee or tea", "5-minute walk", "Stretch"],
+    },
+  },
   tasks: [
     {
       id: createId(),
@@ -495,7 +525,7 @@ let securityState = loadSecurity();
 let syncState = loadSyncState();
 const savedUiState = loadUiState();
 let mode = savedUiState.mode === "edit" ? "edit" : "read";
-let currentPage = APP_PAGES.includes(savedUiState.currentPage) ? savedUiState.currentPage : "foundation";
+let currentPage = APP_PAGES.includes(savedUiState.currentPage) ? savedUiState.currentPage : "today";
 let activeEditSection = savedUiState.activeEditSection || "declaration";
 let returnProtocolOpen = false;
 let returnChecks = {};
@@ -517,6 +547,9 @@ let lastSecurityActivityWrite = 0;
 let securityNotice = "";
 let syncNotice = "";
 let recoveryMode = false;
+let focusTicker = null;
+let activeFocus = null;
+let redirectFlow = null;
 
 const readView = document.querySelector("#read-view");
 const editView = document.querySelector("#edit-view");
@@ -526,6 +559,11 @@ const habitsView = document.querySelector("#habits-view");
 const journalView = document.querySelector("#journal-view");
 const progressView = document.querySelector("#progress-view");
 const settingsView = document.querySelector("#settings-view");
+const focusView = document.querySelector("#focus-view");
+const redirectView = document.querySelector("#redirect-view");
+const rewardsView = document.querySelector("#rewards-view");
+const projectView = document.querySelector("#project-view");
+const reviewView = document.querySelector("#review-view");
 const fieldView = document.querySelector("#field-view");
 const securityOverlay = document.querySelector("#security-overlay");
 const modeButtons = document.querySelectorAll(".mode-button");
@@ -1262,12 +1300,32 @@ function loadCareer() {
   }
 }
 
+function normalizeBehavior(value = {}) {
+  const base = structuredClone(defaultTasks.behavior);
+  const source = value && typeof value === "object" ? value : {};
+  return {
+    ...base,
+    ...source,
+    dailyPlans: source.dailyPlans && typeof source.dailyPlans === "object" ? source.dailyPlans : {},
+    sessions: Array.isArray(source.sessions) ? source.sessions : [],
+    urgeEvents: Array.isArray(source.urgeEvents) ? source.urgeEvents : [],
+    slipEvents: Array.isArray(source.slipEvents) ? source.slipEvents : [],
+    pointEvents: Array.isArray(source.pointEvents) ? source.pointEvents : [],
+    rewards: Array.isArray(source.rewards) ? source.rewards : base.rewards,
+    redemptions: Array.isArray(source.redemptions) ? source.redemptions : [],
+    project: { ...base.project, ...(source.project || {}) },
+    weeklyReviews: source.weeklyReviews && typeof source.weeklyReviews === "object" ? source.weeklyReviews : {},
+    settings: { ...base.settings, ...(source.settings || {}) },
+  };
+}
+
 function loadTasks() {
   try {
     const saved = getModeStorageValue(TASKS_STORAGE_KEY);
     if (!saved) {
       return {
         ...structuredClone(defaultTasks),
+        behavior: normalizeBehavior(defaultTasks.behavior),
         tasks: defaultTasks.tasks.map(normalizeTask),
       };
     }
@@ -1275,12 +1333,14 @@ function loadTasks() {
     return {
       ...structuredClone(defaultTasks),
       ...parsed,
+      behavior: normalizeBehavior(parsed.behavior),
       tasks: Array.isArray(parsed.tasks) ? parsed.tasks.map(normalizeTask) : [],
       meta: { ...defaultTasks.meta, ...parsed.meta },
     };
   } catch {
     return {
       ...structuredClone(defaultTasks),
+      behavior: normalizeBehavior(defaultTasks.behavior),
       tasks: defaultTasks.tasks.map(normalizeTask),
     };
   }
@@ -2319,6 +2379,325 @@ function setMode(nextMode) {
   render();
 }
 
+function getBehavior() {
+  taskState.behavior = normalizeBehavior(taskState.behavior);
+  return taskState.behavior;
+}
+
+function getDailyPlan(dateKey = toDateKey()) {
+  const behavior = getBehavior();
+  if (!behavior.dailyPlans[dateKey]) {
+    behavior.dailyPlans[dateKey] = {
+      outcome: "",
+      nextAction: "",
+      plannedStart: "",
+      supportTasks: ["", ""],
+      outcomeCompletedAt: null,
+      morningProtected: false,
+      workoutDone: false,
+      sadhanaDone: false,
+      shutdownDone: false,
+      updatedAt: new Date().toISOString(),
+    };
+  }
+  return behavior.dailyPlans[dateKey];
+}
+
+function saveBehavior() {
+  saveTasks();
+}
+
+function awardBehaviorPoints(eventType, points, sourceId, capKey = "") {
+  const behavior = getBehavior();
+  const dateKey = toDateKey();
+  const idempotencyKey = `${eventType}:${sourceId}`;
+  if (behavior.pointEvents.some((event) => event.idempotencyKey === idempotencyKey)) return;
+  if (capKey) {
+    const used = behavior.pointEvents.filter((event) => event.date === dateKey && event.capKey === capKey).length;
+    const cap = capKey === "focus" ? 4 : capKey === "redirect" ? 3 : Infinity;
+    if (used >= cap) return;
+  }
+  behavior.pointEvents.push({
+    id: createId(),
+    timestamp: new Date().toISOString(),
+    date: dateKey,
+    eventType,
+    sourceId,
+    points,
+    capKey,
+    idempotencyKey,
+  });
+}
+
+function getPointBalance() {
+  const behavior = getBehavior();
+  const earned = behavior.pointEvents.reduce((sum, event) => sum + Number(event.points || 0), 0);
+  const spent = behavior.redemptions.reduce((sum, item) => sum + Number(item.cost || 0), 0);
+  return earned - spent;
+}
+
+function sessionsForDate(dateKey = toDateKey()) {
+  return getBehavior().sessions.filter((session) => session.date === dateKey && session.completed);
+}
+
+function behaviorMetrics(dateKey = toDateKey()) {
+  const sessions = sessionsForDate(dateKey);
+  const build = sessions.filter((item) => item.mode === "BUILD").reduce((sum, item) => sum + item.minutes, 0);
+  const analyze = sessions.filter((item) => item.mode === "ANALYZE").reduce((sum, item) => sum + item.minutes, 0);
+  const ratio = analyze > 0 ? build / analyze : build > 0 ? build : 0;
+  return { build, analyze, ratio };
+}
+
+function renderBehaviorToday() {
+  if (!todayView) return;
+  const plan = getDailyPlan();
+  const metrics = behaviorMetrics();
+  const redirects = getBehavior().urgeEvents.filter((event) => event.date === toDateKey() && event.redirectCompleted).length;
+  const done = Boolean(plan.outcomeCompletedAt);
+  todayView.innerHTML = `
+    <section class="command-layout">
+      <article class="command-primary">
+        <p class="section-kicker">Today's one outcome</p>
+        <input class="outcome-input ${done ? "is-done" : ""}" data-behavior-plan="outcome" value="${escapeHtml(plan.outcome)}" placeholder="A visible result that will exist today" maxlength="160" />
+        <label class="next-action-label">First physical action</label>
+        <input class="next-action-input" data-behavior-plan="nextAction" value="${escapeHtml(plan.nextAction)}" placeholder="Open the file, make the call, write the first line" maxlength="160" />
+        <div class="start-row">
+          <button class="primary-button ignition-button" data-behavior-action="start-focus" data-minutes="5" data-mode="BUILD">Start 5 minutes</button>
+          <button class="secondary-button" data-behavior-action="start-focus" data-minutes="25" data-mode="BUILD">Start 25 minutes</button>
+          <label class="planned-start">Planned <input type="time" data-behavior-plan="plannedStart" value="${escapeHtml(plan.plannedStart)}" /></label>
+        </div>
+        <button class="outcome-complete ${done ? "is-complete" : ""}" data-behavior-action="complete-outcome" type="button">
+          ${done ? "Outcome completed" : "Mark outcome complete"}
+        </button>
+      </article>
+
+      <aside class="command-side">
+        <div class="metric-strip">
+          <div><span>Build</span><strong>${metrics.build}m</strong></div>
+          <div><span>Analyze</span><strong>${metrics.analyze}m</strong></div>
+          <div><span>Ratio</span><strong>${metrics.ratio.toFixed(1)} : 1</strong></div>
+        </div>
+        <div class="xp-panel"><span>Alignment XP</span><strong>${getPointBalance()}</strong></div>
+        <div class="support-box">
+          <p class="section-kicker">Maximum two support tasks</p>
+          ${plan.supportTasks.map((task, index) => `<input data-behavior-support="${index}" value="${escapeHtml(task)}" placeholder="Support task ${index + 1}" maxlength="100" />`).join("")}
+        </div>
+        <div class="anchor-checks">
+          ${renderAnchorCheck("morningProtected", "First focus before high stimulation", plan.morningProtected)}
+          ${renderAnchorCheck("workoutDone", "Move", plan.workoutDone)}
+          ${renderAnchorCheck("sadhanaDone", "Sadhana", plan.sadhanaDone)}
+          ${renderAnchorCheck("shutdownDone", "Shutdown", plan.shutdownDone)}
+        </div>
+      </aside>
+    </section>
+    <section class="interrupt-bar">
+      <button data-behavior-action="open-urge">Urge / obsession</button>
+      <button data-behavior-action="open-distraction">I am distracted</button>
+      <button data-behavior-action="open-slip">I slipped</button>
+      <button class="rescue" data-behavior-action="open-rescue">I cannot do anything</button>
+      <span>${redirects} successful redirects today</span>
+    </section>
+    <p class="dharma-anchor">Jai Shri Ram</p>
+  `;
+}
+
+function renderAnchorCheck(field, label, checked) {
+  return `<label><input type="checkbox" data-behavior-anchor="${field}" ${checked ? "checked" : ""} /> <span>${escapeHtml(label)}</span></label>`;
+}
+
+function startBehaviorFocus(minutes, focusMode = "BUILD") {
+  const plan = getDailyPlan();
+  const now = new Date();
+  let latencyMinutes = null;
+  if (plan.plannedStart) {
+    const [hours, mins] = plan.plannedStart.split(":").map(Number);
+    const planned = new Date(now);
+    planned.setHours(hours, mins, 0, 0);
+    latencyMinutes = Math.max(0, Math.round((now - planned) / 60000));
+  }
+  activeFocus = {
+    id: createId(),
+    mode: focusMode,
+    plannedMinutes: Number(minutes),
+    remainingSeconds: Number(minutes) * 60,
+    startedAt: now.toISOString(),
+    pausedAt: null,
+    pausedMilliseconds: 0,
+    latencyMinutes,
+    paused: false,
+  };
+  setPage("focus");
+  startFocusTicker();
+}
+
+function startFocusTicker() {
+  clearInterval(focusTicker);
+  focusTicker = setInterval(() => {
+    if (!activeFocus || activeFocus.paused) return;
+    activeFocus.remainingSeconds = Math.max(0, activeFocus.remainingSeconds - 1);
+    if (activeFocus.remainingSeconds === 0) {
+      clearInterval(focusTicker);
+      completeBehaviorFocus();
+      return;
+    }
+    if (currentPage === "focus") renderBehaviorFocus();
+  }, 1000);
+}
+
+function renderBehaviorFocus() {
+  if (!focusView) return;
+  const plan = getDailyPlan();
+  if (!activeFocus) {
+    focusView.innerHTML = `
+      <section class="focus-launch">
+        <p class="section-kicker">Choose the kind of attention</p>
+        <h2>${escapeHtml(plan.nextAction || "Define the next physical action on Today first.")}</h2>
+        <div class="focus-mode-grid">
+          <button data-behavior-action="start-focus" data-mode="BUILD" data-minutes="25"><strong>Build</strong><span>Create, solve, implement, ship</span></button>
+          <button data-behavior-action="start-focus" data-mode="ANALYZE" data-minutes="25"><strong>Analyze</strong><span>Read, research, compare, decide</span></button>
+        </div>
+      </section>`;
+    return;
+  }
+  const minutes = Math.floor(activeFocus.remainingSeconds / 60).toString().padStart(2, "0");
+  const seconds = (activeFocus.remainingSeconds % 60).toString().padStart(2, "0");
+  focusView.innerHTML = `
+    <section class="focus-stage ${activeFocus.mode.toLowerCase()}">
+      <p class="section-kicker">${activeFocus.mode} mode</p>
+      <h2>${escapeHtml(plan.nextAction || plan.outcome || "Work only on the chosen action")}</h2>
+      <div class="focus-clock">${minutes}:${seconds}</div>
+      <p>${activeFocus.plannedMinutes === 5 ? "Starting is the repetition. Continuing is optional." : "One task. No switching."}</p>
+      <div class="actions">
+        <button class="secondary-button" data-behavior-action="pause-focus">${activeFocus.paused ? "Resume" : "Pause"}</button>
+        <button class="primary-button" data-behavior-action="complete-focus">Complete now</button>
+        <button class="danger-button" data-behavior-action="cancel-focus">Cancel</button>
+      </div>
+    </section>`;
+}
+
+function completeBehaviorFocus() {
+  if (!activeFocus) return;
+  const currentPause = activeFocus.pausedAt ? Date.now() - new Date(activeFocus.pausedAt).getTime() : 0;
+  const activeMilliseconds = Date.now()
+    - new Date(activeFocus.startedAt).getTime()
+    - Number(activeFocus.pausedMilliseconds || 0)
+    - currentPause;
+  const elapsed = Math.max(1, Math.round(activeMilliseconds / 60000));
+  const completedMinutes = Math.min(activeFocus.plannedMinutes, elapsed);
+  const session = {
+    ...activeFocus,
+    date: toDateKey(),
+    minutes: completedMinutes,
+    completed: true,
+    completedAt: new Date().toISOString(),
+  };
+  getBehavior().sessions.push(session);
+  if (session.mode === "BUILD" && session.minutes >= 25) awardBehaviorPoints("build_block", 3, session.id, "focus");
+  if (session.latencyMinutes !== null && session.latencyMinutes <= 10) awardBehaviorPoints("on_time_start", 2, session.id);
+  activeFocus = null;
+  clearInterval(focusTicker);
+  saveBehavior();
+  render();
+}
+
+function openRedirectFlow(type) {
+  redirectFlow = { type, step: type === "rescue" ? 0 : 1, trigger: "Boredom", intensity: 3, startedAt: new Date().toISOString() };
+  setPage("redirect");
+}
+
+function renderBehaviorRedirect() {
+  if (!redirectView) return;
+  if (!redirectFlow) {
+    redirectView.innerHTML = `
+      <section class="redirect-choice">
+        <p class="section-kicker">The next decision still matters</p>
+        <h2>What happened?</h2>
+        <div class="redirect-choice-grid">
+          <button data-behavior-action="open-urge">Urge / obsession</button>
+          <button data-behavior-action="open-distraction">Distraction</button>
+          <button data-behavior-action="open-slip">Slip</button>
+          <button data-behavior-action="open-rescue">Rescue mode</button>
+        </div>
+      </section>`;
+    return;
+  }
+  if (redirectFlow.type === "rescue") {
+    redirectView.innerHTML = `<section class="rescue-stage"><p class="section-kicker">Rescue mode</p><h2>Forget the day. Save the next ten minutes.</h2><div class="rescue-grid">${["Shower", "Eat", "Walk 5 min", "Clean desk 2 min", "Work 5 min", "Contact support"].map((item) => `<button data-behavior-action="rescue-choice" data-choice="${item}">${item}</button>`).join("")}</div></section>`;
+    return;
+  }
+  if (redirectFlow.step === 1) {
+    redirectView.innerHTML = `<section class="redirect-stage"><p class="section-kicker">Recognize</p><h2>${redirectFlow.type === "slip" ? "A slip already happened." : "An urge is present."}</h2><p>No essay. Record only enough to choose the next behavior.</p><label>Trigger<select data-redirect-field="trigger">${["Saw person", "Social media", "Memory", "Loneliness", "Sexual trigger", "Boredom", "Rejection", "Other"].map((item) => `<option ${item === redirectFlow.trigger ? "selected" : ""}>${item}</option>`).join("")}</select></label><label>Intensity <input type="range" min="1" max="5" value="${redirectFlow.intensity}" data-redirect-field="intensity" /></label><button class="primary-button" data-behavior-action="redirect-next">Redirect now</button></section>`;
+    return;
+  }
+  if (redirectFlow.step === 2) {
+    redirectView.innerHTML = `<section class="redirect-stage"><p class="section-kicker">Move</p><h2>Do not analyze.</h2><p>The feeling can exist. No action toward the trigger is required.</p><div class="movement-instruction">Stand up · 10 slow breaths · Move for 60 seconds</div><button class="primary-button" data-behavior-action="redirect-next">Movement complete</button></section>`;
+    return;
+  }
+  const action = getDailyPlan().nextAction || getBehavior().project.nextAction || "Choose one useful five-minute action";
+  redirectView.innerHTML = `<section class="redirect-stage"><p class="section-kicker">Return</p><h2>Jai Shri Ram</h2><p>Return attention to what you chose.</p><div class="return-action">${escapeHtml(action)}</div><button class="primary-button" data-behavior-action="complete-redirect">Work 5 minutes</button></section>`;
+}
+
+function completeRedirect() {
+  if (!redirectFlow) return;
+  const behavior = getBehavior();
+  const event = { id: createId(), date: toDateKey(), ...redirectFlow, redirectCompleted: true, completedAt: new Date().toISOString() };
+  if (redirectFlow.type === "slip") {
+    event.recoverySeconds = Math.round((Date.now() - new Date(redirectFlow.startedAt).getTime()) / 1000);
+    behavior.slipEvents.push(event);
+    awardBehaviorPoints("slip_recovery", 2, event.id);
+  } else {
+    behavior.urgeEvents.push(event);
+    awardBehaviorPoints("redirect", redirectFlow.type === "urge" ? 3 : 2, event.id, "redirect");
+  }
+  redirectFlow = null;
+  saveBehavior();
+  startBehaviorFocus(5, "BUILD");
+}
+
+function renderBehaviorRewards() {
+  if (!rewardsView) return;
+  const behavior = getBehavior();
+  const balance = getPointBalance();
+  rewardsView.innerHTML = `<section class="reward-header"><p class="section-kicker">Available balance</p><strong>${balance} XP</strong><p>XP records useful actions. It is not a moral score.</p></section><section class="reward-grid">${behavior.rewards.filter((item) => item.active).map((item) => `<article><h3>${escapeHtml(item.title)}</h3><strong>${item.cost} XP</strong><button class="secondary-button" data-behavior-action="redeem-reward" data-reward-id="${item.id}" ${balance < item.cost ? "disabled" : ""}>Redeem</button></article>`).join("")}</section><section class="compact-form"><h2>Add a bounded reward</h2><input id="reward-title" placeholder="One episode, meal, outing" maxlength="80" /><input id="reward-cost" type="number" min="1" value="40" /><button class="primary-button" data-behavior-action="add-reward">Add reward</button><p>Never use open-ended scrolling, checking, pornography or another compulsion as a reward.</p></section>`;
+}
+
+function renderBehaviorProject() {
+  if (!projectView) return;
+  const project = getBehavior().project;
+  projectView.innerHTML = `<section class="project-editor"><p class="section-kicker">Exactly one active project</p><label>Project<input data-project-field="title" value="${escapeHtml(project.title)}" placeholder="The breakthrough project" /></label><label>Purpose<textarea data-project-field="purpose" maxlength="240" placeholder="What useful change will this create?">${escapeHtml(project.purpose)}</textarea></label><label>12-week mission<textarea data-project-field="mission" maxlength="240" placeholder="A measurable result">${escapeHtml(project.mission)}</textarea></label><div class="project-row"><label>Status<select data-project-field="status">${["IDEA", "LEARNING", "BUILDING", "TESTING", "SHIPPED", "VALIDATING"].map((status) => `<option ${project.status === status ? "selected" : ""}>${status}</option>`).join("")}</select></label><label>This week's output<input data-project-field="weeklyOutput" value="${escapeHtml(project.weeklyOutput)}" placeholder="One artifact" /></label></div><label>Next physical action<input data-project-field="nextAction" value="${escapeHtml(project.nextAction)}" placeholder="Open file and implement..." /></label><button class="primary-button" data-behavior-action="ship-artifact">Record shipped artifact</button>${project.artifacts.length ? `<div class="artifact-list">${project.artifacts.slice(-8).reverse().map((item) => `<div><strong>${escapeHtml(item.title)}</strong><span>${formatDateTime(item.createdAt)}</span></div>`).join("")}</div>` : ""}</section>`;
+}
+
+function getRecentBehaviorStats(days = 7) {
+  const behavior = getBehavior();
+  const keys = Array.from({ length: days }, (_, offset) => toDateKey(addDays(new Date(), -(days - 1 - offset))));
+  const sessions = behavior.sessions.filter((item) => keys.includes(item.date) && item.completed);
+  const build = sessions.filter((item) => item.mode === "BUILD").reduce((sum, item) => sum + item.minutes, 0);
+  const analyze = sessions.filter((item) => item.mode === "ANALYZE").reduce((sum, item) => sum + item.minutes, 0);
+  const latencies = sessions.map((item) => item.latencyMinutes).filter((value) => Number.isFinite(value)).sort((a, b) => a - b);
+  const slips = behavior.slipEvents.filter((item) => keys.includes(item.date));
+  const urges = behavior.urgeEvents.filter((item) => keys.includes(item.date));
+  const recoveries = slips.map((item) => Math.round((item.recoverySeconds || 0) / 60)).sort((a, b) => a - b);
+  const completed = keys.filter((key) => behavior.dailyPlans[key]?.outcomeCompletedAt).length;
+  const artifacts = behavior.project.artifacts.filter((item) => keys.includes(item.date)).length;
+  const median = (values) => values.length ? values[Math.floor(values.length / 2)] : 0;
+  return { build, analyze, ratio: analyze ? build / analyze : build, startLatency: median(latencies), urges, slips, recovery: median(recoveries), completed, artifacts };
+}
+
+function getWeekKey(date = new Date()) {
+  const monday = new Date(date);
+  const day = monday.getDay();
+  monday.setDate(monday.getDate() - (day === 0 ? 6 : day - 1));
+  return toDateKey(monday);
+}
+
+function renderBehaviorReview() {
+  if (!reviewView) return;
+  const stats = getRecentBehaviorStats();
+  const key = getWeekKey();
+  const review = getBehavior().weeklyReviews[key] || { worked: "", captured: "", rule: "" };
+  reviewView.innerHTML = `<section class="weekly-score"><div><span>Main outcomes</span><strong>${stats.completed} / 7</strong></div><div><span>Build</span><strong>${stats.build}m</strong></div><div><span>Analyze</span><strong>${stats.analyze}m</strong></div><div><span>Build ratio</span><strong>${stats.ratio.toFixed(2)}</strong></div><div><span>Start latency</span><strong>${stats.startLatency}m</strong></div><div><span>Redirects</span><strong>${stats.urges.length}</strong></div><div><span>Recovery latency</span><strong>${stats.recovery}m</strong></div><div><span>Artifacts</span><strong>${stats.artifacts}</strong></div></section><section class="review-form"><h2>Three questions only</h2><label>What worked?<textarea data-review-field="worked" maxlength="300">${escapeHtml(review.worked)}</textarea></label><label>What repeatedly captured attention?<textarea data-review-field="captured" maxlength="300">${escapeHtml(review.captured)}</textarea></label><label>What one rule changes next week?<textarea data-review-field="rule" maxlength="300">${escapeHtml(review.rule)}</textarea></label><button class="primary-button" data-behavior-action="save-review">Save review</button></section>`;
+}
+
 function setPage(nextPage) {
   currentPage = nextPage;
   pageButtons.forEach((button) => {
@@ -2346,15 +2725,17 @@ function render() {
     activeProfileBadge.classList.toggle("personal", !isDemoMode());
   }
   const pageCopy = {
-    foundation: ["Foundation", "Why I Started"],
-    career: ["Execution", "Career Roadmaps"],
-    today: ["Command Center", "Today"],
-    habits: ["Consistency", "Habit Tracker"],
-    journal: ["Mind Containment", "Daily Shutdown"],
-    progress: ["Analytics", "Progress"],
+    journal: ["Your daily record", "Journal"],
+    progress: ["Evidence of effort", "Progress"],
+    today: ["Command", "Today"],
+    focus: ["Execution", "Focus"],
+    redirect: ["Recovery", "Redirect"],
+    rewards: ["Reinforcement", "Rewards"],
+    project: ["Direction", "Breakthrough Project"],
+    review: ["Weekly only", "Review"],
     settings: ["Privacy", "Settings"],
   };
-  const [eyebrow, title] = pageCopy[currentPage] ?? pageCopy.foundation;
+  const [eyebrow, title] = pageCopy[currentPage] ?? pageCopy.today;
   topbarEyebrow.textContent = eyebrow;
   topbarTitle.textContent = title;
   modeSwitch.classList.toggle("is-hidden", currentPage !== "foundation");
@@ -2365,39 +2746,34 @@ function render() {
     button.classList.toggle("is-active", button.dataset.mode === mode);
   });
 
-  readView.classList.toggle("is-hidden", currentPage !== "foundation" || mode !== "read");
-  editView.classList.toggle("is-hidden", currentPage !== "foundation" || mode !== "edit");
-  careerView.classList.toggle("is-hidden", currentPage !== "career");
-  todayView.classList.toggle("is-hidden", currentPage !== "today");
-  habitsView.classList.toggle("is-hidden", currentPage !== "habits");
-  journalView.classList.toggle("is-hidden", currentPage !== "journal");
-  progressView.classList.toggle("is-hidden", currentPage !== "progress");
-  settingsView.classList.toggle("is-hidden", currentPage !== "settings");
+  readView?.classList.add("is-hidden");
+  editView?.classList.add("is-hidden");
+  careerView?.classList.add("is-hidden");
+  habitsView?.classList.add("is-hidden");
+  journalView?.classList.add("is-hidden");
+  progressView?.classList.add("is-hidden");
+  journalView?.classList.toggle("is-hidden", currentPage !== "journal");
+  progressView?.classList.toggle("is-hidden", currentPage !== "progress");
+  todayView?.classList.toggle("is-hidden", currentPage !== "today");
+  focusView?.classList.toggle("is-hidden", currentPage !== "focus");
+  redirectView?.classList.toggle("is-hidden", currentPage !== "redirect");
+  rewardsView?.classList.toggle("is-hidden", currentPage !== "rewards");
+  projectView?.classList.toggle("is-hidden", currentPage !== "project");
+  reviewView?.classList.toggle("is-hidden", currentPage !== "review");
+  settingsView?.classList.toggle("is-hidden", currentPage !== "settings");
 
-  if (currentPage === "foundation") {
-    renderReadView();
-    renderEditView();
-  }
-  if (currentPage === "career") {
-    renderCareerView();
-  }
-  if (currentPage === "today") {
-    renderTodayView();
-  }
-  if (currentPage === "habits") {
-    renderHabitView();
-  }
-  if (currentPage === "journal") {
-    renderJournalView();
-  }
-  if (currentPage === "progress") {
-    renderProgressView();
-  }
+  if (currentPage === "today") renderBehaviorToday();
+  if (currentPage === "journal") renderLifeJournal();
+  if (currentPage === "progress") renderLifeProgress();
+  if (currentPage === "focus") renderBehaviorFocus();
+  if (currentPage === "redirect") renderBehaviorRedirect();
+  if (currentPage === "rewards") renderBehaviorRewards();
+  if (currentPage === "project") renderBehaviorProject();
+  if (currentPage === "review") renderBehaviorReview();
   if (currentPage === "settings") {
     renderSettingsView();
   }
-
-  renderFieldView();
+  fieldView?.classList.add("is-hidden");
 }
 
 function renderFieldView() {
@@ -7469,6 +7845,95 @@ document.addEventListener("click", async (event) => {
     return;
   }
 
+  const behaviorAction = target.closest("[data-behavior-action]");
+  if (behaviorAction) {
+    const actionName = behaviorAction.dataset.behaviorAction;
+    if (actionName === "start-focus") startBehaviorFocus(Number(behaviorAction.dataset.minutes || 25), behaviorAction.dataset.mode || "BUILD");
+    if (actionName === "pause-focus" && activeFocus) {
+      if (activeFocus.paused) {
+        activeFocus.pausedMilliseconds += Date.now() - new Date(activeFocus.pausedAt).getTime();
+        activeFocus.pausedAt = null;
+        activeFocus.paused = false;
+      } else {
+        activeFocus.pausedAt = new Date().toISOString();
+        activeFocus.paused = true;
+      }
+      renderBehaviorFocus();
+    }
+    if (actionName === "complete-focus") completeBehaviorFocus();
+    if (actionName === "cancel-focus") {
+      clearInterval(focusTicker);
+      activeFocus = null;
+      renderBehaviorFocus();
+    }
+    if (actionName === "complete-outcome") {
+      const plan = getDailyPlan();
+      if (!plan.outcomeCompletedAt) {
+        plan.outcomeCompletedAt = new Date().toISOString();
+        awardBehaviorPoints("main_outcome", 12, toDateKey());
+        saveBehavior();
+      }
+      renderBehaviorToday();
+    }
+    if (actionName === "open-urge") openRedirectFlow("urge");
+    if (actionName === "open-distraction") openRedirectFlow("distraction");
+    if (actionName === "open-slip") openRedirectFlow("slip");
+    if (actionName === "open-rescue") openRedirectFlow("rescue");
+    if (actionName === "redirect-next" && redirectFlow) {
+      redirectFlow.step += 1;
+      renderBehaviorRedirect();
+    }
+    if (actionName === "complete-redirect") completeRedirect();
+    if (actionName === "rescue-choice") {
+      const choice = behaviorAction.dataset.choice || "Reset";
+      redirectFlow = null;
+      if (choice === "Work 5 min") startBehaviorFocus(5, "BUILD");
+      else {
+        getBehavior().sessions.push({ id: createId(), date: toDateKey(), mode: "RESCUE", title: choice, minutes: 0, completed: true, completedAt: new Date().toISOString() });
+        saveBehavior();
+        setPage("today");
+      }
+    }
+    if (actionName === "add-reward") {
+      const title = document.querySelector("#reward-title")?.value.trim();
+      const cost = Number(document.querySelector("#reward-cost")?.value || 0);
+      if (title && cost > 0) {
+        getBehavior().rewards.push({ id: createId(), title, cost, active: true });
+        saveBehavior();
+        renderBehaviorRewards();
+      }
+    }
+    if (actionName === "redeem-reward") {
+      const reward = getBehavior().rewards.find((item) => item.id === behaviorAction.dataset.rewardId);
+      if (reward && getPointBalance() >= reward.cost) {
+        getBehavior().redemptions.push({ id: createId(), rewardId: reward.id, title: reward.title, cost: reward.cost, createdAt: new Date().toISOString() });
+        saveBehavior();
+        renderBehaviorRewards();
+      }
+    }
+    if (actionName === "ship-artifact") {
+      const project = getBehavior().project;
+      const title = project.weeklyOutput.trim() || project.title.trim();
+      if (title) {
+        const artifact = { id: createId(), title, date: toDateKey(), createdAt: new Date().toISOString() };
+        project.artifacts.push(artifact);
+        project.status = "SHIPPED";
+        awardBehaviorPoints("artifact", 8, artifact.id);
+        saveBehavior();
+        renderBehaviorProject();
+      }
+    }
+    if (actionName === "save-review") {
+      const key = getWeekKey();
+      const fields = {};
+      document.querySelectorAll("[data-review-field]").forEach((input) => { fields[input.dataset.reviewField] = input.value.trim(); });
+      getBehavior().weeklyReviews[key] = { ...fields, savedAt: new Date().toISOString() };
+      saveBehavior();
+      renderBehaviorReview();
+    }
+    return;
+  }
+
   const fieldAction = target.closest("[data-field-action]");
   if (fieldAction) {
     if (fieldAction.dataset.fieldAction === "add-task") {
@@ -7684,6 +8149,24 @@ document.addEventListener("change", (event) => {
     return;
   }
 
+  if (target.dataset.behaviorAnchor && target instanceof HTMLInputElement) {
+    const plan = getDailyPlan();
+    const field = target.dataset.behaviorAnchor;
+    plan[field] = target.checked;
+    if (target.checked) {
+      const points = { morningProtected: 4, workoutDone: 6, sadhanaDone: 4, shutdownDone: 2 }[field] || 0;
+      awardBehaviorPoints(field, points, `${toDateKey()}:${field}`);
+    }
+    saveBehavior();
+    renderBehaviorToday();
+    return;
+  }
+
+  if (target.dataset.redirectField && redirectFlow) {
+    redirectFlow[target.dataset.redirectField] = target.dataset.redirectField === "intensity" ? Number(target.value) : target.value;
+    return;
+  }
+
   const careerField = target.dataset.careerField;
   if (careerField) {
     updateCareerField(target.dataset, careerField, target.value);
@@ -7711,6 +8194,28 @@ document.addEventListener("change", (event) => {
 document.addEventListener("input", (event) => {
   const target = event.target;
   if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement)) {
+    return;
+  }
+
+  if (target.dataset.behaviorPlan) {
+    const plan = getDailyPlan();
+    plan[target.dataset.behaviorPlan] = target.value;
+    plan.updatedAt = new Date().toISOString();
+    saveBehavior();
+    return;
+  }
+
+  if (target.dataset.behaviorSupport !== undefined) {
+    const plan = getDailyPlan();
+    plan.supportTasks[Number(target.dataset.behaviorSupport)] = target.value;
+    plan.updatedAt = new Date().toISOString();
+    saveBehavior();
+    return;
+  }
+
+  if (target.dataset.projectField) {
+    getBehavior().project[target.dataset.projectField] = target.value;
+    saveBehavior();
     return;
   }
 
