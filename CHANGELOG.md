@@ -2,6 +2,17 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.005 - Effort Reinforcement
+
+- Added the Action Vault as the single persistent system for long-lived responsibilities.
+- Added Open, Active, Waiting and Done states, three-item active capacity, priorities, optional deadlines and smallest next actions.
+- Extended reviewed journal packages to add, update and complete the same Action Vault records without duplication.
+- Restored Rewards without restoring the old operational complexity.
+- Reviewed completed actions earn 1-5 effort credits; observations earn none.
+- Added nine user-relevant rewards, explicit costs, redemption controls and reward history.
+- Added 14-day activity graphs for every recorded domain alongside the heatmap and totals.
+- Kept Journal as the only input surface; Progress and Rewards remain read/redeem surfaces.
+
 ## 0.004.004 - Journal Foundation
 
 - Reduced the visible application to Journal and Progress.

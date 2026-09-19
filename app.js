@@ -15,13 +15,16 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.004.004";
-const APP_STAGE = "Journal Foundation";
+const APP_VERSION = "0.004.005";
+const APP_STAGE = "Life Execution Foundation";
 const APP_RELEASE_DATE = "2026-09-19";
-const APP_STATUS = "One personal journal with automatic reviewed imports";
+const APP_STATUS = "Journal, persistent actions, visual progress and earned rewards";
 const APP_NEXT_MILESTONE = "Use the journal reliably before adding another feature";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Added one persistent Action Vault with priorities, next actions, optional deadlines and a three-item active limit.",
+  "Restored Rewards as a journal-driven effort-credit system with transparent costs and history.",
+  "Added domain-level 14-day activity graphs and simplified motivational analytics.",
   "Reduced KRYOS to Journal and Progress while preserving older data for later use.",
   "Made 9619 the personal profile credential and removed the accidental empty-demo route.",
   "Added assistant-maintained progress packages that import once into the existing KRYOS profile.",
@@ -77,7 +80,7 @@ const TASK_TYPES = ["Task", "Checklist", "Goal", "Routine", "Habit"];
 const TASK_PRIORITIES = ["Low", "Medium", "High", "Critical"];
 const TASK_REPEATS = ["none", "daily", "weekdays", "weekly", "selected"];
 const TASK_VIEWS = ["today", "inbox", "upcoming"];
-const APP_PAGES = ["journal", "progress"];
+const APP_PAGES = ["journal", "actions", "progress", "rewards"];
 const FIELD_TABS = ["today", "add", "habits", "pulse"];
 const HABIT_RANGES = [14, 30, 60, 90];
 const HABIT_PERIODS = ["day", "week", "month"];
@@ -564,6 +567,7 @@ const careerView = document.querySelector("#career-view");
 const todayView = document.querySelector("#today-view");
 const habitsView = document.querySelector("#habits-view");
 const journalView = document.querySelector("#journal-view");
+const actionsView = document.querySelector("#actions-view");
 const progressView = document.querySelector("#progress-view");
 const settingsView = document.querySelector("#settings-view");
 const focusView = document.querySelector("#focus-view");
@@ -2742,6 +2746,7 @@ function render() {
   }
   const pageCopy = {
     journal: ["Your daily record", "Journal"],
+    actions: ["Persistent commitments", "Action Vault"],
     progress: ["Evidence of effort", "Progress"],
     today: ["Command", "Today"],
     focus: ["Execution", "Focus"],
@@ -2767,8 +2772,10 @@ function render() {
   careerView?.classList.add("is-hidden");
   habitsView?.classList.add("is-hidden");
   journalView?.classList.add("is-hidden");
+  actionsView?.classList.add("is-hidden");
   progressView?.classList.add("is-hidden");
   journalView?.classList.toggle("is-hidden", currentPage !== "journal");
+  actionsView?.classList.toggle("is-hidden", currentPage !== "actions");
   progressView?.classList.toggle("is-hidden", currentPage !== "progress");
   todayView?.classList.toggle("is-hidden", currentPage !== "today");
   focusView?.classList.toggle("is-hidden", currentPage !== "focus");
@@ -2780,10 +2787,11 @@ function render() {
 
   if (currentPage === "today") renderBehaviorToday();
   if (currentPage === "journal") renderLifeJournal();
+  if (currentPage === "actions") renderActionVault();
   if (currentPage === "progress") renderLifeProgress();
   if (currentPage === "focus") renderBehaviorFocus();
   if (currentPage === "redirect") renderBehaviorRedirect();
-  if (currentPage === "rewards") renderBehaviorRewards();
+  if (currentPage === "rewards") renderJournalRewards();
   if (currentPage === "project") renderBehaviorProject();
   if (currentPage === "review") renderBehaviorReview();
   if (currentPage === "settings") {

@@ -38,6 +38,14 @@ function progressCell(key) {
   return `<button class="life-cell level-${level} ${selected ? 'selected' : ''}" data-life="day" data-date="${key}" aria-pressed="${selected}" aria-label="${key}: ${count} completed records" title="${key}: ${count} completed records"><span>${Number(key.slice(-2))}</span></button>`;
 }
 
+function domainSparkBars(domain, today) {
+  return Array.from({ length: 14 }, (_, index) => {
+    const date = progressDate(today, index - 13);
+    const count = lifeStore().records.filter(record => record.date === date && record.completed && record.domain === domain).length;
+    return `<i class="domain-spark-bar ${count ? 'active' : ''}" style="--value:${Math.min(4, count)}" title="${date}: ${count}"></i>`;
+  }).join('');
+}
+
 function renderProgressDashboard() {
   const store = lifeStore();
   const today = toDateKey();
@@ -61,7 +69,7 @@ function renderProgressDashboard() {
       <p class="life-legend">Darker green means more completed actions were recorded that day.</p>
       <div class="life-evidence" aria-live="polite"><div class="progress-eyebrow"><strong>${shortDate(selected.date)}</strong><span>${selected.completed} completions</span></div>${selected.records.map(record => `<p><strong>${escapeHtml(record.domain)}</strong> &middot; ${escapeHtml(record.title)}</p>`).join('') || '<p>No structured progress recorded.</p>'}</div>
     </section>
-    <section class="life-section"><div class="life-heading"><div><h2>Where your effort went</h2><p>All recorded journal actions</p></div></div><div class="life-domain-list">${domainCounts.map(item => `<div class="life-domain-row"><span>${escapeHtml(item.domain)}</span><progress max="${maximum}" value="${item.count}"></progress><strong>${item.count}</strong></div>`).join('') || '<p>No completed actions yet.</p>'}</div></section>`;
+    <section class="life-section"><div class="life-heading"><div><h2>Where your effort went</h2><p>All recorded journal actions</p></div></div><div class="life-domain-list">${domainCounts.map(item => `<article class="life-domain-row"><div><span>${escapeHtml(item.domain)}</span><strong>${item.count}</strong></div><progress max="${maximum}" value="${item.count}"></progress><div class="domain-spark" aria-label="${escapeHtml(item.domain)} activity over 14 days">${domainSparkBars(item.domain, today)}</div></article>`).join('') || '<p>No completed actions yet.</p>'}</div></section>`;
 }
 
 document.addEventListener('change', event => {

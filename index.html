@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KRYOS</title>
-    <link rel="stylesheet" href="styles.css?v=0.004.004" />
-    <link rel="stylesheet" href="life.css?v=0.004.004" />
+    <link rel="stylesheet" href="styles.css?v=0.004.005" />
+    <link rel="stylesheet" href="life.css?v=0.004.005" />
   </head>
   <body>
     <div class="app-shell">
@@ -20,7 +20,9 @@
 
         <nav class="nav-list">
           <button class="nav-item is-active" type="button" data-page="journal">Journal</button>
+          <button class="nav-item" type="button" data-page="actions">Actions</button>
           <button class="nav-item" type="button" data-page="progress">Progress</button>
+          <button class="nav-item" type="button" data-page="rewards">Rewards</button>
         </nav>
       </aside>
 
@@ -46,6 +48,7 @@
         <section id="today-view" class="view is-hidden"></section>
         <section id="habits-view" class="view is-hidden"></section>
         <section id="journal-view" class="view is-hidden"></section>
+        <section id="actions-view" class="view is-hidden"></section>
         <section id="progress-view" class="view is-hidden"></section>
         <section id="settings-view" class="view is-hidden"></section>
         <section id="focus-view" class="view is-hidden"></section>
@@ -60,13 +63,16 @@
     <nav class="mobile-nav" aria-label="Mobile navigation">
       <button class="mobile-nav-item is-active" type="button" data-page="journal">Journal</button>
       <button class="mobile-nav-item" type="button" data-page="progress">Progress</button>
+      <button class="mobile-nav-item" type="button" data-page="rewards">Rewards</button>
     </nav>
 
     <section id="security-overlay" class="security-overlay is-hidden" aria-live="polite"></section>
 
-    <script src="assistant-data.js?v=0.004.004"></script>
-    <script src="life.js?v=0.004.004"></script>
-    <script src="progress.js?v=0.004.004"></script>
-    <script src="app.js?v=0.004.004"></script>
+    <script src="assistant-data.js?v=0.004.005"></script>
+    <script src="life.js?v=0.004.005"></script>
+    <script src="actions.js?v=0.004.005"></script>
+    <script src="progress.js?v=0.004.005"></script>
+    <script src="rewards.js?v=0.004.005"></script>
+    <script src="app.js?v=0.004.005"></script>
   </body>
 </html>

@@ -9,14 +9,14 @@ major.minor.patch
 Current version:
 
 ```text
-0.004.004
+0.004.005
 ```
 
 ## Meaning
 
 - `0`: private pre-public era.
 - `004`: directed-attention operating system line.
-- `004`: journal-only foundation with one personal profile and journal-driven progress.
+- `005`: effort reinforcement with earned rewards and domain-level visual analytics.
 
 ## Version Bands
 
