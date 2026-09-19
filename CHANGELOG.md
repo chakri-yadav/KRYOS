@@ -2,6 +2,11 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.020 - Self-Hosted Supabase Client
+
+- Bundled the official Supabase browser client inside the KRYOS repository.
+- Removed runtime dependence on third-party CDN execution for authentication and cloud sync.
+
 ## 0.004.019 - Supabase CDN Compatibility
 
 - Switched the official Supabase v2 browser client to its documented unpkg distribution.
