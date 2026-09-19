@@ -11,7 +11,7 @@ const assert = require('node:assert/strict');
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(pathToFileURL(path.resolve('index.html')).href);
 
-    assert.deepEqual(await page.locator('.nav-item').allTextContents(), ['Journal', 'Actions', 'Career', 'Rhythm', 'Money', 'Progress', 'Rewards']);
+    assert.deepEqual(await page.locator('.nav-item').allTextContents(), ['Inner Command', 'Actions', 'Career', 'Rhythm', 'Money', 'Progress', 'Rewards']);
     await page.locator('#unlock-pass').fill('9619');
     await page.getByRole('button', { name: 'Enter KRYOS' }).click();
     await page.waitForFunction(() => lifeStore().entries.some(entry => entry.packageId === 'assistant-2026-09-17-day-1'));
@@ -23,6 +23,14 @@ const assert = require('node:assert/strict');
     assert.equal(await page.evaluate(() => lifeStore().actions.filter(action => action.externalId.startsWith('action-')).length), 13);
     assert.equal(await page.evaluate(() => lifeStore().actions.find(action => action.externalId === 'action-haircut-2026-09-21').deadline), '2026-09-21');
     assert.equal(await page.evaluate(() => lifeStore().actions.find(action => action.externalId === 'action-part-time-payment-balance').nextAction), 'Confirm and collect approximately $225-$226.');
+    assert.equal(await page.locator('.command-archetypes article').count(), 3);
+    assert.equal(await page.locator('.containment-days button').count(), 45);
+    await page.getByRole('button', { name: 'Record breach' }).click();
+    await page.locator('#life-containment-form [value=social]').check();
+    await page.locator('#life-containment-form [name=note]').fill('Test evidence.');
+    await page.getByRole('button', { name: 'Record and return' }).click();
+    assert.equal(await page.evaluate(() => innerCommandRecord(toDateKey()).boundary), 'social');
+    assert.equal(await page.evaluate(() => innerCommandStatus(toDateKey())), 'breach');
 
     await page.getByRole('button', { name: 'Actions', exact: true }).first().click();
     await page.locator('.action-add summary').click();
@@ -37,7 +45,7 @@ const assert = require('node:assert/strict');
     await page.getByRole('button', { name: 'Save changes' }).click();
     assert.equal(await page.getByText('Renew important document safely', { exact: true }).count(), 1);
 
-    await page.getByRole('button', { name: 'Journal', exact: true }).first().click();
+    await page.getByRole('button', { name: 'Inner Command', exact: true }).first().click();
     await page.locator('#life-draft').fill('A focused journal test.');
     await page.getByRole('button', { name: 'Save to timeline', exact: true }).click();
     await page.reload();
@@ -48,6 +56,7 @@ const assert = require('node:assert/strict');
     assert.equal(await page.evaluate(() => lifeStore().entries.filter(entry => entry.packageId === 'assistant-2026-09-17-day-1').length), 1);
     assert.equal(await page.evaluate(() => lifeStore().entries.filter(entry => entry.packageId === 'assistant-2026-09-19-master-actions-page-1').length), 1);
     assert.equal(await page.evaluate(() => lifeStore().actions.filter(action => action.externalId.startsWith('action-')).length), 13);
+    assert.equal(await page.evaluate(() => innerCommandStatus(toDateKey())), 'breach');
 
     await page.getByRole('button', { name: 'Career', exact: true }).first().click();
     assert.equal(await page.locator('.career-week-pulse .career-pulse-day').count(), 7);
@@ -104,7 +113,7 @@ const assert = require('node:assert/strict');
     assert.ok(await page.getByText('Astrology remains protected', { exact: true }).count() > 0);
     assert.ok(await page.getByText('No reviewed days yet. Journal evidence alone does not create credits.', { exact: true }).count() > 0);
     assert.deepEqual(errors, []);
-    console.log('PASS: journal, Action Vault, Career, Rhythm, Money, analytics, rewards and persistence');
+    console.log('PASS: Inner Command, Action Vault, Career, Rhythm, Money, analytics, rewards and persistence');
   } finally {
     await browser.close();
   }
