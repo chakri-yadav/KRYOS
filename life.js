@@ -7,6 +7,8 @@ let assistantImportOpened = false;
 function lifeStore() {
   taskState.life ||= { version: 1, entries: [], records: [], draft: '', plannedDays: [1, 2, 3, 4, 5], schedules: [] };
   taskState.life.schedules ||= [];
+  taskState.life.actions ||= [];
+  taskState.life.rewardRedemptions ||= [];
   return taskState.life;
 }
 function lifeOptions(items) { return items.map(x => `<option>${escapeHtml(x)}</option>`).join(''); }
@@ -24,9 +26,22 @@ function validateLifeImport(data) {
     if (!['activity', 'observation', 'task'].includes(r.kind)) throw new Error('Record kind must be activity, observation, or task.');
     if (typeof r.evidence !== 'string' || !r.evidence.trim() || !data.text.includes(r.evidence)) throw new Error('Each record needs an exact supporting excerpt from the journal.');
     if (r.minutes != null && (!Number.isFinite(r.minutes) || r.minutes < 0 || r.minutes > 1440)) throw new Error('Minutes must be between 0 and 1440. Leave unknown durations out.');
-    return { title: r.title.trim(), domain: r.domain, kind: r.kind, evidence: r.evidence, minutes: r.minutes ?? null, completed: r.kind === 'activity' && r.completed === true };
+    const effort = r.kind === 'activity' ? Math.max(1, Math.min(5, Number(r.effort) || 1)) : 0;
+    return { title: r.title.trim(), domain: r.domain, kind: r.kind, evidence: r.evidence, minutes: r.minutes ?? null, completed: r.kind === 'activity' && r.completed === true, effort, actionRef: typeof r.actionRef === 'string' ? r.actionRef.trim() : '' };
   });
-  return { id: data.id.trim(), date: data.date, text: data.text, records };
+  const actions = Array.isArray(data.actions) ? data.actions.map(action => normalizeImportedAction(action)) : [];
+  const actionUpdates = Array.isArray(data.actionUpdates) ? data.actionUpdates.map(update => normalizeActionUpdate(update)) : [];
+  return { id: data.id.trim(), date: data.date, text: data.text, records, actions, actionUpdates };
+}
+function normalizeImportedAction(action) {
+  if (!action || typeof action.id !== 'string' || !action.id.trim() || typeof action.title !== 'string' || !action.title.trim()) throw new Error('Every imported action needs an id and title.');
+  if (!LIFE_DOMAINS.includes(action.domain)) throw new Error('Every imported action needs a known domain.');
+  const priority = ['critical', 'important', 'normal'].includes(action.priority) ? action.priority : 'normal';
+  return { externalId: action.id.trim(), title: action.title.trim(), domain: action.domain, priority, nextAction: String(action.nextAction || '').trim(), deadline: lifeDate(action.deadline) ? action.deadline : '', status: 'open' };
+}
+function normalizeActionUpdate(update) {
+  if (!update || typeof update.id !== 'string' || !['open', 'active', 'waiting', 'done', 'archived'].includes(update.status)) throw new Error('Invalid action update.');
+  return { externalId: update.id.trim(), status: update.status };
 }
 function decodeAssistantImport(value) {
   const normalized=value.replace(/-/g,'+').replace(/_/g,'/');
@@ -54,7 +69,35 @@ function lifeCommit(data) {
   if (store.entries.some(e => e.packageId === data.id)) throw new Error('This package has already been imported.');
   const entry = { id: createId(), packageId: data.id, date: data.date, text: data.text, createdAt: new Date().toISOString() };
   store.entries.push(entry);
-  data.records.forEach(r => store.records.push({ ...r, id: createId(), entryId: entry.id, date: entry.date }));
+  (data.actions || []).forEach(action => {
+    if (!store.actions.some(item => item.externalId === action.externalId)) store.actions.push({ ...action, id: createId(), createdAt: new Date().toISOString(), completedAt: null });
+  });
+  (data.actionUpdates || []).forEach(update => {
+    const action = store.actions.find(item => item.externalId === update.externalId);
+    if (action) { action.status = update.status; action.completedAt = update.status === 'done' ? new Date().toISOString() : null; }
+  });
+  data.records.forEach(r => {
+    store.records.push({ ...r, id: createId(), entryId: entry.id, date: entry.date });
+    if (r.completed && r.actionRef) {
+      const action = store.actions.find(item => item.externalId === r.actionRef);
+      if (action) { action.status = 'done'; action.completedAt = new Date().toISOString(); }
+    }
+  });
+  saveTasks();
+}
+function reconcileLifePackage(data, existingEntry) {
+  const store = lifeStore();
+  data.records.forEach(incoming => {
+    const record = store.records.find(item => item.entryId === existingEntry.id && item.title === incoming.title);
+    if (record) { record.effort = incoming.effort; record.actionRef = incoming.actionRef; }
+  });
+  (data.actions || []).forEach(action => {
+    if (!store.actions.some(item => item.externalId === action.externalId)) store.actions.push({ ...action, id: createId(), createdAt: new Date().toISOString(), completedAt: null });
+  });
+  (data.actionUpdates || []).forEach(update => {
+    const action = store.actions.find(item => item.externalId === update.externalId);
+    if (action) { action.status = update.status; action.completedAt = update.status === 'done' ? new Date().toISOString() : null; }
+  });
   saveTasks();
 }
 function lifeBase64Bytes(value) {
@@ -83,7 +126,8 @@ async function consumeBundledAssistantImports() {
   let imported = 0;
   packages.forEach(packageData => {
     const candidate = validateLifeImport(packageData);
-    if (lifeStore().entries.some(entry => entry.packageId === candidate.id)) return;
+    const existing = lifeStore().entries.find(entry => entry.packageId === candidate.id);
+    if (existing) { reconcileLifePackage(candidate, existing); return; }
     lifeCommit(candidate);
     imported += 1;
   });

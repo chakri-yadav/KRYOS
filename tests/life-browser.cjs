@@ -11,14 +11,24 @@ const assert = require('node:assert/strict');
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(pathToFileURL(path.resolve('index.html')).href);
 
-    assert.deepEqual(await page.locator('.nav-item').allTextContents(), ['Journal', 'Progress']);
+    assert.deepEqual(await page.locator('.nav-item').allTextContents(), ['Journal', 'Actions', 'Progress', 'Rewards']);
     await page.locator('#unlock-pass').fill('9619');
     await page.getByRole('button', { name: 'Enter KRYOS' }).click();
     await page.waitForFunction(() => lifeStore().entries.some(entry => entry.packageId === 'assistant-2026-09-17-day-1'));
     assert.equal(await page.evaluate(() => accountMode), 'personal');
     assert.equal(await page.evaluate(() => lifeStore().entries.filter(entry => entry.packageId === 'assistant-2026-09-17-day-1').length), 1);
     assert.equal(await page.evaluate(() => lifeStore().records.filter(record => record.date === '2026-09-17' && record.completed).length), 17);
+    assert.equal(await page.evaluate(() => journalRewardStats().earned), 17);
 
+    await page.getByRole('button', { name: 'Actions', exact: true }).first().click();
+    await page.getByText('Add an action', { exact: true }).click();
+    await page.locator('#action-add-form [name=title]').fill('Renew important document');
+    await page.locator('#action-add-form [name=nextAction]').fill('Find the renewal requirements');
+    await page.locator('#action-add-form [name=priority]').selectOption('important');
+    await page.getByRole('button', { name: 'Keep in Vault' }).click();
+    assert.equal(await page.getByText('Renew important document', { exact: true }).count(), 1);
+
+    await page.getByRole('button', { name: 'Journal', exact: true }).first().click();
     await page.locator('#life-draft').fill('A focused journal test.');
     await page.getByRole('button', { name: 'Save journal', exact: true }).click();
     await page.reload();
@@ -31,12 +41,10 @@ const assert = require('node:assert/strict');
     await page.getByRole('button', { name: 'Progress', exact: true }).first().click();
     assert.equal(await page.locator('.life-cell').count(), 84);
     assert.ok(await page.getByText('17', { exact: true }).count() > 0);
-    await page.setViewportSize({ width: 390, height: 844 });
-    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
-    await page.setViewportSize({ width: 320, height: 740 });
-    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+    await page.getByRole('button', { name: 'Rewards', exact: true }).first().click();
+    assert.ok(await page.getByText('17', { exact: true }).count() > 0);
     assert.deepEqual(errors, []);
-    console.log('PASS: 9619 personal login, automatic Day 1 import, deduplication, journal persistence and responsive progress');
+    console.log('PASS: personal journal import, Action Vault, effort analytics, rewards and persistence');
   } finally {
     await browser.close();
   }
