@@ -2,6 +2,15 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.003 - Assistant-Maintained Progress
+
+- Added a repository-maintained feed for reviewed, non-private journal outcomes.
+- New packages import exactly once into the existing personal profile after unlock.
+- Added Day 1 records for September 17, 2026 across food, personal, spiritual, skincare, supplements, career and mood.
+- Defined the KRYOS day as 7:00 AM through 6:59 AM and kept civil calendar calculations stable.
+- Validation: nine data tests and the isolated desktop/mobile browser workflow passed.
+- Structured records are encrypted before entering the public repository; raw journal images and full private notes are excluded.
+
 ## 0.004.002 - Visual Progress
 
 - Added a daily outcome finish line, weekly status strip and full-history personal-best streaks.
