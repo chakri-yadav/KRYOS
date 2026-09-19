@@ -34,7 +34,7 @@ function validateLifeImport(data) {
     if (typeof r.evidence !== 'string' || !r.evidence.trim() || !data.text.includes(r.evidence)) throw new Error('Each record needs an exact supporting excerpt from the journal.');
     if (r.minutes != null && (!Number.isFinite(r.minutes) || r.minutes < 0 || r.minutes > 1440)) throw new Error('Minutes must be between 0 and 1440. Leave unknown durations out.');
     const effort = r.kind === 'activity' ? Math.max(1, Math.min(5, Number(r.effort) || 1)) : 0;
-    return { title: r.title.trim(), domain: r.domain, kind: r.kind, evidence: r.evidence, minutes: r.minutes ?? null, completed: r.kind === 'activity' && r.completed === true, effort, actionRef: typeof r.actionRef === 'string' ? r.actionRef.trim() : '' };
+    return { title: r.title.trim(), domain: r.domain, kind: r.kind, evidence: r.evidence, minutes: r.minutes ?? null, completed: r.kind === 'activity' && r.completed === true, effort, actionRef: typeof r.actionRef === 'string' ? r.actionRef.trim() : '', sourceRef: typeof r.sourceRef === 'string' ? r.sourceRef.trim().slice(0, 180) : '' };
   });
   const actions = Array.isArray(data.actions) ? data.actions.map(action => normalizeImportedAction(action)) : [];
   const actionUpdates = Array.isArray(data.actionUpdates) ? data.actionUpdates.map(update => normalizeActionUpdate(update)) : [];
