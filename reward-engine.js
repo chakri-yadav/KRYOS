@@ -5,41 +5,43 @@ const REWARD_CATEGORIES = {
   spiritual: { title: 'Spiritual practice', cap: 1 }, containment: { title: 'Containment', cap: 1 },
   closure: { title: 'Honest closure', cap: 1 },
 };
+const REWARD_WORKSPACES = ['Inner Command', 'Actions', 'Career', 'Launch', 'Rhythm', 'Money'];
 
 function rewardEvidence(date) {
   const life = lifeStore(), tasks = typeof taskState === 'undefined' ? {} : taskState;
   const buckets = Object.fromEntries(Object.keys(REWARD_CATEGORIES).map(key => [key, []]));
   const seen = new Set();
-  const add = (category, id, title) => {
+  const add = (category, id, title, source) => {
     if (!id || seen.has(id)) return;
-    seen.add(id); buckets[category].push({ id, title });
+    seen.add(id); buckets[category].push({ id, title, source });
   };
   (tasks.launch?.marketEvents || []).filter(e => e.date === date).forEach(e => {
     if (['application','connection','message','followup','comment','referral','conversation'].includes(e.type) || (e.type === 'post' && e.status === 'published'))
-      add('launch', `launch:${e.id}`, e.topic || e.note || e.type);
+      add('launch', `launch:${e.id}`, e.topic || e.note || e.type, 'Launch');
   });
-  (tasks.launch?.mockSessions || []).filter(e => e.date === date && e.minutes > 0).forEach(e => add('launch', `mock:${e.id}`, e.focus || 'Interview rehearsal'));
-  if (typeof careerState !== 'undefined') (careerState.activityLog || []).filter(e => e.date === date && e.checkId).forEach(e => add('career', `career:${e.id}`, e.checkText || 'Completed career step'));
-  (life.actions || []).filter(e => e.status === 'done' && e.completedAt && toDateKey(e.completedAt) === date).forEach(e => add('responsibility', `action:${e.externalId || e.id}`, e.title));
-  (tasks.money?.contacts || []).filter(e => e.date === date).slice(0,1).forEach(e => add('responsibility', `money:${e.id}`, 'Financial follow-up'));
+  (tasks.launch?.mockSessions || []).filter(e => e.date === date && e.minutes > 0).forEach(e => add('launch', `mock:${e.id}`, e.focus || 'Interview rehearsal', 'Launch'));
+  if (typeof careerState !== 'undefined') (careerState.activityLog || []).filter(e => e.date === date && e.checkId).forEach(e => add('career', `career:${e.id}`, e.checkText || 'Completed career step', 'Career'));
+  (life.actions || []).filter(e => e.status === 'done' && e.completedAt && toDateKey(e.completedAt) === date).forEach(e => add('responsibility', `action:${e.externalId || e.id}`, e.title, 'Actions'));
+  (tasks.money?.contacts || []).filter(e => e.date === date).slice(0,1).forEach(e => add('responsibility', `money:${e.id}`, 'Financial follow-up', 'Money'));
   (tasks.rhythm?.events || []).filter(e => e.date === date && e.value > 0).forEach(e => {
     const habit = typeof rhythmHabit === 'function' ? rhythmHabit(e.habitId) : null;
-    if (habit?.group === 'spirit') add('spiritual', `rhythm:${e.id}`, habit.title);
+    if (habit?.group === 'spirit') add('spiritual', `rhythm:${e.id}`, habit.title, 'Rhythm');
   });
-  if (typeof rhythmDay === 'function' && rhythmDay(date).qualified) add('foundation', `foundation:${date}`, 'Daily foundation met');
+  if (typeof rhythmDay === 'function' && rhythmDay(date).qualified) add('foundation', `foundation:${date}`, 'Daily foundation met', 'Rhythm');
   (life.records || []).filter(e => e.date === date && e.completed).forEach(e => {
     // An explicit source link prevents the same event earning through two pages.
     if (e.sourceRef && seen.has(e.sourceRef)) return;
     const category = e.domain === 'Career' ? 'career' : e.domain === 'Job applications' ? 'launch' : e.domain === 'Personal tasks' ? 'responsibility' : e.domain === 'Spiritual practice' ? 'spiritual' : null;
-    if (category) add(category, e.sourceRef || (e.actionRef ? `action:${e.actionRef}` : `journal:${e.id}`), e.title);
+    if (category) add(category, e.sourceRef || (e.actionRef ? `action:${e.actionRef}` : `journal:${e.id}`), e.title, 'Inner Command');
   });
   const day = (life.innerCommand?.containmentDays || []).find(e => e.date === date);
-  if (day?.status === 'kept' && !(life.dailyAssessments || []).some(e => e.date === date && e.astrologySeeking)) add('containment', `containment:${date}`, 'Boundaries reviewed and kept');
-  if ((life.entries || []).some(e => e.date === date && e.text?.trim())) add('closure', `closure:${date}`, 'Journal recorded');
+  if (day?.status === 'kept' && !(life.dailyAssessments || []).some(e => e.date === date && e.astrologySeeking)) add('containment', `containment:${date}`, 'Boundaries reviewed and kept', 'Inner Command');
+  if ((life.entries || []).some(e => e.date === date && e.text?.trim())) add('closure', `closure:${date}`, 'Journal recorded', 'Inner Command');
   const scores = Object.fromEntries(Object.entries(buckets).map(([key, rows]) => [key, Math.min(REWARD_CATEGORIES[key].cap, rows.length)]));
   const total = Object.values(scores).reduce((a,b) => a+b,0);
   const qualified = total >= 5 && scores.launch + scores.career + scores.responsibility > 0;
-  return { date, buckets, scores, total, qualified, ruleVersion: 2 };
+  const workspaces = [...new Set(Object.values(buckets).flat().map(item => item.source).filter(Boolean))];
+  return { date, buckets, scores, total, qualified, workspaces, ruleVersion: 2 };
 }
 
 function reviewRewardDay(date, note = '') {

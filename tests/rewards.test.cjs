@@ -68,6 +68,37 @@ test('launch evidence is capped and requires real exposure', () => {
   assert.equal(evidence.qualified, false);
 });
 
+test('all active workspaces feed one capped reward review', () => {
+  const date = '2026-09-19';
+  const { context } = setup({
+    life: {
+      entries: [{ date, text: 'Closed the day honestly.' }],
+      records: [{ id: 'spiritual-record', date, completed: true, domain: 'Spiritual practice', title: 'Prayer' }],
+      actions: [{ id: 'action-one', title: 'Important responsibility', status: 'done', completedAt: `${date}T18:00:00Z` }],
+      innerCommand: { covenant: { startDate: date, days: 45 }, containmentDays: [{ date, status: 'kept' }] },
+    },
+    tasks: {
+      launch: { marketEvents: [
+        { id: 'application', date, type: 'application' },
+        { id: 'connection', date, type: 'connection' },
+        { id: 'post', date, type: 'post', status: 'published' },
+      ], mockSessions: [] },
+      rhythm: { events: [{ id: 'spirit-one', date, habitId: 'spirit-japa', value: 1 }] },
+      money: { contacts: [{ id: 'contact-one', date }] },
+    },
+    career: { activityLog: [
+      { id: 'career-one', date, checkId: 'one', checkText: 'Array problem' },
+      { id: 'career-two', date, checkId: 'two', checkText: 'Graph problem' },
+    ] },
+    foundationDates: [date],
+  });
+  const evidence = context.rewardEvidence(date);
+  assert.equal(evidence.total, 10);
+  assert.equal(evidence.qualified, true);
+  assert.deepEqual([...evidence.workspaces].sort(), ['Actions', 'Career', 'Inner Command', 'Launch', 'Money', 'Rhythm']);
+  assert.deepEqual({ ...evidence.scores }, { launch: 3, career: 2, responsibility: 1, foundation: 1, spiritual: 1, containment: 1, closure: 1 });
+});
+
 test('one source reference cannot earn through two pages', () => {
   const { context } = setup({
     life: { entries: [{ date: '2026-09-19', text: 'Closed the day' }], records: [{ id: 'journal', date: '2026-09-19', completed: true, domain: 'Job applications', title: 'Applied', sourceRef: 'launch:same' }] },

@@ -2,6 +2,13 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.023 - Cross-Feature Integration
+
+- Added a persistent global cloud-state signal across every active workspace.
+- Added visible reward provenance for Inner Command, Actions, Career, Launch, Rhythm, and Money.
+- Verified that all active workspaces feed one capped, manually confirmed daily reward review.
+- Preserved the existing strict score caps, qualification floor, cooldowns, and Supabase transaction boundary.
+
 ## 0.004.022 - Complete DSA Roadmap
 
 - Imported 163 DSA problems across 14 focused topics.

@@ -63,6 +63,7 @@ function actionSyncLabel() {
 }
 
 function updateActionSyncIndicator() {
+  if (typeof updateGlobalCloudState === 'function') updateGlobalCloudState();
   const indicator = document.querySelector('#action-sync-state');
   if (!indicator) return;
   indicator.className = `action-sync-state state-${actionSyncState}`;

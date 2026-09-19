@@ -21,6 +21,8 @@ It derives evidence from:
 - journal entries
 - career activity log
 
+Rewards follow the same principle with one additional boundary: evidence is derived automatically, but credits are issued only after an explicit daily review. Category caps and source identifiers prevent volume inflation and duplicate credit across pages.
+
 ## Consequences
 
 Positive:
@@ -33,4 +35,3 @@ Negative:
 
 - Progress depends on the quality of upstream records
 - missing data upstream means weak analytics
-

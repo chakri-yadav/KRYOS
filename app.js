@@ -15,13 +15,16 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.004.022";
+const APP_VERSION = "0.004.023";
 const APP_STAGE = "Life Execution Foundation";
 const APP_RELEASE_DATE = "2026-09-19";
 const APP_STATUS = "Unified evidence rewards across the KRYOS operating system";
 const APP_NEXT_MILESTONE = "Use reviewed evidence before tuning reward weights";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Added one global cloud-state signal so every workspace clearly reports local, saving, synced, or unavailable state.",
+  "Made reward evidence provenance visible across Inner Command, Actions, Career, Launch, Rhythm, and Money.",
+  "Added cross-feature reward integration tests while preserving strict category caps and manual daily confirmation.",
   "Imported the complete 163-question DSA roadmap across 14 focused topics, with every problem reset for a clean start.",
   "Organized the DSA roadmap into foundations, core data structures, and advanced algorithms so the larger plan remains scannable.",
   "Added visible reward-ledger progress and explicit zero-data sync confirmation.",
@@ -935,6 +938,7 @@ const modeSwitch = document.querySelector(".mode-switch");
 const topbarEyebrow = document.querySelector(".topbar .eyebrow");
 const topbarTitle = document.querySelector(".topbar h1");
 const activeProfileBadge = document.querySelector("[data-profile-badge]");
+const globalCloudState = document.querySelector("[data-global-cloud-state]");
 const appShell = document.querySelector(".app-shell");
 const mobileNav = document.querySelector(".mobile-nav");
 
@@ -1960,6 +1964,29 @@ function mergeDefaults(saved, defaults) {
   };
 }
 
+function getGlobalCloudState() {
+  if (isDemoMode()) return { state: "local", label: "Demo device", detail: "Demo data stays on this device." };
+  if (careerSyncState === "error" || (typeof actionSyncState !== "undefined" && actionSyncState === "error")) {
+    return { state: "error", label: "Cloud unavailable", detail: "Changes are safe on this device and will retry after the next edit." };
+  }
+  if (careerSyncState === "saving" || (typeof actionSyncState !== "undefined" && actionSyncState === "saving")) {
+    return { state: "saving", label: "Saving", detail: "Sending the latest KRYOS changes to Supabase." };
+  }
+  if (syncState.status === "connected" && syncState.userId) {
+    return { state: "synced", label: "Cloud ready", detail: syncState.lastSyncAt ? `Last cloud save ${formatDateTime(syncState.lastSyncAt)}.` : "Signed in and ready to sync." };
+  }
+  return { state: "local", label: "Device saved", detail: "Sign in through Cloud settings to sync between devices." };
+}
+
+function updateGlobalCloudState() {
+  if (!globalCloudState) return;
+  const cloud = getGlobalCloudState();
+  globalCloudState.className = `global-cloud-state state-${cloud.state}`;
+  globalCloudState.title = cloud.detail;
+  const label = globalCloudState.querySelector("span");
+  if (label) label.textContent = cloud.label;
+}
+
 function saveFoundation() {
   state.meta.updatedAt = new Date().toISOString();
   setModeStorageValue(FOUNDATION_STORAGE_KEY, JSON.stringify(state));
@@ -1976,6 +2003,7 @@ function careerSyncLabel() {
 }
 
 function updateCareerSyncIndicator() {
+  updateGlobalCloudState();
   const indicator = document.querySelector("#career-sync-state");
   if (!indicator) return;
   indicator.className = `career-sync-state state-${careerSyncState}`;
@@ -3145,6 +3173,7 @@ function render() {
     activeProfileBadge.classList.toggle("demo", isDemoMode());
     activeProfileBadge.classList.toggle("personal", !isDemoMode());
   }
+  updateGlobalCloudState();
   const pageCopy = {
     journal: ["Purpose, containment, evidence", "Inner Command"],
     actions: ["Persistent commitments", "Action Vault"],
