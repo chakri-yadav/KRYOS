@@ -9,14 +9,14 @@ major.minor.patch
 Current version:
 
 ```text
-0.004.014
+0.004.015
 ```
 
 ## Meaning
 
 - `0`: private pre-public era.
 - `004`: directed-attention operating system line.
-- `014`: Career Launch market exposure and interview rehearsal system.
+- `015`: Career Launch networking and two-post weekly visibility cadence.
 
 ## Version Bands
 

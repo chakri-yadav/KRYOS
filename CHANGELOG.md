@@ -2,6 +2,14 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.015 - Network and Visibility
+
+- Added a dedicated Network and Visibility module inside Career Launch.
+- Added meaningful connection requests, messages, comments, follow-ups, referral asks, and career conversations.
+- Added a two-published-posts-per-week target with a visible seven-day cadence.
+- Kept drafts visible while allowing only published posts to satisfy exposure and weekly publishing targets.
+- Added connection and post evidence to the unified Launch timeline and synced task block.
+
 ## 0.004.014 - Career Launch
 
 - Added a dedicated Launch page so career learning cannot postpone market exposure.

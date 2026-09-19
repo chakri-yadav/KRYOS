@@ -15,13 +15,16 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.004.014";
+const APP_VERSION = "0.004.015";
 const APP_STAGE = "Life Execution Foundation";
 const APP_RELEASE_DATE = "2026-09-19";
-const APP_STATUS = "Career Launch market exposure and interview rehearsal system";
-const APP_NEXT_MILESTONE = "Collect real exposure evidence before tuning targets or analytics";
+const APP_STATUS = "Career Launch networking and visible-thinking cadence";
+const APP_NEXT_MILESTONE = "Collect real connection and publishing evidence before tuning targets";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Added Network and Visibility inside Career Launch.",
+  "Separated meaningful connection actions from passive browsing and added a two-published-posts weekly target.",
+  "Added connection-action and post evidence dialogs with a seven-day publishing cadence.",
   "Added Career Launch as a separate market-exposure and interview-rehearsal workspace.",
   "Added a configurable weekday platform circuit for LinkedIn, Built In, Glassdoor, Indeed, company sites, and custom sources.",
   "Added 3–6 weekly self and AI mock tracking with exposure pulse, 12-week consistency, and pipeline visuals.",
