@@ -2,6 +2,17 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.007 - Visual Momentum
+
+- Rebuilt Journal as a focused daily-capture surface with autosave state, a writing canvas and evidence-led timeline cards.
+- Added daily action/domain/rhythm context without requiring extra input.
+- Added a premium Progress command band for weekly momentum, current streak and weekly action volume.
+- Added personal records for evidence days, strongest day, leading domain and strictly qualified days.
+- Added an accessible 28-day effort-pulse chart with exact values available to assistive technology.
+- Rebuilt the 12/52-week contribution field with five evidence intensities, filters, selected-day inspection and period summary.
+- Upgraded domain analytics with 14-day micro-trends and distinct visual accents.
+- Preserved Journal as the only capture surface and retained all existing personal data.
+
 ## 0.004.006 - Containment Economy
 
 - Separated completed-action evidence from spendable reward credits.
