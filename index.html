@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KRYOS</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="life.css" />
+    <link rel="stylesheet" href="styles.css?v=0.004.004" />
+    <link rel="stylesheet" href="life.css?v=0.004.004" />
   </head>
   <body>
     <div class="app-shell">
@@ -19,23 +19,16 @@
         </div>
 
         <nav class="nav-list">
-          <button class="nav-item is-active" type="button" data-page="today">Today</button>
-          <button class="nav-item" type="button" data-page="journal">Journal</button>
+          <button class="nav-item is-active" type="button" data-page="journal">Journal</button>
           <button class="nav-item" type="button" data-page="progress">Progress</button>
-          <button class="nav-item" type="button" data-page="focus">Focus</button>
-          <button class="nav-item" type="button" data-page="redirect">Redirect</button>
-          <button class="nav-item" type="button" data-page="rewards">Rewards</button>
-          <button class="nav-item" type="button" data-page="project">Project</button>
-          <button class="nav-item" type="button" data-page="review">Weekly Review</button>
-          <button class="nav-item" type="button" data-page="settings">Settings</button>
         </nav>
       </aside>
 
       <main class="main" id="app">
         <header class="topbar">
           <div>
-            <p class="eyebrow">Command</p>
-            <h1>Today</h1>
+            <p class="eyebrow">Daily record</p>
+            <h1>Journal</h1>
           </div>
           <div class="topbar-actions">
             <span class="profile-badge personal" data-profile-badge>Personal</span>
@@ -65,18 +58,15 @@
     </div>
 
     <nav class="mobile-nav" aria-label="Mobile navigation">
-      <button class="mobile-nav-item is-active" type="button" data-page="today">Today</button>
-      <button class="mobile-nav-item" type="button" data-page="journal">Journal</button>
+      <button class="mobile-nav-item is-active" type="button" data-page="journal">Journal</button>
       <button class="mobile-nav-item" type="button" data-page="progress">Progress</button>
-      <button class="mobile-nav-item" type="button" data-page="project">Project</button>
     </nav>
 
     <section id="security-overlay" class="security-overlay is-hidden" aria-live="polite"></section>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="assistant-data.js"></script>
-    <script src="life.js"></script>
-    <script src="progress.js"></script>
-    <script src="app.js"></script>
+    <script src="assistant-data.js?v=0.004.004"></script>
+    <script src="life.js?v=0.004.004"></script>
+    <script src="progress.js?v=0.004.004"></script>
+    <script src="app.js?v=0.004.004"></script>
   </body>
 </html>
