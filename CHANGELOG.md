@@ -2,6 +2,15 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.014 - Career Launch
+
+- Added a dedicated Launch page so career learning cannot postpone market exposure.
+- Added weekday application, connection, message, follow-up, and visibility evidence.
+- Added a configurable platform circuit with LinkedIn, Built In, Glassdoor, Indeed, company sites, and custom sources.
+- Added self/AirPods and AI mock interview sessions with a 3–6 weekly target.
+- Added parallel-lane guidance, weekly pulse, 12-week exposure field, application pipeline, and evidence timeline.
+- Stored all source events in the existing Supabase-synced task block.
+
 ## 0.004.013 - Inner Command
 
 - Reframed Journal as one page for sacred purpose, strict containment, and truthful daily evidence.

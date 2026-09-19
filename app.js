@@ -15,13 +15,16 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.004.013";
+const APP_VERSION = "0.004.014";
 const APP_STAGE = "Life Execution Foundation";
 const APP_RELEASE_DATE = "2026-09-19";
-const APP_STATUS = "Inner Command purpose, containment covenant, and evidence journal";
-const APP_NEXT_MILESTONE = "Use the covenant and journal before expanding its analysis";
+const APP_STATUS = "Career Launch market exposure and interview rehearsal system";
+const APP_NEXT_MILESTONE = "Collect real exposure evidence before tuning targets or analytics";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Added Career Launch as a separate market-exposure and interview-rehearsal workspace.",
+  "Added a configurable weekday platform circuit for LinkedIn, Built In, Glassdoor, Indeed, company sites, and custom sources.",
+  "Added 3–6 weekly self and AI mock tracking with exposure pulse, 12-week consistency, and pipeline visuals.",
   "Rebuilt Journal as Inner Command: purpose, a 45-day containment covenant, and daily evidence in one page.",
   "Added Rama, Sita, and Hanuman as personal direction, protected energy, and service principles.",
   "Made anxiety a return signal rather than a breach while recording chosen boundary violations honestly.",
@@ -95,7 +98,7 @@ const TASK_TYPES = ["Task", "Checklist", "Goal", "Routine", "Habit"];
 const TASK_PRIORITIES = ["Low", "Medium", "High", "Critical"];
 const TASK_REPEATS = ["none", "daily", "weekdays", "weekly", "selected"];
 const TASK_VIEWS = ["today", "inbox", "upcoming"];
-const APP_PAGES = ["journal", "actions", "career", "rhythm", "money", "progress", "rewards"];
+const APP_PAGES = ["journal", "actions", "career", "launch", "rhythm", "money", "progress", "rewards"];
 const FIELD_TABS = ["today", "add", "habits", "pulse"];
 const HABIT_RANGES = [14, 30, 60, 90];
 const HABIT_PERIODS = ["day", "week", "month"];
@@ -583,6 +586,7 @@ let redirectFlow = null;
 const readView = document.querySelector("#read-view");
 const editView = document.querySelector("#edit-view");
 const careerView = document.querySelector("#career-view");
+const launchView = document.querySelector("#launch-view");
 const rhythmView = document.querySelector("#rhythm-view");
 const moneyView = document.querySelector("#money-view");
 const todayView = document.querySelector("#today-view");
@@ -2819,6 +2823,7 @@ function render() {
     journal: ["Purpose, containment, evidence", "Inner Command"],
     actions: ["Persistent commitments", "Action Vault"],
     career: ["Skill evidence", "Career"],
+    launch: ["Exposure and rehearsal", "Career Launch"],
     rhythm: ["Sustainable foundations", "Rhythm"],
     money: ["Accountability and recovery", "Money"],
     progress: ["Evidence of effort", "Progress"],
@@ -2844,6 +2849,7 @@ function render() {
   readView?.classList.add("is-hidden");
   editView?.classList.add("is-hidden");
   careerView?.classList.add("is-hidden");
+  launchView?.classList.add("is-hidden");
   rhythmView?.classList.add("is-hidden");
   moneyView?.classList.add("is-hidden");
   habitsView?.classList.add("is-hidden");
@@ -2853,6 +2859,7 @@ function render() {
   journalView?.classList.toggle("is-hidden", currentPage !== "journal");
   actionsView?.classList.toggle("is-hidden", currentPage !== "actions");
   careerView?.classList.toggle("is-hidden", currentPage !== "career");
+  launchView?.classList.toggle("is-hidden", currentPage !== "launch");
   rhythmView?.classList.toggle("is-hidden", currentPage !== "rhythm");
   moneyView?.classList.toggle("is-hidden", currentPage !== "money");
   progressView?.classList.toggle("is-hidden", currentPage !== "progress");
@@ -2868,6 +2875,7 @@ function render() {
   if (currentPage === "journal") renderLifeJournal();
   if (currentPage === "actions") renderActionVault();
   if (currentPage === "career") renderCareerView();
+  if (currentPage === "launch") renderLaunchView();
   if (currentPage === "rhythm") renderRhythmView();
   if (currentPage === "money") renderMoneyView();
   if (currentPage === "progress") renderLifeProgress();

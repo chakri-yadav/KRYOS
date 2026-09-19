@@ -11,7 +11,7 @@ const assert = require('node:assert/strict');
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(pathToFileURL(path.resolve('index.html')).href);
 
-    assert.deepEqual(await page.locator('.nav-item').allTextContents(), ['Inner Command', 'Actions', 'Career', 'Rhythm', 'Money', 'Progress', 'Rewards']);
+    assert.deepEqual(await page.locator('.nav-item').allTextContents(), ['Inner Command', 'Actions', 'Career', 'Launch', 'Rhythm', 'Money', 'Progress', 'Rewards']);
     await page.locator('#unlock-pass').fill('9619');
     await page.getByRole('button', { name: 'Enter KRYOS' }).click();
     await page.waitForFunction(() => lifeStore().entries.some(entry => entry.packageId === 'assistant-2026-09-17-day-1'));
@@ -65,6 +65,24 @@ const assert = require('node:assert/strict');
     assert.equal(await page.getByRole('button', { name: 'Edit roadmap' }).count(), 1);
     assert.equal(await page.locator('.career-command').evaluate(element => element.scrollWidth <= element.clientWidth), true);
 
+    await page.getByRole('button', { name: 'Launch', exact: true }).first().click();
+    assert.equal(await page.locator('.launch-week-pulse article').count(), 7);
+    assert.equal(await page.locator('.launch-heatmap i').count(), 84);
+    assert.equal(await page.locator('.launch-platforms button').count(), 6);
+    await page.getByRole('button', { name: /Built In/ }).click();
+    await page.getByRole('button', { name: 'Log market action' }).click();
+    await page.locator('#launch-form [name=company]').fill('Example Company');
+    await page.locator('#launch-form [name=role]').fill('Software Engineer');
+    await page.locator('#launch-form [name=stage]').selectOption('applied');
+    await page.getByRole('button', { name: 'Save evidence' }).click();
+    await page.getByRole('button', { name: 'Log rehearsal' }).click();
+    await page.locator('#launch-form [name=mode]').selectOption('ai');
+    await page.locator('#launch-form [name=minutes]').fill('20');
+    await page.locator('#launch-form [name=focus]').fill('Behavioral questions');
+    await page.getByRole('button', { name: 'Save evidence' }).click();
+    assert.equal(await page.evaluate(() => launchStore().marketEvents.length), 2);
+    assert.equal(await page.evaluate(() => launchStore().mockSessions.length), 1);
+
     await page.getByRole('button', { name: 'Rhythm', exact: true }).first().click();
     assert.equal(await page.locator('.rhythm-constellation-grid button').count(), 28);
     assert.equal(await page.locator('.rhythm-weekly-row').count(), 3);
@@ -78,6 +96,9 @@ const assert = require('node:assert/strict');
     }
     await page.getByRole('button', { name: 'Rhythm', exact: true }).first().click();
     assert.equal(await page.evaluate(() => rhythmValue('breakfast')), 1);
+    await page.getByRole('button', { name: 'Launch', exact: true }).first().click();
+    assert.equal(await page.evaluate(() => launchStore().marketEvents.length), 2);
+    assert.equal(await page.evaluate(() => launchStore().mockSessions.length), 1);
 
     await page.getByRole('button', { name: 'Money', exact: true }).first().click();
     await page.getByRole('button', { name: 'Set baseline' }).click();
@@ -113,7 +134,7 @@ const assert = require('node:assert/strict');
     assert.ok(await page.getByText('Astrology remains protected', { exact: true }).count() > 0);
     assert.ok(await page.getByText('No reviewed days yet. Journal evidence alone does not create credits.', { exact: true }).count() > 0);
     assert.deepEqual(errors, []);
-    console.log('PASS: Inner Command, Action Vault, Career, Rhythm, Money, analytics, rewards and persistence');
+    console.log('PASS: Inner Command, Action Vault, Career, Launch, Rhythm, Money, analytics, rewards and persistence');
   } finally {
     await browser.close();
   }
