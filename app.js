@@ -15,13 +15,16 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.004.011";
+const APP_VERSION = "0.004.012";
 const APP_STAGE = "Life Execution Foundation";
 const APP_RELEASE_DATE = "2026-09-19";
-const APP_STATUS = "Rhythm system for sustainable health, care, and spiritual practice";
-const APP_NEXT_MILESTONE = "Collect truthful Rhythm evidence before adding pattern predictions";
+const APP_STATUS = "Friend credit responsibility and follow-up accountability command center";
+const APP_NEXT_MILESTONE = "Use verified responsibility data before expanding general finance features";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Added Money as a focused friend-credit responsibility tracker rather than a generic budgeting system.",
+  "Separated follow-up discipline from financial recovery with contact, promise, payment, interest, and card histories.",
+  "Added responsibility resolution, balance movement, contact rhythm, card health, and an evidence-led activity timeline.",
   "Added Rhythm as a unified health, weekly maintenance, and spiritual-practice workspace.",
   "Separated essential foundation scoring from optional spiritual opportunity, with recovery and weekly-goal analytics.",
   "Added a 28-day Body, Care, and Spirit constellation backed by synced source events rather than stored percentages.",
@@ -89,7 +92,7 @@ const TASK_TYPES = ["Task", "Checklist", "Goal", "Routine", "Habit"];
 const TASK_PRIORITIES = ["Low", "Medium", "High", "Critical"];
 const TASK_REPEATS = ["none", "daily", "weekdays", "weekly", "selected"];
 const TASK_VIEWS = ["today", "inbox", "upcoming"];
-const APP_PAGES = ["journal", "actions", "career", "rhythm", "progress", "rewards"];
+const APP_PAGES = ["journal", "actions", "career", "rhythm", "money", "progress", "rewards"];
 const FIELD_TABS = ["today", "add", "habits", "pulse"];
 const HABIT_RANGES = [14, 30, 60, 90];
 const HABIT_PERIODS = ["day", "week", "month"];
@@ -578,6 +581,7 @@ const readView = document.querySelector("#read-view");
 const editView = document.querySelector("#edit-view");
 const careerView = document.querySelector("#career-view");
 const rhythmView = document.querySelector("#rhythm-view");
+const moneyView = document.querySelector("#money-view");
 const todayView = document.querySelector("#today-view");
 const habitsView = document.querySelector("#habits-view");
 const journalView = document.querySelector("#journal-view");
@@ -2813,6 +2817,7 @@ function render() {
     actions: ["Persistent commitments", "Action Vault"],
     career: ["Skill evidence", "Career"],
     rhythm: ["Sustainable foundations", "Rhythm"],
+    money: ["Accountability and recovery", "Money"],
     progress: ["Evidence of effort", "Progress"],
     today: ["Command", "Today"],
     focus: ["Execution", "Focus"],
@@ -2837,6 +2842,7 @@ function render() {
   editView?.classList.add("is-hidden");
   careerView?.classList.add("is-hidden");
   rhythmView?.classList.add("is-hidden");
+  moneyView?.classList.add("is-hidden");
   habitsView?.classList.add("is-hidden");
   journalView?.classList.add("is-hidden");
   actionsView?.classList.add("is-hidden");
@@ -2845,6 +2851,7 @@ function render() {
   actionsView?.classList.toggle("is-hidden", currentPage !== "actions");
   careerView?.classList.toggle("is-hidden", currentPage !== "career");
   rhythmView?.classList.toggle("is-hidden", currentPage !== "rhythm");
+  moneyView?.classList.toggle("is-hidden", currentPage !== "money");
   progressView?.classList.toggle("is-hidden", currentPage !== "progress");
   todayView?.classList.toggle("is-hidden", currentPage !== "today");
   focusView?.classList.toggle("is-hidden", currentPage !== "focus");
@@ -2859,6 +2866,7 @@ function render() {
   if (currentPage === "actions") renderActionVault();
   if (currentPage === "career") renderCareerView();
   if (currentPage === "rhythm") renderRhythmView();
+  if (currentPage === "money") renderMoneyView();
   if (currentPage === "progress") renderLifeProgress();
   if (currentPage === "focus") renderBehaviorFocus();
   if (currentPage === "redirect") renderBehaviorRedirect();

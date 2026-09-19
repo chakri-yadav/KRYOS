@@ -2,6 +2,14 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.012 - Responsibility Recovery
+
+- Added a separate Money page focused on one friend-credit responsibility.
+- Added contact logging, next follow-up scheduling, promise tracking, payment records, interest adjustments, and card snapshots.
+- Added premium responsibility-orbit, balance movement, contact-rhythm, card-health, and accountability-versus-recovery visuals.
+- Kept credit-card position separate from the amount the friend owes.
+- Stored source records in the existing synced task block, with analytics derived at render time.
+
 ## 0.004.011 - Sustainable Rhythm
 
 - Added one Rhythm workspace for Daily Health, Weekly Health, and Spiritual Practice.
