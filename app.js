@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.004.017";
+const APP_VERSION = "0.004.018";
 const APP_STAGE = "Life Execution Foundation";
 const APP_RELEASE_DATE = "2026-09-19";
 const APP_STATUS = "Unified evidence rewards across the KRYOS operating system";
 const APP_NEXT_MILESTONE = "Use reviewed evidence before tuning reward weights";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Restored the official Supabase browser client required for cloud authentication and ledger sync.",
   "Added a bounded 30-minute music reward with a three-day cooldown.",
   "Made reward-ledger authentication explicit and added a direct route to Cloud settings.",
   "Added one evidence-based reward review across Launch, Career, Actions, Money, Rhythm, Inner Command, and Journal.",

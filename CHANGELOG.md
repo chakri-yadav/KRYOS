@@ -2,6 +2,12 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.018 - Supabase Client Restoration
+
+- Restored the official Supabase JavaScript v2 browser client on GitHub Pages.
+- Fixed the false “Supabase library did not load” failure before credential validation.
+- Kept the publishable browser key protected by the existing row-level security policies.
+
 ## 0.004.017 - Music Reward and Ledger Guidance
 
 - Added one 30-minute music session as a four-credit reward after two qualifying days.
