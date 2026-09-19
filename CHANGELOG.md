@@ -2,6 +2,13 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.017 - Music Reward and Ledger Guidance
+
+- Added one 30-minute music session as a four-credit reward after two qualifying days.
+- Added a three-day cooldown so music remains an occasional reward.
+- Added an explicit cloud-account status and direct Cloud settings action to the reward ledger.
+- Clarified that running the Supabase migration does not sign a browser into Supabase.
+
 ## 0.004.016 - Unified Evidence Rewards
 
 - Added one reviewed score across Career Launch, Career Skills, Actions, Money, Rhythm, Inner Command, and Journal.

@@ -61,11 +61,15 @@ function rewardReviewStale(review) {
 }
 
 function rewardEligibility(reward) {
-  const days = [...new Set(lifeStore().dailyAssessments.filter(a => a.qualified && a.date <= toDateKey()).map(a => a.date))].sort();
+  const store = lifeStore();
+  const days = [...new Set(store.dailyAssessments.filter(a => a.qualified && a.date <= toDateKey()).map(a => a.date))].sort();
   const span = days.length ? Math.floor((new Date(`${days.at(-1)}T12:00:00`) - new Date(`${days[0]}T12:00:00`))/86400000)+1 : 0;
   const missingDays = Math.max(0,(reward.days || 0)-days.length);
   const missingSpan = Math.max(0,(reward.span || 0)-span);
-  return { allowed: !missingDays && !missingSpan, missingDays, missingSpan };
+  const lastRedemption = (store.rewardRedemptions || []).filter(item => item.rewardId === reward.id && !['rejected','cancelled'].includes(item.status)).sort((a,b) => b.date.localeCompare(a.date))[0];
+  const daysSince = lastRedemption ? Math.floor((getDateFromKey(toDateKey()) - getDateFromKey(lastRedemption.date))/86400000) : Infinity;
+  const missingCooldown = Math.max(0,(reward.cooldownDays || 0)-daysSince);
+  return { allowed: !missingDays && !missingSpan && !missingCooldown, missingDays, missingSpan, missingCooldown };
 }
 
 let rewardCloudNotice = '';
@@ -75,7 +79,7 @@ async function syncRewardLedger() {
   rewardCloudBusy = true;
   try {
     const session = await getSupabaseSession();
-    if (!session) throw new Error('Saved locally. Sign in to confirm reward requests in cloud.');
+    if (!session) throw new Error('Cloud sign-in required. Running the SQL does not sign in this browser. Open Cloud settings and sign in once.');
     const profile = await ensureSupabaseProfile(session), store = lifeStore();
     const awards = store.dailyAssessments.filter(a => a.date <= toDateKey()).map(a => ({ id: `day:${a.date}`, amount: assessmentCredits(a), revision: a.revision || 1 }));
     weeklyConsistencyBonuses(store.dailyAssessments).forEach(w => awards.push({ id:`week:${w.week}`, amount:w.credits, revision: store.dailyAssessments.filter(a => rewardWeekKey(a.date) === w.week).reduce((n,a) => n+(a.revision||1),0) }));
