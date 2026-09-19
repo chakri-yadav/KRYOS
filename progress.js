@@ -89,6 +89,13 @@ function bestDayRecord() {
   return [...counts.entries()].sort((a, b) => b[1] - a[1] || b[0].localeCompare(a[0]))[0] || ['', 0];
 }
 
+function compactCareerProgress() {
+  const stats = getCareerStats();
+  const primary = careerState.roadmaps.find(roadmap => roadmap.id === selectedRoadmapId) || careerState.roadmaps[0];
+  const next = getNextCareerItem(primary);
+  return `<section class="progress-career-band"><div><p class="section-kicker">CAREER SKILLS</p><h2>${primary ? escapeHtml(primary.title) : 'No skill roadmap yet'}</h2><p>${next ? `Next: ${escapeHtml(next.item.text)}` : 'Create or review the next evidence step.'}</p></div><div class="progress-career-stat"><strong>${stats.weekActions}</strong><span>steps this week</span></div><div class="progress-career-stat"><strong>${stats.currentStreak}</strong><span>day rhythm</span></div><div class="progress-career-stat"><strong>${stats.progress}%</strong><span>coverage</span></div><button type="button" data-page="career">View Career</button></section>`;
+}
+
 function renderProgressDashboard() {
   const store = lifeStore();
   const today = toDateKey();
@@ -123,6 +130,7 @@ function renderProgressDashboard() {
       <div><span>Leading domain</span><strong>${topDomain ? escapeHtml(topDomain.domain) : '—'}</strong><small>${topDomain ? `${topDomain.count} completed` : 'No record yet'}</small></div>
       <div><span>Qualified days</span><strong>${qualified}</strong><small>strictly reviewed</small></div>
     </section>
+    ${compactCareerProgress()}
     <section class="life-section pulse-section"><div class="life-heading"><div><p class="section-kicker">EFFORT PULSE</p><h2>Four-week trajectory</h2></div><span>Action, not intention</span></div>${progressPulse(today)}</section>
     <section class="life-section consistency-section"><div class="life-heading"><div><p class="section-kicker">CONSISTENCY FIELD</p><h2>${progressRange === 364 ? 'A year of evidence' : 'Your recent rhythm'}</h2><p>${progressShortDate(days[0])} – ${progressShortDate(today)}</p></div><div class="progress-filters"><label>Measure<select id="progress-metric"><option value="all">All progress</option>${domains.map(domain => `<option ${progressMetric === domain ? 'selected' : ''}>${escapeHtml(domain)}</option>`).join('')}</select></label><label>Period<select id="progress-range"><option value="84" ${progressRange === 84 ? 'selected' : ''}>12 weeks</option><option value="364" ${progressRange === 364 ? 'selected' : ''}>52 weeks</option></select></label></div></div>
       <div class="heatmap-shell"><div class="heatmap-days" aria-hidden="true"><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span><span>Sun</span></div><div class="progress-map-scroll"><div class="life-heatmap" style="--weeks:${progressRange / 7}">${days.map(progressCell).join('')}</div></div><div class="heatmap-insight"><span>Selected period</span><strong>${periodTotal}</strong><p>completed actions across <b>${periodActive}</b> active ${periodActive === 1 ? 'day' : 'days'}</p></div></div>
