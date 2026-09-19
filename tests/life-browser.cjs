@@ -18,7 +18,7 @@ const assert = require('node:assert/strict');
     assert.equal(await page.evaluate(() => accountMode), 'personal');
     assert.equal(await page.evaluate(() => lifeStore().entries.filter(entry => entry.packageId === 'assistant-2026-09-17-day-1').length), 1);
     assert.equal(await page.evaluate(() => lifeStore().records.filter(record => record.date === '2026-09-17' && record.completed).length), 17);
-    assert.equal(await page.evaluate(() => journalRewardStats().earned), 17);
+    assert.equal(await page.evaluate(() => journalRewardStats().earned), 0);
 
     await page.getByRole('button', { name: 'Actions', exact: true }).first().click();
     await page.getByText('Add an action', { exact: true }).click();
@@ -42,7 +42,8 @@ const assert = require('node:assert/strict');
     assert.equal(await page.locator('.life-cell').count(), 84);
     assert.ok(await page.getByText('17', { exact: true }).count() > 0);
     await page.getByRole('button', { name: 'Rewards', exact: true }).first().click();
-    assert.ok(await page.getByText('17', { exact: true }).count() > 0);
+    assert.ok(await page.getByText('Astrology remains protected', { exact: true }).count() > 0);
+    assert.ok(await page.getByText('No reviewed days yet. Journal evidence alone does not create credits.', { exact: true }).count() > 0);
     assert.deepEqual(errors, []);
     console.log('PASS: personal journal import, Action Vault, effort analytics, rewards and persistence');
   } finally {

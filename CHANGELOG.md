@@ -2,6 +2,17 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.006 - Containment Economy
+
+- Separated completed-action evidence from spendable reward credits.
+- Added a reviewed 10-point daily discipline score with a hard two-credit daily cap.
+- Added bounded weekly consistency bonuses: two credits for five qualified days, three for six and five for seven.
+- Required meaningful priority progress for a day to qualify, preventing routine-task inflation.
+- Added the September 19 to November 2, 2026 containment covenant.
+- Removed astrology from the reward shop; access now requires 36 qualified days, no unresolved extension and an approved Day-45 review.
+- Added a three-day covenant extension for each recorded astrology-seeking breach.
+- Added transparent recent scorecards and daily/weekly credit provenance to Rewards.
+
 ## 0.004.005 - Effort Reinforcement
 
 - Added the Action Vault as the single persistent system for long-lived responsibilities.
