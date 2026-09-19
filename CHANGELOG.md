@@ -2,6 +2,11 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.019 - Supabase CDN Compatibility
+
+- Switched the official Supabase v2 browser client to its documented unpkg distribution.
+- Avoided the jsDelivr execution failure observed on the deployed GitHub Pages app.
+
 ## 0.004.018 - Supabase Client Restoration
 
 - Restored the official Supabase JavaScript v2 browser client on GitHub Pages.
