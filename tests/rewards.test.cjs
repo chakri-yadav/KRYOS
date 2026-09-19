@@ -18,6 +18,7 @@ function setup(overrides = {}) {
   const taskState = { launch: { marketEvents: [], mockSessions: [] }, rhythm: { events: [] }, money: { contacts: [] }, ...overrides.tasks };
   const context = vm.createContext({
     document: { addEventListener() {} }, taskState, careerState: overrides.career || { activityLog: [] },
+    currentPage: 'none', syncState: { status: 'connected' },
     lifeStore: () => store, saveTasks() {}, createId: () => 'review-id',
     lifeDate: value => /^\d{4}-\d{2}-\d{2}$/.test(value),
     toDateKey: value => value ? new Date(value).toISOString().slice(0, 10) : '2026-11-30',
@@ -28,6 +29,9 @@ function setup(overrides = {}) {
     },
     rhythmHabit: id => ({ id, title: id, group: id.startsWith('spirit') ? 'spirit' : 'daily' }),
     rhythmDay: date => ({ qualified: overrides.foundationDates?.includes(date) || false }),
+    getSupabaseSession: overrides.getSupabaseSession || (async () => null),
+    ensureSupabaseProfile: async () => 'profile-id',
+    getSupabaseClient: overrides.getSupabaseClient || (() => null),
     escapeHtml: String, formatDateKey: String,
   });
   vm.runInContext(fs.readFileSync('reward-engine.js', 'utf8'), context);
@@ -92,6 +96,15 @@ test('music reward remains unavailable during its cooldown', () => {
   assert.equal(blocked.missingCooldown, 2);
   const ready = setup({ life: { dailyAssessments: reviews, rewardRedemptions: [{ rewardId: 'music', date: '2026-11-26', status: 'confirmed' }] } }).context.rewardEligibility(reward);
   assert.equal(ready.allowed, true);
+});
+
+test('empty cloud ledger reports a successful connection rather than appearing inert', async () => {
+  const { context } = setup({
+    getSupabaseSession: async () => ({ user: { id: 'user-id', email: 'owner@example.com' } }),
+    getSupabaseClient: () => ({ rpc: async () => ({ data: { balance: 0, accepted: false }, error: null }) }),
+  });
+  await context.syncRewardLedger();
+  assert.equal(vm.runInContext('rewardCloudNotice', context), 'Cloud connected. Nothing to upload until you confirm a qualifying daily review.');
 });
 
 test('astrology covenant preserves prior kept days and requires a final review', () => {

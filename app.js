@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.004.020";
+const APP_VERSION = "0.004.021";
 const APP_STAGE = "Life Execution Foundation";
 const APP_RELEASE_DATE = "2026-09-19";
 const APP_STATUS = "Unified evidence rewards across the KRYOS operating system";
 const APP_NEXT_MILESTONE = "Use reviewed evidence before tuning reward weights";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Added visible reward-ledger progress and explicit zero-data sync confirmation.",
   "Bundled the Supabase client with KRYOS so cloud login no longer depends on third-party scripts at runtime.",
   "Moved the Supabase browser client to the same reliable CDN already used by KRYOS icons.",
   "Restored the official Supabase browser client required for cloud authentication and ledger sync.",
