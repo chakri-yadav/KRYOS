@@ -9,19 +9,21 @@ const SYNC_STATE_STORAGE_KEY = "kryos-sync-state-v1";
 const ACCOUNT_MODE_STORAGE_KEY = "kryos-account-mode-v1";
 const ACCOUNT_MODES = ["personal", "demo"];
 const DEMO_STORAGE_PREFIX = "kryos-demo";
-const DEMO_PROFILE_PIN = "9619";
+const PERSONAL_PROFILE_PIN_HASH = "c028a67bdd676aadfb7ef48c3725b8ca9c8da0998960a5c7f7ab4e286f938460";
 const SUPABASE_URL = "https://ogpkaxprhjhrewoxsyla.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.004.003";
-const APP_STAGE = "Assistant Import";
+const APP_VERSION = "0.004.004";
+const APP_STAGE = "Journal Foundation";
 const APP_RELEASE_DATE = "2026-09-19";
-const APP_STATUS = "Assistant-maintained progress and 7 AM day tracking";
-const APP_NEXT_MILESTONE = "Reviewed VP awards and media capture";
+const APP_STATUS = "One personal journal with automatic reviewed imports";
+const APP_NEXT_MILESTONE = "Use the journal reliably before adding another feature";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Reduced KRYOS to Journal and Progress while preserving older data for later use.",
+  "Made 9619 the personal profile credential and removed the accidental empty-demo route.",
   "Added assistant-maintained progress packages that import once into the existing KRYOS profile.",
   "KRYOS days now run from 7:00 AM to 6:59 AM for records, streaks and analytics.",
   "Refined daily outcome progress, weekly consistency, metric-specific heatmaps and selected reward progress.",
@@ -75,7 +77,7 @@ const TASK_TYPES = ["Task", "Checklist", "Goal", "Routine", "Habit"];
 const TASK_PRIORITIES = ["Low", "Medium", "High", "Critical"];
 const TASK_REPEATS = ["none", "daily", "weekdays", "weekly", "selected"];
 const TASK_VIEWS = ["today", "inbox", "upcoming"];
-const APP_PAGES = ["today", "journal", "progress", "focus", "redirect", "rewards", "project", "review", "settings"];
+const APP_PAGES = ["journal", "progress"];
 const FIELD_TABS = ["today", "add", "habits", "pulse"];
 const HABIT_RANGES = [14, 30, 60, 90];
 const HABIT_PERIODS = ["day", "week", "month"];
@@ -116,8 +118,8 @@ const STATE_METRICS = [
 const AUTO_LOCK_OPTIONS = [1, 5, 10, 15, 30, 60];
 
 const defaultSecurity = {
-  configured: false,
-  passHash: "",
+  configured: true,
+  passHash: PERSONAL_PROFILE_PIN_HASH,
   recovery: [
     { question: "", answerHash: "" },
     { question: "", answerHash: "" },
@@ -519,7 +521,8 @@ const defaultJournal = {
   },
 };
 
-let accountMode = loadAccountMode();
+let accountMode = "personal";
+saveAccountMode(accountMode);
 ensureDemoData();
 let state = loadFoundation();
 let careerState = loadCareer();
@@ -529,7 +532,7 @@ let securityState = loadSecurity();
 let syncState = loadSyncState();
 const savedUiState = loadUiState();
 let mode = savedUiState.mode === "edit" ? "edit" : "read";
-let currentPage = APP_PAGES.includes(savedUiState.currentPage) ? savedUiState.currentPage : "today";
+let currentPage = APP_PAGES.includes(savedUiState.currentPage) ? savedUiState.currentPage : "journal";
 let activeEditSection = savedUiState.activeEditSection || "declaration";
 let returnProtocolOpen = false;
 let returnChecks = {};
@@ -1374,7 +1377,7 @@ function loadSecurity(modeName = accountMode) {
     const saved = getModeStorageValue(SECURITY_STORAGE_KEY, modeName);
     if (!saved) return structuredClone(defaultSecurity);
     const parsed = JSON.parse(saved);
-    return {
+    const loaded = {
       ...structuredClone(defaultSecurity),
       ...parsed,
       recovery: Array.isArray(parsed.recovery) && parsed.recovery.length >= 2
@@ -1385,6 +1388,11 @@ function loadSecurity(modeName = accountMode) {
         : structuredClone(defaultSecurity.recovery),
       settings: { ...defaultSecurity.settings, ...parsed.settings },
     };
+    if (modeName === "personal") {
+      loaded.configured = true;
+      loaded.passHash = PERSONAL_PROFILE_PIN_HASH;
+    }
+    return loaded;
   } catch {
     return structuredClone(defaultSecurity);
   }
@@ -2323,7 +2331,7 @@ function renderUnlockScreen() {
       </div>
       <p class="section-kicker">Profile entry</p>
       <h2>Enter KRYOS</h2>
-      <p class="profile-login-note">Personal credentials open your private workspace. Demo credentials open the showcase profile.</p>
+      <p class="profile-login-note">Open your personal journal.</p>
       ${securityNotice ? `<p class="security-notice">${escapeHtml(securityNotice)}</p>` : ""}
       <div class="security-form">
         <div class="field">
@@ -2331,7 +2339,6 @@ function renderUnlockScreen() {
           <input id="unlock-pass" type="password" autocomplete="current-password" autofocus />
         </div>
         <button class="primary-button" type="button" data-security-action="unlock">Enter KRYOS</button>
-        <button class="secondary-button" type="button" data-security-action="show-recovery">Recovery</button>
       </div>
     </div>
   `;
@@ -7224,10 +7231,6 @@ async function unlockSecurity() {
   }
   if (await isPersonalCredential(pass)) {
     enterProfile("personal", "");
-    return;
-  }
-  if (pass === DEMO_PROFILE_PIN) {
-    enterProfile("demo", "Demo profile opened.");
     return;
   }
   setSecurityNotice("That PIN or passphrase is not correct.");

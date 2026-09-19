@@ -2,6 +2,16 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.004 - Journal Foundation
+
+- Reduced the visible application to Journal and Progress.
+- Corrected `9619` to open the personal profile instead of an empty demo profile.
+- Removed first-run setup, recovery controls, Supabase loading and links into hidden feature areas.
+- Simplified Progress to journal days, completed actions, journal streaks, domain totals and a completion calendar.
+- Preserved the older feature data and implementation outside the active navigation for possible later reuse.
+- Added asset versioning so GitHub Pages does not reuse stale JavaScript after a release.
+- Verified the September 17 entry imports once with 17 completed actions and drives the Progress view.
+
 ## 0.004.003 - Assistant-Maintained Progress
 
 - Added a repository-maintained feed for reviewed, non-private journal outcomes.

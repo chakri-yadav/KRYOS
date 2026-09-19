@@ -87,7 +87,10 @@ async function consumeBundledAssistantImports() {
     lifeCommit(candidate);
     imported += 1;
   });
-  if (imported) lifeNotice = `${imported} reviewed journal ${imported === 1 ? 'entry' : 'entries'} added by your assistant.`;
+  if (imported) {
+    lifeNotice = `${imported} reviewed journal ${imported === 1 ? 'entry' : 'entries'} added by your assistant.`;
+    render();
+  }
   return imported;
 }
 function renderLifeJournal() {
@@ -97,17 +100,6 @@ function renderLifeJournal() {
     <form id="life-entry-form"><label>Date<input name="date" type="date" value="${toDateKey()}" max="${toDateKey()}" required></label>
     <label class="life-wide">Your journal<textarea name="text" id="life-draft" placeholder="What happened, what you did, how you felt..." required maxlength="100000">${escapeHtml(store.draft || '')}</textarea></label>
     <button class="primary-button">Save journal</button><span id="life-draft-status" aria-live="polite"></span></form></section>
-    <details class="life-section"><summary>Add a structured record</summary><form id="life-record-form" class="life-form">
-    <label>Record<input name="title" required maxlength="300" placeholder="Evening skincare completed"></label>
-    <label>Domain<select name="domain">${lifeOptions(LIFE_DOMAINS)}</select></label>
-    <label>Type<select name="kind"><option value="activity">Completed activity</option><option value="observation">Observation / feeling</option><option value="task">Task to do</option></select></label>
-    <label>Date<input type="date" name="date" value="${toDateKey()}" max="${toDateKey()}" required></label>
-    <label>Minutes, if known<input type="number" name="minutes" min="0" max="1440"></label><button class="primary-button">Save record</button></form></details>
-    <details class="life-section" ${lifePreview ? 'open' : ''}><summary>Import reviewed notes</summary>
-    <p>Paste a version 1 journal package. Review the evidence before adding records.</p>
-    <form id="life-import-form"><label>Import package<textarea name="package" required placeholder='{"version":1,"id":"unique-id","date":"2026-09-17","text":"Your notes","records":[]}'></textarea></label><button class="secondary-button">Preview import</button></form>
-    <a href="docs/journal-import.md" target="_blank" rel="noopener">Import format and assistant instructions</a>
-    ${lifePreview ? `<div class="life-preview"><h3>${escapeHtml(lifePreview.date)} · ${lifePreview.records.length} records</h3><p class="life-text">${escapeHtml(lifePreview.text)}</p>${lifePreview.records.map(r => `<div class="life-row"><strong>${escapeHtml(r.title)}</strong><span>${escapeHtml(r.domain)} · ${r.kind}${r.minutes == null ? '' : ` · ${r.minutes} min`}</span><q>${escapeHtml(r.evidence)}</q></div>`).join('')}<button class="primary-button" data-life="approve">Approve import</button> <button class="secondary-button" data-life="cancel">Cancel</button></div>` : ''}</details>
     <section class="life-section"><div class="life-heading"><h2>Your timeline</h2><input id="life-search" type="search" placeholder="Search your journal" aria-label="Search journal"></div><div id="life-timeline">${lifeTimeline()}</div></section>`;
 }
 function lifeTimeline(query = '') {
