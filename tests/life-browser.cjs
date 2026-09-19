@@ -11,7 +11,7 @@ const assert = require('node:assert/strict');
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(pathToFileURL(path.resolve('index.html')).href);
 
-    assert.deepEqual(await page.locator('.nav-item').allTextContents(), ['Journal', 'Actions', 'Career', 'Rhythm', 'Progress', 'Rewards']);
+    assert.deepEqual(await page.locator('.nav-item').allTextContents(), ['Journal', 'Actions', 'Career', 'Rhythm', 'Money', 'Progress', 'Rewards']);
     await page.locator('#unlock-pass').fill('9619');
     await page.getByRole('button', { name: 'Enter KRYOS' }).click();
     await page.waitForFunction(() => lifeStore().entries.some(entry => entry.packageId === 'assistant-2026-09-17-day-1'));
@@ -70,6 +70,33 @@ const assert = require('node:assert/strict');
     await page.getByRole('button', { name: 'Rhythm', exact: true }).first().click();
     assert.equal(await page.evaluate(() => rhythmValue('breakfast')), 1);
 
+    await page.getByRole('button', { name: 'Money', exact: true }).first().click();
+    await page.getByRole('button', { name: 'Set baseline' }).click();
+    await page.locator('#money-form [name=friendName]').fill('Friend');
+    await page.locator('#money-form [name=original]').fill('2000');
+    await page.locator('#money-form [name=owed]').fill('1400');
+    await page.getByRole('button', { name: 'Save record' }).click();
+    await page.getByRole('button', { name: 'Log contact', exact: true }).first().click();
+    await page.locator('#money-form [name=outcome]').selectOption('promised-payment');
+    await page.locator('#money-form [name=promised]').fill('250');
+    await page.locator('#money-form [name=promiseDate]').fill('2026-09-25');
+    await page.locator('#money-form [name=note]').fill('Promised the first payment.');
+    await page.getByRole('button', { name: 'Save record' }).click();
+    await page.getByRole('button', { name: 'Record payment' }).click();
+    await page.locator('#money-form [name=amount]').fill('100');
+    await page.getByRole('button', { name: 'Save record' }).click();
+    assert.equal(await page.evaluate(() => moneyCurrentOwed()), 130000);
+    assert.equal(await page.locator('.money-contact-grid i').count(), 30);
+    assert.equal(await page.evaluate(() => moneyStore().contacts.length), 1);
+    await page.reload();
+    if (await page.locator('#unlock-pass').count()) {
+      await page.locator('#unlock-pass').fill('9619');
+      await page.getByRole('button', { name: 'Enter KRYOS' }).click();
+    }
+    await page.getByRole('button', { name: 'Money', exact: true }).first().click();
+    assert.equal(await page.evaluate(() => moneyCurrentOwed()), 130000);
+    assert.equal(await page.evaluate(() => moneyStore().payments.length), 1);
+
     await page.getByRole('button', { name: 'Progress', exact: true }).first().click();
     assert.equal(await page.locator('.life-cell').count(), 84);
     assert.ok(await page.getByText('17', { exact: true }).count() > 0);
@@ -77,7 +104,7 @@ const assert = require('node:assert/strict');
     assert.ok(await page.getByText('Astrology remains protected', { exact: true }).count() > 0);
     assert.ok(await page.getByText('No reviewed days yet. Journal evidence alone does not create credits.', { exact: true }).count() > 0);
     assert.deepEqual(errors, []);
-    console.log('PASS: journal, Action Vault, Career, Rhythm, analytics, rewards and persistence');
+    console.log('PASS: journal, Action Vault, Career, Rhythm, Money, analytics, rewards and persistence');
   } finally {
     await browser.close();
   }

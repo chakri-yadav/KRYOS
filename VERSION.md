@@ -9,14 +9,14 @@ major.minor.patch
 Current version:
 
 ```text
-0.004.011
+0.004.012
 ```
 
 ## Meaning
 
 - `0`: private pre-public era.
 - `004`: directed-attention operating system line.
-- `011`: sustainable Rhythm system for health, care, and spiritual practice.
+- `012`: friend-credit responsibility and follow-up accountability system.
 
 ## Version Bands
 

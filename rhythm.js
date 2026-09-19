@@ -90,7 +90,7 @@ function rhythmStreakStats() {
 }
 
 function rhythmIcon(name) {
-  const fallback = { sunrise: 'B', utensils: 'L', moon: 'D', 'cup-soda': 'P', pill: 'S', droplets: 'W', sparkles: 'M', 'flask-conical': 'F', eye: 'E', sun: 'S', dumbbell: 'X', 'shower-head': 'H', 'shopping-basket': 'G', 'circle-dot': 'J', 'book-open': 'G', 'book-heart': 'C', 'sun-medium': 'A', brain: 'M', wind: 'P', check: '✓', 'check-circle-2': '✓', 'settings-2': 'S' };
+  const fallback = { sunrise: 'B', utensils: 'L', moon: 'D', 'cup-soda': 'P', pill: 'S', droplets: 'W', sparkles: 'M', 'flask-conical': 'F', eye: 'E', sun: 'S', dumbbell: 'X', 'shower-head': 'H', 'shopping-basket': 'G', 'circle-dot': 'J', 'book-open': 'G', 'book-heart': 'C', 'sun-medium': 'A', brain: 'M', wind: 'P', phone: 'C', 'circle-dollar-sign': '$', 'credit-card': 'C', 'badge-dollar-sign': '$', 'edit-3': 'E', check: '✓', 'check-circle-2': '✓', 'settings-2': 'S' };
   return `<i data-lucide="${name}" aria-hidden="true">${fallback[name] || '·'}</i>`;
 }
 
