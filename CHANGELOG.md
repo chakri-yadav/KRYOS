@@ -2,6 +2,15 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.011 - Sustainable Rhythm
+
+- Added one Rhythm workspace for Daily Health, Weekly Health, and Spiritual Practice.
+- Separated ten essential daily foundation actions from optional spiritual opportunities.
+- Added weekly goal tracks for exercise, hair care, and groceries without assigning arbitrary weekdays.
+- Added a 28-day Body/Care/Spirit constellation, sustainable foundation streak, recovery average, and weekly rhythm.
+- Stored only source events inside the existing synced task block; all visual analytics are derived at render time.
+- Added immediate local persistence and the existing debounced Supabase task-block synchronization.
+
 ## 0.004.010 - Career Evidence Command Center
 
 - Restored Career as a first-class desktop workspace without mixing in job search or interview preparation.

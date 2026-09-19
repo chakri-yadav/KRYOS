@@ -9,14 +9,14 @@ major.minor.patch
 Current version:
 
 ```text
-0.004.010
+0.004.011
 ```
 
 ## Meaning
 
 - `0`: private pre-public era.
 - `004`: directed-attention operating system line.
-- `010`: evidence-led Career Skills command center and roadmap analytics.
+- `011`: sustainable Rhythm system for health, care, and spiritual practice.
 
 ## Version Bands
 

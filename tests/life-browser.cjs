@@ -11,7 +11,7 @@ const assert = require('node:assert/strict');
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(pathToFileURL(path.resolve('index.html')).href);
 
-    assert.deepEqual(await page.locator('.nav-item').allTextContents(), ['Journal', 'Actions', 'Career', 'Progress', 'Rewards']);
+    assert.deepEqual(await page.locator('.nav-item').allTextContents(), ['Journal', 'Actions', 'Career', 'Rhythm', 'Progress', 'Rewards']);
     await page.locator('#unlock-pass').fill('9619');
     await page.getByRole('button', { name: 'Enter KRYOS' }).click();
     await page.waitForFunction(() => lifeStore().entries.some(entry => entry.packageId === 'assistant-2026-09-17-day-1'));
@@ -56,6 +56,20 @@ const assert = require('node:assert/strict');
     assert.equal(await page.getByRole('button', { name: 'Edit roadmap' }).count(), 1);
     assert.equal(await page.locator('.career-command').evaluate(element => element.scrollWidth <= element.clientWidth), true);
 
+    await page.getByRole('button', { name: 'Rhythm', exact: true }).first().click();
+    assert.equal(await page.locator('.rhythm-constellation-grid button').count(), 28);
+    assert.equal(await page.locator('.rhythm-weekly-row').count(), 3);
+    const breakfast = page.locator('[data-rhythm-toggle="breakfast"]');
+    await breakfast.click();
+    assert.equal(await page.evaluate(() => rhythmValue('breakfast')), 1);
+    await page.reload();
+    if (await page.locator('#unlock-pass').count()) {
+      await page.locator('#unlock-pass').fill('9619');
+      await page.getByRole('button', { name: 'Enter KRYOS' }).click();
+    }
+    await page.getByRole('button', { name: 'Rhythm', exact: true }).first().click();
+    assert.equal(await page.evaluate(() => rhythmValue('breakfast')), 1);
+
     await page.getByRole('button', { name: 'Progress', exact: true }).first().click();
     assert.equal(await page.locator('.life-cell').count(), 84);
     assert.ok(await page.getByText('17', { exact: true }).count() > 0);
@@ -63,7 +77,7 @@ const assert = require('node:assert/strict');
     assert.ok(await page.getByText('Astrology remains protected', { exact: true }).count() > 0);
     assert.ok(await page.getByText('No reviewed days yet. Journal evidence alone does not create credits.', { exact: true }).count() > 0);
     assert.deepEqual(errors, []);
-    console.log('PASS: journal, Action Vault, Career command center, analytics, rewards and persistence');
+    console.log('PASS: journal, Action Vault, Career, Rhythm, analytics, rewards and persistence');
   } finally {
     await browser.close();
   }
