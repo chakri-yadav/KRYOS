@@ -15,10 +15,14 @@ const assert = require('node:assert/strict');
     await page.locator('#unlock-pass').fill('9619');
     await page.getByRole('button', { name: 'Enter KRYOS' }).click();
     await page.waitForFunction(() => lifeStore().entries.some(entry => entry.packageId === 'assistant-2026-09-17-day-1'));
+    await page.waitForFunction(() => lifeStore().entries.some(entry => entry.packageId === 'assistant-2026-09-19-master-actions-page-1'));
     assert.equal(await page.evaluate(() => accountMode), 'personal');
     assert.equal(await page.evaluate(() => lifeStore().entries.filter(entry => entry.packageId === 'assistant-2026-09-17-day-1').length), 1);
     assert.equal(await page.evaluate(() => lifeStore().records.filter(record => record.date === '2026-09-17' && record.completed).length), 17);
     assert.equal(await page.evaluate(() => journalRewardStats().earned), 0);
+    assert.equal(await page.evaluate(() => lifeStore().actions.filter(action => action.externalId.startsWith('action-')).length), 13);
+    assert.equal(await page.evaluate(() => lifeStore().actions.find(action => action.externalId === 'action-haircut-2026-09-21').deadline), '2026-09-21');
+    assert.equal(await page.evaluate(() => lifeStore().actions.find(action => action.externalId === 'action-part-time-payment-balance').nextAction), 'Confirm and collect approximately $225-$226.');
 
     await page.getByRole('button', { name: 'Actions', exact: true }).first().click();
     await page.getByText('Add an action', { exact: true }).click();
@@ -30,13 +34,15 @@ const assert = require('node:assert/strict');
 
     await page.getByRole('button', { name: 'Journal', exact: true }).first().click();
     await page.locator('#life-draft').fill('A focused journal test.');
-    await page.getByRole('button', { name: 'Save journal', exact: true }).click();
+    await page.getByRole('button', { name: 'Save to timeline', exact: true }).click();
     await page.reload();
     if (await page.locator('#unlock-pass').count()) {
       await page.locator('#unlock-pass').fill('9619');
       await page.getByRole('button', { name: 'Enter KRYOS' }).click();
     }
     assert.equal(await page.evaluate(() => lifeStore().entries.filter(entry => entry.packageId === 'assistant-2026-09-17-day-1').length), 1);
+    assert.equal(await page.evaluate(() => lifeStore().entries.filter(entry => entry.packageId === 'assistant-2026-09-19-master-actions-page-1').length), 1);
+    assert.equal(await page.evaluate(() => lifeStore().actions.filter(action => action.externalId.startsWith('action-')).length), 13);
 
     await page.getByRole('button', { name: 'Progress', exact: true }).first().click();
     assert.equal(await page.locator('.life-cell').count(), 84);

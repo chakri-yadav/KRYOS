@@ -9,14 +9,14 @@ major.minor.patch
 Current version:
 
 ```text
-0.004.007
+0.004.008
 ```
 
 ## Meaning
 
 - `0`: private pre-public era.
 - `004`: directed-attention operating system line.
-- `007`: premium evidence journal and multi-layer visual progress system.
+- `008`: reviewed master-action import with stable deduplication.
 
 ## Version Bands
 
