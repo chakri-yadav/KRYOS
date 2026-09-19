@@ -9,6 +9,7 @@ function lifeStore() {
   taskState.life.schedules ||= [];
   taskState.life.actions ||= [];
   taskState.life.rewardRedemptions ||= [];
+  taskState.life.dailyAssessments ||= [];
   return taskState.life;
 }
 function lifeOptions(items) { return items.map(x => `<option>${escapeHtml(x)}</option>`).join(''); }
@@ -31,7 +32,21 @@ function validateLifeImport(data) {
   });
   const actions = Array.isArray(data.actions) ? data.actions.map(action => normalizeImportedAction(action)) : [];
   const actionUpdates = Array.isArray(data.actionUpdates) ? data.actionUpdates.map(update => normalizeActionUpdate(update)) : [];
-  return { id: data.id.trim(), date: data.date, text: data.text, records, actions, actionUpdates };
+  const assessment = data.assessment == null ? null : normalizeDailyAssessment(data.assessment, data.date);
+  return { id: data.id.trim(), date: data.date, text: data.text, records, actions, actionUpdates, assessment };
+}
+function normalizeDailyAssessment(assessment, date) {
+  if (!assessment || typeof assessment !== 'object') throw new Error('The daily assessment must be an object.');
+  const limits = { priority: 3, resistance: 2, foundation: 2, spiritual: 1, closure: 1, containment: 1 };
+  const scores = {};
+  Object.entries(limits).forEach(([key, max]) => {
+    const value = Number(assessment.scores?.[key]);
+    if (!Number.isInteger(value) || value < 0 || value > max) throw new Error(`${key} score must be a whole number from 0 to ${max}.`);
+    scores[key] = value;
+  });
+  const total = Object.values(scores).reduce((sum, value) => sum + value, 0);
+  const qualified = total >= 7 && scores.priority >= 1 && assessment.qualified !== false;
+  return { date, scores, total, qualified, astrologySeeking: assessment.astrologySeeking === true, covenantReviewApproved: assessment.covenantReviewApproved === true, note: String(assessment.note || '').trim().slice(0, 600) };
 }
 function normalizeImportedAction(action) {
   if (!action || typeof action.id !== 'string' || !action.id.trim() || typeof action.title !== 'string' || !action.title.trim()) throw new Error('Every imported action needs an id and title.');
@@ -83,7 +98,14 @@ function lifeCommit(data) {
       if (action) { action.status = 'done'; action.completedAt = new Date().toISOString(); }
     }
   });
+  if (data.assessment) upsertDailyAssessment(store, data.assessment);
   saveTasks();
+}
+function upsertDailyAssessment(store, assessment) {
+  const index = store.dailyAssessments.findIndex(item => item.date === assessment.date);
+  const next = { ...assessment, reviewedAt: new Date().toISOString() };
+  if (index >= 0) store.dailyAssessments[index] = next;
+  else store.dailyAssessments.push(next);
 }
 function reconcileLifePackage(data, existingEntry) {
   const store = lifeStore();
@@ -98,6 +120,7 @@ function reconcileLifePackage(data, existingEntry) {
     const action = store.actions.find(item => item.externalId === update.externalId);
     if (action) { action.status = update.status; action.completedAt = update.status === 'done' ? new Date().toISOString() : null; }
   });
+  if (data.assessment) upsertDailyAssessment(store, data.assessment);
   saveTasks();
 }
 function lifeBase64Bytes(value) {
