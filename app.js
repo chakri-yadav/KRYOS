@@ -15,13 +15,16 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.004.009";
+const APP_VERSION = "0.004.010";
 const APP_STAGE = "Life Execution Foundation";
 const APP_RELEASE_DATE = "2026-09-19";
-const APP_STATUS = "Premium action command surface with resilient local-first cloud sync";
-const APP_NEXT_MILESTONE = "Use the journal reliably before adding another feature";
+const APP_STATUS = "Career command center with evidence-led roadmap analytics";
+const APP_NEXT_MILESTONE = "Use real career evidence before expanding analytics";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Reintroduced Career as a focused skill-development command center, separate from job search and interview preparation.",
+  "Added weekly pulse, 52-week evidence field, roadmap journey, coverage versus confidence, and current-module focus.",
+  "Kept detailed Career analytics inside Career while Progress receives only a compact cross-domain summary.",
   "Redesigned Actions as a premium, low-friction command surface with human deadline signals and calm visual hierarchy.",
   "Replaced browser prompts with a complete action editor and added quiet, debounced task-block cloud synchronization.",
   "Imported the 13 reviewed master actions from notebook page one, including corrected deadlines and the part-time balance amount.",
@@ -83,7 +86,7 @@ const TASK_TYPES = ["Task", "Checklist", "Goal", "Routine", "Habit"];
 const TASK_PRIORITIES = ["Low", "Medium", "High", "Critical"];
 const TASK_REPEATS = ["none", "daily", "weekdays", "weekly", "selected"];
 const TASK_VIEWS = ["today", "inbox", "upcoming"];
-const APP_PAGES = ["journal", "actions", "progress", "rewards"];
+const APP_PAGES = ["journal", "actions", "career", "progress", "rewards"];
 const FIELD_TABS = ["today", "add", "habits", "pulse"];
 const HABIT_RANGES = [14, 30, 60, 90];
 const HABIT_PERIODS = ["day", "week", "month"];
@@ -548,6 +551,10 @@ let selectedRoadmapId = careerState.roadmaps.some((roadmap) => roadmap.id === sa
 let editingCareerRoadmapId = null;
 let careerEditorDraft = null;
 let careerEditorNotice = "";
+let careerSyncTimer = null;
+let careerSyncRunning = false;
+let careerSyncDirty = false;
+let careerSyncState = "local";
 let selectedTaskDate = isDateKey(savedUiState.selectedTaskDate) ? savedUiState.selectedTaskDate : toDateKey();
 let activeTaskView = TASK_VIEWS.includes(savedUiState.activeTaskView) ? savedUiState.activeTaskView : "today";
 let activeFieldTab = FIELD_TABS.includes(savedUiState.activeFieldTab) ? savedUiState.activeFieldTab : "today";
@@ -1620,6 +1627,55 @@ function saveFoundation() {
 function saveCareer() {
   careerState.meta.updatedAt = new Date().toISOString();
   setModeStorageValue(CAREER_STORAGE_KEY, JSON.stringify(careerState));
+  scheduleCareerCloudSync();
+}
+
+function careerSyncLabel() {
+  return { local: "Saved on device", saving: "Saving changes", synced: "Saved to cloud", error: "Saved locally - cloud unavailable" }[careerSyncState] || "Saved on device";
+}
+
+function updateCareerSyncIndicator() {
+  const indicator = document.querySelector("#career-sync-state");
+  if (!indicator) return;
+  indicator.className = `career-sync-state state-${careerSyncState}`;
+  indicator.innerHTML = `<i></i>${escapeHtml(careerSyncLabel())}`;
+}
+
+function scheduleCareerCloudSync() {
+  if (isDemoMode()) return;
+  careerSyncDirty = true;
+  careerSyncState = "saving";
+  updateCareerSyncIndicator();
+  window.clearTimeout(careerSyncTimer);
+  careerSyncTimer = window.setTimeout(flushCareerCloudSync, 900);
+}
+
+async function flushCareerCloudSync() {
+  if (careerSyncRunning || !careerSyncDirty) return;
+  careerSyncRunning = true;
+  careerSyncDirty = false;
+  try {
+    const session = await refreshSyncAuthState({ silent: true });
+    if (!session) {
+      careerSyncState = "local";
+      return;
+    }
+    const client = getSupabaseClient();
+    const profileId = await ensureSupabaseProfile(session);
+    const careerBlock = getSyncBlockPayloads().find((block) => block.block_key === "career");
+    const { error } = await client.from("kryos_sync_blocks").upsert([{ ...careerBlock, profile_id: profileId, updated_at: new Date().toISOString() }], { onConflict: "profile_id,block_key" });
+    if (error) throw error;
+    syncState = { ...syncState, enabled: true, endpointConfigured: true, status: "connected", lastSyncAt: new Date().toISOString(), lastAttemptAt: new Date().toISOString(), remoteProfileId: profileId, userEmail: session.user.email || syncState.userEmail, userId: session.user.id };
+    saveSyncState();
+    careerSyncState = "synced";
+  } catch (error) {
+    console.warn("KRYOS career auto-sync failed.", error);
+    careerSyncState = "error";
+  } finally {
+    careerSyncRunning = false;
+    updateCareerSyncIndicator();
+    if (careerSyncDirty) scheduleCareerCloudSync();
+  }
 }
 
 function saveTasks() {
@@ -2751,6 +2807,7 @@ function render() {
   const pageCopy = {
     journal: ["Your daily record", "Journal"],
     actions: ["Persistent commitments", "Action Vault"],
+    career: ["Skill evidence", "Career"],
     progress: ["Evidence of effort", "Progress"],
     today: ["Command", "Today"],
     focus: ["Execution", "Focus"],
@@ -2780,6 +2837,7 @@ function render() {
   progressView?.classList.add("is-hidden");
   journalView?.classList.toggle("is-hidden", currentPage !== "journal");
   actionsView?.classList.toggle("is-hidden", currentPage !== "actions");
+  careerView?.classList.toggle("is-hidden", currentPage !== "career");
   progressView?.classList.toggle("is-hidden", currentPage !== "progress");
   todayView?.classList.toggle("is-hidden", currentPage !== "today");
   focusView?.classList.toggle("is-hidden", currentPage !== "focus");
@@ -2792,6 +2850,7 @@ function render() {
   if (currentPage === "today") renderBehaviorToday();
   if (currentPage === "journal") renderLifeJournal();
   if (currentPage === "actions") renderActionVault();
+  if (currentPage === "career") renderCareerView();
   if (currentPage === "progress") renderLifeProgress();
   if (currentPage === "focus") renderBehaviorFocus();
   if (currentPage === "redirect") renderBehaviorRedirect();
@@ -3314,52 +3373,120 @@ function renderCareerView() {
   }
   const stats = getCareerStats();
   const selectedRoadmap = findRoadmap(selectedRoadmapId) ?? careerState.roadmaps[0];
+  const next = getNextCareerItem(selectedRoadmap);
+  const week = getCareerWeekPulse();
+  const qualifiedDays = week.filter((day) => day.count > 0).length;
+  const confidence = getCareerConfidence();
 
   careerView.innerHTML = `
-    <article class="career-hero">
-      <div>
-        <p class="section-kicker">Career block</p>
-        <h2>One streak for meaningful career work.</h2>
-        <p class="principle-body">Roadmaps show progress. The career block shows consistency. A day counts when you complete any roadmap checklist item.</p>
+    <header class="career-command">
+      <div class="career-command-copy">
+        <p class="section-kicker">KRYOS / Career Skills</p>
+        <h1>${selectedRoadmap ? escapeHtml(selectedRoadmap.title) : "Build proof, not pressure."}</h1>
+        <p>${next ? `Continue ${escapeHtml(next.topic.title)}: ${escapeHtml(next.item.text)}` : "Choose one skill roadmap and create its next evidence step."}</p>
+        <span id="career-sync-state" class="career-sync-state state-${careerSyncState}"><i></i>${escapeHtml(careerSyncLabel())}</span>
+        ${next ? `<button class="career-continue" type="button" data-career-scroll="current">Continue next step ${careerIcon("arrow")}</button>` : ""}
       </div>
-      <div class="career-metrics">
-        ${metricTile("Career streak", `${stats.currentStreak} days`, stats.hasTodayAction ? "Logged today" : "Waiting for today's action", "signal")}
-        ${metricTile("Roadmap progress", `${stats.progress}%`, `${stats.doneItems}/${stats.totalItems} checklist items`, "blue")}
+      <div class="career-command-score">
+        <span>Skill momentum</span>
+        <strong>${stats.progress}<small>%</small></strong>
+        <em>${stats.doneItems} of ${stats.totalItems} evidence steps</em>
       </div>
-    </article>
+      <div class="career-command-stat"><span>This week</span><strong>${qualifiedDays}<small>/4 days</small></strong><em>${stats.weekActions} completed steps</em></div>
+      <div class="career-command-stat"><span>Current rhythm</span><strong>${stats.currentStreak}<small> days</small></strong><em>Personal best ${stats.bestStreak}</em></div>
+    </header>
 
-    <div class="career-layout">
-      <section class="section-card">
-        <div class="section-header">
-          <div>
-            <p class="section-kicker">Roadmaps</p>
-            <h2>Career paths</h2>
-          </div>
-          <div class="quick-add">
-            <input type="text" id="new-roadmap-title" placeholder="New roadmap name" />
-            <button class="primary-button" type="button" data-career-add="roadmap">Add</button>
-          </div>
-        </div>
-        <div class="roadmap-grid">
-          ${careerState.roadmaps.map(renderRoadmapCard).join("")}
-        </div>
+    <section class="career-section career-week-section">
+      <div class="career-section-head"><div><p class="section-kicker">Weekly pulse</p><h2>Four useful days, not seven perfect days.</h2></div><span class="career-target ${qualifiedDays >= 4 ? "is-met" : ""}">${qualifiedDays >= 4 ? "Target reached" : `${4 - qualifiedDays} days to target`}</span></div>
+      <div class="career-week-pulse">${week.map(renderCareerPulseDay).join("")}</div>
+    </section>
+
+    <div class="career-dashboard-grid">
+      <section class="career-section career-field-panel">
+        <div class="career-section-head"><div><p class="section-kicker">Consistency field</p><h2>52 weeks of skill evidence</h2></div><span>Every square is earned</span></div>
+        ${renderCareerHeatmap()}
       </section>
-
-      <aside class="section-stack">
-        <section class="section-card">
-          <div class="section-header">
-            <div>
-              <p class="section-kicker">Rule</p>
-              <h2>What counts?</h2>
-            </div>
-          </div>
-          <p class="principle-body">A career day is logged only when a checklist item inside any career roadmap is completed. Reading this page does not count. Planning alone does not count.</p>
-        </section>
-      </aside>
+      <section class="career-section career-split-panel">
+        <div class="career-section-head"><div><p class="section-kicker">Truthful progress</p><h2>Coverage is not mastery</h2></div></div>
+        ${renderCareerTruthBars(stats.progress, confidence)}
+        <p class="career-footnote">Coverage comes from completed roadmap steps. Confidence comes from topic evidence and stays separate.</p>
+      </section>
     </div>
 
-    ${selectedRoadmap ? renderRoadmapDetail(selectedRoadmap) : emptyState("Create your first roadmap to begin.")}
+    <section class="career-section">
+      <div class="career-section-head"><div><p class="section-kicker">Skill portfolio</p><h2>Choose the path. See the movement.</h2></div><div class="quick-add career-quick-add"><input type="text" id="new-roadmap-title" placeholder="New skill roadmap" /><button class="primary-button" type="button" data-career-add="roadmap">Add roadmap</button></div></div>
+      <div class="career-portfolio">${careerState.roadmaps.length ? careerState.roadmaps.map(renderCareerPortfolioRow).join("") : emptyState("Create the first skill roadmap.")}</div>
+    </section>
+
+    ${selectedRoadmap ? `
+      <section class="career-section career-journey-section">
+        <div class="career-section-head"><div><p class="section-kicker">Roadmap journey</p><h2>${escapeHtml(selectedRoadmap.title)}</h2><p>${escapeHtml(selectedRoadmap.purpose || "A sequence of evidence, one step at a time.")}</p></div></div>
+        ${renderCareerJourney(selectedRoadmap)}
+      </section>
+      <section id="career-current-focus" class="career-section career-focus-section">
+        <div class="career-section-head"><div><p class="section-kicker">Current module</p><h2>${next ? escapeHtml(next.module.title) : "Roadmap complete"}</h2></div><span>${next ? `${getTopicStats(next.topic).done}/${getTopicStats(next.topic).total} topic steps` : "All current steps complete"}</span></div>
+        ${next ? renderCareerCurrentFocus(selectedRoadmap, next) : `<div class="career-complete-state"><strong>Coverage complete.</strong><p>Review confidence before adding more material.</p></div>`}
+      </section>
+      ${renderRoadmapDetail(selectedRoadmap)}
+    ` : ""}
   `;
+}
+
+function getNextCareerItem(roadmap) {
+  if (!roadmap) return null;
+  for (const module of roadmap.modules) {
+    for (const topic of module.topics) {
+      const item = topic.checklist.find((check) => !check.done);
+      if (item) return { module, topic, item };
+    }
+  }
+  return null;
+}
+
+function getCareerWeekPulse() {
+  const today = normalizeDateInput(new Date());
+  const monday = addDays(today, -(today.getDay() === 0 ? 6 : today.getDay() - 1));
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = addDays(monday, index);
+    const key = toDateKey(date);
+    return { date, key, count: careerState.activityLog.filter((item) => item.date === key).length, future: date > today };
+  });
+}
+
+function renderCareerPulseDay(day) {
+  const label = day.date.toLocaleDateString(undefined, { weekday: "short" });
+  const level = Math.min(4, day.count);
+  return `<div class="career-pulse-day level-${level} ${day.future ? "is-future" : ""}"><span>${label}</span><strong>${day.count ? day.count : "·"}</strong><em>${day.count ? `${day.count} step${day.count === 1 ? "" : "s"}` : day.future ? "Ahead" : "No evidence"}</em></div>`;
+}
+
+function getCareerConfidence(roadmaps = careerState.roadmaps) {
+  const values = { Low: 25, Medium: 60, High: 100 };
+  const topics = roadmaps.flatMap((roadmap) => roadmap.modules.flatMap((module) => module.topics));
+  return topics.length ? Math.round(topics.reduce((sum, topic) => sum + (values[topic.confidence] || 0), 0) / topics.length) : 0;
+}
+
+function renderCareerTruthBars(coverage, confidence) {
+  return `<div class="career-truth-bars"><div><span><b>Coverage</b><em>${coverage}%</em></span><i><u style="width:${coverage}%"></u></i></div><div><span><b>Confidence</b><em>${confidence}%</em></span><i><u class="confidence" style="width:${confidence}%"></u></i></div></div>`;
+}
+
+function renderCareerPortfolioRow(roadmap) {
+  const stats = getRoadmapStats(roadmap);
+  const confidence = getCareerConfidence([roadmap]);
+  const next = getNextCareerItem(roadmap);
+  return `<button class="career-portfolio-row ${roadmap.id === selectedRoadmapId ? "is-selected" : ""}" type="button" data-career-select-roadmap="${roadmap.id}"><span class="career-portfolio-name"><strong>${escapeHtml(roadmap.title)}</strong><em>${next ? escapeHtml(next.module.title) : "Coverage complete"}</em></span><span class="career-portfolio-bars"><i><u style="width:${stats.percent}%"></u></i><small>${stats.percent}% coverage · ${confidence}% confidence</small></span><b>${stats.done}/${stats.total}</b>${careerIcon("arrow")}</button>`;
+}
+
+function renderCareerJourney(roadmap) {
+  return `<div class="career-journey">${roadmap.modules.map((module, moduleIndex) => {
+    const stats = getModuleStats(module);
+    const active = stats.done < stats.total && roadmap.modules.slice(0, moduleIndex).every((item) => getModuleStats(item).percent === 100);
+    return `<article class="career-journey-module ${stats.percent === 100 ? "is-complete" : active ? "is-current" : ""}"><div class="journey-node">${stats.percent === 100 ? careerIcon("done") : moduleIndex + 1}</div><div><span>Module ${moduleIndex + 1}</span><strong>${escapeHtml(module.title)}</strong><em>${stats.done}/${stats.total} steps · ${stats.percent}%</em></div><div class="journey-topics">${module.topics.map((topic) => { const topicStats = getTopicStats(topic); return `<span class="${topicStats.percent === 100 ? "is-complete" : ""}">${escapeHtml(topic.title)} <b>${topicStats.percent}%</b></span>`; }).join("")}</div></article>`;
+  }).join("")}</div>`;
+}
+
+function renderCareerCurrentFocus(roadmap, next) {
+  const topicStats = getTopicStats(next.topic);
+  return `<div class="career-current-grid"><div class="career-current-copy"><span>Next evidence step</span><h3>${escapeHtml(next.item.text)}</h3><p>${escapeHtml(next.topic.title)} · ${escapeHtml(next.topic.confidence)} confidence</p><label class="career-next-check"><input type="checkbox" data-career-check="${next.item.id}" data-roadmap-id="${roadmap.id}" data-module-id="${next.module.id}" data-topic-id="${next.topic.id}" /> <span>Mark this evidence complete</span></label></div><div class="career-current-ring" style="--career-progress:${topicStats.percent * 3.6}deg"><strong>${topicStats.percent}<small>%</small></strong><span>topic coverage</span></div></div>`;
 }
 
 function metricTile(label, value, note, tone) {
@@ -3395,27 +3522,30 @@ function renderCareerHeatmap() {
     return acc;
   }, {});
   const today = new Date();
-  const days = Array.from({ length: 91 }, (_, index) => addDays(today, index - 90));
+  const days = Array.from({ length: 364 }, (_, index) => addDays(today, index - 363));
+  const active = days.filter((day) => counts[toDateKey(day)]).length;
+  const actions = days.reduce((sum, day) => sum + (counts[toDateKey(day)] || 0), 0);
 
   return `
-    <div class="heatmap" aria-label="Career activity heatmap">
-      ${days
-        .map((day) => {
-          const key = toDateKey(day);
-          const count = counts[key] ?? 0;
-          const level = Math.min(count, 4);
-          return `<span class="heat-cell level-${level}" title="${key}: ${count} action${count === 1 ? "" : "s"}"></span>`;
-        })
-        .join("")}
+    <div class="career-year-summary"><div><strong>${active}</strong><span>active days</span></div><div><strong>${actions}</strong><span>evidence steps</span></div><div><strong>${getCareerStats().bestStreak}</strong><span>best rhythm</span></div></div>
+    <div class="career-heatmap-scroll">
+      <div class="career-heatmap" aria-label="Career activity over the last 52 weeks">
+        ${days.map((day) => {
+            const key = toDateKey(day);
+            const count = counts[key] ?? 0;
+            const level = Math.min(count, 4);
+            return `<span class="heat-cell level-${level}" title="${key}: ${count} completed step${count === 1 ? "" : "s"}"></span>`;
+          }).join("")}
+      </div>
     </div>
     <div class="heatmap-legend">
-      <span class="meta">Less</span>
+      <span class="meta">No evidence</span>
       <span class="heat-cell level-0"></span>
       <span class="heat-cell level-1"></span>
       <span class="heat-cell level-2"></span>
       <span class="heat-cell level-3"></span>
       <span class="heat-cell level-4"></span>
-      <span class="meta">More</span>
+      <span class="meta">Deep work</span>
     </div>
   `;
 }
@@ -6344,6 +6474,7 @@ function careerIcon(name) {
     done: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>`,
     close: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>`,
     trash: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg>`,
+    arrow: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>`,
   };
   return icons[name] || "";
 }
@@ -7796,6 +7927,12 @@ document.addEventListener("click", async (event) => {
   const target = event.target;
   if (!(target instanceof HTMLElement)) return;
 
+  const inlinePageButton = target.closest(".progress-career-band [data-page]");
+  if (inlinePageButton) {
+    setPage(inlinePageButton.dataset.page);
+    return;
+  }
+
   const securityAction = target.closest("[data-security-action]");
   if (securityAction) {
     if (securityAction.dataset.securityAction === "create-lock") {
@@ -8081,6 +8218,12 @@ document.addEventListener("click", async (event) => {
   const careerEditToggle = target.closest("[data-career-edit-toggle]");
   if (careerEditToggle) {
     startCareerEditor(careerEditToggle.dataset.careerEditToggle);
+    return;
+  }
+
+  const careerScroll = target.closest("[data-career-scroll]");
+  if (careerScroll) {
+    document.querySelector("#career-current-focus")?.scrollIntoView({ behavior: "smooth", block: "center" });
     return;
   }
 

@@ -2,6 +2,14 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.010 - Career Evidence Command Center
+
+- Restored Career as a first-class desktop workspace without mixing in job search or interview preparation.
+- Added a seven-day qualified-work pulse and a 52-week Career evidence field derived from roadmap completions.
+- Added roadmap journey, coverage-versus-confidence, skill portfolio, and current-module focus views.
+- Preserved the existing single-pencil roadmap editor and the current Supabase career block, requiring no database migration.
+- Kept detailed analytics in Career and limited global Progress to a compact Career summary.
+
 ## 0.004.009 - Premium Action Surface
 
 - Rebuilt Actions with a stronger command hierarchy, calm task rows and human-readable deadline urgency.
