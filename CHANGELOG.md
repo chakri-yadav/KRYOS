@@ -2,6 +2,13 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.008 - Reviewed Action Import
+
+- Imported the 13 reviewed actions from notebook page one into the personal Action Vault.
+- Preserved explicit deadlines for STEM processing, the USCIS call, October payroll, the haircut, timesheet update and ADP bank-account change.
+- Recorded the remaining part-time work payment as approximately $225-$226.
+- Used a stable assistant package identifier so refreshes and future releases cannot duplicate the imported actions.
+
 ## 0.004.007 - Visual Momentum
 
 - Rebuilt Journal as a focused daily-capture surface with autosave state, a writing canvas and evidence-led timeline cards.
