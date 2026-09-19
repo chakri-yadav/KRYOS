@@ -9,14 +9,14 @@ major.minor.patch
 Current version:
 
 ```text
-0.004.008
+0.004.009
 ```
 
 ## Meaning
 
 - `0`: private pre-public era.
 - `004`: directed-attention operating system line.
-- `008`: reviewed master-action import with stable deduplication.
+- `009`: premium Action Vault interface and automatic task-block cloud sync.
 
 ## Version Bands
 

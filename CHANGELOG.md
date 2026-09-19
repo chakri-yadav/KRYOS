@@ -2,6 +2,15 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.009 - Premium Action Surface
+
+- Rebuilt Actions with a stronger command hierarchy, calm task rows and human-readable deadline urgency.
+- Added a clear three-slot active-capacity visualization without changing the existing containment rule.
+- Replaced browser prompts with a focused editor for title, next action, domain, priority, status and deadline.
+- Added immediate local persistence followed by debounced Supabase task-block synchronization when signed in.
+- Added honest on-device, saving, cloud-saved and cloud-unavailable status feedback.
+- Preserved the single Action Vault, existing records, filters and three-action active limit.
+
 ## 0.004.008 - Reviewed Action Import
 
 - Imported the 13 reviewed actions from notebook page one into the personal Action Vault.
