@@ -14,13 +14,16 @@ const SUPABASE_URL = "https://ogpkaxprhjhrewoxsyla.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
-const APP_VERSION = "0.004.002";
-const APP_STAGE = "Journal and Progress";
-const APP_RELEASE_DATE = "2026-09-17";
-const APP_STATUS = "Journal capture, reviewed imports and visual progress";
+const KRYOS_DAY_START_HOUR = 7;
+const APP_VERSION = "0.004.003";
+const APP_STAGE = "Assistant Import";
+const APP_RELEASE_DATE = "2026-09-19";
+const APP_STATUS = "Assistant-maintained progress and 7 AM day tracking";
 const APP_NEXT_MILESTONE = "Reviewed VP awards and media capture";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Added assistant-maintained progress packages that import once into the existing KRYOS profile.",
+  "KRYOS days now run from 7:00 AM to 6:59 AM for records, streaks and analytics.",
   "Refined daily outcome progress, weekly consistency, metric-specific heatmaps and selected reward progress.",
   "Added journal drafts, structured life records, reviewed imports and timeline search.",
   "Added an 84-day progress grid, scheduled streaks, focus bars and domain summaries.",
@@ -1746,7 +1749,9 @@ function normalizeDateInput(date = new Date()) {
 }
 
 function toDateKey(date = new Date()) {
+  if (isDateKey(date)) return date;
   const value = normalizeDateInput(date);
+  if (value.getHours() < KRYOS_DAY_START_HOUR) value.setDate(value.getDate() - 1);
   const year = value.getFullYear();
   const month = String(value.getMonth() + 1).padStart(2, "0");
   const day = String(value.getDate()).padStart(2, "0");
@@ -1875,7 +1880,8 @@ function countActionsThisWeek() {
 
 function getDateFromKey(dateKey) {
   const [year, month, day] = dateKey.split("-").map(Number);
-  return new Date(year, month - 1, day);
+  // Noon keeps civil calendar dates stable when KRYOS applies its 7 AM day boundary.
+  return new Date(year, month - 1, day, 12);
 }
 
 function formatDateKey(dateKey) {
@@ -2206,6 +2212,8 @@ function unlockApp(message = "") {
   renderSecurityOverlay();
   resetLockTimer();
   render();
+  if (typeof consumeBundledAssistantImports === "function") consumeBundledAssistantImports();
+  if (typeof openAssistantImportFromHash === "function") openAssistantImportFromHash();
 }
 
 function applyPrivacyMode() {
@@ -8398,3 +8406,5 @@ resetLockTimer();
 refreshSyncAuthState({ silent: true }).then(() => {
   if (currentPage === "settings") render();
 });
+if (isSecurityUnlocked && typeof openAssistantImportFromHash === "function") openAssistantImportFromHash();
+if (isSecurityUnlocked && typeof consumeBundledAssistantImports === "function") consumeBundledAssistantImports();

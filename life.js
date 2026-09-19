@@ -3,6 +3,7 @@ const LIFE_DOMAINS = ['Career', 'Personal tasks', 'Job applications', 'Skincare'
 let lifePreview = null;
 let lifeNotice = '';
 let lifeSelectedDate = '';
+let assistantImportOpened = false;
 function lifeStore() {
   taskState.life ||= { version: 1, entries: [], records: [], draft: '', plannedDays: [1, 2, 3, 4, 5], schedules: [] };
   taskState.life.schedules ||= [];
@@ -27,6 +28,27 @@ function validateLifeImport(data) {
   });
   return { id: data.id.trim(), date: data.date, text: data.text, records };
 }
+function decodeAssistantImport(value) {
+  const normalized=value.replace(/-/g,'+').replace(/_/g,'/');
+  const padded=normalized+'='.repeat((4-normalized.length%4)%4);
+  const bytes=Uint8Array.from(atob(padded),character=>character.charCodeAt(0));
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+function openAssistantImportFromHash() {
+  if (assistantImportOpened || !isSecurityUnlocked || !location.hash.startsWith('#kryos-import=')) return false;
+  assistantImportOpened=true;
+  try {
+    const candidate=validateLifeImport(decodeAssistantImport(location.hash.slice('#kryos-import='.length)));
+    if(lifeStore().entries.some(entry=>entry.packageId===candidate.id)) throw new Error('This journal is already in KRYOS.');
+    lifePreview=candidate;
+    lifeNotice=`Assistant import ready: review ${candidate.records.length} records before saving.`;
+  } catch(error) {
+    lifeNotice=`Import link could not be opened: ${error.message}`;
+  }
+  history.replaceState(null,'',`${location.pathname}${location.search}`);
+  setPage('journal');
+  return true;
+}
 function lifeCommit(data) {
   const store = lifeStore();
   if (store.entries.some(e => e.packageId === data.id)) throw new Error('This package has already been imported.');
@@ -34,6 +56,39 @@ function lifeCommit(data) {
   store.entries.push(entry);
   data.records.forEach(r => store.records.push({ ...r, id: createId(), entryId: entry.id, date: entry.date }));
   saveTasks();
+}
+function lifeBase64Bytes(value) {
+  return Uint8Array.from(atob(value), character => character.charCodeAt(0));
+}
+async function decryptBundledAssistantImports() {
+  const bundle = window.KRYOS_ASSISTANT_IMPORTS_ENCRYPTED;
+  if (!bundle || !securityState?.passHash || !window.crypto?.subtle || !window.DecompressionStream) return [];
+  const material = new TextEncoder().encode(`kryos-assistant-data:${securityState.passHash}`);
+  const digest = await crypto.subtle.digest('SHA-256', material);
+  const key = await crypto.subtle.importKey('raw', digest, 'AES-GCM', false, ['decrypt']);
+  const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: lifeBase64Bytes(bundle.iv) }, key, lifeBase64Bytes(bundle.data));
+  const stream = new Blob([decrypted]).stream().pipeThrough(new DecompressionStream(bundle.compression));
+  return JSON.parse(await new Response(stream).text());
+}
+async function consumeBundledAssistantImports() {
+  if (isDemoMode()) return 0;
+  let packages;
+  try {
+    packages = await decryptBundledAssistantImports();
+  } catch (error) {
+    console.warn('KRYOS assistant package could not be decrypted.', error);
+    return 0;
+  }
+  if (!Array.isArray(packages)) return 0;
+  let imported = 0;
+  packages.forEach(packageData => {
+    const candidate = validateLifeImport(packageData);
+    if (lifeStore().entries.some(entry => entry.packageId === candidate.id)) return;
+    lifeCommit(candidate);
+    imported += 1;
+  });
+  if (imported) lifeNotice = `${imported} reviewed journal ${imported === 1 ? 'entry' : 'entries'} added by your assistant.`;
+  return imported;
 }
 function renderLifeJournal() {
   const store = lifeStore();
@@ -100,11 +155,17 @@ document.addEventListener('submit', e => {
   } catch(error) { lifeNotice=error.message; }
   renderLifeJournal();
 });
-document.addEventListener('click', e => {
+document.addEventListener('click', async e => {
   const button=e.target.closest('[data-life]'); if(!button)return;
   const action=button.dataset.life;
   try {
-    if(action==='approve' && lifePreview) {lifeCommit(lifePreview);lifePreview=null;lifeNotice='Import saved. Records now appear in Progress.';}
+    if(action==='approve' && lifePreview) {
+      lifeCommit(lifePreview);lifePreview=null;lifeNotice='Import saved on this device. Records now appear in Progress.';
+      if(!isDemoMode() && await getSupabaseSession()) {
+        await pushToSupabase();
+        lifeNotice=syncState.status==='connected'?'Import saved and synced to your personal cloud profile.':`Import saved locally. ${syncNotice}`;
+      }
+    }
     if(action==='cancel')lifePreview=null;
     if(action==='delete' && confirm('Delete this journal entry and its linked records?')) {const s=lifeStore();s.entries=s.entries.filter(x=>x.id!==button.dataset.id);s.records=s.records.filter(x=>x.entryId!==button.dataset.id);saveTasks();}
     if(action==='task') {const r=lifeStore().records.find(x=>x.id===button.dataset.id);if(r){r.completed=!r.completed;saveTasks();}}

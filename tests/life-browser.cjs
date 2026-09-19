@@ -9,12 +9,13 @@ const assert = require('node:assert/strict');
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(pathToFileURL(path.resolve('index.html')).href);
  // This context is isolated from the user's browser and contains no personal data.
- await page.evaluate(()=>{isSecurityUnlocked=true;document.querySelector('#security-overlay').remove();document.querySelectorAll('.is-locked').forEach(e=>e.classList.remove('is-locked'));setPage('journal');});
+ await page.evaluate(async()=>{securityState.passHash=await hashSecret('9619');isSecurityUnlocked=true;await consumeBundledAssistantImports();document.querySelector('#security-overlay').remove();document.querySelectorAll('.is-locked').forEach(e=>e.classList.remove('is-locked'));setPage('journal');});
  await page.locator('#life-draft').fill('A focused morning. Walked for 20 minutes.');
  await page.getByRole('button',{name:'Save journal',exact:true}).click();
  await page.reload();
  await page.evaluate(()=>{isSecurityUnlocked=true;document.querySelector('#security-overlay').remove();document.querySelectorAll('.is-locked').forEach(e=>e.classList.remove('is-locked'));setPage('journal');});
- assert.equal(await page.locator('.life-entry').count(),1);
+ assert.equal(await page.locator('.life-entry').count(),2);
+ assert.equal(await page.evaluate(()=>lifeStore().entries.filter(entry=>entry.packageId==='assistant-2026-09-17-day-1').length),1);
  await page.getByText('Add a structured record',{exact:true}).click();
  await page.locator('#life-record-form [name=title]').fill('Morning walk');
  await page.locator('#life-record-form [name=domain]').selectOption('Movement');

@@ -9,14 +9,14 @@ major.minor.patch
 Current version:
 
 ```text
-0.004.002
+0.004.003
 ```
 
 ## Meaning
 
 - `0`: private pre-public era.
 - `004`: directed-attention operating system line.
-- `002`: daily outcome visuals, full-history streaks, filtered calendars and selected rewards.
+- `003`: assistant-maintained progress imports and a fixed 7 AM KRYOS day boundary.
 
 ## Version Bands
 
