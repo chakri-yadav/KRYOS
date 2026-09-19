@@ -2,6 +2,15 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.013 - Inner Command
+
+- Reframed Journal as one page for sacred purpose, strict containment, and truthful daily evidence.
+- Added concise Rama, Sita, and Hanuman principles for direction, protected energy, and service.
+- Added the September 19 to November 2, 2026 45-day covenant with an auditable day grid.
+- Added boundaries for astrology seeking, Instagram/Snapchat, and validation-seeking contact.
+- Treated anxiety and cravings as return signals rather than automatic failures.
+- Stored daily kept/breach records in the existing cloud-synced task block.
+
 ## 0.004.012 - Responsibility Recovery
 
 - Added a separate Money page focused on one friend-credit responsibility.

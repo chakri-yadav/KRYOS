@@ -9,14 +9,14 @@ major.minor.patch
 Current version:
 
 ```text
-0.004.012
+0.004.013
 ```
 
 ## Meaning
 
 - `0`: private pre-public era.
 - `004`: directed-attention operating system line.
-- `012`: friend-credit responsibility and follow-up accountability system.
+- `013`: Inner Command purpose, containment covenant, and evidence journal.
 
 ## Version Bands
 

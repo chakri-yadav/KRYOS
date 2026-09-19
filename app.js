@@ -15,13 +15,16 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.004.012";
+const APP_VERSION = "0.004.013";
 const APP_STAGE = "Life Execution Foundation";
 const APP_RELEASE_DATE = "2026-09-19";
-const APP_STATUS = "Friend credit responsibility and follow-up accountability command center";
-const APP_NEXT_MILESTONE = "Use verified responsibility data before expanding general finance features";
+const APP_STATUS = "Inner Command purpose, containment covenant, and evidence journal";
+const APP_NEXT_MILESTONE = "Use the covenant and journal before expanding its analysis";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Rebuilt Journal as Inner Command: purpose, a 45-day containment covenant, and daily evidence in one page.",
+  "Added Rama, Sita, and Hanuman as personal direction, protected energy, and service principles.",
+  "Made anxiety a return signal rather than a breach while recording chosen boundary violations honestly.",
   "Added Money as a focused friend-credit responsibility tracker rather than a generic budgeting system.",
   "Separated follow-up discipline from financial recovery with contact, promise, payment, interest, and card histories.",
   "Added responsibility resolution, balance movement, contact rhythm, card health, and an evidence-led activity timeline.",
@@ -2813,7 +2816,7 @@ function render() {
     activeProfileBadge.classList.toggle("personal", !isDemoMode());
   }
   const pageCopy = {
-    journal: ["Your daily record", "Journal"],
+    journal: ["Purpose, containment, evidence", "Inner Command"],
     actions: ["Persistent commitments", "Action Vault"],
     career: ["Skill evidence", "Career"],
     rhythm: ["Sustainable foundations", "Rhythm"],

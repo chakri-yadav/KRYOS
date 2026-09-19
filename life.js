@@ -4,12 +4,18 @@ let lifePreview = null;
 let lifeNotice = '';
 let lifeSelectedDate = '';
 let assistantImportOpened = false;
+let containmentDialogOpen = false;
 function lifeStore() {
   taskState.life ||= { version: 1, entries: [], records: [], draft: '', plannedDays: [1, 2, 3, 4, 5], schedules: [] };
   taskState.life.schedules ||= [];
   taskState.life.actions ||= [];
   taskState.life.rewardRedemptions ||= [];
   taskState.life.dailyAssessments ||= [];
+  taskState.life.innerCommand ||= {
+    covenant: { startDate: '2026-09-19', days: 45 },
+    containmentDays: [],
+  };
+  taskState.life.innerCommand.containmentDays ||= [];
   return taskState.life;
 }
 function lifeOptions(items) { return items.map(x => `<option>${escapeHtml(x)}</option>`).join(''); }
@@ -160,13 +166,56 @@ async function consumeBundledAssistantImports() {
   }
   return imported;
 }
+function innerCommandDayNumber(dateKey = toDateKey()) {
+  const covenant = lifeStore().innerCommand.covenant;
+  return Math.floor((getDateFromKey(dateKey) - getDateFromKey(covenant.startDate)) / 86400000) + 1;
+}
+function innerCommandEndDate() {
+  const covenant = lifeStore().innerCommand.covenant;
+  return toDateKey(addDays(getDateFromKey(covenant.startDate), covenant.days - 1));
+}
+function innerCommandRecord(dateKey) {
+  return lifeStore().innerCommand.containmentDays.find(item => item.date === dateKey) || null;
+}
+function innerCommandStatus(dateKey) {
+  const assessment = lifeStore().dailyAssessments.find(item => item.date === dateKey);
+  if (assessment?.astrologySeeking) return 'breach';
+  return innerCommandRecord(dateKey)?.status || 'unreviewed';
+}
+function innerCommandStats() {
+  const { startDate, days } = lifeStore().innerCommand.covenant;
+  const dates = Array.from({ length: days }, (_, index) => toDateKey(addDays(getDateFromKey(startDate), index)));
+  const elapsed = dates.filter(date => date <= toDateKey());
+  const kept = elapsed.filter(date => innerCommandStatus(date) === 'kept').length;
+  const breaches = elapsed.filter(date => innerCommandStatus(date) === 'breach').length;
+  let current = 0;
+  for (let index = elapsed.length - 1; index >= 0; index -= 1) {
+    const status = innerCommandStatus(elapsed[index]);
+    if (status === 'kept') current += 1;
+    else if (status === 'breach') break;
+  }
+  return { dates, elapsed: elapsed.length, kept, breaches, current };
+}
+function renderInnerCommandPurpose() {
+  return `<section class="command-purpose"><div class="command-purpose-copy"><p class="section-kicker">WHY THIS EXISTS</p><h1>Govern the self. Offer the work.</h1><p>KRYOS protects attention, removes negotiation from right action, and turns discipline into an offering. The effort is yours. The result is not yours to command.</p><blockquote>Contain. Act. Complete. Surrender.</blockquote></div><div class="command-archetypes"><article><span>01</span><div><p>RAMA / DIRECTION</p><h2>Remain steady in changing conditions.</h2><small>Let dharma, truth, and the promise decide the action instead of the mood.</small></div></article><article><span>02</span><div><p>SITA / SHAKTI</p><h2>Protect the energy that makes action possible.</h2><small>Attention is living power. Give it a worthy direction instead of letting impulse spend it.</small></div></article><article><span>03</span><div><p>HANUMAN / SERVICE</p><h2>Treat your own work as entrusted work.</h2><small>Stop negotiating because the task is “for me.” Perform it with the sincerity you naturally give in service.</small></div></article></div></section>`;
+}
+function renderContainmentCovenant() {
+  const store = lifeStore(), covenant = store.innerCommand.covenant, stats = innerCommandStats();
+  const day = innerCommandDayNumber(), todayStatus = innerCommandStatus(toDateKey());
+  const visibleDay = Math.max(0, Math.min(covenant.days, day));
+  return `<section class="containment-command"><header><div><p class="section-kicker">45-DAY MIND CONTAINMENT</p><h2>${day < 1 ? `Begins ${formatDateKey(covenant.startDate)}` : day > covenant.days ? 'Covenant complete' : `Day ${day} of ${covenant.days}`}</h2><p>${formatDateKey(covenant.startDate)} to ${formatDateKey(innerCommandEndDate())}</p></div><div class="containment-score"><strong>${stats.current}</strong><span>current kept days</span><small>${stats.kept} kept · ${stats.breaches} honestly recorded</small></div></header><div class="containment-body"><div class="containment-boundaries"><article><i>${typeof rhythmIcon === 'function' ? rhythmIcon('shield-check') : ''}</i><div><strong>No astrology seeking</strong><span>No readings, predictions, chart checking, or reassurance loops during the covenant.</span></div></article><article><i>${typeof rhythmIcon === 'function' ? rhythmIcon('smartphone-off') : ''}</i><div><strong>No Instagram or Snapchat</strong><span>Do not hand your attention to feeds designed to keep it unfinished.</span></div></article><article><i>${typeof rhythmIcon === 'function' ? rhythmIcon('message-circle-off') : ''}</i><div><strong>No validation-seeking contact</strong><span>Healthy connection is allowed. Contact used to escape anxiety or obtain reassurance is the boundary.</span></div></article><article class="return"><i>${typeof rhythmIcon === 'function' ? rhythmIcon('rotate-ccw') : ''}</i><div><strong>Anxiety is not a breach</strong><span>Name the feeling. Breathe. Reduce the next action. Return without punishment.</span></div></article></div><div class="containment-calendar" style="--covenant-progress:${Math.round(visibleDay / covenant.days * 100)}%"><div class="containment-track"><i></i></div><div class="containment-days">${stats.dates.map((date,index) => `<button class="${innerCommandStatus(date)} ${date === toDateKey() ? 'today' : ''}" type="button" title="Day ${index + 1} · ${formatDateKey(date)} · ${innerCommandStatus(date)}" ${date > toDateKey() ? 'disabled' : ''}><span>${index + 1}</span></button>`).join('')}</div><div class="containment-legend"><span><i class="kept"></i>Kept</span><span><i class="breach"></i>Breach recorded</span><span><i></i>Unreviewed</span></div><div class="containment-today"><div><span>TODAY'S TRUTH</span><strong>${todayStatus === 'kept' ? 'Covenant kept' : todayStatus === 'breach' ? 'Breach acknowledged. Return now.' : 'Not reviewed yet'}</strong></div><button class="primary-button" data-containment="kept" ${day < 1 || day > covenant.days ? 'disabled' : ''}>Kept today</button><button class="secondary-button" data-containment="breach" ${day < 1 || day > covenant.days ? 'disabled' : ''}>Record breach</button></div></div></div></section>`;
+}
+function renderContainmentDialog() {
+  if (!containmentDialogOpen) return '';
+  return `<dialog id="containment-dialog" class="money-dialog containment-dialog"><form id="life-containment-form"><header><div><p class="section-kicker">TRUTH, THEN RETURN</p><h2>What boundary was crossed?</h2></div><button type="button" data-containment="close" aria-label="Close">×</button></header><div class="containment-breach-options"><label><input type="radio" name="boundary" value="astrology" required><span><strong>Astrology seeking</strong><small>Reading, prediction, chart check, or reassurance loop</small></span></label><label><input type="radio" name="boundary" value="social" required><span><strong>Instagram or Snapchat</strong><small>Feed use during the covenant</small></span></label><label><input type="radio" name="boundary" value="validation" required><span><strong>Validation-seeking contact</strong><small>Contact used primarily to escape or obtain reassurance</small></span></label><label class="containment-note"><span><strong>What happened?</strong><small>Brief facts, without punishment or justification.</small></span><textarea name="note" maxlength="500"></textarea></label></div><footer><button type="button" class="secondary-button" data-containment="close">Cancel</button><button class="primary-button">Record and return</button></footer></form></dialog>`;
+}
 function renderLifeJournal() {
   const store = lifeStore();
   const today = toDateKey();
   const todayRecords = store.records.filter(record => record.date === today && record.completed);
   const domains = new Set(todayRecords.map(record => record.domain));
   const streak = typeof journalProgressStreak === 'function' ? journalProgressStreak() : { current: 0 };
-  journalView.innerHTML = `<header class="journal-title"><div><p class="section-kicker">KRYOS / Journal</p><h1>Turn the day into evidence.</h1><p>Capture honestly. KRYOS will organize the signal.</p></div><div class="journal-today"><strong>${todayRecords.length}</strong><span>actions today</span><small>${domains.size} domains · ${streak.current} day rhythm</small></div></header>
+  journalView.innerHTML = `${renderInnerCommandPurpose()}${renderContainmentCovenant()}${renderContainmentDialog()}<header class="journal-title inner-journal-title"><div><p class="section-kicker">DAILY EVIDENCE</p><h1>Tell the truth about the day.</h1><p>Record what happened. KRYOS and your assistant can organize the signal.</p></div><div class="journal-today"><strong>${todayRecords.length}</strong><span>actions today</span><small>${domains.size} domains · ${streak.current} day rhythm</small></div></header>
     <div class="life-status" role="status">${escapeHtml(lifeNotice)}</div>
     <section class="life-compose premium-compose">
       <div class="compose-rail"><span>DAILY CAPTURE</span><strong>${new Date(`${today}T12:00:00`).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})}</strong><p>Work, body, mood, relationships, and whatever affected the day.</p></div>
@@ -221,6 +270,12 @@ document.addEventListener('submit', e => {
   if (!e.target.id.startsWith('life-')) return;
   e.preventDefault(); const f=new FormData(e.target);
   try {
+    if (e.target.id === 'life-containment-form') {
+      const store=lifeStore(),date=toDateKey(),existing=innerCommandRecord(date);
+      const next={date,status:'breach',boundary:String(f.get('boundary')),note:String(f.get('note')||'').trim(),updatedAt:new Date().toISOString()};
+      if(existing)Object.assign(existing,next);else store.innerCommand.containmentDays.push(next);
+      containmentDialogOpen=false;saveTasks();lifeNotice='Breach recorded without excuses. Return through the next right action.';
+    }
     if (e.target.id === 'life-entry-form') { lifeCommit(validateLifeImport({version:1,id:createId(),date:f.get('date'),text:f.get('text'),records:[]})); lifeStore().draft=''; saveTasks(); lifeNotice='Journal saved.'; }
     if (e.target.id === 'life-record-form') { const title=f.get('title').trim(); const kind=f.get('kind'); lifeCommit(validateLifeImport({version:1,id:createId(),date:f.get('date'),text:title,records:[{title,domain:f.get('domain'),kind,evidence:title,completed:kind==='activity',minutes:f.get('minutes')===''?null:Number(f.get('minutes'))}]})); lifeNotice='Record saved. No automatic VP for health or mood records.'; }
     if (e.target.id === 'life-import-form') { const candidate=validateLifeImport(JSON.parse(f.get('package'))); if(lifeStore().entries.some(x=>x.packageId===candidate.id))throw new Error('This package is already saved.'); lifePreview=candidate; lifeNotice='Review the proposed records below.'; }
@@ -228,6 +283,16 @@ document.addEventListener('submit', e => {
   renderLifeJournal();
 });
 document.addEventListener('click', async e => {
+  const containment=e.target.closest('[data-containment]');
+  if(containment){
+    const store=lifeStore(),date=toDateKey(),status=containment.dataset.containment;
+    if(status==='breach'){containmentDialogOpen=true;renderLifeJournal();setTimeout(()=>document.querySelector('#containment-dialog')?.showModal(),0);return;}
+    if(status==='close'){document.querySelector('#containment-dialog')?.close();containmentDialogOpen=false;renderLifeJournal();return;}
+    const existing=store.innerCommand.containmentDays.find(item=>item.date===date);
+    const next={date,status,updatedAt:new Date().toISOString()};
+    if(existing)Object.assign(existing,next);else store.innerCommand.containmentDays.push(next);
+    saveTasks();lifeNotice=status==='kept'?'Containment recorded. Keep moving.':'Breach recorded without excuses. Return through the next right action.';renderLifeJournal();return;
+  }
   const button=e.target.closest('[data-life]'); if(!button)return;
   const action=button.dataset.life;
   try {
