@@ -162,17 +162,30 @@ async function consumeBundledAssistantImports() {
 }
 function renderLifeJournal() {
   const store = lifeStore();
-  journalView.innerHTML = `<div class="life-status" role="status">${escapeHtml(lifeNotice)}</div>
-    <section class="life-compose"><h2>Leave the day here.</h2>
-    <form id="life-entry-form"><label>Date<input name="date" type="date" value="${toDateKey()}" max="${toDateKey()}" required></label>
-    <label class="life-wide">Your journal<textarea name="text" id="life-draft" placeholder="What happened, what you did, how you felt..." required maxlength="100000">${escapeHtml(store.draft || '')}</textarea></label>
-    <button class="primary-button">Save journal</button><span id="life-draft-status" aria-live="polite"></span></form></section>
-    <section class="life-section"><div class="life-heading"><h2>Your timeline</h2><input id="life-search" type="search" placeholder="Search your journal" aria-label="Search journal"></div><div id="life-timeline">${lifeTimeline()}</div></section>`;
+  const today = toDateKey();
+  const todayRecords = store.records.filter(record => record.date === today && record.completed);
+  const domains = new Set(todayRecords.map(record => record.domain));
+  const streak = typeof journalProgressStreak === 'function' ? journalProgressStreak() : { current: 0 };
+  journalView.innerHTML = `<header class="journal-title"><div><p class="section-kicker">KRYOS / Journal</p><h1>Turn the day into evidence.</h1><p>Capture honestly. KRYOS will organize the signal.</p></div><div class="journal-today"><strong>${todayRecords.length}</strong><span>actions today</span><small>${domains.size} domains · ${streak.current} day rhythm</small></div></header>
+    <div class="life-status" role="status">${escapeHtml(lifeNotice)}</div>
+    <section class="life-compose premium-compose">
+      <div class="compose-rail"><span>DAILY CAPTURE</span><strong>${new Date(`${today}T12:00:00`).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})}</strong><p>Work, body, mood, relationships, and whatever affected the day.</p></div>
+      <form id="life-entry-form"><div class="compose-toolbar"><label>Date<input name="date" type="date" value="${today}" max="${today}" required></label><span class="draft-indicator"><i></i><span id="life-draft-status" aria-live="polite">${store.draft ? 'Draft preserved' : 'Ready to capture'}</span></span></div>
+      <label class="life-wide journal-paper"><span>Journal entry</span><textarea name="text" id="life-draft" placeholder="Write the day as it happened. What moved, what resisted, what mattered?" required maxlength="100000">${escapeHtml(store.draft || '')}</textarea></label>
+      <div class="compose-footer"><span>One honest record is enough.</span><button class="primary-button">Save to timeline</button></div></form>
+    </section>
+    <section class="life-section journal-history"><div class="life-heading"><div><p class="section-kicker">EVIDENCE LEDGER</p><h2>Your timeline</h2><p>${store.entries.length} entries preserved</p></div><input id="life-search" type="search" placeholder="Search entries" aria-label="Search journal"></div><div id="life-timeline" class="journal-timeline">${lifeTimeline()}</div></section>`;
 }
 function lifeTimeline(query = '') {
   const store = lifeStore();
   const entries = [...store.entries].sort((a,b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt)).filter(e => `${e.text} ${e.date}`.toLowerCase().includes(query.toLowerCase()));
-  return entries.length ? entries.map(e => `<article class="life-entry"><time>${escapeHtml(e.date)}</time><p class="life-text">${escapeHtml(e.text)}</p>${store.records.filter(r => r.entryId === e.id).map(r => `<div class="life-row"><span>${escapeHtml(r.domain)} · ${escapeHtml(r.title)}${r.minutes == null ? '' : ` · ${r.minutes} min`}</span>${r.kind === 'task' ? `<button class="secondary-button" data-life="task" data-id="${r.id}">${r.completed ? 'Reopen' : 'Complete'}</button>` : ''}</div>`).join('')}<button class="life-delete" data-life="delete" data-id="${e.id}">Delete entry</button></article>`).join('') : '<p class="life-empty">Your first entry starts the timeline. A few words are enough.</p>';
+  return entries.length ? entries.map(e => {
+    const records = store.records.filter(r => r.entryId === e.id);
+    const completed = records.filter(r => r.completed);
+    const domains = [...new Set(records.map(r => r.domain))];
+    const date = new Date(`${e.date}T12:00:00`);
+    return `<article class="life-entry premium-entry"><div class="entry-date"><span>${date.toLocaleDateString(undefined,{month:'short'}).toUpperCase()}</span><strong>${date.getDate()}</strong><small>${date.toLocaleDateString(undefined,{weekday:'short'})}</small></div><div class="entry-body"><div class="entry-head"><div><time>${date.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'})}</time><div class="entry-chips">${domains.slice(0,4).map(domain => `<span>${escapeHtml(domain)}</span>`).join('')}${domains.length > 4 ? `<span>+${domains.length - 4}</span>` : ''}</div></div><div class="entry-score"><strong>${completed.length}</strong><span>done</span></div></div><p class="life-text">${escapeHtml(e.text)}</p>${records.length ? `<div class="entry-records">${records.map(r => `<div class="life-row"><span><i class="record-dot ${r.completed ? 'done' : ''}"></i><b>${escapeHtml(r.domain)}</b>${escapeHtml(r.title)}${r.minutes == null ? '' : `<small>${r.minutes} min</small>`}</span>${r.kind === 'task' ? `<button class="secondary-button" data-life="task" data-id="${r.id}">${r.completed ? 'Reopen' : 'Complete'}</button>` : ''}</div>`).join('')}</div>` : ''}<button class="life-delete" data-life="delete" data-id="${e.id}">Delete entry</button></div></article>`;
+  }).join('') : '<div class="journal-empty"><strong>Your evidence begins here.</strong><p>A few truthful lines are enough to start the pattern.</p></div>';
 }
 function lifeDay(date) {
   const b = getBehavior();

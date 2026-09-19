@@ -41,3 +41,26 @@ test('duplicate entries on one date count as one journal day', () => {
   context.lifeStore().entries.push({ date: '2026-09-19' }, { date: '2026-09-19' });
   assert.equal(context.journalProgressStreak().total, 1);
 });
+
+test('weekly momentum counts active days rather than inflated task volume', () => {
+  const context = setup();
+  context.lifeStore().records.push(
+    ...Array.from({ length: 8 }, () => ({ date: '2026-09-17', completed: true, domain: 'Career' })),
+    { date: '2026-09-18', completed: true, domain: 'Movement' },
+  );
+  const stats = context.momentumStats('2026-09-19');
+  assert.equal(stats.activeDays, 2);
+  assert.equal(stats.actions, 9);
+  assert.equal(stats.momentum, 29);
+});
+
+test('personal best day uses completion evidence and latest date as tie break', () => {
+  const context = setup();
+  context.lifeStore().records.push(
+    { date: '2026-09-17', completed: true },
+    { date: '2026-09-18', completed: true },
+    { date: '2026-09-18', completed: true },
+    { date: '2026-09-19', completed: false },
+  );
+  assert.deepEqual([...context.bestDayRecord()], ['2026-09-18', 2]);
+});

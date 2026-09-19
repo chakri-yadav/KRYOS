@@ -9,14 +9,14 @@ major.minor.patch
 Current version:
 
 ```text
-0.004.006
+0.004.007
 ```
 
 ## Meaning
 
 - `0`: private pre-public era.
 - `004`: directed-attention operating system line.
-- `006`: reviewed discipline scoring, bounded rewards and the 45-day containment covenant.
+- `007`: premium evidence journal and multi-layer visual progress system.
 
 ## Version Bands
 
