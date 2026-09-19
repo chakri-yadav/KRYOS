@@ -84,6 +84,16 @@ test('large rewards require both qualifying days and calendar span', () => {
   assert.equal(result.allowed, true);
 });
 
+test('music reward remains unavailable during its cooldown', () => {
+  const reviews = [assessment('2026-11-20', 9, { ruleVersion: 2 }), assessment('2026-11-21', 9, { ruleVersion: 2 })];
+  const reward = { id: 'music', days: 2, cooldownDays: 3 };
+  const blocked = setup({ life: { dailyAssessments: reviews, rewardRedemptions: [{ rewardId: 'music', date: '2026-11-29', status: 'confirmed' }] } }).context.rewardEligibility(reward);
+  assert.equal(blocked.allowed, false);
+  assert.equal(blocked.missingCooldown, 2);
+  const ready = setup({ life: { dailyAssessments: reviews, rewardRedemptions: [{ rewardId: 'music', date: '2026-11-26', status: 'confirmed' }] } }).context.rewardEligibility(reward);
+  assert.equal(ready.allowed, true);
+});
+
 test('astrology covenant preserves prior kept days and requires a final review', () => {
   const containmentDays = Array.from({ length: 46 }, (_, index) => ({ date: dateAt(index), status: index === 4 ? 'breach' : 'kept', boundary: index === 4 ? 'astrology' : '' }));
   const first = setup({ life: { innerCommand: { covenant: { startDate: '2026-09-19', days: 45 }, containmentDays } } }).context.covenantStats(dateAt(45));
