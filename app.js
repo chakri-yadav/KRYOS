@@ -15,13 +15,15 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.004.021";
+const APP_VERSION = "0.004.022";
 const APP_STAGE = "Life Execution Foundation";
 const APP_RELEASE_DATE = "2026-09-19";
 const APP_STATUS = "Unified evidence rewards across the KRYOS operating system";
 const APP_NEXT_MILESTONE = "Use reviewed evidence before tuning reward weights";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Imported the complete 163-question DSA roadmap across 14 focused topics, with every problem reset for a clean start.",
+  "Organized the DSA roadmap into foundations, core data structures, and advanced algorithms so the larger plan remains scannable.",
   "Added visible reward-ledger progress and explicit zero-data sync confirmation.",
   "Bundled the Supabase client with KRYOS so cloud login no longer depends on third-party scripts at runtime.",
   "Moved the Supabase browser client to the same reliable CDN already used by KRYOS icons.",
@@ -333,6 +335,313 @@ const defaultFoundation = {
   },
 };
 
+const DSA_ROADMAP_VERSION = 1;
+
+const DSA_ROADMAP_GROUPS = [
+  {
+    id: "dsa-foundations",
+    title: "Pattern Foundations",
+    topics: [
+      {
+        id: "dsa-arrays-hash-maps",
+        title: "Arrays & Hash Maps",
+        items: [
+          "Two Sum - HashMap complement lookup",
+          "Top K Frequent Elements - Frequency map / histogram",
+          "Find All Anagrams in a String - Fixed sliding window",
+          "Longest Substring with At Most K Distinct - Variable sliding window",
+          "Subarray Sum Equals K - Prefix sums + HashMap",
+          "Continuous Subarray Sum - Prefix sums + modulo",
+          "Product of Array Except Self - Prefix/suffix products",
+          "Longest Consecutive Sequence - Set-based sequence trick",
+          "First Missing Positive - Index-as-hash / in-place marking",
+          "Insert Delete GetRandom O(1) - Randomization with O(1) operations",
+          "Random Pick with Weight - Weighted random pick",
+          "Range Sum Query 2D - Immutable - 2D prefix sums",
+          "Sparse Matrix Multiplication - Sparse representation",
+          "Isomorphic Strings - Bijection mapping",
+          "Check If a String Contains All Binary Codes of Size K - Rolling bitmask / hash",
+          "Increasing Triplet Subsequence - Greedy extremes tracking",
+          "Minimum Moves to Equal Array Elements II - Median minimizes absolute deviation",
+          "Partition Labels - Greedy + last occurrence",
+          "Encode and Decode Strings - Custom serialization / parsing",
+          "Design HashMap - Hashing internals",
+          "Valid Sudoku - Validation via composite keys",
+        ],
+      },
+      {
+        id: "dsa-two-pointers",
+        title: "Two Pointers",
+        items: [
+          "Valid Palindrome",
+          "Two Sum II - Sorted",
+          "Container With Most Water",
+          "Trapping Rain Water",
+          "4Sum",
+          "Boats to Save People",
+          "Compare Version Numbers",
+          "Find the Duplicate Number",
+          "Is Subsequence",
+          "Number of Subsequences That Satisfy Sum Condition",
+          "Partition List",
+          "Remove Duplicates from Sorted Array",
+          "Reverse String",
+          "Shortest Distance to a Character",
+          "Sort Colors",
+          "Squares of a Sorted Array",
+        ],
+      },
+      {
+        id: "dsa-sliding-window",
+        title: "Sliding Window",
+        items: [
+          "Longest Substring Without Repeating Characters",
+          "Longest Repeating Character Replacement",
+          "Permutation in String",
+          "Minimum Window Substring",
+          "Sliding Window Maximum",
+          "Count Unique Characters of All Substrings",
+          "Fruit Into Baskets",
+          "Longest Subarray of 1s After Deleting One",
+          "Max Consecutive Ones III",
+          "Maximum Average Subarray I",
+          "Maximum Number of Robots Within Budget",
+          "Maximum Number of Vowels in Substring of Length K",
+          "Minimum Operations to Reduce X to Zero",
+          "Substring with Concatenation of All Words",
+          "Substring With Largest Variance",
+        ],
+      },
+      {
+        id: "dsa-strings",
+        title: "Strings",
+        items: [
+          "Longest Common Prefix",
+          "String Compression",
+          "Text Justification",
+          "First Unique Character in a String",
+          "Longest Palindrome",
+          "Reverse Words in a String",
+          "Reorganize String",
+          "Verifying an Alien Dictionary",
+          "Valid Palindrome II",
+        ],
+      },
+      {
+        id: "dsa-binary-search",
+        title: "Binary Search",
+        items: [
+          "Binary Search",
+          "First Bad Version",
+          "Search a 2D Matrix",
+          "Koko Eating Bananas",
+          "Find Minimum in Rotated Sorted Array",
+          "Search in Rotated Sorted Array",
+          "Median of Two Sorted Arrays",
+          "Find Peak Element",
+          "Guess Number Higher or Lower",
+          "Maximum Value at a Given Index in a Bounded Array",
+          "Online Election",
+          "Search Suggestions System",
+          "Single Element in a Sorted Array",
+          "Successful Pairs of Spells and Potions",
+        ],
+      },
+    ],
+  },
+  {
+    id: "dsa-core-structures",
+    title: "Core Data Structures",
+    topics: [
+      {
+        id: "dsa-linked-list",
+        title: "Linked List",
+        items: [
+          "Reverse Linked List",
+          "Merge Two Sorted Lists",
+          "Reorder List",
+          "Copy List with Random Pointer",
+          "Add Two Numbers",
+          "Linked List Cycle",
+          "Palindrome Linked List",
+          "Reverse Nodes in K-Group",
+          "Odd Even Linked List",
+        ],
+      },
+      {
+        id: "dsa-stack",
+        title: "Stack / Monotonic Stack",
+        items: [
+          "Valid Parentheses",
+          "Min Stack",
+          "Evaluate Reverse Polish Notation",
+          "Daily Temperatures",
+          "Largest Rectangle in Histogram",
+          "Asteroid Collision",
+          "Simplify Path",
+          "Sum of Subarray Minimums",
+        ],
+      },
+      {
+        id: "dsa-trees-bst",
+        title: "Trees / BST",
+        items: [
+          "Invert Binary Tree",
+          "Maximum Depth of Binary Tree",
+          "Same Tree",
+          "Subtree of Another Tree",
+          "Symmetric Tree",
+          "Validate BST",
+          "Kth Smallest in BST",
+          "LCA of BST",
+          "LCA of Binary Tree",
+          "Diameter of Binary Tree",
+          "Maximum Path Sum",
+          "Binary Tree Level Order Traversal",
+          "Serialize and Deserialize Binary Tree",
+          "Construct Binary Tree from Preorder and Inorder Traversal",
+          "Iterative Inorder Traversal / BST Iterator",
+          "Path Sum - Root-to-Leaf Constraint DFS",
+          "Path Sum III",
+        ],
+      },
+      {
+        id: "dsa-graphs",
+        title: "Graphs",
+        items: [
+          "Clone Graph",
+          "Course Schedule",
+          "Course Schedule II",
+          "Number of Islands",
+          "Rotting Oranges",
+          "Shortest Path in Binary Matrix",
+          "Pacific Atlantic Water Flow",
+          "Graph Valid Tree",
+          "Is Graph Bipartite?",
+          "Network Delay Time",
+          "Redundant Connection",
+          "Critical Connections in a Network",
+        ],
+      },
+      {
+        id: "dsa-heap-pq",
+        title: "Heap / Priority Queue",
+        items: [
+          "Kth Largest in a Stream",
+          "K Closest Points to Origin",
+          "Task Scheduler",
+          "Find Median from Data Stream",
+          "Merge K Sorted Lists",
+          "Top K Frequent Words",
+          "Find K Pairs with Smallest Sums",
+          "Furthest Building You Can Reach",
+          "IPO",
+        ],
+      },
+    ],
+  },
+  {
+    id: "dsa-advanced-algorithms",
+    title: "Advanced Algorithms",
+    topics: [
+      {
+        id: "dsa-greedy-intervals",
+        title: "Greedy & Intervals",
+        items: [
+          "Jump Game",
+          "Jump Game II",
+          "Gas Station",
+          "Minimum Number of Arrows to Burst Balloons",
+          "Boats to Save People",
+          "Merge Triplets to Form Target Triplet",
+          "Insert Interval",
+          "Merge Intervals",
+          "Meeting Rooms",
+          "Meeting Rooms II",
+        ],
+      },
+      {
+        id: "dsa-dynamic-programming",
+        title: "Dynamic Programming",
+        items: [
+          "Climbing Stairs",
+          "Coin Change",
+          "House Robber",
+          "House Robber II",
+          "Word Break",
+          "Longest Increasing Subsequence",
+          "Longest Common Subsequence",
+          "Edit Distance",
+          "Decode Ways",
+          "Partition Equal Subset Sum",
+          "Target Sum",
+          "Unique Paths",
+          "Best Time to Buy and Sell Stock with Cooldown",
+          "Best Time to Buy and Sell Stock with Transaction Fee",
+        ],
+      },
+      {
+        id: "dsa-backtracking",
+        title: "Backtracking",
+        items: [
+          "Subsets",
+          "Permutations",
+          "Combination Sum",
+          "Combination Sum II",
+          "Generate Parentheses",
+          "Word Search",
+          "Palindrome Partitioning",
+        ],
+      },
+      {
+        id: "dsa-bit-manipulation",
+        title: "Bit Manipulation",
+        items: [
+          "Number of 1 Bits",
+          "Sum of Two Integers",
+        ],
+      },
+    ],
+  },
+];
+
+function buildDsaRoadmapModules() {
+  return DSA_ROADMAP_GROUPS.map((group) => ({
+    id: group.id,
+    title: group.title,
+    topics: group.topics.map((topic) => ({
+      id: topic.id,
+      title: topic.title,
+      confidence: "Low",
+      checklist: topic.items.map((text, index) => ({
+        id: `${topic.id}-problem-${index + 1}`,
+        text,
+        done: false,
+      })),
+    })),
+  }));
+}
+
+function migrateDsaRoadmap(nextCareerState) {
+  if (!nextCareerState || typeof nextCareerState !== "object") return false;
+  nextCareerState.meta = nextCareerState.meta && typeof nextCareerState.meta === "object" ? nextCareerState.meta : {};
+  if (Number(nextCareerState.meta.dsaRoadmapVersion || 0) >= DSA_ROADMAP_VERSION) return false;
+
+  nextCareerState.roadmaps = Array.isArray(nextCareerState.roadmaps) ? nextCareerState.roadmaps : [];
+  let roadmap = nextCareerState.roadmaps.find((item) => String(item?.title || "").trim().toLowerCase() === "dsa roadmap");
+  if (!roadmap) {
+    roadmap = { id: "roadmap-dsa", title: "DSA Roadmap" };
+    nextCareerState.roadmaps.unshift(roadmap);
+  }
+
+  roadmap.purpose = "Master 163 interview problems through a structured, topic-by-topic practice path.";
+  roadmap.targetDate = roadmap.targetDate || "";
+  roadmap.modules = buildDsaRoadmapModules();
+  nextCareerState.meta.dsaRoadmapVersion = DSA_ROADMAP_VERSION;
+  nextCareerState.meta.updatedAt = new Date().toISOString();
+  return true;
+}
+
 const defaultCareer = {
   roadmaps: [
     {
@@ -579,6 +888,11 @@ let careerSyncTimer = null;
 let careerSyncRunning = false;
 let careerSyncDirty = false;
 let careerSyncState = "local";
+const dsaRoadmapMigrated = migrateDsaRoadmap(careerState);
+if (dsaRoadmapMigrated) {
+  setModeStorageValue(CAREER_STORAGE_KEY, JSON.stringify(careerState));
+  window.setTimeout(scheduleCareerCloudSync, 0);
+}
 let selectedTaskDate = isDateKey(savedUiState.selectedTaskDate) ? savedUiState.selectedTaskDate : toDateKey();
 let activeTaskView = TASK_VIEWS.includes(savedUiState.activeTaskView) ? savedUiState.activeTaskView : "today";
 let activeFieldTab = FIELD_TABS.includes(savedUiState.activeFieldTab) ? savedUiState.activeFieldTab : "today";

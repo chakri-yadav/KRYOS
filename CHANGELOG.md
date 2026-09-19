@@ -2,6 +2,13 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.022 - Complete DSA Roadmap
+
+- Imported 163 DSA problems across 14 focused topics.
+- Reset every imported problem to unchecked, ignoring stale document completion labels.
+- Grouped the roadmap into pattern foundations, core data structures, and advanced algorithms.
+- Added a one-time profile migration so existing personal data receives the roadmap and syncs it to Supabase.
+
 ## 0.004.021 - Reward Sync Feedback
 
 - Added an immediate syncing state beside the Reward ledger button.
