@@ -77,6 +77,8 @@ let rewardCloudBusy = false;
 async function syncRewardLedger() {
   if (rewardCloudBusy || typeof getSupabaseClient !== 'function') return;
   rewardCloudBusy = true;
+  rewardCloudNotice = 'Syncing reward ledger...';
+  if (typeof currentPage !== 'undefined' && currentPage === 'rewards') renderJournalRewards();
   try {
     const session = await getSupabaseSession();
     if (!session) throw new Error('Cloud sign-in required. Running the SQL does not sign in this browser. Open Cloud settings and sign in once.');
@@ -93,7 +95,11 @@ async function syncRewardLedger() {
       if (request) request.status = data.accepted ? 'confirmed' : 'rejected';
       store.rewardCloudSyncedAt = new Date().toISOString();
     }
-    saveTasks(); rewardCloudNotice = 'Reward ledger synced';
+    saveTasks();
+    const credited = awards.reduce((sum, award) => sum + Number(award.amount || 0), 0);
+    rewardCloudNotice = credited
+      ? `Reward ledger synced. ${store.rewardCloudBalance} cloud credits confirmed.`
+      : 'Cloud connected. Nothing to upload until you confirm a qualifying daily review.';
   } catch (error) { rewardCloudNotice = error.message; }
   finally { rewardCloudBusy = false; if (typeof currentPage !== 'undefined' && currentPage === 'rewards') renderJournalRewards(); }
 }

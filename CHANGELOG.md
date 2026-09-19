@@ -2,6 +2,12 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.021 - Reward Sync Feedback
+
+- Added an immediate syncing state beside the Reward ledger button.
+- Added an explicit successful zero-data message when no qualifying daily review exists yet.
+- Added the cloud-confirmed credit balance after a populated ledger sync.
+
 ## 0.004.020 - Self-Hosted Supabase Client
 
 - Bundled the official Supabase browser client inside the KRYOS repository.
