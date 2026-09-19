@@ -1,0 +1,95 @@
+const REWARD_RULE_VERSION = 2;
+const REWARD_CATEGORIES = {
+  launch: { title: 'Career Launch', cap: 3 }, career: { title: 'Career Skills', cap: 2 },
+  responsibility: { title: 'Responsibilities', cap: 1 }, foundation: { title: 'Health & care', cap: 1 },
+  spiritual: { title: 'Spiritual practice', cap: 1 }, containment: { title: 'Containment', cap: 1 },
+  closure: { title: 'Honest closure', cap: 1 },
+};
+
+function rewardEvidence(date) {
+  const life = lifeStore(), tasks = typeof taskState === 'undefined' ? {} : taskState;
+  const buckets = Object.fromEntries(Object.keys(REWARD_CATEGORIES).map(key => [key, []]));
+  const seen = new Set();
+  const add = (category, id, title) => {
+    if (!id || seen.has(id)) return;
+    seen.add(id); buckets[category].push({ id, title });
+  };
+  (tasks.launch?.marketEvents || []).filter(e => e.date === date).forEach(e => {
+    if (['application','connection','message','followup','comment','referral','conversation'].includes(e.type) || (e.type === 'post' && e.status === 'published'))
+      add('launch', `launch:${e.id}`, e.topic || e.note || e.type);
+  });
+  (tasks.launch?.mockSessions || []).filter(e => e.date === date && e.minutes > 0).forEach(e => add('launch', `mock:${e.id}`, e.focus || 'Interview rehearsal'));
+  if (typeof careerState !== 'undefined') (careerState.activityLog || []).filter(e => e.date === date && e.checkId).forEach(e => add('career', `career:${e.id}`, e.checkText || 'Completed career step'));
+  (life.actions || []).filter(e => e.status === 'done' && e.completedAt && toDateKey(e.completedAt) === date).forEach(e => add('responsibility', `action:${e.externalId || e.id}`, e.title));
+  (tasks.money?.contacts || []).filter(e => e.date === date).slice(0,1).forEach(e => add('responsibility', `money:${e.id}`, 'Financial follow-up'));
+  (tasks.rhythm?.events || []).filter(e => e.date === date && e.value > 0).forEach(e => {
+    const habit = typeof rhythmHabit === 'function' ? rhythmHabit(e.habitId) : null;
+    if (habit?.group === 'spirit') add('spiritual', `rhythm:${e.id}`, habit.title);
+  });
+  if (typeof rhythmDay === 'function' && rhythmDay(date).qualified) add('foundation', `foundation:${date}`, 'Daily foundation met');
+  (life.records || []).filter(e => e.date === date && e.completed).forEach(e => {
+    // An explicit source link prevents the same event earning through two pages.
+    if (e.sourceRef && seen.has(e.sourceRef)) return;
+    const category = e.domain === 'Career' ? 'career' : e.domain === 'Job applications' ? 'launch' : e.domain === 'Personal tasks' ? 'responsibility' : e.domain === 'Spiritual practice' ? 'spiritual' : null;
+    if (category) add(category, e.sourceRef || (e.actionRef ? `action:${e.actionRef}` : `journal:${e.id}`), e.title);
+  });
+  const day = (life.innerCommand?.containmentDays || []).find(e => e.date === date);
+  if (day?.status === 'kept' && !(life.dailyAssessments || []).some(e => e.date === date && e.astrologySeeking)) add('containment', `containment:${date}`, 'Boundaries reviewed and kept');
+  if ((life.entries || []).some(e => e.date === date && e.text?.trim())) add('closure', `closure:${date}`, 'Journal recorded');
+  const scores = Object.fromEntries(Object.entries(buckets).map(([key, rows]) => [key, Math.min(REWARD_CATEGORIES[key].cap, rows.length)]));
+  const total = Object.values(scores).reduce((a,b) => a+b,0);
+  const qualified = total >= 5 && scores.launch + scores.career + scores.responsibility > 0;
+  return { date, buckets, scores, total, qualified, ruleVersion: 2 };
+}
+
+function reviewRewardDay(date, note = '') {
+  if (!lifeDate(date) || date > toDateKey()) throw new Error('Choose today or an earlier date.');
+  const store = lifeStore(), existing = store.dailyAssessments.find(e => e.date === date);
+  if (existing && existing.ruleVersion !== 2) throw new Error('This day retains its original reward rules.');
+  const evidence = rewardEvidence(date);
+  const review = { ...evidence, evidenceIds: Object.values(evidence.buckets).flat().map(e => e.id).sort(), note, reviewedAt: new Date().toISOString(), revision: (existing?.revision || 0) + 1 };
+  delete review.buckets;
+  upsertDailyAssessment(store, review);
+  saveTasks();
+  return review;
+}
+
+function rewardReviewStale(review) {
+  if (review.ruleVersion !== 2) return false;
+  const current = rewardEvidence(review.date);
+  return JSON.stringify(current.scores) !== JSON.stringify(review.scores) || JSON.stringify(Object.values(current.buckets).flat().map(e => e.id).sort()) !== JSON.stringify(review.evidenceIds);
+}
+
+function rewardEligibility(reward) {
+  const days = [...new Set(lifeStore().dailyAssessments.filter(a => a.qualified && a.date <= toDateKey()).map(a => a.date))].sort();
+  const span = days.length ? Math.floor((new Date(`${days.at(-1)}T12:00:00`) - new Date(`${days[0]}T12:00:00`))/86400000)+1 : 0;
+  const missingDays = Math.max(0,(reward.days || 0)-days.length);
+  const missingSpan = Math.max(0,(reward.span || 0)-span);
+  return { allowed: !missingDays && !missingSpan, missingDays, missingSpan };
+}
+
+let rewardCloudNotice = '';
+let rewardCloudBusy = false;
+async function syncRewardLedger() {
+  if (rewardCloudBusy || typeof getSupabaseClient !== 'function') return;
+  rewardCloudBusy = true;
+  try {
+    const session = await getSupabaseSession();
+    if (!session) throw new Error('Saved locally. Sign in to confirm reward requests in cloud.');
+    const profile = await ensureSupabaseProfile(session), store = lifeStore();
+    const awards = store.dailyAssessments.filter(a => a.date <= toDateKey()).map(a => ({ id: `day:${a.date}`, amount: assessmentCredits(a), revision: a.revision || 1 }));
+    weeklyConsistencyBonuses(store.dailyAssessments).forEach(w => awards.push({ id:`week:${w.week}`, amount:w.credits, revision: store.dailyAssessments.filter(a => rewardWeekKey(a.date) === w.week).reduce((n,a) => n+(a.revision||1),0) }));
+    const requests = store.rewardRedemptions.filter(r => r.status === 'pending');
+    // Each request is retried with the same ID; the server serializes account updates.
+    const jobs = requests.length ? requests : [null];
+    for (const request of jobs) {
+      const { data, error } = await getSupabaseClient().rpc('kryos_reward_transaction', { p_profile: profile, p_awards: awards, p_request: request ? { id:request.id, cost:request.cost, title:request.title, rewardId:request.rewardId, date:request.date } : null });
+      if (error) throw new Error('Saved locally. Reward cloud migration or connection is unavailable.');
+      store.rewardCloudBalance = data.balance;
+      if (request) request.status = data.accepted ? 'confirmed' : 'rejected';
+      store.rewardCloudSyncedAt = new Date().toISOString();
+    }
+    saveTasks(); rewardCloudNotice = 'Reward ledger synced';
+  } catch (error) { rewardCloudNotice = error.message; }
+  finally { rewardCloudBusy = false; if (typeof currentPage !== 'undefined' && currentPage === 'rewards') renderJournalRewards(); }
+}

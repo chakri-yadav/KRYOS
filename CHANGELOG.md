@@ -2,6 +2,15 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.016 - Unified Evidence Rewards
+
+- Added one reviewed score across Career Launch, Career Skills, Actions, Money, Rhythm, Inner Command, and Journal.
+- Added bounded daily credits, a five-day consistency bonus, and sustained-day gates for larger rewards.
+- Replaced automatic effort points with auditable evidence and retained the original rules for historical reviews.
+- Aligned the astrology boundary with the 45-day Inner Command covenant: lapses pause progress without erasing prior kept days.
+- Added an idempotent Supabase reward ledger and atomic redemption function.
+- Added a premium reward dashboard with weekly cadence, evidence drill-down, covenant progress, targets, and audit history.
+
 ## 0.004.015 - Network and Visibility
 
 - Added a dedicated Network and Visibility module inside Career Launch.
