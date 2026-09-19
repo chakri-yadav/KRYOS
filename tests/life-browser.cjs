@@ -80,7 +80,15 @@ const assert = require('node:assert/strict');
     await page.locator('#launch-form [name=minutes]').fill('20');
     await page.locator('#launch-form [name=focus]').fill('Behavioral questions');
     await page.getByRole('button', { name: 'Save evidence' }).click();
-    assert.equal(await page.evaluate(() => launchStore().marketEvents.length), 2);
+    await page.getByRole('button', { name: 'Log connection action' }).click();
+    await page.locator('#launch-form [name=person]').fill('Professional connection');
+    await page.locator('#launch-form [name=note]').fill('Sent a relevant message about their work.');
+    await page.getByRole('button', { name: 'Save evidence' }).click();
+    await page.getByRole('button', { name: 'Log post' }).click();
+    await page.locator('#launch-form [name=topic]').fill('What I learned from system design practice');
+    await page.getByRole('button', { name: 'Save evidence' }).click();
+    assert.equal(await page.evaluate(() => launchStore().marketEvents.length), 4);
+    assert.equal(await page.evaluate(() => launchStore().marketEvents.filter(item => item.type === 'post' && item.status === 'published').length), 1);
     assert.equal(await page.evaluate(() => launchStore().mockSessions.length), 1);
 
     await page.getByRole('button', { name: 'Rhythm', exact: true }).first().click();
@@ -97,7 +105,7 @@ const assert = require('node:assert/strict');
     await page.getByRole('button', { name: 'Rhythm', exact: true }).first().click();
     assert.equal(await page.evaluate(() => rhythmValue('breakfast')), 1);
     await page.getByRole('button', { name: 'Launch', exact: true }).first().click();
-    assert.equal(await page.evaluate(() => launchStore().marketEvents.length), 2);
+    assert.equal(await page.evaluate(() => launchStore().marketEvents.length), 4);
     assert.equal(await page.evaluate(() => launchStore().mockSessions.length), 1);
 
     await page.getByRole('button', { name: 'Money', exact: true }).first().click();
