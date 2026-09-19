@@ -25,12 +25,17 @@ const assert = require('node:assert/strict');
     assert.equal(await page.evaluate(() => lifeStore().actions.find(action => action.externalId === 'action-part-time-payment-balance').nextAction), 'Confirm and collect approximately $225-$226.');
 
     await page.getByRole('button', { name: 'Actions', exact: true }).first().click();
-    await page.getByText('Add an action', { exact: true }).click();
+    await page.locator('.action-add summary').click();
     await page.locator('#action-add-form [name=title]').fill('Renew important document');
     await page.locator('#action-add-form [name=nextAction]').fill('Find the renewal requirements');
     await page.locator('#action-add-form [name=priority]').selectOption('important');
     await page.getByRole('button', { name: 'Keep in Vault' }).click();
     assert.equal(await page.getByText('Renew important document', { exact: true }).count(), 1);
+    await page.getByRole('button', { name: 'Edit Renew important document' }).click();
+    await page.locator('#action-edit-form [name=title]').fill('Renew important document safely');
+    await page.locator('#action-edit-form [name=deadline]').fill('2026-09-30');
+    await page.getByRole('button', { name: 'Save changes' }).click();
+    assert.equal(await page.getByText('Renew important document safely', { exact: true }).count(), 1);
 
     await page.getByRole('button', { name: 'Journal', exact: true }).first().click();
     await page.locator('#life-draft').fill('A focused journal test.');

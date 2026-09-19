@@ -15,13 +15,15 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.004.008";
+const APP_VERSION = "0.004.009";
 const APP_STAGE = "Life Execution Foundation";
 const APP_RELEASE_DATE = "2026-09-19";
-const APP_STATUS = "Premium evidence journal, visual momentum and bounded rewards";
+const APP_STATUS = "Premium action command surface with resilient local-first cloud sync";
 const APP_NEXT_MILESTONE = "Use the journal reliably before adding another feature";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Redesigned Actions as a premium, low-friction command surface with human deadline signals and calm visual hierarchy.",
+  "Replaced browser prompts with a complete action editor and added quiet, debounced task-block cloud synchronization.",
   "Imported the 13 reviewed master actions from notebook page one, including corrected deadlines and the part-time balance amount.",
   "Added one persistent Action Vault with priorities, next actions, optional deadlines and a three-item active limit.",
   "Restored Rewards as a journal-driven effort-credit system with transparent costs and history.",
@@ -1623,6 +1625,7 @@ function saveCareer() {
 function saveTasks() {
   taskState.meta.updatedAt = new Date().toISOString();
   setModeStorageValue(TASKS_STORAGE_KEY, JSON.stringify(taskState));
+  if (typeof scheduleTaskCloudSync === "function") scheduleTaskCloudSync();
 }
 
 function saveJournal() {
