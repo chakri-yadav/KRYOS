@@ -2,6 +2,15 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.028 - Reviewed September 19 Journal
+
+- Imported the reviewed September 19 Radhashtami journal as an encrypted, idempotent assistant package.
+- Recorded breakfast, lunch, dinner, protein shake, supplements, two litres of water, and the explicitly reported skincare components in Rhythm.
+- Closed the existing STEM processing fee Action on September 19 with its real deadline and Important priority.
+- Recorded the eight-hour hotel shift and eight hours of sleep while preserving DSA and system design as incomplete observations.
+- Extended assistant imports to update backdated Rhythm evidence and use the journal date for completed Actions.
+- Kept sunscreen and uncompleted Career work unrecorded rather than inferring evidence.
+
 ## 0.004.027 - Topic Deadline Control
 
 - Added target dates and automatic completion timestamps to individual Career topics.

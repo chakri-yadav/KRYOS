@@ -16,6 +16,7 @@ const assert = require('node:assert/strict');
     await page.getByRole('button', { name: 'Enter KRYOS' }).click();
     await page.waitForFunction(() => lifeStore().entries.some(entry => entry.packageId === 'assistant-2026-09-17-day-1'));
     await page.waitForFunction(() => lifeStore().entries.some(entry => entry.packageId === 'assistant-2026-09-19-master-actions-page-1'));
+    await page.waitForFunction(() => lifeStore().entries.some(entry => entry.packageId === 'assistant-2026-09-19-radhashtami-review'));
     assert.equal(await page.evaluate(() => accountMode), 'personal');
     assert.equal(await page.evaluate(() => lifeStore().entries.filter(entry => entry.packageId === 'assistant-2026-09-17-day-1').length), 1);
     assert.equal(await page.evaluate(() => lifeStore().records.filter(record => record.date === '2026-09-17' && record.completed).length), 17);
@@ -55,6 +56,10 @@ const assert = require('node:assert/strict');
     }
     assert.equal(await page.evaluate(() => lifeStore().entries.filter(entry => entry.packageId === 'assistant-2026-09-17-day-1').length), 1);
     assert.equal(await page.evaluate(() => lifeStore().entries.filter(entry => entry.packageId === 'assistant-2026-09-19-master-actions-page-1').length), 1);
+    assert.equal(await page.evaluate(() => lifeStore().entries.filter(entry => entry.packageId === 'assistant-2026-09-19-radhashtami-review').length), 1);
+    assert.equal(await page.evaluate(() => rhythmValue('water', '2026-09-19')), 2);
+    assert.equal(await page.evaluate(() => rhythmValue('dinner', '2026-09-19')), 1);
+    assert.equal(await page.evaluate(() => lifeStore().actions.find(action => action.externalId === 'action-stem-premium-fee').completedAt), '2026-09-19T12:00:00.000Z');
     assert.equal(await page.evaluate(() => lifeStore().actions.filter(action => action.externalId.startsWith('action-')).length), 13);
     assert.equal(await page.evaluate(() => innerCommandStatus(toDateKey())), 'breach');
 
