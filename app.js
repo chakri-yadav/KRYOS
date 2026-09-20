@@ -15,13 +15,15 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.004.023";
+const APP_VERSION = "0.004.024";
 const APP_STAGE = "Life Execution Foundation";
 const APP_RELEASE_DATE = "2026-09-19";
 const APP_STATUS = "Unified evidence rewards across the KRYOS operating system";
 const APP_NEXT_MILESTONE = "Use reviewed evidence before tuning reward weights";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Imported the complete API Design and Backend Engineering roadmap as nine gated learning phases.",
+  "Added phase goals, core patterns, difficulty signals, and separate Theory, Build, and Interview Gate evidence lanes.",
   "Added one global cloud-state signal so every workspace clearly reports local, saving, synced, or unavailable state.",
   "Made reward evidence provenance visible across Inner Command, Actions, Career, Launch, Rhythm, and Money.",
   "Added cross-feature reward integration tests while preserving strict category caps and manual daily confirmation.",
@@ -645,6 +647,155 @@ function migrateDsaRoadmap(nextCareerState) {
   return true;
 }
 
+const API_DESIGN_ROADMAP_VERSION = 1;
+
+const API_DESIGN_PHASES = [
+  {
+    id: "api-phase-0",
+    title: "Phase 0 - Backend Thinking Foundation",
+    goal: "Shift from writing Python functions to designing enforceable API contracts.",
+    pattern: "Contract thinking",
+    difficulty: 25,
+    topics: [
+      { id: "api-phase-0-theory", title: "Theory - 20%", items: ["API is not a function call", "Request is not an argument", "Response is not a return value", "Treat every client as untrusted", "Make the server enforce contracts"] },
+      { id: "api-phase-0-build", title: "Build - 80%", items: ["Write pure Python functions that accept dictionary input", "Add manual request validation", "Return structured JSON-like responses", "Simulate malformed and hostile client requests"] },
+      { id: "api-phase-0-gate", title: "Interview Gate", items: ["#19 Design error response contracts", "#3 Design a user profile API - basic contract only"] },
+    ],
+  },
+  {
+    id: "api-phase-1",
+    title: "Phase 1 - CRUD & Resource Modeling",
+    goal: "Model resources, collections, identity, and state transitions through HTTP.",
+    pattern: "CRUD & state transitions",
+    difficulty: 30,
+    topics: [
+      { id: "api-phase-1-theory", title: "Theory - 20%", items: ["Distinguish a resource from an action", "Define stable resource identity", "Distinguish collections from individual resources", "Explain HTTP method semantics"] },
+      { id: "api-phase-1-build", title: "Build - 80%", items: ["Create the FastAPI service foundation", "Use in-memory storage", "Implement GET /users", "Implement GET /users/{id}", "Implement POST /users", "Implement PUT /users/{id}", "Implement DELETE /users/{id}"] },
+      { id: "api-phase-1-gate", title: "Interview Gate", items: ["#3 Design a user profile API", "#4 Design an order service - CRUD only"] },
+    ],
+  },
+  {
+    id: "api-phase-2",
+    title: "Phase 2 - Validation & Error Contracts",
+    goal: "Reject invalid input predictably and return stable machine-readable failures.",
+    pattern: "Contract safety",
+    difficulty: 45,
+    topics: [
+      { id: "api-phase-2-theory", title: "Theory - 20%", items: ["Separate request schemas from response schemas", "Define validation boundaries", "Design one consistent error structure", "Use HTTP status codes correctly"] },
+      { id: "api-phase-2-build", title: "Build - 80%", items: ["Create Pydantic request and response models", "Implement centralized error handling", "Add field-level validation", "Return one clean response envelope"] },
+      { id: "api-phase-2-gate", title: "Interview Gate", items: ["#19 Design error response contracts", "#4 Design an order service with validation"] },
+    ],
+  },
+  {
+    id: "api-phase-3",
+    title: "Phase 3 - Authentication & Authorization",
+    goal: "Establish identity and enforce permissions without trusting client claims.",
+    pattern: "Identity & permissions",
+    difficulty: 55,
+    topics: [
+      { id: "api-phase-3-theory", title: "Theory - 20%", items: ["Distinguish authentication from authorization", "Explain JWT structure and trust", "Explain stateless API authentication", "Model role-based access"] },
+      { id: "api-phase-3-build", title: "Build - 80%", items: ["Implement signup API", "Implement login API", "Generate and validate JWTs", "Protect authenticated routes", "Enforce admin versus user access"] },
+      { id: "api-phase-3-gate", title: "Interview Gate", items: ["#1 Design a login API", "#2 Design a signup API", "#3 Design a user profile API with authorization"] },
+    ],
+  },
+  {
+    id: "api-phase-4",
+    title: "Phase 4 - Pagination, Filtering & Large Data",
+    goal: "Keep collection APIs bounded, predictable, and usable as data grows.",
+    pattern: "Scalable collection access",
+    difficulty: 60,
+    topics: [
+      { id: "api-phase-4-theory", title: "Theory - 20%", items: ["Explain why returning all data fails", "Design pagination contracts", "Define safe filtering rules", "Define deterministic sorting"] },
+      { id: "api-phase-4-build", title: "Build - 80%", items: ["Implement limit and offset pagination", "Return pagination metadata", "Validate filter, sort, and pagination query parameters"] },
+      { id: "api-phase-4-gate", title: "Interview Gate", items: ["#11 Design a search API", "#12 Handle large datasets", "#13 Design a pagination strategy"] },
+    ],
+  },
+  {
+    id: "api-phase-5",
+    title: "Phase 5 - Idempotency & Retry Safety",
+    goal: "Make retried mutations safe and prevent duplicate side effects.",
+    pattern: "Reliable mutations",
+    difficulty: 70,
+    topics: [
+      { id: "api-phase-5-theory", title: "Theory - 20%", items: ["Explain why network retries happen", "Identify duplicate-request failure modes", "Design idempotency-key contracts", "Distinguish safe and unsafe POST behavior"] },
+      { id: "api-phase-5-build", title: "Build - 80%", items: ["Implement an idempotent POST endpoint", "Simulate timeout and retry behavior", "Apply atomic idempotency handling to an order or payment API"] },
+      { id: "api-phase-5-gate", title: "Interview Gate", items: ["#5 Design an order creation API", "#6 Design a payment flow", "#7 Prevent duplicate requests", "#8 Handle client retries safely"] },
+    ],
+  },
+  {
+    id: "api-phase-6",
+    title: "Phase 6 - Async Workflows & File APIs",
+    goal: "Represent long-running work without blocking clients or hiding state.",
+    pattern: "Long-running operations",
+    difficulty: 65,
+    topics: [
+      { id: "api-phase-6-theory", title: "Theory - 20%", items: ["Distinguish blocking from asynchronous APIs", "Use 202 Accepted for queued work", "Compare polling and webhooks"] },
+      { id: "api-phase-6-build", title: "Build - 80%", items: ["Create an asynchronous job endpoint", "Implement job-status tracking", "Simulate file upload handling", "Implement file download behavior"] },
+      { id: "api-phase-6-gate", title: "Interview Gate", items: ["#9 Design a file upload API", "#10 Design a file download API", "#17 Handle long-running operations"] },
+    ],
+  },
+  {
+    id: "api-phase-7",
+    title: "Phase 7 - Versioning & Backward Compatibility",
+    goal: "Evolve contracts without silently breaking existing clients.",
+    pattern: "API evolution",
+    difficulty: 75,
+    topics: [
+      { id: "api-phase-7-theory", title: "Theory - 20%", items: ["Distinguish breaking from non-breaking changes", "Plan schema evolution", "Compare API versioning strategies"] },
+      { id: "api-phase-7-build", title: "Build - 80%", items: ["Implement /api/v1", "Implement /api/v2", "Practice additive backward-compatible changes"] },
+      { id: "api-phase-7-gate", title: "Interview Gate", items: ["#14 Support old mobile clients", "#15 Handle breaking API changes", "#16 Design API versioning"] },
+    ],
+  },
+  {
+    id: "api-phase-8",
+    title: "Phase 8 - Downstream Failures & Ownership",
+    goal: "Own production behavior when dependencies slow down, fail, or return uncertainty.",
+    pattern: "Production readiness",
+    difficulty: 80,
+    topics: [
+      { id: "api-phase-8-theory", title: "Theory - 20%", items: ["Model dependency failures", "Choose explicit timeout budgets", "Bound retries and avoid retry storms", "Design graceful degradation", "Adopt an operational monitoring mindset"] },
+      { id: "api-phase-8-build", title: "Build - 80%", items: ["Simulate downstream service failure", "Return safe and useful dependency errors", "Implement a health endpoint", "Add structured logging"] },
+      { id: "api-phase-8-gate", title: "Interview Gate", items: ["#18 Handle downstream service failures", "#20 Design a production-ready API"] },
+    ],
+  },
+];
+
+function buildApiDesignRoadmapModules() {
+  return API_DESIGN_PHASES.map((phase) => ({
+    id: phase.id,
+    title: phase.title,
+    goal: phase.goal,
+    pattern: phase.pattern,
+    difficulty: phase.difficulty,
+    topics: phase.topics.map((topic) => ({
+      id: topic.id,
+      title: topic.title,
+      confidence: "Low",
+      checklist: topic.items.map((text, index) => ({ id: `${topic.id}-item-${index + 1}`, text, done: false })),
+    })),
+  }));
+}
+
+function migrateApiDesignRoadmap(nextCareerState) {
+  if (!nextCareerState || typeof nextCareerState !== "object") return false;
+  nextCareerState.meta = nextCareerState.meta && typeof nextCareerState.meta === "object" ? nextCareerState.meta : {};
+  if (Number(nextCareerState.meta.apiDesignRoadmapVersion || 0) >= API_DESIGN_ROADMAP_VERSION) return false;
+  nextCareerState.roadmaps = Array.isArray(nextCareerState.roadmaps) ? nextCareerState.roadmaps : [];
+
+  let roadmap = nextCareerState.roadmaps.find((item) => String(item?.title || "").trim().toLowerCase() === "api design & backend engineering roadmap");
+  if (!roadmap) {
+    roadmap = { id: "roadmap-api-design", title: "API Design & Backend Engineering Roadmap" };
+    nextCareerState.roadmaps.push(roadmap);
+  }
+  roadmap.purpose = "Build Amazon SDE-2-oriented backend judgment through 80% implementation, 20% theory, and repeated interview proof.";
+  roadmap.targetDate = roadmap.targetDate || "";
+  roadmap.estimatedHours = "70-90 focused hours";
+  roadmap.modules = buildApiDesignRoadmapModules();
+  nextCareerState.meta.apiDesignRoadmapVersion = API_DESIGN_ROADMAP_VERSION;
+  nextCareerState.meta.updatedAt = new Date().toISOString();
+  return true;
+}
+
 const defaultCareer = {
   roadmaps: [
     {
@@ -892,7 +1043,8 @@ let careerSyncRunning = false;
 let careerSyncDirty = false;
 let careerSyncState = "local";
 const dsaRoadmapMigrated = migrateDsaRoadmap(careerState);
-if (dsaRoadmapMigrated) {
+const apiDesignRoadmapMigrated = migrateApiDesignRoadmap(careerState);
+if (dsaRoadmapMigrated || apiDesignRoadmapMigrated) {
   setModeStorageValue(CAREER_STORAGE_KEY, JSON.stringify(careerState));
   window.setTimeout(scheduleCareerCloudSync, 0);
 }
@@ -7037,6 +7189,7 @@ function renderRoadmapDetail(roadmap) {
 
 function renderModuleBlock(roadmap, module, isEditing) {
   const stats = getModuleStats(module);
+  const difficulty = Number(module.difficulty || 0);
   return `
     <article class="module-block">
       <div class="module-header">
@@ -7048,6 +7201,13 @@ function renderModuleBlock(roadmap, module, isEditing) {
         </div>
         ${isEditing ? `<button class="icon-button danger-icon" type="button" title="Delete module" aria-label="Delete module" data-career-delete="module" data-roadmap-id="${roadmap.id}" data-module-id="${module.id}">${careerIcon("trash")}</button>` : ""}
       </div>
+      ${module.goal || module.pattern || difficulty ? `
+        <div class="career-phase-brief">
+          ${module.pattern ? `<span class="career-phase-pattern">${escapeHtml(module.pattern)}</span>` : ""}
+          ${difficulty ? `<span class="career-phase-difficulty">Difficulty ${difficulty}/100</span>` : ""}
+          ${module.goal ? `<p>${escapeHtml(module.goal)}</p>` : ""}
+        </div>
+      ` : ""}
       <span class="progress-track"><span style="width: ${stats.percent}%"></span></span>
 
       <div class="topic-list">
