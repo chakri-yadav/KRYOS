@@ -64,6 +64,12 @@ const assert = require('node:assert/strict');
     assert.ok(await page.locator('.career-portfolio-row').count() >= 2);
     assert.equal(await page.getByRole('button', { name: 'Edit roadmap' }).count(), 1);
     assert.equal(await page.locator('.career-command').evaluate(element => element.scrollWidth <= element.clientWidth), true);
+    await page.locator('.career-portfolio-row').filter({ hasText: 'API Design & Backend Engineering' }).click();
+    assert.equal(await page.locator('.career-phase-brief').count(), 9);
+    assert.equal(await page.locator('#career-view').evaluate(element => element.scrollWidth <= element.clientWidth), true);
+    await page.setViewportSize({ width: 900, height: 1000 });
+    assert.equal(await page.locator('#career-view').evaluate(element => element.scrollWidth <= element.clientWidth), true);
+    await page.setViewportSize({ width: 1440, height: 1000 });
 
     await page.getByRole('button', { name: 'Launch', exact: true }).first().click();
     assert.equal(await page.locator('.launch-week-pulse article').count(), 7);

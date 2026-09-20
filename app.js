@@ -15,13 +15,15 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.004.024";
+const APP_VERSION = "0.004.025";
 const APP_STAGE = "Life Execution Foundation";
 const APP_RELEASE_DATE = "2026-09-19";
 const APP_STATUS = "Unified evidence rewards across the KRYOS operating system";
 const APP_NEXT_MILESTONE = "Use reviewed evidence before tuning reward weights";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Reflowed the complete Career workspace so long roadmaps, phase briefs, modules, and checklists stay inside the page at every supported desktop width.",
+  "Kept Career writes immediate on-device with the existing quiet Supabase autosave and visible local, saving, synced, or unavailable status.",
   "Imported the complete API Design and Backend Engineering roadmap as nine gated learning phases.",
   "Added phase goals, core patterns, difficulty signals, and separate Theory, Build, and Interview Gate evidence lanes.",
   "Added one global cloud-state signal so every workspace clearly reports local, saving, synced, or unavailable state.",
