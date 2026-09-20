@@ -2,6 +2,13 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.025 - Career Responsive Fit
+
+- Removed fixed-width pressure from Career roadmaps, phase metadata, modules, topics, and checklist rows.
+- Added a compact intermediate layout for laptop-width screens before the narrow stacked layout begins.
+- Preserved intentional horizontal scrolling only for the year heatmap and roadmap journey.
+- Verified immediate local persistence and retained the debounced Supabase Career-block autosave with visible status.
+
 ## 0.004.024 - API Design Roadmap
 
 - Imported the complete nine-phase API Design and Backend Engineering roadmap.
