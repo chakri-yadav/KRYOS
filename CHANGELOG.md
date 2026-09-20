@@ -2,6 +2,14 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.024 - API Design Roadmap
+
+- Imported the complete nine-phase API Design and Backend Engineering roadmap.
+- Preserved the 80% coding, 20% theory learning contract and all 20 fixed interview questions.
+- Added goal, core-pattern, and difficulty metadata to phased Career roadmaps.
+- Added separate Theory, Build, and Interview Gate evidence lanes with every item initially unchecked.
+- Added a one-time migration so the roadmap reaches the existing personal profile and cloud block.
+
 ## 0.004.023 - Cross-Feature Integration
 
 - Added a persistent global cloud-state signal across every active workspace.
