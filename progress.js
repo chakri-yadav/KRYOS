@@ -96,6 +96,26 @@ function compactCareerProgress() {
   return `<section class="progress-career-band"><div><p class="section-kicker">CAREER SKILLS</p><h2>${primary ? escapeHtml(primary.title) : 'No skill roadmap yet'}</h2><p>${next ? `Next: ${escapeHtml(next.item.text)}` : 'Create or review the next evidence step.'}</p></div><div class="progress-career-stat"><strong>${stats.weekActions}</strong><span>steps this week</span></div><div class="progress-career-stat"><strong>${stats.currentStreak}</strong><span>day rhythm</span></div><div class="progress-career-stat"><strong>${stats.progress}%</strong><span>coverage</span></div><button type="button" data-page="career">View Career</button></section>`;
 }
 
+function progressDeadlineTracker() {
+  const stats = getCareerDeadlineStats();
+  const rows = stats.modules.slice().sort((a, b) => {
+    const aClosed = ['on-time', 'late'].includes(a.deadline.key) ? 1 : 0;
+    const bClosed = ['on-time', 'late'].includes(b.deadline.key) ? 1 : 0;
+    return aClosed - bClosed || a.deadline.targetDate.localeCompare(b.deadline.targetDate);
+  }).slice(0, 8);
+  const score = stats.deliveryScore ?? 0;
+  return `<section class="deadline-progress-panel">
+    <div class="deadline-progress-head"><div><p class="section-kicker">DEADLINE CONTROL</p><h2>See pressure while it is still manageable.</h2><p>Module dates, live risk and finalized delivery quality in one view.</p></div><div class="deadline-progress-score" style="--deadline-score:${score * 3.6}deg"><strong>${stats.deliveryScore ?? '—'}</strong><span>delivery score</span></div></div>
+    <div class="deadline-progress-metrics">
+      <article class="${stats.overdue ? 'danger' : ''}"><span>Overdue now</span><strong>${stats.overdue}</strong><small>unfinished modules</small></article>
+      <article class="${stats.dueSoon ? 'warning' : ''}"><span>Due within 7 days</span><strong>${stats.dueSoon}</strong><small>early warning</small></article>
+      <article><span>On-time finishes</span><strong>${stats.onTime}/${stats.completed}</strong><small>${stats.onTimeRate === null ? 'No dated finish yet' : `${stats.onTimeRate}% on-time rate`}</small></article>
+      <article><span>Still undated</span><strong>${stats.unscheduled}</strong><small>schedule only active work</small></article>
+    </div>
+    ${rows.length ? `<div class="deadline-progress-list">${rows.map(({ roadmap, module, deadline }) => `<button type="button" data-page="career" class="deadline-progress-row state-${deadline.key}"><time>${progressShortDate(deadline.targetDate)}</time><span><strong>${escapeHtml(module.title)}</strong><small>${escapeHtml(roadmap.title)} · ${escapeHtml(deadline.label)}</small></span><div><i><u style="width:${deadline.stats.percent}%"></u></i><b>${deadline.stats.percent}%</b></div></button>`).join('')}</div>` : `<div class="deadline-progress-empty"><strong>No deadline signal yet.</strong><p>Add target dates to active Career modules. KRYOS will calculate the rest.</p><button type="button" data-page="career">Set module deadlines</button></div>`}
+  </section>`;
+}
+
 function renderProgressDashboard() {
   const store = lifeStore();
   const today = toDateKey();
@@ -131,6 +151,7 @@ function renderProgressDashboard() {
       <div><span>Qualified days</span><strong>${qualified}</strong><small>strictly reviewed</small></div>
     </section>
     ${compactCareerProgress()}
+    ${progressDeadlineTracker()}
     <section class="life-section pulse-section"><div class="life-heading"><div><p class="section-kicker">EFFORT PULSE</p><h2>Four-week trajectory</h2></div><span>Action, not intention</span></div>${progressPulse(today)}</section>
     <section class="life-section consistency-section"><div class="life-heading"><div><p class="section-kicker">CONSISTENCY FIELD</p><h2>${progressRange === 364 ? 'A year of evidence' : 'Your recent rhythm'}</h2><p>${progressShortDate(days[0])} – ${progressShortDate(today)}</p></div><div class="progress-filters"><label>Measure<select id="progress-metric"><option value="all">All progress</option>${domains.map(domain => `<option ${progressMetric === domain ? 'selected' : ''}>${escapeHtml(domain)}</option>`).join('')}</select></label><label>Period<select id="progress-range"><option value="84" ${progressRange === 84 ? 'selected' : ''}>12 weeks</option><option value="364" ${progressRange === 364 ? 'selected' : ''}>52 weeks</option></select></label></div></div>
       <div class="heatmap-shell"><div class="heatmap-days" aria-hidden="true"><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span><span>Sun</span></div><div class="progress-map-scroll"><div class="life-heatmap" style="--weeks:${progressRange / 7}">${days.map(progressCell).join('')}</div></div><div class="heatmap-insight"><span>Selected period</span><strong>${periodTotal}</strong><p>completed actions across <b>${periodActive}</b> active ${periodActive === 1 ? 'day' : 'days'}</p></div></div>
