@@ -2,6 +2,15 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.026 - Deadline Control and Reward Repair
+
+- Added optional target dates to every Career module and automatic completion timestamps when its final checklist item is finished.
+- Added honest module states: scheduled, due soon, overdue, completed on time, and completed late.
+- Added a finalized 0–100 delivery score, on-time rate, upcoming deadline lane, and module deadline analytics in Career and Progress.
+- Added on-time module completion as bounded Career evidence without bypassing the existing daily category cap.
+- Reworked Rewards to select the latest evidence day, expose qualification gates, save credits locally first, and describe cloud failures precisely.
+- Kept Supabase storage schema unchanged because module dates live inside the existing Career JSON block.
+
 ## 0.004.025 - Career Responsive Fit
 
 - Removed fixed-width pressure from Career roadmaps, phase metadata, modules, topics, and checklist rows.

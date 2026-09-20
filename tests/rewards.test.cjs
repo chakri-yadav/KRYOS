@@ -68,6 +68,20 @@ test('launch evidence is capped and requires real exposure', () => {
   assert.equal(evidence.qualified, false);
 });
 
+test('reward qualification exposes both evidence and grounded-action gates', () => {
+  const { context } = setup();
+  assert.deepEqual({ ...context.rewardQualification({ total: 4, scores: { launch: 0, career: 0, responsibility: 0 } }) }, { pointsMet: false, groundedMet: false, remainingPoints: 1, qualified: false });
+  assert.deepEqual({ ...context.rewardQualification({ total: 5, scores: { launch: 0, career: 1, responsibility: 0 } }) }, { pointsMet: true, groundedMet: true, remainingPoints: 0, qualified: true });
+});
+
+test('module completion enters the bounded Career evidence lane', () => {
+  const date = '2026-09-19';
+  const { context } = setup({ career: { activityLog: [{ id: 'module-event', date, eventType: 'module-complete', moduleId: 'module-one', moduleTitle: 'Backend foundation', checkText: 'Backend foundation completed on time' }] } });
+  const evidence = context.rewardEvidence(date);
+  assert.equal(evidence.scores.career, 1);
+  assert.equal(evidence.buckets.career[0].title, 'Backend foundation completed on time');
+});
+
 test('all active workspaces feed one capped reward review', () => {
   const date = '2026-09-19';
   const { context } = setup({

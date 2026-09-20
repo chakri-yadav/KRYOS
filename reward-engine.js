@@ -20,7 +20,7 @@ function rewardEvidence(date) {
       add('launch', `launch:${e.id}`, e.topic || e.note || e.type, 'Launch');
   });
   (tasks.launch?.mockSessions || []).filter(e => e.date === date && e.minutes > 0).forEach(e => add('launch', `mock:${e.id}`, e.focus || 'Interview rehearsal', 'Launch'));
-  if (typeof careerState !== 'undefined') (careerState.activityLog || []).filter(e => e.date === date && e.checkId).forEach(e => add('career', `career:${e.id}`, e.checkText || 'Completed career step', 'Career'));
+  if (typeof careerState !== 'undefined') (careerState.activityLog || []).filter(e => e.date === date && (e.checkId || e.eventType === 'module-complete')).forEach(e => add('career', `career:${e.id}`, e.checkText || e.moduleTitle || 'Completed career step', 'Career'));
   (life.actions || []).filter(e => e.status === 'done' && e.completedAt && toDateKey(e.completedAt) === date).forEach(e => add('responsibility', `action:${e.externalId || e.id}`, e.title, 'Actions'));
   (tasks.money?.contacts || []).filter(e => e.date === date).slice(0,1).forEach(e => add('responsibility', `money:${e.id}`, 'Financial follow-up', 'Money'));
   (tasks.rhythm?.events || []).filter(e => e.date === date && e.value > 0).forEach(e => {
@@ -42,6 +42,16 @@ function rewardEvidence(date) {
   const qualified = total >= 5 && scores.launch + scores.career + scores.responsibility > 0;
   const workspaces = [...new Set(Object.values(buckets).flat().map(item => item.source).filter(Boolean))];
   return { date, buckets, scores, total, qualified, workspaces, ruleVersion: 2 };
+}
+
+function rewardQualification(evidence) {
+  const grounded = evidence.scores.launch + evidence.scores.career + evidence.scores.responsibility;
+  return {
+    pointsMet: evidence.total >= 5,
+    groundedMet: grounded > 0,
+    remainingPoints: Math.max(0, 5 - evidence.total),
+    qualified: evidence.total >= 5 && grounded > 0,
+  };
 }
 
 function reviewRewardDay(date, note = '') {
@@ -77,13 +87,21 @@ function rewardEligibility(reward) {
 let rewardCloudNotice = '';
 let rewardCloudBusy = false;
 async function syncRewardLedger() {
-  if (rewardCloudBusy || typeof getSupabaseClient !== 'function') return;
+  if (rewardCloudBusy) return;
+  if (typeof getSupabaseClient !== 'function') {
+    rewardCloudNotice = 'Credits are saved on this device. Cloud tools are unavailable in this build.';
+    if (typeof currentPage !== 'undefined' && currentPage === 'rewards') renderJournalRewards();
+    return;
+  }
   rewardCloudBusy = true;
   rewardCloudNotice = 'Syncing reward ledger...';
   if (typeof currentPage !== 'undefined' && currentPage === 'rewards') renderJournalRewards();
   try {
     const session = await getSupabaseSession();
-    if (!session) throw new Error('Cloud sign-in required. Running the SQL does not sign in this browser. Open Cloud settings and sign in once.');
+    if (!session) {
+      rewardCloudNotice = 'Credits saved on this device. Sign in under Cloud settings when you want to mirror the ledger.';
+      return;
+    }
     const profile = await ensureSupabaseProfile(session), store = lifeStore();
     const awards = store.dailyAssessments.filter(a => a.date <= toDateKey()).map(a => ({ id: `day:${a.date}`, amount: assessmentCredits(a), revision: a.revision || 1 }));
     weeklyConsistencyBonuses(store.dailyAssessments).forEach(w => awards.push({ id:`week:${w.week}`, amount:w.credits, revision: store.dailyAssessments.filter(a => rewardWeekKey(a.date) === w.week).reduce((n,a) => n+(a.revision||1),0) }));
@@ -92,7 +110,7 @@ async function syncRewardLedger() {
     const jobs = requests.length ? requests : [null];
     for (const request of jobs) {
       const { data, error } = await getSupabaseClient().rpc('kryos_reward_transaction', { p_profile: profile, p_awards: awards, p_request: request ? { id:request.id, cost:request.cost, title:request.title, rewardId:request.rewardId, date:request.date } : null });
-      if (error) throw new Error('Saved locally. Reward cloud migration or connection is unavailable.');
+      if (error) throw new Error(`Credits saved locally. Cloud ledger needs attention: ${error.message || 'transaction unavailable'}`);
       store.rewardCloudBalance = data.balance;
       if (request) request.status = data.accepted ? 'confirmed' : 'rejected';
       store.rewardCloudSyncedAt = new Date().toISOString();
