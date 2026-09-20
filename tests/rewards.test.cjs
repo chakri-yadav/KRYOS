@@ -88,7 +88,7 @@ test('all active workspaces feed one capped reward review', () => {
     life: {
       entries: [{ date, text: 'Closed the day honestly.' }],
       records: [{ id: 'spiritual-record', date, completed: true, domain: 'Spiritual practice', title: 'Prayer' }],
-      actions: [{ id: 'action-one', title: 'Important responsibility', status: 'done', completedAt: `${date}T18:00:00Z` }],
+      actions: [{ id: 'action-one', title: 'Important responsibility', priority: 'important', deadline: date, status: 'done', completedAt: `${date}T18:00:00Z` }],
       innerCommand: { covenant: { startDate: date, days: 45 }, containmentDays: [{ date, status: 'kept' }] },
     },
     tasks: {
@@ -111,6 +111,20 @@ test('all active workspaces feed one capped reward review', () => {
   assert.equal(evidence.qualified, true);
   assert.deepEqual([...evidence.workspaces].sort(), ['Actions', 'Career', 'Inner Command', 'Launch', 'Money', 'Rhythm']);
   assert.deepEqual({ ...evidence.scores }, { launch: 3, career: 2, responsibility: 1, foundation: 1, spiritual: 1, containment: 1, closure: 1 });
+});
+
+test('only on-time important or critical actions earn the capped deadline evidence point', () => {
+  const date = '2026-09-19';
+  const actions = [
+    { id: 'normal', title: 'Normal task', priority: 'normal', deadline: date, status: 'done', completedAt: `${date}T10:00:00Z` },
+    { id: 'late', title: 'Late important task', priority: 'important', deadline: '2026-09-18', status: 'done', completedAt: `${date}T11:00:00Z` },
+    { id: 'earned', title: 'Critical deadline', priority: 'critical', deadline: date, status: 'done', completedAt: `${date}T12:00:00Z` },
+    { id: 'also-earned', title: 'Second important deadline', priority: 'important', deadline: date, status: 'done', completedAt: `${date}T13:00:00Z` },
+  ];
+  const evidence = setup({ life: { actions } }).context.rewardEvidence(date);
+  assert.equal(evidence.scores.responsibility, 1);
+  assert.equal(evidence.buckets.responsibility.length, 2);
+  assert.match(evidence.buckets.responsibility[0].title, /on-time critical deadline/);
 });
 
 test('one source reference cannot earn through two pages', () => {

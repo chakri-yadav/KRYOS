@@ -2,6 +2,15 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.027 - Topic Deadline Control
+
+- Added target dates and automatic completion timestamps to individual Career topics.
+- Made topic milestones the primary delivery-score units while retaining module dates as broader checkpoints without double counting.
+- Integrated topic deadline signals into Career and Progress immediately from the same live Career record.
+- Limited Action deadline rewards to on-time Critical or Important completions, capped at one Responsibility evidence point per reviewed day.
+- Reduced Career and Actions Supabase autosave delay from 900ms to 400ms for the single KRYOS website workflow.
+- Kept the existing Supabase schema because the new fields remain inside the Career and Tasks JSON blocks.
+
 ## 0.004.026 - Deadline Control and Reward Repair
 
 - Added optional target dates to every Career module and automatic completion timestamps when its final checklist item is finished.

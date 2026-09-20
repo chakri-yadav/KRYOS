@@ -98,21 +98,21 @@ function compactCareerProgress() {
 
 function progressDeadlineTracker() {
   const stats = getCareerDeadlineStats();
-  const rows = stats.modules.slice().sort((a, b) => {
+  const rows = stats.items.slice().sort((a, b) => {
     const aClosed = ['on-time', 'late'].includes(a.deadline.key) ? 1 : 0;
     const bClosed = ['on-time', 'late'].includes(b.deadline.key) ? 1 : 0;
     return aClosed - bClosed || a.deadline.targetDate.localeCompare(b.deadline.targetDate);
   }).slice(0, 8);
   const score = stats.deliveryScore ?? 0;
   return `<section class="deadline-progress-panel">
-    <div class="deadline-progress-head"><div><p class="section-kicker">DEADLINE CONTROL</p><h2>See pressure while it is still manageable.</h2><p>Module dates, live risk and finalized delivery quality in one view.</p></div><div class="deadline-progress-score" style="--deadline-score:${score * 3.6}deg"><strong>${stats.deliveryScore ?? '—'}</strong><span>delivery score</span></div></div>
+    <div class="deadline-progress-head"><div><p class="section-kicker">DEADLINE CONTROL</p><h2>See pressure while it is still manageable.</h2><p>Topic milestones, module checkpoints and finalized delivery quality in one view.</p></div><div class="deadline-progress-score" style="--deadline-score:${score * 3.6}deg"><strong>${stats.deliveryScore ?? '—'}</strong><span>delivery score</span></div></div>
     <div class="deadline-progress-metrics">
-      <article class="${stats.overdue ? 'danger' : ''}"><span>Overdue now</span><strong>${stats.overdue}</strong><small>unfinished modules</small></article>
+      <article class="${stats.overdue ? 'danger' : ''}"><span>Overdue now</span><strong>${stats.overdue}</strong><small>unfinished milestones</small></article>
       <article class="${stats.dueSoon ? 'warning' : ''}"><span>Due within 7 days</span><strong>${stats.dueSoon}</strong><small>early warning</small></article>
       <article><span>On-time finishes</span><strong>${stats.onTime}/${stats.completed}</strong><small>${stats.onTimeRate === null ? 'No dated finish yet' : `${stats.onTimeRate}% on-time rate`}</small></article>
       <article><span>Still undated</span><strong>${stats.unscheduled}</strong><small>schedule only active work</small></article>
     </div>
-    ${rows.length ? `<div class="deadline-progress-list">${rows.map(({ roadmap, module, deadline }) => `<button type="button" data-page="career" class="deadline-progress-row state-${deadline.key}"><time>${progressShortDate(deadline.targetDate)}</time><span><strong>${escapeHtml(module.title)}</strong><small>${escapeHtml(roadmap.title)} · ${escapeHtml(deadline.label)}</small></span><div><i><u style="width:${deadline.stats.percent}%"></u></i><b>${deadline.stats.percent}%</b></div></button>`).join('')}</div>` : `<div class="deadline-progress-empty"><strong>No deadline signal yet.</strong><p>Add target dates to active Career modules. KRYOS will calculate the rest.</p><button type="button" data-page="career">Set module deadlines</button></div>`}
+    ${rows.length ? `<div class="deadline-progress-list">${rows.map(({ scope, roadmap, module, topic, deadline }) => `<button type="button" data-page="career" class="deadline-progress-row state-${deadline.key}"><time>${progressShortDate(deadline.targetDate)}</time><span><strong>${escapeHtml(topic?.title || module.title)}</strong><small>${scope === 'topic' ? `${escapeHtml(module.title)} · Topic` : `${escapeHtml(roadmap.title)} · Module`} · ${escapeHtml(deadline.label)}</small></span><div><i><u style="width:${deadline.stats.percent}%"></u></i><b>${deadline.stats.percent}%</b></div></button>`).join('')}</div>` : `<div class="deadline-progress-empty"><strong>No deadline signal yet.</strong><p>Add target dates to active Career topics. KRYOS will calculate the rest.</p><button type="button" data-page="career">Set topic deadlines</button></div>`}
   </section>`;
 }
 

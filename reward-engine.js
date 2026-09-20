@@ -21,7 +21,11 @@ function rewardEvidence(date) {
   });
   (tasks.launch?.mockSessions || []).filter(e => e.date === date && e.minutes > 0).forEach(e => add('launch', `mock:${e.id}`, e.focus || 'Interview rehearsal', 'Launch'));
   if (typeof careerState !== 'undefined') (careerState.activityLog || []).filter(e => e.date === date && (e.checkId || e.eventType === 'module-complete')).forEach(e => add('career', `career:${e.id}`, e.checkText || e.moduleTitle || 'Completed career step', 'Career'));
-  (life.actions || []).filter(e => e.status === 'done' && e.completedAt && toDateKey(e.completedAt) === date).forEach(e => add('responsibility', `action:${e.externalId || e.id}`, e.title, 'Actions'));
+  (life.actions || []).filter(e => {
+    if (e.status !== 'done' || !e.completedAt || toDateKey(e.completedAt) !== date) return false;
+    if (!['critical', 'important'].includes(e.priority) || !e.deadline) return false;
+    return toDateKey(e.completedAt) <= e.deadline;
+  }).forEach(e => add('responsibility', `action:${e.externalId || e.id}`, `${e.title} · on-time ${e.priority} deadline`, 'Actions'));
   (tasks.money?.contacts || []).filter(e => e.date === date).slice(0,1).forEach(e => add('responsibility', `money:${e.id}`, 'Financial follow-up', 'Money'));
   (tasks.rhythm?.events || []).filter(e => e.date === date && e.value > 0).forEach(e => {
     const habit = typeof rhythmHabit === 'function' ? rhythmHabit(e.habitId) : null;
