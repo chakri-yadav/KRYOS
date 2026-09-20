@@ -58,7 +58,7 @@ function actionCapacity(activeCount) {
 }
 
 function actionSyncLabel() {
-  const labels = { local: 'Saved on device', saving: 'Saving changes', synced: 'Saved to cloud', error: 'Saved locally - cloud unavailable' };
+  const labels = { local: 'Saved in browser', saving: 'Saving changes', synced: 'Saved to cloud', error: 'Saved in browser - cloud unavailable' };
   return labels[actionSyncState] || labels.local;
 }
 
@@ -76,7 +76,7 @@ function scheduleTaskCloudSync() {
   actionSyncState = 'saving';
   updateActionSyncIndicator();
   window.clearTimeout(actionSyncTimer);
-  actionSyncTimer = window.setTimeout(flushTaskCloudSync, 900);
+  actionSyncTimer = window.setTimeout(flushTaskCloudSync, 400);
 }
 
 async function flushTaskCloudSync() {

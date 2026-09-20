@@ -15,13 +15,16 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.004.026";
+const APP_VERSION = "0.004.027";
 const APP_STAGE = "Life Execution Foundation";
-const APP_RELEASE_DATE = "2026-09-19";
-const APP_STATUS = "Unified evidence rewards across the KRYOS operating system";
-const APP_NEXT_MILESTONE = "Use reviewed evidence before tuning reward weights";
+const APP_RELEASE_DATE = "2026-09-20";
+const APP_STATUS = "Topic deadlines and strict on-time Action rewards";
+const APP_NEXT_MILESTONE = "Use the deadline system before changing its weights";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Added topic-level Career deadlines with automatic completion dates and topic-aware delivery scoring.",
+  "Made on-time Critical and Important Actions eligible for the single capped Responsibility evidence point.",
+  "Reduced Career and Actions cloud-save delay while keeping every page on one shared local state.",
   "Added module deadlines, automatic completion dates, deadline health, and delivery scoring across Career and Progress.",
   "Made Rewards local-first and exposed every qualification gate before cloud ledger confirmation.",
   "Reflowed the complete Career workspace so long roadmaps, phase briefs, modules, and checklists stay inside the page at every supported desktop width.",
@@ -1820,6 +1823,11 @@ function loadCareer() {
           ...module,
           targetDate: module.targetDate || "",
           completedAt: module.completedAt || "",
+          topics: (Array.isArray(module.topics) ? module.topics : []).map((topic) => ({
+            ...topic,
+            targetDate: topic.targetDate || "",
+            completedAt: topic.completedAt || "",
+          })),
         })),
       })),
       activityLog: Array.isArray(parsed.activityLog) ? parsed.activityLog : [],
@@ -2129,9 +2137,9 @@ function mergeDefaults(saved, defaults) {
 }
 
 function getGlobalCloudState() {
-  if (isDemoMode()) return { state: "local", label: "Demo device", detail: "Demo data stays on this device." };
+  if (isDemoMode()) return { state: "local", label: "Demo saved", detail: "Demo data stays in this browser." };
   if (careerSyncState === "error" || (typeof actionSyncState !== "undefined" && actionSyncState === "error")) {
-    return { state: "error", label: "Cloud unavailable", detail: "Changes are safe on this device and will retry after the next edit." };
+    return { state: "error", label: "Cloud unavailable", detail: "Changes are safe in KRYOS and will retry after the next edit." };
   }
   if (careerSyncState === "saving" || (typeof actionSyncState !== "undefined" && actionSyncState === "saving")) {
     return { state: "saving", label: "Saving", detail: "Sending the latest KRYOS changes to Supabase." };
@@ -2139,7 +2147,7 @@ function getGlobalCloudState() {
   if (syncState.status === "connected" && syncState.userId) {
     return { state: "synced", label: "Cloud ready", detail: syncState.lastSyncAt ? `Last cloud save ${formatDateTime(syncState.lastSyncAt)}.` : "Signed in and ready to sync." };
   }
-  return { state: "local", label: "Device saved", detail: "Sign in through Cloud settings to sync between devices." };
+  return { state: "local", label: "Browser saved", detail: "Sign in through Cloud settings to back up this KRYOS website." };
 }
 
 function updateGlobalCloudState() {
@@ -2180,7 +2188,7 @@ function scheduleCareerCloudSync() {
   careerSyncState = "saving";
   updateCareerSyncIndicator();
   window.clearTimeout(careerSyncTimer);
-  careerSyncTimer = window.setTimeout(flushCareerCloudSync, 900);
+  careerSyncTimer = window.setTimeout(flushCareerCloudSync, 400);
 }
 
 async function flushCareerCloudSync() {
@@ -2404,10 +2412,9 @@ function careerDateDistance(fromKey, toKey) {
   return Math.round((getDateFromKey(toKey) - getDateFromKey(fromKey)) / 86400000);
 }
 
-function getModuleDeadlineState(module, todayKey = toDateKey()) {
-  const stats = getModuleStats(module);
-  const targetDate = isDateKey(module.targetDate) ? module.targetDate : "";
-  const completedDate = module.completedAt ? toDateKey(module.completedAt) : "";
+function getCareerDeadlineState(item, stats, todayKey = toDateKey()) {
+  const targetDate = isDateKey(item.targetDate) ? item.targetDate : "";
+  const completedDate = item.completedAt ? toDateKey(item.completedAt) : "";
   if (!targetDate) return { key: "unscheduled", label: "No deadline", targetDate, completedDate, days: null, score: null, stats };
   if (stats.total > 0 && stats.done === stats.total) {
     const daysLate = careerDateDistance(targetDate, completedDate || todayKey);
@@ -2421,26 +2428,48 @@ function getModuleDeadlineState(module, todayKey = toDateKey()) {
   return { key: "scheduled", label: `${daysLeft}d left`, targetDate, completedDate, days: daysLeft, score: null, stats };
 }
 
+function getModuleDeadlineState(module, todayKey = toDateKey()) {
+  return getCareerDeadlineState(module, getModuleStats(module), todayKey);
+}
+
+function getTopicDeadlineState(topic, todayKey = toDateKey()) {
+  return getCareerDeadlineState(topic, getTopicStats(topic), todayKey);
+}
+
 function getCareerDeadlineStats(todayKey = toDateKey()) {
   const modules = careerState.roadmaps.flatMap((roadmap) => roadmap.modules.map((module) => ({
+    scope: "module",
     roadmap,
     module,
+    topic: null,
     deadline: getModuleDeadlineState(module, todayKey),
   }))).filter((item) => item.deadline.targetDate);
-  const completed = modules.filter((item) => item.deadline.score !== null);
+  const topics = careerState.roadmaps.flatMap((roadmap) => roadmap.modules.flatMap((module) => module.topics.map((topic) => ({
+    scope: "topic",
+    roadmap,
+    module,
+    topic,
+    deadline: getTopicDeadlineState(topic, todayKey),
+  })))).filter((item) => item.deadline.targetDate);
+  const items = [...topics, ...modules];
+  const moduleFallbacks = modules.filter(({ module }) => !module.topics.some((topic) => isDateKey(topic.targetDate)));
+  const scoredItems = [...topics, ...moduleFallbacks];
+  const completed = scoredItems.filter((item) => item.deadline.score !== null);
   const onTime = completed.filter((item) => item.deadline.key === "on-time").length;
   const scored = completed.length ? Math.round(completed.reduce((sum, item) => sum + item.deadline.score, 0) / completed.length) : null;
-  const open = modules.filter((item) => !["on-time", "late"].includes(item.deadline.key));
+  const open = scoredItems.filter((item) => !["on-time", "late"].includes(item.deadline.key));
   const next = open.slice().sort((a, b) => a.deadline.targetDate.localeCompare(b.deadline.targetDate))[0] || null;
   return {
     modules,
+    topics,
+    items,
     completed: completed.length,
     onTime,
     onTimeRate: completed.length ? Math.round((onTime / completed.length) * 100) : null,
     deliveryScore: scored,
     overdue: open.filter((item) => item.deadline.key === "overdue").length,
     dueSoon: open.filter((item) => item.deadline.key === "due-soon").length,
-    unscheduled: careerState.roadmaps.reduce((sum, roadmap) => sum + roadmap.modules.filter((module) => !isDateKey(module.targetDate)).length, 0),
+    unscheduled: careerState.roadmaps.reduce((sum, roadmap) => sum + roadmap.modules.reduce((topicSum, module) => topicSum + module.topics.filter((topic) => !isDateKey(topic.targetDate)).length, 0), 0),
     next,
   };
 }
@@ -4029,16 +4058,17 @@ function renderCareerView() {
 
 function renderCareerDeadlinePanel(deadlines) {
   const next = deadlines.next;
-  const sorted = deadlines.modules.slice().sort((a, b) => a.deadline.targetDate.localeCompare(b.deadline.targetDate)).slice(0, 6);
+  const sorted = deadlines.items.slice().sort((a, b) => a.deadline.targetDate.localeCompare(b.deadline.targetDate)).slice(0, 8);
+  const itemTitle = (item) => item.topic?.title || item.module.title;
   return `<section class="career-section career-deadline-panel">
-    <div class="career-section-head"><div><p class="section-kicker">Delivery control</p><h2>Deadlines you can see before they become pressure.</h2><p>Scores finalize only when a dated module is completed.</p></div><span class="deadline-score ${deadlines.deliveryScore === null ? "is-empty" : ""}"><strong>${deadlines.deliveryScore ?? "—"}</strong><small>delivery score</small></span></div>
+    <div class="career-section-head"><div><p class="section-kicker">Delivery control</p><h2>Deadlines you can see before they become pressure.</h2><p>Topic dates drive the score. Module dates remain broader checkpoints.</p></div><span class="deadline-score ${deadlines.deliveryScore === null ? "is-empty" : ""}"><strong>${deadlines.deliveryScore ?? "—"}</strong><small>delivery score</small></span></div>
     <div class="deadline-command-grid">
-      <article><span>Next deadline</span><strong>${next ? escapeHtml(next.module.title) : "Nothing scheduled"}</strong><small>${next ? `${formatDateKey(next.deadline.targetDate)} · ${escapeHtml(next.deadline.label)}` : "Add dates inside roadmap edit mode"}</small></article>
-      <article class="${deadlines.overdue ? "is-danger" : ""}"><span>Overdue</span><strong>${deadlines.overdue}</strong><small>unfinished modules</small></article>
+      <article><span>Next deadline</span><strong>${next ? escapeHtml(itemTitle(next)) : "Nothing scheduled"}</strong><small>${next ? `${formatDateKey(next.deadline.targetDate)} · ${escapeHtml(next.deadline.label)}` : "Add topic dates inside roadmap edit mode"}</small></article>
+      <article class="${deadlines.overdue ? "is-danger" : ""}"><span>Overdue</span><strong>${deadlines.overdue}</strong><small>unfinished milestones</small></article>
       <article class="${deadlines.dueSoon ? "is-warning" : ""}"><span>Due in 7 days</span><strong>${deadlines.dueSoon}</strong><small>visible early warning</small></article>
       <article><span>On-time rate</span><strong>${deadlines.onTimeRate === null ? "—" : `${deadlines.onTimeRate}%`}</strong><small>${deadlines.completed} dated completions</small></article>
     </div>
-    ${sorted.length ? `<div class="deadline-lane">${sorted.map(({ roadmap, module, deadline }) => `<button type="button" data-career-select-roadmap="${roadmap.id}" class="deadline-lane-item state-${deadline.key}"><time>${formatDateKey(deadline.targetDate)}</time><span><strong>${escapeHtml(module.title)}</strong><small>${escapeHtml(roadmap.title)}</small></span><b>${deadline.stats.percent}%</b><em>${escapeHtml(deadline.label)}</em></button>`).join("")}</div>` : `<p class="career-footnote">No module deadlines yet. Open one roadmap’s pencil editor and date only the modules you intend to finish.</p>`}
+    ${sorted.length ? `<div class="deadline-lane">${sorted.map(({ scope, roadmap, module, topic, deadline }) => `<button type="button" data-career-select-roadmap="${roadmap.id}" class="deadline-lane-item state-${deadline.key}"><time>${formatDateKey(deadline.targetDate)}</time><span><strong>${escapeHtml(topic?.title || module.title)}</strong><small>${scope === "topic" ? `${escapeHtml(module.title)} · Topic` : `${escapeHtml(roadmap.title)} · Module`}</small></span><b>${deadline.stats.percent}%</b><em>${escapeHtml(deadline.label)}</em></button>`).join("")}</div>` : `<p class="career-footnote">No deadlines yet. Open a roadmap’s pencil editor and date the topics you intend to finish.</p>`}
   </section>`;
 }
 
@@ -7130,6 +7160,8 @@ function normalizeCareerDraft() {
       topic.title = String(topic.title || "").trim();
       if (!topic.title) return "Topic names cannot be empty.";
       topic.confidence = ["Low", "Medium", "High"].includes(topic.confidence) ? topic.confidence : "Low";
+      topic.targetDate = isDateKey(topic.targetDate) ? topic.targetDate : "";
+      topic.completedAt = topic.completedAt || "";
       for (const check of topic.checklist) {
         check.text = String(check.text || "").trim();
         if (!check.text) return "Checklist items cannot be empty.";
@@ -7307,6 +7339,7 @@ function renderModuleBlock(roadmap, module, isEditing) {
 
 function renderTopicBlock(roadmap, module, topic, isEditing) {
   const stats = getTopicStats(topic);
+  const deadline = getTopicDeadlineState(topic);
   return `
     <article class="topic-block">
       <div class="topic-header">
@@ -7329,6 +7362,7 @@ function renderTopicBlock(roadmap, module, topic, isEditing) {
             : `<span class="chip blue">${escapeHtml(topic.confidence)}</span>`}
         </div>
       </div>
+      ${isEditing ? `<div class="topic-deadline-editor"><label for="topic-target-${topic.id}"><span>Topic deadline</span><input id="topic-target-${topic.id}" type="date" value="${escapeHtml(topic.targetDate || "")}" data-career-field="targetDate" data-roadmap-id="${roadmap.id}" data-module-id="${module.id}" data-topic-id="${topic.id}" /></label><small>${stats.total} checklist item${stats.total === 1 ? "" : "s"}</small></div>` : deadline.targetDate ? `<div class="topic-deadline-summary state-${deadline.key}"><span>${formatDateKey(deadline.targetDate)}</span><strong>${escapeHtml(deadline.label)}</strong><small>${deadline.score === null ? `${stats.percent}% complete` : `${deadline.score}/100`}</small></div>` : ""}
       <span class="progress-track slim"><span style="width: ${stats.percent}%"></span></span>
 
       <div class="checklist-list">
@@ -7776,7 +7810,7 @@ function addCareerItem(type, dataset) {
     const module = findModule(roadmap, dataset.moduleId);
     const title = getInputValue(`new-topic-title-${dataset.moduleId}`);
     if (!module || !title) return;
-    module.topics.push({ id: createId(), title, confidence: "Low", checklist: [] });
+    module.topics.push({ id: createId(), title, confidence: "Low", targetDate: "", completedAt: "", checklist: [] });
   }
 
   if (type === "checklist") {
@@ -7844,6 +7878,24 @@ function toggleCareerCheck(dataset, checked) {
     });
   }
   if (!isDraft) {
+    const topicStats = getTopicStats(topic);
+    if (topicStats.total > 0 && topicStats.done === topicStats.total && !topic.completedAt) {
+      topic.completedAt = new Date().toISOString();
+      logCareerAction({
+        eventType: "topic-complete",
+        roadmapId: roadmap.id,
+        roadmapTitle: roadmap.title,
+        moduleId: module.id,
+        moduleTitle: module.title,
+        topicId: topic.id,
+        topicTitle: topic.title,
+        checkId: `topic:${topic.id}`,
+        checkText: `${topic.title} completed${topic.targetDate && toDateKey() <= topic.targetDate ? " on time" : ""}`,
+        targetDate: topic.targetDate || "",
+      });
+    } else if (topicStats.done < topicStats.total && topic.completedAt) {
+      topic.completedAt = "";
+    }
     const moduleStats = getModuleStats(module);
     if (moduleStats.total > 0 && moduleStats.done === moduleStats.total && !module.completedAt) {
       module.completedAt = new Date().toISOString();
