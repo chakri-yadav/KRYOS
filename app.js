@@ -15,13 +15,15 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.004.027";
+const APP_VERSION = "0.004.028";
 const APP_STAGE = "Life Execution Foundation";
 const APP_RELEASE_DATE = "2026-09-20";
 const APP_STATUS = "Topic deadlines and strict on-time Action rewards";
 const APP_NEXT_MILESTONE = "Use the deadline system before changing its weights";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Imported the reviewed September 19 Radhashtami journal across Journal, Actions, and Rhythm.",
+  "Added evidence-backed backdated Rhythm imports and correct journal-day Action completion timestamps.",
   "Added topic-level Career deadlines with automatic completion dates and topic-aware delivery scoring.",
   "Made on-time Critical and Important Actions eligible for the single capped Responsibility evidence point.",
   "Reduced Career and Actions cloud-save delay while keeping every page on one shared local state.",

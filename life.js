@@ -1,5 +1,6 @@
 /* Journal records share the existing profile-aware task block and backup path. */
 const LIFE_DOMAINS = ['Career', 'Personal tasks', 'Job applications', 'Skincare', 'Supplements', 'Food', 'Sleep', 'Mood', 'Movement', 'Spiritual practice', 'Relationships', 'Other'];
+const LIFE_RHYTHM_HABITS = new Set(['breakfast', 'lunch', 'dinner', 'protein', 'supplements', 'water', 'moisturizer', 'serum', 'eye-cream', 'sunscreen', 'exercise', 'hair-care', 'groceries', 'nama-japa', 'gita', 'chalisa', 'aditya', 'meditation', 'pranayama']);
 let lifePreview = null;
 let lifeNotice = '';
 let lifeSelectedDate = '';
@@ -38,8 +39,15 @@ function validateLifeImport(data) {
   });
   const actions = Array.isArray(data.actions) ? data.actions.map(action => normalizeImportedAction(action)) : [];
   const actionUpdates = Array.isArray(data.actionUpdates) ? data.actionUpdates.map(update => normalizeActionUpdate(update)) : [];
+  const rhythm = Array.isArray(data.rhythm) ? data.rhythm.map(item => {
+    if (!item || !LIFE_RHYTHM_HABITS.has(item.habitId)) throw new Error('Unknown Rhythm habit in assistant import.');
+    const value = Number(item.value);
+    if (!Number.isFinite(value) || value < 0 || value > 24) throw new Error('Rhythm values must be between 0 and 24.');
+    if (typeof item.evidence !== 'string' || !item.evidence.trim() || !data.text.includes(item.evidence)) throw new Error('Every Rhythm update needs an exact journal excerpt.');
+    return { habitId: item.habitId, value, evidence: item.evidence };
+  }) : [];
   const assessment = data.assessment == null ? null : normalizeDailyAssessment(data.assessment, data.date);
-  return { id: data.id.trim(), date: data.date, text: data.text, records, actions, actionUpdates, assessment };
+  return { id: data.id.trim(), date: data.date, text: data.text, records, actions, actionUpdates, rhythm, assessment };
 }
 function normalizeDailyAssessment(assessment, date) {
   if (!assessment || typeof assessment !== 'object') throw new Error('The daily assessment must be an object.');
@@ -62,7 +70,20 @@ function normalizeImportedAction(action) {
 }
 function normalizeActionUpdate(update) {
   if (!update || typeof update.id !== 'string' || !['open', 'active', 'waiting', 'done', 'archived'].includes(update.status)) throw new Error('Invalid action update.');
-  return { externalId: update.id.trim(), status: update.status };
+  const priority = ['critical', 'important', 'normal'].includes(update.priority) ? update.priority : '';
+  return { externalId: update.id.trim(), status: update.status, priority, deadline: lifeDate(update.deadline) ? update.deadline : '' };
+}
+
+function applyImportedRhythm(data) {
+  taskState.rhythm ||= { version: 1, events: [], settings: { foundationThreshold: 70, waterTarget: 3.5, exerciseTarget: 3, hairTarget: 2 } };
+  taskState.rhythm.events ||= [];
+  (data.rhythm || []).forEach(item => {
+    const existing = taskState.rhythm.events.find(event => event.habitId === item.habitId && event.date === data.date);
+    const nextValue = Math.max(Number(existing?.value || 0), item.value);
+    const next = { id: existing?.id || createId(), habitId: item.habitId, date: data.date, value: nextValue, unit: item.habitId === 'water' ? 'L' : 'completion', source: `assistant:${data.id}`, updatedAt: new Date().toISOString() };
+    if (existing) Object.assign(existing, next);
+    else taskState.rhythm.events.push(next);
+  });
 }
 function decodeAssistantImport(value) {
   const normalized=value.replace(/-/g,'+').replace(/_/g,'/');
@@ -95,7 +116,12 @@ function lifeCommit(data) {
   });
   (data.actionUpdates || []).forEach(update => {
     const action = store.actions.find(item => item.externalId === update.externalId);
-    if (action) { action.status = update.status; action.completedAt = update.status === 'done' ? new Date().toISOString() : null; }
+    if (action) {
+      action.status = update.status;
+      action.completedAt = update.status === 'done' ? `${entry.date}T12:00:00.000Z` : null;
+      if (update.priority) action.priority = update.priority;
+      if (update.deadline) action.deadline = update.deadline;
+    }
   });
   data.records.forEach(r => {
     store.records.push({ ...r, id: createId(), entryId: entry.id, date: entry.date });
@@ -104,6 +130,7 @@ function lifeCommit(data) {
       if (action) { action.status = 'done'; action.completedAt = new Date().toISOString(); }
     }
   });
+  applyImportedRhythm(data);
   if (data.assessment) upsertDailyAssessment(store, data.assessment);
   saveTasks();
 }
@@ -124,8 +151,14 @@ function reconcileLifePackage(data, existingEntry) {
   });
   (data.actionUpdates || []).forEach(update => {
     const action = store.actions.find(item => item.externalId === update.externalId);
-    if (action) { action.status = update.status; action.completedAt = update.status === 'done' ? new Date().toISOString() : null; }
+    if (action) {
+      action.status = update.status;
+      action.completedAt = update.status === 'done' ? `${existingEntry.date}T12:00:00.000Z` : null;
+      if (update.priority) action.priority = update.priority;
+      if (update.deadline) action.deadline = update.deadline;
+    }
   });
+  applyImportedRhythm(data);
   if (data.assessment) upsertDailyAssessment(store, data.assessment);
   saveTasks();
 }
