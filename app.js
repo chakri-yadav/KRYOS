@@ -15,13 +15,16 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.004.028";
+const APP_VERSION = "0.004.029";
 const APP_STAGE = "Life Execution Foundation";
-const APP_RELEASE_DATE = "2026-09-20";
-const APP_STATUS = "Topic deadlines and strict on-time Action rewards";
-const APP_NEXT_MILESTONE = "Use the deadline system before changing its weights";
+const APP_RELEASE_DATE = "2026-09-21";
+const APP_STATUS = "Canonical NeetCode 150 with separate reinforcement practice";
+const APP_NEXT_MILESTONE = "Set realistic Core deadlines module by module";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Rebuilt DSA into the exact 18-module NeetCode 150 sequence with a separate Extra Practice lane.",
+  "Preserved prior completion evidence through normalized problem matching without allowing extras to inflate Core progress.",
+  "Added dedicated Core and Extra progress signals while keeping Core progress fixed at 150 problems.",
   "Imported the reviewed September 19 Radhashtami journal across Journal, Actions, and Rhythm.",
   "Added evidence-backed backdated Rhythm imports and correct journal-day Action completion timestamps.",
   "Added topic-level Career deadlines with automatic completion dates and topic-aware delivery scoring.",
@@ -349,9 +352,9 @@ const defaultFoundation = {
   },
 };
 
-const DSA_ROADMAP_VERSION = 1;
+const DSA_ROADMAP_VERSION = 2;
 
-const DSA_ROADMAP_GROUPS = [
+const DSA_LEGACY_ROADMAP_GROUPS = [
   {
     id: "dsa-foundations",
     title: "Pattern Foundations",
@@ -619,21 +622,125 @@ const DSA_ROADMAP_GROUPS = [
   },
 ];
 
-function buildDsaRoadmapModules() {
-  return DSA_ROADMAP_GROUPS.map((group) => ({
-    id: group.id,
-    title: group.title,
-    topics: group.topics.map((topic) => ({
-      id: topic.id,
-      title: topic.title,
-      confidence: "Low",
-      checklist: topic.items.map((text, index) => ({
-        id: `${topic.id}-problem-${index + 1}`,
-        text,
-        done: false,
-      })),
-    })),
-  }));
+const DSA_NEETCODE_MODULES = [
+  { id: "arrays-hashing", title: "Arrays & Hashing", items: ["Contains Duplicate", "Valid Anagram", "Two Sum", "Group Anagrams", "Top K Frequent Elements", "Encode and Decode Strings", "Product of Array Except Self", "Valid Sudoku", "Longest Consecutive Sequence"] },
+  { id: "two-pointers", title: "Two Pointers", items: ["Valid Palindrome", "Two Sum II Input Array Is Sorted", "3Sum", "Container With Most Water", "Trapping Rain Water"] },
+  { id: "sliding-window", title: "Sliding Window", items: ["Best Time to Buy And Sell Stock", "Longest Substring Without Repeating Characters", "Longest Repeating Character Replacement", "Permutation In String", "Minimum Window Substring", "Sliding Window Maximum"] },
+  { id: "stack", title: "Stack", items: ["Valid Parentheses", "Min Stack", "Evaluate Reverse Polish Notation", "Daily Temperatures", "Car Fleet", "Largest Rectangle In Histogram"] },
+  { id: "binary-search", title: "Binary Search", items: ["Binary Search", "Search a 2D Matrix", "Koko Eating Bananas", "Find Minimum In Rotated Sorted Array", "Search In Rotated Sorted Array", "Time Based Key Value Store", "Median of Two Sorted Arrays"] },
+  { id: "linked-list", title: "Linked List", items: ["Reverse Linked List", "Merge Two Sorted Lists", "Linked List Cycle", "Reorder List", "Remove Nth Node From End of List", "Copy List With Random Pointer", "Add Two Numbers", "Find The Duplicate Number", "LRU Cache", "Merge K Sorted Lists", "Reverse Nodes In K Group"] },
+  { id: "trees", title: "Trees", items: ["Invert Binary Tree", "Maximum Depth of Binary Tree", "Diameter of Binary Tree", "Balanced Binary Tree", "Same Tree", "Subtree of Another Tree", "Lowest Common Ancestor of a Binary Search Tree", "Binary Tree Level Order Traversal", "Binary Tree Right Side View", "Count Good Nodes In Binary Tree", "Validate Binary Search Tree", "Kth Smallest Element In a Bst", "Construct Binary Tree From Preorder And Inorder Traversal", "Binary Tree Maximum Path Sum", "Serialize And Deserialize Binary Tree"] },
+  { id: "heap-priority-queue", title: "Heap / Priority Queue", items: ["Kth Largest Element In a Stream", "Last Stone Weight", "K Closest Points to Origin", "Kth Largest Element In An Array", "Task Scheduler", "Design Twitter", "Find Median From Data Stream"] },
+  { id: "backtracking", title: "Backtracking", items: ["Subsets", "Combination Sum", "Combination Sum II", "Permutations", "Subsets II", "Generate Parentheses", "Word Search", "Palindrome Partitioning", "Letter Combinations of a Phone Number", "N Queens"] },
+  { id: "tries", title: "Tries", items: ["Implement Trie Prefix Tree", "Design Add And Search Words Data Structure", "Word Search II"] },
+  { id: "graphs", title: "Graphs", items: ["Number of Islands", "Max Area of Island", "Clone Graph", "Walls And Gates", "Rotting Oranges", "Pacific Atlantic Water Flow", "Surrounded Regions", "Course Schedule", "Course Schedule II", "Graph Valid Tree", "Number of Connected Components In An Undirected Graph", "Redundant Connection", "Word Ladder"] },
+  { id: "advanced-graphs", title: "Advanced Graphs", items: ["Network Delay Time", "Reconstruct Itinerary", "Min Cost to Connect All Points", "Swim In Rising Water", "Alien Dictionary", "Cheapest Flights Within K Stops"] },
+  { id: "1d-dynamic-programming", title: "1-D Dynamic Programming", items: ["Climbing Stairs", "Min Cost Climbing Stairs", "House Robber", "House Robber II", "Longest Palindromic Substring", "Palindromic Substrings", "Decode Ways", "Coin Change", "Maximum Product Subarray", "Word Break", "Longest Increasing Subsequence", "Partition Equal Subset Sum"] },
+  { id: "2d-dynamic-programming", title: "2-D Dynamic Programming", items: ["Unique Paths", "Longest Common Subsequence", "Best Time to Buy And Sell Stock With Cooldown", "Coin Change II", "Target Sum", "Interleaving String", "Longest Increasing Path In a Matrix", "Distinct Subsequences", "Edit Distance", "Burst Balloons", "Regular Expression Matching"] },
+  { id: "greedy", title: "Greedy", items: ["Maximum Subarray", "Jump Game", "Jump Game II", "Gas Station", "Hand of Straights", "Merge Triplets to Form Target Triplet", "Partition Labels", "Valid Parenthesis String"] },
+  { id: "intervals", title: "Intervals", items: ["Insert Interval", "Merge Intervals", "Non Overlapping Intervals", "Meeting Rooms", "Meeting Rooms II", "Minimum Interval to Include Each Query"] },
+  { id: "math-geometry", title: "Math & Geometry", items: ["Rotate Image", "Spiral Matrix", "Set Matrix Zeroes", "Happy Number", "Plus One", "Pow(x, n)", "Multiply Strings", "Detect Squares"] },
+  { id: "bit-manipulation", title: "Bit Manipulation", items: ["Single Number", "Number of 1 Bits", "Counting Bits", "Reverse Bits", "Missing Number", "Sum of Two Integers", "Reverse Integer"] },
+];
+
+const DSA_PROBLEM_ALIASES = {
+  "two sum ii sorted": "two sum ii input array is sorted",
+  "validate bst": "validate binary search tree",
+  "kth smallest in bst": "kth smallest element in a bst",
+  "lca of bst": "lowest common ancestor of a binary search tree",
+  "maximum path sum": "binary tree maximum path sum",
+  "kth largest in a stream": "kth largest element in a stream",
+};
+
+function dsaProblemKey(value) {
+  const title = String(value || "").split(" - ")[0].replace(/&/g, " and ");
+  const key = title.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  return DSA_PROBLEM_ALIASES[key] || key;
+}
+
+function dsaLegacyDestination(topicTitle, itemText = "") {
+  const title = String(topicTitle || "").toLowerCase();
+  const text = String(itemText || "").toLowerCase();
+  if (title.includes("two pointer")) return "two-pointers";
+  if (title.includes("sliding")) return "sliding-window";
+  if (title.includes("binary search")) return "binary-search";
+  if (title.includes("linked")) return "linked-list";
+  if (title.includes("stack")) return "stack";
+  if (title.includes("tree")) return "trees";
+  if (title.includes("graph")) return "graphs";
+  if (title.includes("heap")) return "heap-priority-queue";
+  if (title.includes("backtracking")) return "backtracking";
+  if (title.includes("bit")) return "bit-manipulation";
+  if (title.includes("dynamic")) return "1d-dynamic-programming";
+  if (title.includes("greedy") || title.includes("interval")) {
+    return /interval|meeting room|arrows/.test(text) ? "intervals" : "greedy";
+  }
+  return "arrays-hashing";
+}
+
+function collectDsaSourceItems(existingRoadmap = null) {
+  const items = [];
+  DSA_LEGACY_ROADMAP_GROUPS.forEach((group) => group.topics.forEach((topic) => topic.items.forEach((text) => items.push({ text, topicTitle: topic.title, done: false }))));
+  (existingRoadmap?.modules || []).forEach((module) => (module.topics || []).forEach((topic) => (topic.checklist || []).forEach((check) => items.push({
+    text: check.text,
+    topicTitle: topic.title,
+    done: Boolean(check.done),
+    confidence: topic.confidence,
+  }))));
+  return items;
+}
+
+function buildDsaRoadmapModules(existingRoadmap = null) {
+  const sourceItems = collectDsaSourceItems(existingRoadmap);
+  const evidence = new Map();
+  sourceItems.forEach((item) => {
+    const key = dsaProblemKey(item.text);
+    const prior = evidence.get(key);
+    if (!prior || item.done) evidence.set(key, item);
+  });
+  const coreDestination = new Map();
+  DSA_NEETCODE_MODULES.forEach((module) => module.items.forEach((text) => coreDestination.set(dsaProblemKey(text), module.id)));
+  const extrasByModule = new Map(DSA_NEETCODE_MODULES.map((module) => [module.id, []]));
+  const seenExtras = new Set();
+  sourceItems.forEach((item) => {
+    const key = dsaProblemKey(item.text);
+    if (!key || coreDestination.has(key) || seenExtras.has(key)) return;
+    seenExtras.add(key);
+    const destination = dsaLegacyDestination(item.topicTitle, item.text);
+    extrasByModule.get(destination)?.push({ ...item, key });
+  });
+
+  return DSA_NEETCODE_MODULES.map((module) => {
+    const coreTopicId = `dsa-${module.id}-core`;
+    const extraTopicId = `dsa-${module.id}-extras`;
+    const extras = extrasByModule.get(module.id) || [];
+    return {
+      id: `dsa-module-${module.id}`,
+      title: module.title,
+      targetDate: "",
+      completedAt: "",
+      topics: [
+        {
+          id: coreTopicId,
+          title: "NeetCode 150 Core",
+          lane: "core",
+          confidence: "Low",
+          targetDate: "",
+          completedAt: "",
+          checklist: module.items.map((text, index) => ({ id: `${coreTopicId}-${index + 1}`, text, done: Boolean(evidence.get(dsaProblemKey(text))?.done) })),
+        },
+        {
+          id: extraTopicId,
+          title: "Extra Practice",
+          lane: "extra",
+          confidence: "Low",
+          targetDate: "",
+          completedAt: "",
+          checklist: extras.map((item, index) => ({ id: `${extraTopicId}-${index + 1}`, text: item.text, done: Boolean(evidence.get(item.key)?.done) })),
+        },
+      ],
+    };
+  });
 }
 
 function migrateDsaRoadmap(nextCareerState) {
@@ -648,9 +755,10 @@ function migrateDsaRoadmap(nextCareerState) {
     nextCareerState.roadmaps.unshift(roadmap);
   }
 
-  roadmap.purpose = "Master 163 interview problems through a structured, topic-by-topic practice path.";
+  const existingRoadmap = structuredClone(roadmap);
+  roadmap.purpose = "Complete the NeetCode 150 in its canonical order, then use preserved extra problems for reinforcement.";
   roadmap.targetDate = roadmap.targetDate || "";
-  roadmap.modules = buildDsaRoadmapModules();
+  roadmap.modules = buildDsaRoadmapModules(existingRoadmap);
   nextCareerState.meta.dsaRoadmapVersion = DSA_ROADMAP_VERSION;
   nextCareerState.meta.updatedAt = new Date().toISOString();
   return true;
@@ -4076,6 +4184,16 @@ function renderCareerDeadlinePanel(deadlines) {
 
 function getNextCareerItem(roadmap) {
   if (!roadmap) return null;
+  if (isDsaRoadmap(roadmap)) {
+    for (const lane of ["core", "extra"]) {
+      for (const module of roadmap.modules) {
+        for (const topic of module.topics.filter((item) => item.lane === lane)) {
+          const item = topic.checklist.find((check) => !check.done);
+          if (item) return { module, topic, item };
+        }
+      }
+    }
+  }
   for (const module of roadmap.modules) {
     for (const topic of module.topics) {
       const item = topic.checklist.find((check) => !check.done);
@@ -4083,6 +4201,19 @@ function getNextCareerItem(roadmap) {
     }
   }
   return null;
+}
+
+function isDsaRoadmap(roadmap) {
+  return String(roadmap?.title || "").trim().toLowerCase() === "dsa roadmap";
+}
+
+function getDsaLaneStats(roadmap) {
+  const laneStats = (lane) => {
+    const checks = roadmap.modules.flatMap((module) => module.topics.filter((topic) => topic.lane === lane).flatMap((topic) => topic.checklist));
+    const done = checks.filter((check) => check.done).length;
+    return { done, total: checks.length, percent: checks.length ? Math.round((done / checks.length) * 100) : 0 };
+  };
+  return { core: laneStats("core"), extra: laneStats("extra") };
 }
 
 function getCareerWeekPulse() {
@@ -4115,15 +4246,27 @@ function renderCareerPortfolioRow(roadmap) {
   const stats = getRoadmapStats(roadmap);
   const confidence = getCareerConfidence([roadmap]);
   const next = getNextCareerItem(roadmap);
-  return `<button class="career-portfolio-row ${roadmap.id === selectedRoadmapId ? "is-selected" : ""}" type="button" data-career-select-roadmap="${roadmap.id}"><span class="career-portfolio-name"><strong>${escapeHtml(roadmap.title)}</strong><em>${next ? escapeHtml(next.module.title) : "Coverage complete"}</em></span><span class="career-portfolio-bars"><i><u style="width:${stats.percent}%"></u></i><small>${stats.percent}% coverage · ${confidence}% confidence</small></span><b>${stats.done}/${stats.total}</b>${careerIcon("arrow")}</button>`;
+  const dsa = isDsaRoadmap(roadmap) ? getDsaLaneStats(roadmap) : null;
+  const progress = dsa?.core || stats;
+  const detail = dsa ? `${dsa.core.percent}% core · ${dsa.extra.done}/${dsa.extra.total} extra` : `${stats.percent}% coverage · ${confidence}% confidence`;
+  return `<button class="career-portfolio-row ${roadmap.id === selectedRoadmapId ? "is-selected" : ""}" type="button" data-career-select-roadmap="${roadmap.id}"><span class="career-portfolio-name"><strong>${escapeHtml(roadmap.title)}</strong><em>${next ? escapeHtml(next.module.title) : "Coverage complete"}</em></span><span class="career-portfolio-bars"><i><u style="width:${progress.percent}%"></u></i><small>${detail}</small></span><b>${progress.done}/${progress.total}</b>${careerIcon("arrow")}</button>`;
 }
 
 function renderCareerJourney(roadmap) {
   return `<div class="career-journey">${roadmap.modules.map((module, moduleIndex) => {
-    const stats = getModuleStats(module);
-    const active = stats.done < stats.total && roadmap.modules.slice(0, moduleIndex).every((item) => getModuleStats(item).percent === 100);
+    const moduleStats = getModuleStats(module);
+    const coreTopic = module.topics.find((topic) => topic.lane === "core");
+    const extraTopic = module.topics.find((topic) => topic.lane === "extra");
+    const stats = isDsaRoadmap(roadmap) && coreTopic ? getTopicStats(coreTopic) : moduleStats;
+    const priorComplete = roadmap.modules.slice(0, moduleIndex).every((item) => {
+      if (!isDsaRoadmap(roadmap)) return getModuleStats(item).percent === 100;
+      const priorCore = item.topics.find((topic) => topic.lane === "core");
+      return priorCore ? getTopicStats(priorCore).percent === 100 : true;
+    });
+    const active = stats.done < stats.total && priorComplete;
     const deadline = getModuleDeadlineState(module);
-    return `<article class="career-journey-module ${stats.percent === 100 ? "is-complete" : active ? "is-current" : ""}"><div class="journey-node">${stats.percent === 100 ? careerIcon("done") : moduleIndex + 1}</div><div><span>Module ${moduleIndex + 1}</span><strong>${escapeHtml(module.title)}</strong><em>${stats.done}/${stats.total} steps · ${stats.percent}%</em>${deadline.targetDate ? `<small class="module-deadline state-${deadline.key}">${formatDateKey(deadline.targetDate)} · ${escapeHtml(deadline.label)}</small>` : ""}</div><div class="journey-topics">${module.topics.map((topic) => { const topicStats = getTopicStats(topic); return `<span class="${topicStats.percent === 100 ? "is-complete" : ""}">${escapeHtml(topic.title)} <b>${topicStats.percent}%</b></span>`; }).join("")}</div></article>`;
+    const extraStats = extraTopic ? getTopicStats(extraTopic) : null;
+    return `<article class="career-journey-module ${stats.percent === 100 ? "is-complete" : active ? "is-current" : ""}"><div class="journey-node">${stats.percent === 100 ? careerIcon("done") : moduleIndex + 1}</div><div><span>Module ${moduleIndex + 1}</span><strong>${escapeHtml(module.title)}</strong><em>${stats.done}/${stats.total} core · ${stats.percent}%${extraStats ? ` · ${extraStats.done}/${extraStats.total} extra` : ""}</em>${deadline.targetDate ? `<small class="module-deadline state-${deadline.key}">${formatDateKey(deadline.targetDate)} · ${escapeHtml(deadline.label)}</small>` : ""}</div><div class="journey-topics">${module.topics.map((topic) => { const topicStats = getTopicStats(topic); return `<span class="${topicStats.percent === 100 ? "is-complete" : ""}">${escapeHtml(topic.title)} <b>${topicStats.percent}%</b></span>`; }).join("")}</div></article>`;
   }).join("")}</div>`;
 }
 
@@ -7230,6 +7373,7 @@ function renderRoadmapDetail(roadmap) {
   const isEditing = editingCareerRoadmapId === roadmap.id;
   const editorRoadmap = isEditing && careerEditorDraft?.id === roadmap.id ? careerEditorDraft : roadmap;
   const stats = getRoadmapStats(editorRoadmap);
+  const dsa = isDsaRoadmap(editorRoadmap) ? getDsaLaneStats(editorRoadmap) : null;
   return `
     <section class="section-card career-detail ${isEditing ? "is-editing" : ""}">
       <div class="section-header career-detail-header">
@@ -7261,6 +7405,8 @@ function renderRoadmapDetail(roadmap) {
       </div>
 
       ${careerEditorNotice ? `<p class="security-notice inline">${escapeHtml(careerEditorNotice)}</p>` : ""}
+
+      ${dsa ? `<div class="dsa-lane-summary"><article><span>NeetCode 150 Core</span><strong>${dsa.core.done}<small>/150</small></strong><i><u style="width:${dsa.core.percent}%"></u></i><p>Canonical interview path</p></article><article><span>Extra Practice</span><strong>${dsa.extra.done}<small>/${dsa.extra.total}</small></strong><i><u style="width:${dsa.extra.percent}%"></u></i><p>Reinforcement after core coverage</p></article></div>` : ""}
 
       <div class="form-grid two career-roadmap-meta">
         ${isEditing
