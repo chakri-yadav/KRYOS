@@ -2,6 +2,16 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.029 - NeetCode 150 Architecture
+
+- Reorganized DSA into the canonical 18 NeetCode 150 modules and exact 150-problem Core path.
+- Added a separate Extra Practice topic to every module and preserved 72 unique problems from the previous roadmap.
+- Prevented extras from inflating the NeetCode `x/150` completion score.
+- Preserved existing completion evidence through normalized names and aliases such as `LCA of BST`.
+- Prioritized unfinished Core problems globally before suggesting Extra Practice.
+- Added separate Core and Extra progress visuals in the portfolio, roadmap header, and module journey.
+- Retained topic and module deadline support inside the new structure without requiring a Supabase schema change.
+
 ## 0.004.028 - Reviewed September 19 Journal
 
 - Imported the reviewed September 19 Radhashtami journal as an encrypted, idempotent assistant package.
