@@ -46,6 +46,17 @@ const assert = require('node:assert/strict');
     await page.getByRole('button', { name: 'Save changes' }).click();
     assert.equal(await page.getByText('Renew important document safely', { exact: true }).count(), 1);
 
+    await page.setViewportSize({ width: 430, height: 932 });
+    assert.equal(await page.locator('#actions-view').evaluate(element => element.scrollWidth <= element.clientWidth), true);
+    assert.equal(await page.locator('.action-toolbar').evaluate(element => getComputedStyle(element).position), 'sticky');
+    assert.equal(await page.locator('.action-add summary').evaluate(element => element.getBoundingClientRect().height >= 44), true);
+    assert.equal(await page.locator('.action-check').first().evaluate(element => element.getBoundingClientRect().width >= 44 && element.getBoundingClientRect().height >= 44), true);
+    assert.equal(await page.locator('.action-controls select').first().evaluate(element => element.getBoundingClientRect().height >= 44), true);
+    await page.locator('.action-add summary').click();
+    assert.equal(await page.locator('#action-add-form').evaluate(element => element.scrollWidth <= element.clientWidth), true);
+    await page.locator('.action-add summary').click();
+    await page.setViewportSize({ width: 1440, height: 1000 });
+
     await page.getByRole('button', { name: 'Inner Command', exact: true }).first().click();
     await page.locator('#life-draft').fill('A focused journal test.');
     await page.getByRole('button', { name: 'Save to timeline', exact: true }).click();

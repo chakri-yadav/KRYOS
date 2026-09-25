@@ -61,6 +61,23 @@ alter table public.kryos_sync_blocks enable row level security;
 alter table public.kryos_reward_awards enable row level security;
 alter table public.kryos_reward_redemptions enable row level security;
 
+-- Live cross-device freshness for the block store. Safe to rerun.
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_publication_tables
+    where pubname = 'supabase_realtime'
+      and schemaname = 'public'
+      and tablename = 'kryos_sync_blocks'
+  ) then
+    alter publication supabase_realtime add table public.kryos_sync_blocks;
+  end if;
+exception
+  when undefined_object then
+    raise notice 'supabase_realtime publication is unavailable; KRYOS will use its five-second foreground fallback.';
+end $$;
+
 drop policy if exists "kryos_reward_awards_select_own" on public.kryos_reward_awards;
 create policy "kryos_reward_awards_select_own" on public.kryos_reward_awards for select to authenticated
 using (exists (select 1 from public.kryos_profiles p where p.id = profile_id and p.user_id = auth.uid()));
