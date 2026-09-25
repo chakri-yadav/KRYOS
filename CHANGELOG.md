@@ -2,6 +2,12 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.004.030 - Multi-day Journal and Containment Import
+
+- Imported the September 20–24 journal entries with backdated health, spiritual, and activity evidence.
+- Added assistant-import support for 45-day containment kept/breach records.
+- Recorded Thursday's astrology and social-feed breach honestly without treating anxiety as a breach.
+
 ## 0.004.029 - NeetCode 150 Architecture
 
 - Reorganized DSA into the canonical 18 NeetCode 150 modules and exact 150-problem Core path.
