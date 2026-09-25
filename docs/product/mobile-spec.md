@@ -69,6 +69,7 @@ small utility surface. They are services, not primary destinations.
 - `0.5.7` — conflict-safe freshness, resume behavior, and premium iPhone shell.
 - `0.5.8` — complete Career read mode and premium roadmap interaction.
 - `0.5.9` — premium mobile Actions and near-live cross-device freshness.
+- `0.5.10` — blank/stale-phone cloud recovery with per-section version checkpoints.
 
 Each milestone must have its own release document and pass the release
 governance Definition of Done before the next one begins.

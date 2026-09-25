@@ -15,13 +15,16 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.5.9";
-const APP_STAGE = "Mobile Actions and Live Sync";
+const APP_VERSION = "0.5.10";
+const APP_STAGE = "Cross-device Recovery";
 const APP_RELEASE_DATE = "2026-09-25";
-const APP_STATUS = "Fast mobile action capture with conflict-safe cross-device freshness";
+const APP_STATUS = "Reliable desktop-to-phone recovery with per-section cloud freshness";
 const APP_NEXT_MILESTONE = "Set realistic Core deadlines module by module";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Fixed fresh phones incorrectly treating empty starter Career data as newer than completed desktop progress.",
+  "Added per-section cloud version tracking so Career, Actions, Journal, and Foundation sync independently.",
+  "Added monotonic Career recovery so a more-complete cloud roadmap safely restores a stale or blank phone.",
   "Rebuilt Actions mobile for compact one-handed capture, scanning, status changes, editing, and completion.",
   "Added Supabase realtime listening with a 15-second visible-page fallback freshness check.",
   "Applied safe remote updates in place without a disruptive page reload and preserved local changes on conflict.",
@@ -1884,6 +1887,7 @@ function createDefaultSyncState(overrides = {}) {
     lastAttemptAt: null,
     lastReadinessAt: null,
     conflictCount: 0,
+    remoteBlockVersions: {},
     remoteProfileId: "",
     endpointConfigured: false,
     userEmail: "",
@@ -1910,6 +1914,9 @@ function normalizeSyncState(saved = {}) {
     lastAttemptAt: saved.lastAttemptAt || null,
     lastReadinessAt: saved.lastReadinessAt || null,
     conflictCount: Number.isFinite(Number(saved.conflictCount)) ? Number(saved.conflictCount) : 0,
+    remoteBlockVersions: saved.remoteBlockVersions && typeof saved.remoteBlockVersions === "object"
+      ? saved.remoteBlockVersions
+      : {},
     remoteProfileId: saved.remoteProfileId || "",
     endpointConfigured: Boolean(saved.endpointConfigured),
     userEmail: saved.userEmail || "",
@@ -2338,7 +2345,18 @@ async function flushCareerCloudSync() {
     const careerBlock = getSyncBlockPayloads().find((block) => block.block_key === "career");
     const { error } = await client.from("kryos_sync_blocks").upsert([{ ...careerBlock, profile_id: profileId, updated_at: new Date().toISOString() }], { onConflict: "profile_id,block_key" });
     if (error) throw error;
-    syncState = { ...syncState, enabled: true, endpointConfigured: true, status: "connected", lastSyncAt: new Date().toISOString(), lastAttemptAt: new Date().toISOString(), remoteProfileId: profileId, userEmail: session.user.email || syncState.userEmail, userId: session.user.id };
+    syncState = {
+      ...syncState,
+      enabled: true,
+      endpointConfigured: true,
+      status: "connected",
+      lastSyncAt: new Date().toISOString(),
+      lastAttemptAt: new Date().toISOString(),
+      remoteBlockVersions: { ...syncState.remoteBlockVersions, career: careerBlock.payload_updated_at },
+      remoteProfileId: profileId,
+      userEmail: session.user.email || syncState.userEmail,
+      userId: session.user.id,
+    };
     saveSyncState();
     careerSyncState = "synced";
   } catch (error) {
@@ -6769,6 +6787,7 @@ async function pushToSupabase() {
       status: "connected",
       lastSyncAt: new Date().toISOString(),
       lastAttemptAt: new Date().toISOString(),
+      remoteBlockVersions: Object.fromEntries(rows.map((row) => [row.block_key, row.payload_updated_at])),
       remoteProfileId: profileId,
       userEmail: session.user.email || syncState.userEmail,
       userId: session.user.id,
@@ -6804,6 +6823,24 @@ function isAfter(left, right) {
   return new Date(left).getTime() > new Date(right).getTime();
 }
 
+function getSyncEvidenceScore(blockKey, payload) {
+  if (!payload || typeof payload !== "object") return 0;
+  if (blockKey === "career") {
+    const completed = (payload.roadmaps || []).reduce((roadmapTotal, roadmap) => roadmapTotal
+      + (roadmap.modules || []).reduce((moduleTotal, module) => moduleTotal
+        + (module.topics || []).reduce((topicTotal, topic) => topicTotal
+          + (topic.checklist || []).filter((item) => item.done).length, 0), 0), 0);
+    return (completed * 1000) + (payload.activityLog || []).length;
+  }
+  if (blockKey === "tasks") {
+    const actions = payload.life?.actions || payload.actions || [];
+    const completedActions = actions.filter((action) => action.status === "done").length;
+    return (actions.length * 100) + completedActions;
+  }
+  if (blockKey === "journal") return Object.keys(payload.entries || {}).length;
+  return 0;
+}
+
 async function refreshCloudData({ automatic = false } = {}) {
   if (isDemoMode()) return { updated: 0, conflicts: 0 };
   if (cloudFreshnessRunning) return { updated: 0, conflicts: 0, busy: true };
@@ -6823,21 +6860,33 @@ async function refreshCloudData({ automatic = false } = {}) {
       .eq("profile_id", profileId);
     if (error) throw error;
     const safeKeys = new Set(["foundation", "career", "tasks", "journal"]);
+    const localPreview = createSyncPayloadPreview();
+    const nextRemoteBlockVersions = { ...syncState.remoteBlockVersions };
     let updated = 0;
     let conflicts = 0;
     const updatedKeys = [];
     for (const row of Array.isArray(data) ? data : []) {
       if (!safeKeys.has(row.block_key) || Number(row.schema_version) > KRYOS_SYNC_SCHEMA_VERSION) continue;
       const remoteAt = row.payload_updated_at || row.updated_at;
-      const localAt = getLocalSyncBlockUpdatedAt(row.block_key);
-      if (!isAfter(remoteAt, localAt)) continue;
-      const localChangedSinceSync = isAfter(localAt, syncState.lastSyncAt);
-      const remoteChangedSinceSync = isAfter(remoteAt, syncState.lastSyncAt);
-      if (localChangedSinceSync && remoteChangedSinceSync) {
+      const block = SYNC_BLOCKS.find((item) => item.key === row.block_key);
+      const payloadKey = block?.payloadKey || row.block_key;
+      const localBlock = localPreview.blocks[payloadKey];
+      const localAt = localBlock?.updatedAt || null;
+      const knownRemoteAt = syncState.remoteBlockVersions?.[row.block_key] || null;
+      const localEvidence = getSyncEvidenceScore(row.block_key, localBlock?.value);
+      const remoteEvidence = getSyncEvidenceScore(row.block_key, row.payload);
+      const recoveryFromStaleLocal = !knownRemoteAt && remoteEvidence > localEvidence;
+      const remoteAdvanced = isAfter(remoteAt, knownRemoteAt);
+      if (!recoveryFromStaleLocal && !remoteAdvanced) continue;
+      const localChangedSinceRemote = knownRemoteAt
+        ? isAfter(localAt, knownRemoteAt)
+        : localEvidence > 0;
+      if (localChangedSinceRemote && remoteAdvanced && !recoveryFromStaleLocal) {
         conflicts += 1;
         continue;
       }
       applyRemoteBlock(row.block_key, row.payload);
+      nextRemoteBlockVersions[row.block_key] = remoteAt;
       updated += 1;
       updatedKeys.push(row.block_key);
     }
@@ -6847,6 +6896,7 @@ async function refreshCloudData({ automatic = false } = {}) {
       lastAttemptAt: new Date().toISOString(),
       lastSyncAt: updated ? new Date().toISOString() : syncState.lastSyncAt,
       conflictCount: conflicts,
+      remoteBlockVersions: nextRemoteBlockVersions,
       remoteProfileId: profileId,
       userEmail: session.user.email || syncState.userEmail,
       userId: session.user.id,
@@ -6861,7 +6911,10 @@ async function refreshCloudData({ automatic = false } = {}) {
     }
     if (updated) {
       if (updatedKeys.includes("foundation")) state = loadFoundation();
-      if (updatedKeys.includes("career")) careerState = loadCareer();
+      if (updatedKeys.includes("career")) {
+        careerState = loadCareer();
+        careerSyncState = "synced";
+      }
       if (updatedKeys.includes("tasks")) {
         taskState = loadTasks();
         if (typeof actionSyncState !== "undefined") actionSyncState = "synced";
@@ -6921,7 +6974,7 @@ async function pullFromSupabase() {
     const profileId = await ensureSupabaseProfile(session);
     const { data, error } = await client
       .from("kryos_sync_blocks")
-      .select("block_key,payload")
+      .select("block_key,payload,payload_updated_at,updated_at")
       .eq("profile_id", profileId);
     if (error) throw error;
     if (!Array.isArray(data) || !data.length) {
@@ -6937,6 +6990,7 @@ async function pullFromSupabase() {
       status: "connected",
       lastSyncAt: new Date().toISOString(),
       lastAttemptAt: new Date().toISOString(),
+      remoteBlockVersions: Object.fromEntries(data.map((row) => [row.block_key, row.payload_updated_at || row.updated_at])),
       remoteProfileId: profileId,
       userEmail: session.user.email || syncState.userEmail,
       userId: session.user.id,
