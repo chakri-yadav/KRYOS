@@ -2,6 +2,15 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.5.9 - Mobile Actions and Live Sync
+
+- Reworked Actions mobile into a compact one-handed capture and update surface.
+- Corrected the mobile action-card grid so 44-point completion controls no longer collide with action content.
+- Added clearer live, saving, synchronized, and offline language.
+- Added Supabase realtime block listening with an immediate page-entry check and five-second visible-page fallback.
+- Applied safe remote blocks in memory without a disruptive page reload.
+- Preserved locally changed blocks when the remote copy also changed.
+
 ## 0.5.8 - Mobile Career Read Mode
 
 - Restored the full selected Career roadmap on mobile: purpose, target, modules, topics, confidence, deadlines, progress, and checklist items.

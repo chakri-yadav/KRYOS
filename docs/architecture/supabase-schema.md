@@ -80,6 +80,14 @@ alter table public.kryos_sync_blocks enable row level security;
 alter table public.kryos_sync_conflicts enable row level security;
 ```
 
+## Realtime publication
+
+`public.kryos_sync_blocks` must be included in the `supabase_realtime`
+publication for immediate phone-to-computer change notifications. The canonical
+`supabase-schema.sql` adds it idempotently. KRYOS also checks on core-page entry
+and every five seconds while visible, so freshness does not depend exclusively
+on the realtime channel.
+
 Policy rule shape:
 
 - profile rows: `user_id = auth.uid()`

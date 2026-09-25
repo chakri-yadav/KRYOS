@@ -15,13 +15,16 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.5.8";
-const APP_STAGE = "Mobile Career Read Mode";
+const APP_VERSION = "0.5.9";
+const APP_STAGE = "Mobile Actions and Live Sync";
 const APP_RELEASE_DATE = "2026-09-25";
-const APP_STATUS = "Complete, readable, and touch-safe iPhone career execution";
+const APP_STATUS = "Fast mobile action capture with conflict-safe cross-device freshness";
 const APP_NEXT_MILESTONE = "Set realistic Core deadlines module by module";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Rebuilt Actions mobile for compact one-handed capture, scanning, status changes, editing, and completion.",
+  "Added Supabase realtime listening with a 15-second visible-page fallback freshness check.",
+  "Applied safe remote updates in place without a disruptive page reload and preserved local changes on conflict.",
   "Restored the complete Career roadmap read mode on mobile, including modules, topics, deadlines, confidence, progress, and every completion checkbox.",
   "Added a compact Career section navigator for Now, Deadlines, Roadmaps, and Full plan.",
   "Removed mobile editing and creation noise while preserving reversible complete and incomplete actions with cloud sync.",
@@ -1182,6 +1185,9 @@ let lockTimer = null;
 let lastSecurityActivityWrite = 0;
 let securityNotice = "";
 let syncNotice = "";
+let cloudFreshnessChannel = null;
+let cloudFreshnessPollTimer = null;
+let cloudFreshnessRunning = false;
 let recoveryMode = false;
 let focusTicker = null;
 let activeFocus = null;
@@ -3518,6 +3524,7 @@ function setPage(nextPage) {
     button.classList.toggle("is-active", button.dataset.page === currentPage);
   });
   render();
+  if (["actions", "career", "rhythm", "journal"].includes(nextPage)) refreshCloudData({ automatic: true });
 }
 
 function setFieldTab(nextTab) {
@@ -6799,8 +6806,13 @@ function isAfter(left, right) {
 
 async function refreshCloudData({ automatic = false } = {}) {
   if (isDemoMode()) return { updated: 0, conflicts: 0 };
+  if (cloudFreshnessRunning) return { updated: 0, conflicts: 0, busy: true };
+  cloudFreshnessRunning = true;
   const session = await refreshSyncAuthState({ silent: true });
-  if (!session) return { updated: 0, conflicts: 0 };
+  if (!session) {
+    cloudFreshnessRunning = false;
+    return { updated: 0, conflicts: 0 };
+  }
   setMobileRefreshState("refreshing", "Checking cloud for fresh data");
   try {
     const client = getSupabaseClient();
@@ -6813,6 +6825,7 @@ async function refreshCloudData({ automatic = false } = {}) {
     const safeKeys = new Set(["foundation", "career", "tasks", "journal"]);
     let updated = 0;
     let conflicts = 0;
+    const updatedKeys = [];
     for (const row of Array.isArray(data) ? data : []) {
       if (!safeKeys.has(row.block_key) || Number(row.schema_version) > KRYOS_SYNC_SCHEMA_VERSION) continue;
       const remoteAt = row.payload_updated_at || row.updated_at;
@@ -6826,6 +6839,7 @@ async function refreshCloudData({ automatic = false } = {}) {
       }
       applyRemoteBlock(row.block_key, row.payload);
       updated += 1;
+      updatedKeys.push(row.block_key);
     }
     syncState = {
       ...syncState,
@@ -6846,8 +6860,14 @@ async function refreshCloudData({ automatic = false } = {}) {
       setMobileRefreshState("idle", syncNotice);
     }
     if (updated) {
-      sessionStorage.setItem("kryos-fresh-reload", String(Date.now()));
-      window.location.reload();
+      if (updatedKeys.includes("foundation")) state = loadFoundation();
+      if (updatedKeys.includes("career")) careerState = loadCareer();
+      if (updatedKeys.includes("tasks")) {
+        taskState = loadTasks();
+        if (typeof actionSyncState !== "undefined") actionSyncState = "synced";
+      }
+      if (updatedKeys.includes("journal")) journalState = loadJournal();
+      render();
     } else if (!automatic && currentPage === "settings") {
       render();
     }
@@ -6860,7 +6880,33 @@ async function refreshCloudData({ automatic = false } = {}) {
     setMobileRefreshState("idle", "Cloud unavailable. Local data is safe.");
     updateGlobalCloudState();
     return { updated: 0, conflicts: 0, error };
+  } finally {
+    cloudFreshnessRunning = false;
   }
+}
+
+async function startCloudFreshnessMonitor(session) {
+  if (!session || isDemoMode()) return;
+  const client = getSupabaseClient();
+  if (!client) return;
+  const profileId = await ensureSupabaseProfile(session);
+  if (!cloudFreshnessChannel && typeof client.channel === "function") {
+    cloudFreshnessChannel = client
+      .channel(`kryos-freshness-${profileId}`)
+      .on("postgres_changes", {
+        event: "*",
+        schema: "public",
+        table: "kryos_sync_blocks",
+        filter: `profile_id=eq.${profileId}`,
+      }, () => {
+        if (document.visibilityState === "visible") refreshCloudData({ automatic: true });
+      })
+      .subscribe();
+  }
+  window.clearInterval(cloudFreshnessPollTimer);
+  cloudFreshnessPollTimer = window.setInterval(() => {
+    if (document.visibilityState === "visible") refreshCloudData({ automatic: true });
+  }, 5000);
 }
 
 async function pullFromSupabase() {
@@ -9514,10 +9560,10 @@ if (isSecurityUnlocked) touchSecuritySession(true);
 render();
 renderSecurityOverlay();
 resetLockTimer();
-refreshSyncAuthState({ silent: true }).then(() => {
+refreshSyncAuthState({ silent: true }).then((session) => {
   if (currentPage === "settings") render();
-  const lastFreshReload = Number(sessionStorage.getItem("kryos-fresh-reload") || 0);
-  if (Date.now() - lastFreshReload > 10000) refreshCloudData({ automatic: true });
+  refreshCloudData({ automatic: true });
+  startCloudFreshnessMonitor(session).catch((error) => console.warn("KRYOS live freshness monitor unavailable.", error));
 });
 window.addEventListener("pageshow", (event) => {
   if (event.persisted) window.location.reload();
@@ -9525,7 +9571,7 @@ window.addEventListener("pageshow", (event) => {
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState !== "visible") return;
   const lastAttempt = new Date(syncState.lastAttemptAt || 0).getTime();
-  if (Date.now() - lastAttempt > 60000) refreshCloudData({ automatic: true });
+  if (Date.now() - lastAttempt > 5000) refreshCloudData({ automatic: true });
 });
 if (isSecurityUnlocked && typeof openAssistantImportFromHash === "function") openAssistantImportFromHash();
 if (isSecurityUnlocked && typeof consumeBundledAssistantImports === "function") consumeBundledAssistantImports();
