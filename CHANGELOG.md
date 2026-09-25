@@ -2,7 +2,56 @@
 
 All notable KRYOS changes should be recorded here.
 
-## 0.004.030 - Multi-day Journal and Containment Import
+## 0.5.6 - Mobile Quality
+
+- Added mobile focus visibility, text-size resilience, reduced-motion behavior, and touch feedback.
+- Prevented avoidable iPhone input zoom from small form controls.
+- Preserved safe-area layout, shared records, local-first saves, and cloud status behavior.
+
+## 0.5.5 - Mobile Reliability
+
+- Added a mobile Settings utility path beside the shared cloud state and lock controls.
+- Preserved access to active-profile backup/import, lock, privacy, and sync recovery from mobile.
+- Added mobile-safe utility sizing without changing security, backup, or cloud data models.
+
+## 0.5.4 - Rhythm Mobile
+
+- Reworked Rhythm for fast one-handed daily foundation capture.
+- Kept Nourish, Care, Spirit, hydration, weekly goals, and recovery evidence accessible.
+- Reduced mobile noise by hiding the large constellation, seven-day pulse, and desktop insight panel.
+- Preserved shared Rhythm events, targets, local persistence, and cloud synchronization.
+
+## 0.5.3 - Career Mobile
+
+- Reworked Career for a guided mobile learning path.
+- Kept the current roadmap, next unfinished evidence step, deadlines, and quick checklist completion visible.
+- Reduced mobile noise by hiding broad heatmaps, portfolio analytics, and full roadmap journey from the primary flow.
+- Preserved shared roadmap records, completion evidence, confidence, deadlines, and career cloud synchronization.
+
+## 0.5.2 - Actions Mobile
+
+- Reworked the Action Vault for touch-safe iPhone use.
+- Kept active capacity, deadlines, status changes, and the smallest next action visible.
+- Added mobile-friendly filter scrolling, add-action controls, action cards, and edit dialog sizing.
+- Preserved one shared Action Vault record across desktop and mobile with local-first save and existing cloud sync.
+
+## 0.5.1 - Inner Command Mobile
+
+- Reworked Inner Command for focused iPhone capture and containment review.
+- Added compact mobile layouts for purpose, covenant, return guidance, and daily journal capture.
+- Preserved the shared journal, containment, and evidence records across desktop and mobile.
+- Kept timeline evidence available below the focused capture surface without introducing a mobile data model.
+
+## 0.5.0 - Mobile Foundation
+
+- Added the iPhone-focused four-destination mobile shell: Inner Command, Actions, Career, and Rhythm.
+- Replaced the previous mobile navigation entries for Progress and Rewards.
+- Added safe-area-aware mobile spacing, sticky top context, bottom navigation, press states, and overflow protection.
+- Kept Launch, Money, Progress, and Rewards out of primary mobile navigation while preserving their desktop routes and shared records.
+- Updated GitHub Pages asset cache keys to the canonical `0.5.0` version.
+- Preserved local-first persistence and shared desktop/mobile data ownership.
+
+## 0.4.30 - Multi-day Journal and Containment Import
 
 - Imported the September 20–24 journal entries with backdated health, spiritual, and activity evidence.
 - Added assistant-import support for 45-day containment kept/breach records.

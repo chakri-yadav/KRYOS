@@ -11,4 +11,31 @@
 @media(max-width:1180px){.rhythm-command{grid-template-columns:minmax(0,1.3fr) repeat(3,minmax(120px,.5fr))}.rhythm-command>div{padding:20px}.rhythm-overview{grid-template-columns:minmax(180px,1fr) repeat(3,110px) 40px}.rhythm-settings{grid-template-columns:repeat(4,1fr)}.rhythm-settings>div{grid-column:1/-1}}
 @media(max-width:900px){.rhythm-command{grid-template-columns:1fr 1fr}.rhythm-command-copy{grid-column:1/-1}.rhythm-layout{grid-template-columns:1fr}.rhythm-overview{grid-template-columns:1fr repeat(3,1fr) 40px}.rhythm-overview>div:first-child{grid-column:1/-1}.rhythm-settings{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:680px){.rhythm-command{grid-template-columns:1fr}.rhythm-command-copy{grid-column:auto}.rhythm-overview{grid-template-columns:repeat(3,1fr)}.rhythm-overview>div:first-child{grid-column:1/-1}.rhythm-overview>.icon-button{grid-column:3}.rhythm-item-grid{grid-template-columns:1fr}.rhythm-water{grid-column:auto;grid-template-columns:36px 1fr auto}.rhythm-water-track{grid-column:2/-1}.rhythm-settings{grid-template-columns:1fr}.rhythm-section-head{flex-direction:column}.rhythm-constellation-grid{grid-template-columns:repeat(28,12px)}}
+
+@media(max-width:980px){
+  #rhythm-view{gap:16px;overflow-x:clip}
+  #rhythm-view .rhythm-command{border-radius:14px;box-shadow:0 12px 30px rgba(15,23,42,.11)}
+  #rhythm-view .rhythm-command>div{padding:18px}
+  #rhythm-view .rhythm-command h1{font-size:clamp(30px,8vw,42px)}
+  #rhythm-view .rhythm-command-stat strong{font-size:34px}
+  #rhythm-view .rhythm-overview,
+  #rhythm-view .rhythm-surface{border-radius:14px}
+  #rhythm-view .rhythm-overview{gap:10px;padding:14px}
+  #rhythm-view .rhythm-overview-score{grid-template-columns:38px 1fr}
+  #rhythm-view .rhythm-overview-score>i{width:38px;height:38px}
+  #rhythm-view .rhythm-overview .icon-button{width:44px;height:44px}
+  #rhythm-view .rhythm-surface{padding:18px}
+  #rhythm-view .rhythm-section-head{gap:9px;margin-bottom:14px}
+  #rhythm-view .rhythm-section-head h2{font-size:20px}
+  #rhythm-view .rhythm-item{min-height:64px;border-radius:11px;padding:10px}
+  #rhythm-view .rhythm-item-icon{width:40px;height:40px}
+  #rhythm-view .rhythm-item>b{font-size:11px}
+  #rhythm-view .rhythm-constellation-grid,
+  #rhythm-view .rhythm-week-pulse,
+  #rhythm-view .rhythm-insight{display:none}
+  #rhythm-view .rhythm-side{display:grid;gap:16px}
+  #rhythm-view .rhythm-weekly-row>button{width:44px;height:44px;min-width:44px}
+  #rhythm-view .rhythm-settings{border-radius:14px;padding:18px}
+  #rhythm-view .rhythm-settings input{min-height:44px;font-size:16px}
+}
 .rhythm-item-icon>i{font-size:11px;font-style:normal;font-weight:850}

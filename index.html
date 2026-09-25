@@ -4,13 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KRYOS</title>
-    <link rel="stylesheet" href="styles.css?v=0.004.030" />
-    <link rel="stylesheet" href="life.css?v=0.004.030" />
-    <link rel="stylesheet" href="rhythm.css?v=0.004.030" />
-    <link rel="stylesheet" href="money.css?v=0.004.030" />
-    <link rel="stylesheet" href="inner-command.css?v=0.004.030" />
-    <link rel="stylesheet" href="launch.css?v=0.004.030" />
-    <link rel="stylesheet" href="reward-system.css?v=0.004.030" />
+    <link rel="stylesheet" href="styles.css?v=0.5.6" />
+    <link rel="stylesheet" href="life.css?v=0.5.6" />
+    <link rel="stylesheet" href="rhythm.css?v=0.5.6" />
+    <link rel="stylesheet" href="money.css?v=0.5.6" />
+    <link rel="stylesheet" href="inner-command.css?v=0.5.6" />
+    <link rel="stylesheet" href="launch.css?v=0.5.6" />
+    <link rel="stylesheet" href="reward-system.css?v=0.5.6" />
   </head>
   <body>
     <div class="app-shell">
@@ -45,6 +45,7 @@
             <span class="global-cloud-state state-local" data-global-cloud-state title="Cloud state"><i></i><span>Device saved</span></span>
             <span class="profile-badge personal" data-profile-badge>Personal</span>
             <button class="secondary-button top-lock-button" type="button" data-security-action="manual-lock">Lock</button>
+            <button class="secondary-button mobile-settings-button" type="button" data-page="settings" aria-label="Open mobile settings">Settings</button>
             <div class="mode-switch is-hidden" aria-label="View mode">
               <button class="mode-button is-active" type="button" data-mode="read">Read</button>
               <button class="mode-button" type="button" data-mode="edit">Edit</button>
@@ -74,24 +75,25 @@
     </div>
 
     <nav class="mobile-nav" aria-label="Mobile navigation">
-      <button class="mobile-nav-item is-active" type="button" data-page="journal">Command</button>
-      <button class="mobile-nav-item" type="button" data-page="progress">Progress</button>
-      <button class="mobile-nav-item" type="button" data-page="rewards">Rewards</button>
+      <button class="mobile-nav-item is-active" type="button" data-page="journal" aria-label="Open Inner Command">Command</button>
+      <button class="mobile-nav-item" type="button" data-page="actions" aria-label="Open Actions">Actions</button>
+      <button class="mobile-nav-item" type="button" data-page="career" aria-label="Open Career">Career</button>
+      <button class="mobile-nav-item" type="button" data-page="rhythm" aria-label="Open Rhythm">Rhythm</button>
     </nav>
 
     <section id="security-overlay" class="security-overlay is-hidden" aria-live="polite"></section>
 
-    <script src="vendor/supabase.js?v=0.004.030"></script>
-    <script src="assistant-data.js?v=0.004.030"></script>
-    <script src="life.js?v=0.004.030"></script>
-    <script src="actions.js?v=0.004.030"></script>
-    <script src="progress.js?v=0.004.030"></script>
+    <script src="vendor/supabase.js?v=0.5.6"></script>
+    <script src="assistant-data.js?v=0.5.6"></script>
+    <script src="life.js?v=0.5.6"></script>
+    <script src="actions.js?v=0.5.6"></script>
+    <script src="progress.js?v=0.5.6"></script>
     <script src="https://unpkg.com/lucide@0.468.0"></script>
-    <script src="rhythm.js?v=0.004.030"></script>
-    <script src="money.js?v=0.004.030"></script>
-    <script src="launch.js?v=0.004.030"></script>
-    <script src="reward-engine.js?v=0.004.030"></script>
-    <script src="rewards.js?v=0.004.030"></script>
-    <script src="app.js?v=0.004.030"></script>
+    <script src="rhythm.js?v=0.5.6"></script>
+    <script src="money.js?v=0.5.6"></script>
+    <script src="launch.js?v=0.5.6"></script>
+    <script src="reward-engine.js?v=0.5.6"></script>
+    <script src="rewards.js?v=0.5.6"></script>
+    <script src="app.js?v=0.5.6"></script>
   </body>
 </html>

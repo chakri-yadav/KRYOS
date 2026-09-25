@@ -7,3 +7,47 @@
 .containment-breach-options{display:grid;gap:9px;padding:20px 24px}.containment-breach-options>label{display:flex;align-items:flex-start;gap:12px;padding:13px;border:1px solid #dce3ea;border-radius:6px;background:#fff;cursor:pointer}.containment-breach-options input{margin-top:3px}.containment-breach-options strong,.containment-breach-options small{display:block}.containment-breach-options strong{color:#1c2c3d;font-size:13px}.containment-breach-options small{margin-top:3px;color:#748091;font-size:10px;line-height:1.4}.containment-breach-options .containment-note{display:grid;cursor:text}.containment-breach-options textarea{min-height:86px;margin-top:7px;resize:vertical}
 @media(max-width:1100px){.command-purpose{grid-template-columns:1fr}.containment-body{grid-template-columns:1fr}.containment-days{grid-template-columns:repeat(15,1fr)}}
 @media(max-width:720px){.command-purpose{margin-top:0;padding:25px 20px}.command-purpose-copy h1{font-size:32px}.command-archetypes article{padding:17px 14px}.containment-command>header{align-items:flex-start;padding:20px;flex-direction:column}.containment-score{padding:12px 0 0;border-top:1px solid #dce3ea;border-left:0}.containment-boundaries,.containment-calendar{padding:20px}.containment-days{grid-template-columns:repeat(9,1fr)}.containment-today{grid-template-columns:1fr 1fr}.containment-today>div{grid-column:1/-1}.containment-today button{min-width:0}.inner-journal-title{align-items:flex-start;flex-direction:column}}
+
+@media(max-width:980px){
+  #journal-view{gap:18px;overflow-x:clip}
+  #journal-view .command-purpose{margin:0;padding:24px 20px;border-radius:14px;gap:22px}
+  #journal-view .command-purpose-copy h1{font-size:clamp(30px,8vw,38px);line-height:1.08}
+  #journal-view .command-purpose-copy>p:last-of-type{font-size:13px;line-height:1.55}
+  #journal-view .command-purpose blockquote{margin-top:20px;font-size:14px}
+  #journal-view .command-archetypes article{grid-template-columns:34px 1fr;gap:12px;padding:14px}
+  #journal-view .command-archetypes article>span{width:30px;height:30px;font-size:9px}
+  #journal-view .command-archetypes h2{font-size:14px}
+  #journal-view .command-archetypes small{font-size:11px}
+  #journal-view .containment-command{margin-bottom:0;border-radius:14px}
+  #journal-view .containment-command>header{padding:18px 20px;gap:14px}
+  #journal-view .containment-command h2{font-size:22px}
+  #journal-view .containment-score strong{font-size:34px}
+  #journal-view .containment-boundaries,
+  #journal-view .containment-calendar{padding:18px 20px}
+  #journal-view .containment-days{gap:5px}
+  #journal-view .containment-days button{font-size:8px}
+  #journal-view .containment-today{margin-top:18px;padding-top:15px}
+  #journal-view .containment-today button{min-height:44px}
+  #journal-view .inner-journal-title{padding:0 2px}
+  #journal-view .inner-journal-title h1{font-size:28px}
+  #journal-view .inner-journal-title>div>p:last-child{font-size:12px}
+  #journal-view .journal-today{display:none}
+  #journal-view .premium-compose{gap:12px;padding-bottom:0}
+  #journal-view .compose-rail{display:none}
+  #journal-view .premium-compose form{border-radius:14px}
+  #journal-view .compose-toolbar{align-items:flex-start;flex-direction:column;gap:10px;padding:12px 14px}
+  #journal-view .premium-compose .compose-toolbar input{width:100%;min-height:44px}
+  #journal-view .journal-paper{padding:18px 16px 8px}
+  #journal-view .premium-compose .journal-paper textarea{min-height:180px;font-size:16px;line-height:1.6}
+  #journal-view .compose-footer{padding:12px 14px}
+  #journal-view .compose-footer .primary-button{width:100%;min-height:46px}
+  #journal-view .journal-history{padding-top:0}
+  #journal-view .life-heading{align-items:flex-start;flex-direction:column;gap:10px}
+  #journal-view .life-heading input{width:100%;min-height:44px}
+  #journal-view .premium-entry{grid-template-columns:42px minmax(0,1fr);gap:12px;padding:16px 12px}
+  #journal-view .entry-date{padding-right:8px}
+  #journal-view .entry-date strong{font-size:24px}
+  #journal-view .entry-head{align-items:flex-start;flex-direction:column;gap:8px}
+  #journal-view .entry-score{display:none}
+  #journal-view .premium-entry .life-text{margin:14px 0;font-size:13px;line-height:1.55}
+}
