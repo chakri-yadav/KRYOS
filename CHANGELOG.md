@@ -2,6 +2,13 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.5.11 - Career Sync Ordering
+
+- Fixed the Career startup race that could upload a local roadmap migration before the first cloud pull completed.
+- Made signed-in startup reconcile cloud Career data before scheduling any migration write.
+- Reapplied required roadmap migrations only after the accepted cloud payload is loaded.
+- Added a regression check that prevents startup Career autosave from moving ahead of cloud recovery again.
+
 ## 0.5.10 - Cross-device Recovery
 
 - Fixed blank or stale phones ignoring completed desktop Career progress because local starter timestamps appeared newer.

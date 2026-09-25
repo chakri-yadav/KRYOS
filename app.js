@@ -15,13 +15,15 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.5.10";
-const APP_STAGE = "Cross-device Recovery";
+const APP_VERSION = "0.5.11";
+const APP_STAGE = "Career Sync Ordering";
 const APP_RELEASE_DATE = "2026-09-25";
-const APP_STATUS = "Reliable desktop-to-phone recovery with per-section cloud freshness";
+const APP_STATUS = "Cloud-first Career startup without migration overwrite races";
 const APP_NEXT_MILESTONE = "Set realistic Core deadlines module by module";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Stopped startup Career migrations from uploading before the first cloud recovery check finishes.",
+  "Made the first signed-in Career reconciliation complete before any migration autosave can reach Supabase.",
   "Fixed fresh phones incorrectly treating empty starter Career data as newer than completed desktop progress.",
   "Added per-section cloud version tracking so Career, Actions, Journal, and Foundation sync independently.",
   "Added monotonic Career recovery so a more-complete cloud roadmap safely restores a stale or blank phone.",
@@ -1173,9 +1175,9 @@ let careerSyncDirty = false;
 let careerSyncState = "local";
 const dsaRoadmapMigrated = migrateDsaRoadmap(careerState);
 const apiDesignRoadmapMigrated = migrateApiDesignRoadmap(careerState);
+let pendingCareerMigrationSync = dsaRoadmapMigrated || apiDesignRoadmapMigrated;
 if (dsaRoadmapMigrated || apiDesignRoadmapMigrated) {
   setModeStorageValue(CAREER_STORAGE_KEY, JSON.stringify(careerState));
-  window.setTimeout(scheduleCareerCloudSync, 0);
 }
 let selectedTaskDate = isDateKey(savedUiState.selectedTaskDate) ? savedUiState.selectedTaskDate : toDateKey();
 let activeTaskView = TASK_VIEWS.includes(savedUiState.activeTaskView) ? savedUiState.activeTaskView : "today";
@@ -6913,6 +6915,15 @@ async function refreshCloudData({ automatic = false } = {}) {
       if (updatedKeys.includes("foundation")) state = loadFoundation();
       if (updatedKeys.includes("career")) {
         careerState = loadCareer();
+        const remoteDsaMigrated = migrateDsaRoadmap(careerState);
+        const remoteApiMigrated = migrateApiDesignRoadmap(careerState);
+        const remoteCareerMigrated = remoteDsaMigrated || remoteApiMigrated;
+        if (remoteCareerMigrated) {
+          setModeStorageValue(CAREER_STORAGE_KEY, JSON.stringify(careerState));
+          pendingCareerMigrationSync = true;
+        } else {
+          pendingCareerMigrationSync = false;
+        }
         careerSyncState = "synced";
       }
       if (updatedKeys.includes("tasks")) {
@@ -6924,7 +6935,7 @@ async function refreshCloudData({ automatic = false } = {}) {
     } else if (!automatic && currentPage === "settings") {
       render();
     }
-    return { updated, conflicts };
+    return { updated, conflicts, updatedKeys };
   } catch (error) {
     console.warn("KRYOS freshness check failed.", error);
     syncState.status = "sync-error";
@@ -9614,9 +9625,10 @@ if (isSecurityUnlocked) touchSecuritySession(true);
 render();
 renderSecurityOverlay();
 resetLockTimer();
-refreshSyncAuthState({ silent: true }).then((session) => {
+refreshSyncAuthState({ silent: true }).then(async (session) => {
   if (currentPage === "settings") render();
-  refreshCloudData({ automatic: true });
+  const recovery = await refreshCloudData({ automatic: true });
+  if (session && pendingCareerMigrationSync && !recovery.conflicts && !recovery.error) scheduleCareerCloudSync();
   startCloudFreshnessMonitor(session).catch((error) => console.warn("KRYOS live freshness monitor unavailable.", error));
 });
 window.addEventListener("pageshow", (event) => {
