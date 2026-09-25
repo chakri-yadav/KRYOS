@@ -71,6 +71,7 @@ small utility surface. They are services, not primary destinations.
 - `0.5.9` — premium mobile Actions and near-live cross-device freshness.
 - `0.5.10` — blank/stale-phone cloud recovery with per-section version checkpoints.
 - `0.5.11` — cloud-first Career startup ordering that prevents migration overwrites.
+- `0.5.12` — confirmed historical reward reviews for September 21–24.
 
 Each milestone must have its own release document and pass the release
 governance Definition of Done before the next one begins.

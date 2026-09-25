@@ -4,8 +4,8 @@ const fs = require('node:fs');
 
 test('deployment loads Supabase before KRYOS application code', () => {
   const html = fs.readFileSync('index.html', 'utf8');
-  const supabase = html.indexOf('vendor/supabase.js?v=0.5.11');
-  const app = html.indexOf('app.js?v=0.5.11');
+  const supabase = html.indexOf('vendor/supabase.js?v=0.5.12');
+  const app = html.indexOf('app.js?v=0.5.12');
   assert.ok(supabase >= 0, 'Supabase browser client is missing');
   assert.ok(supabase < app, 'Supabase must load before app.js');
 });
@@ -34,4 +34,11 @@ test('Career startup reconciles cloud before migration autosave', () => {
   assert.doesNotMatch(app, /if \(dsaRoadmapMigrated \|\| apiDesignRoadmapMigrated\)[\s\S]{0,180}setTimeout\(scheduleCareerCloudSync/);
   assert.match(app, /const recovery = await refreshCloudData\(\{ automatic: true \}\)/);
   assert.match(app, /pendingCareerMigrationSync && !recovery\.conflicts && !recovery\.error/);
+});
+
+test('confirmed historical review correction is bounded and idempotent', () => {
+  const app = fs.readFileSync('app.js', 'utf8');
+  assert.match(app, /\["2026-09-21", "2026-09-22", "2026-09-23", "2026-09-24"\]/);
+  assert.match(app, /confirmedReviewCorrection_2026_09_21_24/);
+  assert.match(app, /if \(isDemoMode\(\) \|\| typeof reviewRewardDay !== "function"\) return/);
 });

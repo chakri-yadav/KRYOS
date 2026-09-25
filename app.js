@@ -15,13 +15,15 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.5.11";
-const APP_STAGE = "Career Sync Ordering";
+const APP_VERSION = "0.5.12";
+const APP_STAGE = "Confirmed Historical Reviews";
 const APP_RELEASE_DATE = "2026-09-25";
-const APP_STATUS = "Cloud-first Career startup without migration overwrite races";
+const APP_STATUS = "Truth-confirmed daily reward reviews with auditable evidence";
 const APP_NEXT_MILESTONE = "Set realistic Core deadlines module by module";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Marked the confirmed Personal reward reviews for Sunday September 21 through Wednesday September 24, 2026.",
+  "Stored those reviews from existing dated evidence without changing reward scoring rules or Demo data.",
   "Stopped startup Career migrations from uploading before the first cloud recovery check finishes.",
   "Made the first signed-in Career reconciliation complete before any migration autosave can reach Supabase.",
   "Fixed fresh phones incorrectly treating empty starter Career data as newer than completed desktop progress.",
@@ -1179,6 +1181,22 @@ let pendingCareerMigrationSync = dsaRoadmapMigrated || apiDesignRoadmapMigrated;
 if (dsaRoadmapMigrated || apiDesignRoadmapMigrated) {
   setModeStorageValue(CAREER_STORAGE_KEY, JSON.stringify(careerState));
 }
+
+function applyConfirmedHistoricalRewardReviews() {
+  if (isDemoMode() || typeof reviewRewardDay !== "function") return;
+  const store = lifeStore();
+  store.meta ||= {};
+  if (store.meta.confirmedReviewCorrection_2026_09_21_24) return;
+  ["2026-09-21", "2026-09-22", "2026-09-23", "2026-09-24"].forEach((date) => {
+    const existing = store.dailyAssessments.find((assessment) => assessment.date === date);
+    if (!existing || existing.ruleVersion === 2) {
+      reviewRewardDay(date, "Founder-confirmed truthful review for the recorded day.");
+    }
+  });
+  store.meta.confirmedReviewCorrection_2026_09_21_24 = new Date().toISOString();
+  saveTasks();
+}
+
 let selectedTaskDate = isDateKey(savedUiState.selectedTaskDate) ? savedUiState.selectedTaskDate : toDateKey();
 let activeTaskView = TASK_VIEWS.includes(savedUiState.activeTaskView) ? savedUiState.activeTaskView : "today";
 let activeFieldTab = FIELD_TABS.includes(savedUiState.activeFieldTab) ? savedUiState.activeFieldTab : "today";
@@ -9622,6 +9640,7 @@ document.addEventListener("input", (event) => {
 });
 
 if (isSecurityUnlocked) touchSecuritySession(true);
+applyConfirmedHistoricalRewardReviews();
 render();
 renderSecurityOverlay();
 resetLockTimer();
