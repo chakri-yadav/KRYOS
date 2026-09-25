@@ -2,6 +2,14 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.5.10 - Cross-device Recovery
+
+- Fixed blank or stale phones ignoring completed desktop Career progress because local starter timestamps appeared newer.
+- Added a separate remembered cloud version for every synchronized data block.
+- Added safe Career recovery based on real completion evidence while preserving genuine concurrent edits as conflicts.
+- Recorded successful Career, Actions, full push, and manual pull checkpoints consistently.
+- Bumped every browser asset URL so iPhone Safari requests the corrected application code.
+
 ## 0.5.9 - Mobile Actions and Live Sync
 
 - Reworked Actions mobile into a compact one-handed capture and update surface.

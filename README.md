@@ -6,8 +6,8 @@ It is not a generic todo app, journal, or habit tracker. KRYOS is designed to he
 
 ## Current Status
 
-- Version: `0.5.9`
-- Stage: Mobile Actions and Live Sync
+- Version: `0.5.10`
+- Stage: Cross-device Recovery
 - Audience: private personal daily use
 - App type: local-first browser application
 - Sync status: local-first with Supabase task, career, and reward paths configured

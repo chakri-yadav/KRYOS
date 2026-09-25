@@ -95,7 +95,18 @@ async function flushTaskCloudSync() {
     const taskBlock = getSyncBlockPayloads().find(block => block.block_key === 'tasks');
     const { error } = await client.from('kryos_sync_blocks').upsert([{ ...taskBlock, profile_id: profileId, updated_at: new Date().toISOString() }], { onConflict: 'profile_id,block_key' });
     if (error) throw error;
-    syncState = { ...syncState, enabled: true, endpointConfigured: true, status: 'connected', lastSyncAt: new Date().toISOString(), lastAttemptAt: new Date().toISOString(), remoteProfileId: profileId, userEmail: session.user.email || syncState.userEmail, userId: session.user.id };
+    syncState = {
+      ...syncState,
+      enabled: true,
+      endpointConfigured: true,
+      status: 'connected',
+      lastSyncAt: new Date().toISOString(),
+      lastAttemptAt: new Date().toISOString(),
+      remoteBlockVersions: { ...syncState.remoteBlockVersions, tasks: taskBlock.payload_updated_at },
+      remoteProfileId: profileId,
+      userEmail: session.user.email || syncState.userEmail,
+      userId: session.user.id,
+    };
     saveSyncState();
     actionSyncState = 'synced';
   } catch (error) {
