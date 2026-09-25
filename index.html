@@ -2,15 +2,18 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f4f7f6" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <title>KRYOS</title>
-    <link rel="stylesheet" href="styles.css?v=0.5.6" />
-    <link rel="stylesheet" href="life.css?v=0.5.6" />
-    <link rel="stylesheet" href="rhythm.css?v=0.5.6" />
-    <link rel="stylesheet" href="money.css?v=0.5.6" />
-    <link rel="stylesheet" href="inner-command.css?v=0.5.6" />
-    <link rel="stylesheet" href="launch.css?v=0.5.6" />
-    <link rel="stylesheet" href="reward-system.css?v=0.5.6" />
+    <link rel="stylesheet" href="styles.css?v=0.5.7" />
+    <link rel="stylesheet" href="life.css?v=0.5.7" />
+    <link rel="stylesheet" href="rhythm.css?v=0.5.7" />
+    <link rel="stylesheet" href="money.css?v=0.5.7" />
+    <link rel="stylesheet" href="inner-command.css?v=0.5.7" />
+    <link rel="stylesheet" href="launch.css?v=0.5.7" />
+    <link rel="stylesheet" href="reward-system.css?v=0.5.7" />
   </head>
   <body>
     <div class="app-shell">
@@ -42,7 +45,10 @@
             <h1>Inner Command</h1>
           </div>
           <div class="topbar-actions">
-            <span class="global-cloud-state state-local" data-global-cloud-state title="Cloud state"><i></i><span>Device saved</span></span>
+            <button class="mobile-refresh-button" type="button" data-sync-action="safe-refresh" aria-label="Refresh cloud data" title="Refresh cloud data">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6v5h-5M4 18v-5h5M5.1 9A8 8 0 0 1 18.5 6L20 11M4 13l1.5 5A8 8 0 0 0 18.9 15" /></svg>
+            </button>
+            <span class="global-cloud-state state-local" data-global-cloud-state role="status" aria-live="polite" title="Cloud state"><i></i><span>Device saved</span></span>
             <span class="profile-badge personal" data-profile-badge>Personal</span>
             <button class="secondary-button top-lock-button" type="button" data-security-action="manual-lock">Lock</button>
             <button class="secondary-button mobile-settings-button" type="button" data-page="settings" aria-label="Open mobile settings">Settings</button>
@@ -75,25 +81,25 @@
     </div>
 
     <nav class="mobile-nav" aria-label="Mobile navigation">
-      <button class="mobile-nav-item is-active" type="button" data-page="journal" aria-label="Open Inner Command">Command</button>
-      <button class="mobile-nav-item" type="button" data-page="actions" aria-label="Open Actions">Actions</button>
-      <button class="mobile-nav-item" type="button" data-page="career" aria-label="Open Career">Career</button>
-      <button class="mobile-nav-item" type="button" data-page="rhythm" aria-label="Open Rhythm">Rhythm</button>
+      <button class="mobile-nav-item is-active" type="button" data-page="journal" aria-label="Open Inner Command"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 7v10l8 4 8-4V7l-8-4Zm0 0v18M4 7l8 4 8-4" /></svg><span>Command</span></button>
+      <button class="mobile-nav-item" type="button" data-page="actions" aria-label="Open Actions"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6M5 5h5M5 19h14" /></svg><span>Actions</span></button>
+      <button class="mobile-nav-item" type="button" data-page="career" aria-label="Open Career"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V8l8-5 8 5v11M8 21v-8h8v8" /></svg><span>Career</span></button>
+      <button class="mobile-nav-item" type="button" data-page="rhythm" aria-label="Open Rhythm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2-7 4 14 2-7h6" /></svg><span>Rhythm</span></button>
     </nav>
 
     <section id="security-overlay" class="security-overlay is-hidden" aria-live="polite"></section>
 
-    <script src="vendor/supabase.js?v=0.5.6"></script>
-    <script src="assistant-data.js?v=0.5.6"></script>
-    <script src="life.js?v=0.5.6"></script>
-    <script src="actions.js?v=0.5.6"></script>
-    <script src="progress.js?v=0.5.6"></script>
+    <script src="vendor/supabase.js?v=0.5.7"></script>
+    <script src="assistant-data.js?v=0.5.7"></script>
+    <script src="life.js?v=0.5.7"></script>
+    <script src="actions.js?v=0.5.7"></script>
+    <script src="progress.js?v=0.5.7"></script>
     <script src="https://unpkg.com/lucide@0.468.0"></script>
-    <script src="rhythm.js?v=0.5.6"></script>
-    <script src="money.js?v=0.5.6"></script>
-    <script src="launch.js?v=0.5.6"></script>
-    <script src="reward-engine.js?v=0.5.6"></script>
-    <script src="rewards.js?v=0.5.6"></script>
-    <script src="app.js?v=0.5.6"></script>
+    <script src="rhythm.js?v=0.5.7"></script>
+    <script src="money.js?v=0.5.7"></script>
+    <script src="launch.js?v=0.5.7"></script>
+    <script src="reward-engine.js?v=0.5.7"></script>
+    <script src="rewards.js?v=0.5.7"></script>
+    <script src="app.js?v=0.5.7"></script>
   </body>
 </html>

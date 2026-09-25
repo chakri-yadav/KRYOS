@@ -25,7 +25,7 @@
   #journal-view .containment-boundaries,
   #journal-view .containment-calendar{padding:18px 20px}
   #journal-view .containment-days{gap:5px}
-  #journal-view .containment-days button{font-size:8px}
+  #journal-view .containment-days button{min-height:44px;aspect-ratio:auto;font-size:9px}
   #journal-view .containment-today{margin-top:18px;padding-top:15px}
   #journal-view .containment-today button{min-height:44px}
   #journal-view .inner-journal-title{padding:0 2px}
@@ -50,4 +50,5 @@
   #journal-view .entry-head{align-items:flex-start;flex-direction:column;gap:8px}
   #journal-view .entry-score{display:none}
   #journal-view .premium-entry .life-text{margin:14px 0;font-size:13px;line-height:1.55}
+  #journal-view .life-delete{min-height:44px;padding:10px 0}
 }

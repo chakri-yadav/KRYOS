@@ -2,6 +2,13 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.5.7 - Mobile Freshness
+
+- Added conflict-safe cloud freshness checks on app launch, foreground resume, and manual refresh.
+- Prevented Safari back-forward cache from restoring a stale KRYOS screen.
+- Added a premium iPhone shell with safe-area coverage, compact utilities, icon-led navigation, and calmer visual hierarchy.
+- Preserved local-first use: cloud failures never block the app, and concurrent local/cloud edits are not silently overwritten.
+
 ## 0.5.6 - Mobile Quality
 
 - Added mobile focus visibility, text-size resilience, reduced-motion behavior, and touch feedback.

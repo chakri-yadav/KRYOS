@@ -15,13 +15,16 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.5.6";
-const APP_STAGE = "Mobile Quality";
+const APP_VERSION = "0.5.7";
+const APP_STAGE = "Mobile Freshness";
 const APP_RELEASE_DATE = "2026-09-25";
-const APP_STATUS = "Accessible, calm, and resilient iPhone execution surfaces";
+const APP_STATUS = "Fresh, conflict-safe, premium iPhone execution surfaces";
 const APP_NEXT_MILESTONE = "Set realistic Core deadlines module by module";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Added conflict-safe cloud freshness checks on launch, resume, and manual refresh.",
+  "Added iPhone 15 Plus safe-area metadata and a premium icon-led mobile navigation system.",
+  "Improved mobile hierarchy, touch feedback, loading state, and compact cloud status.",
   "Rebuilt DSA into the exact 18-module NeetCode 150 sequence with a separate Extra Practice lane.",
   "Preserved prior completion evidence through normalized problem matching without allowing extras to inflate Core progress.",
   "Added dedicated Core and Extra progress signals while keeping Core progress fixed at 150 problems.",
@@ -2267,6 +2270,16 @@ function updateGlobalCloudState() {
   globalCloudState.title = cloud.detail;
   const label = globalCloudState.querySelector("span");
   if (label) label.textContent = cloud.label;
+}
+
+function setMobileRefreshState(stateName = "idle", label = "Refresh cloud data") {
+  const button = document.querySelector(".mobile-refresh-button");
+  if (!button) return;
+  button.classList.toggle("is-refreshing", stateName === "refreshing");
+  button.classList.toggle("has-conflict", stateName === "conflict");
+  button.disabled = stateName === "refreshing";
+  button.setAttribute("aria-label", label);
+  button.title = label;
 }
 
 function saveFoundation() {
@@ -6761,6 +6774,85 @@ function applyRemoteBlock(blockKey, payload) {
   setModeStorageValue(block.storageKey, JSON.stringify(payload));
 }
 
+function getLocalSyncBlockUpdatedAt(blockKey) {
+  const payload = createSyncPayloadPreview();
+  const block = SYNC_BLOCKS.find((item) => item.key === blockKey);
+  const payloadKey = block?.payloadKey || blockKey;
+  return payload.blocks[payloadKey]?.updatedAt || null;
+}
+
+function isAfter(left, right) {
+  if (!left) return false;
+  if (!right) return true;
+  return new Date(left).getTime() > new Date(right).getTime();
+}
+
+async function refreshCloudData({ automatic = false } = {}) {
+  if (isDemoMode()) return { updated: 0, conflicts: 0 };
+  const session = await refreshSyncAuthState({ silent: true });
+  if (!session) return { updated: 0, conflicts: 0 };
+  setMobileRefreshState("refreshing", "Checking cloud for fresh data");
+  try {
+    const client = getSupabaseClient();
+    const profileId = await ensureSupabaseProfile(session);
+    const { data, error } = await client
+      .from("kryos_sync_blocks")
+      .select("block_key,payload,payload_updated_at,updated_at,schema_version")
+      .eq("profile_id", profileId);
+    if (error) throw error;
+    const safeKeys = new Set(["foundation", "career", "tasks", "journal"]);
+    let updated = 0;
+    let conflicts = 0;
+    for (const row of Array.isArray(data) ? data : []) {
+      if (!safeKeys.has(row.block_key) || Number(row.schema_version) > KRYOS_SYNC_SCHEMA_VERSION) continue;
+      const remoteAt = row.payload_updated_at || row.updated_at;
+      const localAt = getLocalSyncBlockUpdatedAt(row.block_key);
+      if (!isAfter(remoteAt, localAt)) continue;
+      const localChangedSinceSync = isAfter(localAt, syncState.lastSyncAt);
+      const remoteChangedSinceSync = isAfter(remoteAt, syncState.lastSyncAt);
+      if (localChangedSinceSync && remoteChangedSinceSync) {
+        conflicts += 1;
+        continue;
+      }
+      applyRemoteBlock(row.block_key, row.payload);
+      updated += 1;
+    }
+    syncState = {
+      ...syncState,
+      status: "connected",
+      lastAttemptAt: new Date().toISOString(),
+      lastSyncAt: updated ? new Date().toISOString() : syncState.lastSyncAt,
+      conflictCount: conflicts,
+      remoteProfileId: profileId,
+      userEmail: session.user.email || syncState.userEmail,
+      userId: session.user.id,
+    };
+    saveSyncState();
+    if (conflicts) {
+      syncNotice = `${conflicts} cloud block${conflicts === 1 ? " needs" : "s need"} review. Local work was preserved.`;
+      setMobileRefreshState("conflict", syncNotice);
+    } else {
+      syncNotice = updated ? "Fresh cloud data received." : "KRYOS is up to date.";
+      setMobileRefreshState("idle", syncNotice);
+    }
+    if (updated) {
+      sessionStorage.setItem("kryos-fresh-reload", String(Date.now()));
+      window.location.reload();
+    } else if (!automatic && currentPage === "settings") {
+      render();
+    }
+    return { updated, conflicts };
+  } catch (error) {
+    console.warn("KRYOS freshness check failed.", error);
+    syncState.status = "sync-error";
+    syncState.lastAttemptAt = new Date().toISOString();
+    saveSyncState();
+    setMobileRefreshState("idle", "Cloud unavailable. Local data is safe.");
+    updateGlobalCloudState();
+    return { updated: 0, conflicts: 0, error };
+  }
+}
+
 async function pullFromSupabase() {
   const session = await refreshSyncAuthState({ silent: true });
   if (!session) {
@@ -8820,6 +8912,10 @@ document.addEventListener("click", async (event) => {
 
   const syncAction = target.closest("[data-sync-action]");
   if (syncAction) {
+    if (syncAction.dataset.syncAction === "safe-refresh") {
+      await refreshCloudData();
+      return;
+    }
     if (syncAction.dataset.syncAction === "readiness-check") {
       runSyncReadinessCheck();
     }
@@ -9404,6 +9500,16 @@ renderSecurityOverlay();
 resetLockTimer();
 refreshSyncAuthState({ silent: true }).then(() => {
   if (currentPage === "settings") render();
+  const lastFreshReload = Number(sessionStorage.getItem("kryos-fresh-reload") || 0);
+  if (Date.now() - lastFreshReload > 10000) refreshCloudData({ automatic: true });
+});
+window.addEventListener("pageshow", (event) => {
+  if (event.persisted) window.location.reload();
+});
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState !== "visible") return;
+  const lastAttempt = new Date(syncState.lastAttemptAt || 0).getTime();
+  if (Date.now() - lastAttempt > 60000) refreshCloudData({ automatic: true });
 });
 if (isSecurityUnlocked && typeof openAssistantImportFromHash === "function") openAssistantImportFromHash();
 if (isSecurityUnlocked && typeof consumeBundledAssistantImports === "function") consumeBundledAssistantImports();
