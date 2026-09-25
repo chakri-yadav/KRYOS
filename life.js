@@ -47,7 +47,17 @@ function validateLifeImport(data) {
     return { habitId: item.habitId, value, evidence: item.evidence };
   }) : [];
   const assessment = data.assessment == null ? null : normalizeDailyAssessment(data.assessment, data.date);
-  return { id: data.id.trim(), date: data.date, text: data.text, records, actions, actionUpdates, rhythm, assessment };
+  const containment = data.containment == null ? null : normalizeImportedContainment(data.containment);
+  return { id: data.id.trim(), date: data.date, text: data.text, records, actions, actionUpdates, rhythm, assessment, containment };
+}
+function normalizeImportedContainment(containment) {
+  if (!containment || typeof containment !== 'object' || !['kept', 'breach'].includes(containment.status)) throw new Error('Containment status must be kept or breach.');
+  const allowed = new Set(['astrology', 'social', 'validation']);
+  const boundaries = Array.isArray(containment.boundaries) ? containment.boundaries.filter(value => allowed.has(value)) : [];
+  const boundary = allowed.has(containment.boundary) ? containment.boundary : (boundaries[0] || '');
+  if (containment.status === 'breach' && !boundary) throw new Error('A containment breach needs a boundary.');
+  if (boundary && !boundaries.includes(boundary)) boundaries.unshift(boundary);
+  return { status: containment.status, boundary, boundaries, note: String(containment.note || '').trim().slice(0, 500) };
 }
 function normalizeDailyAssessment(assessment, date) {
   if (!assessment || typeof assessment !== 'object') throw new Error('The daily assessment must be an object.');
@@ -84,6 +94,14 @@ function applyImportedRhythm(data) {
     if (existing) Object.assign(existing, next);
     else taskState.rhythm.events.push(next);
   });
+}
+function applyImportedContainment(data) {
+  if (!data.containment) return;
+  const store = lifeStore();
+  const existing = store.innerCommand.containmentDays.find(item => item.date === data.date);
+  const next = { date: data.date, ...data.containment, updatedAt: new Date().toISOString(), source: `assistant:${data.id}` };
+  if (existing) Object.assign(existing, next);
+  else store.innerCommand.containmentDays.push(next);
 }
 function decodeAssistantImport(value) {
   const normalized=value.replace(/-/g,'+').replace(/_/g,'/');
@@ -131,6 +149,7 @@ function lifeCommit(data) {
     }
   });
   applyImportedRhythm(data);
+  applyImportedContainment(data);
   if (data.assessment) upsertDailyAssessment(store, data.assessment);
   saveTasks();
 }
@@ -159,6 +178,7 @@ function reconcileLifePackage(data, existingEntry) {
     }
   });
   applyImportedRhythm(data);
+  applyImportedContainment(data);
   if (data.assessment) upsertDailyAssessment(store, data.assessment);
   saveTasks();
 }
