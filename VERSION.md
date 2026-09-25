@@ -1,4 +1,4 @@
-# Version Policy
+# KRYOS Version Policy
 
 KRYOS uses a long-horizon private product version format:
 
@@ -6,35 +6,36 @@ KRYOS uses a long-horizon private product version format:
 major.minor.patch
 ```
 
-Current version:
+Canonical current version:
 
 ```text
-0.004.015
+0.5.6
 ```
 
 ## Meaning
 
-- `0`: private pre-public era.
-- `004`: directed-attention operating system line.
-- `015`: Career Launch networking and two-post weekly visibility cadence.
+- `0`: private product built for the founder's personal ADHD support.
+- `4`: the Life Execution Foundation line.
+- Patch: a compatible correction with no new user workflow or data migration.
+- Minor: a complete compatible user capability or milestone.
+- Major: an incompatible product or data foundation change.
 
 ## Version Bands
 
 | Version band | Meaning |
 | --- | --- |
-| `0.001.x` | Private local stabilization |
-| `0.002.x` | Personal/demo separation and documentation maturity |
-| `0.003.x` | Free sync backend foundation |
-| `0.004.x` | Daily operating system refinement |
-| `0.005.x` | Interview/demo readiness |
-| `0.100.x+` | Long-term architecture expansion |
-| `1.000.000` | Public-ready product line |
+| `0.1.x` | Private local stabilization |
+| `0.2.x` | Personal/demo separation |
+| `0.3.x` | Sync foundation |
+| `0.4.x` | Life Execution Foundation |
+| `0.5.x` | Focused iPhone mobile experience |
+| `1.0.0` | Future public-ready product line |
 
 ## Bump Rules
 
-- Patch: bug fix, copy cleanup, small UI polish, documentation update.
-- Minor: new workflow, new product area, major data behavior, or demo/sync milestone.
-- Major: public architecture line or incompatible product foundation.
+- Patch: bug, accessibility, cache, copy, or visual correction with no new workflow.
+- Minor: complete compatible workflow, product area, mobile milestone, or migration.
+- Major: incompatible data or product foundation change.
 
 ## Release Note Requirement
 
@@ -45,3 +46,14 @@ Every version change must have:
 - technical/data changes
 - QA performed
 - known risks
+
+## Release evidence
+
+No version may change until it has a stated product reason, acceptance criteria,
+identified data ownership, persistence and error-state verification, documented
+sync/backup impact, QA evidence, updated README/CHANGELOG/release documentation,
+and a matching Git tag for a published milestone.
+
+The older display forms such as `0.004.030` are retired. New canonical tags use
+the standard form, currently `v0.5.6`.
+See `docs/project/release-governance.md` for the complete workflow.
