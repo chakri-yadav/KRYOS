@@ -2,6 +2,14 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.5.8 - Mobile Career Read Mode
+
+- Restored the full selected Career roadmap on mobile: purpose, target, modules, topics, confidence, deadlines, progress, and checklist items.
+- Kept every checklist completion reversible and connected to the existing Career local-first and cloud-sync path.
+- Added a thumb-friendly Career section navigator for Now, Deadlines, Roadmaps, and Full plan.
+- Removed roadmap creation and editing controls from the mobile reading flow without removing any desktop capability.
+- Refined mobile Career hierarchy, spacing, cards, progress signals, and 44-point completion targets.
+
 ## 0.5.7 - Mobile Freshness
 
 - Added conflict-safe cloud freshness checks on app launch, foreground resume, and manual refresh.

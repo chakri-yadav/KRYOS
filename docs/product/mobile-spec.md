@@ -67,6 +67,7 @@ small utility surface. They are services, not primary destinations.
 - `0.5.5` — backup, sync, lock, and recovery hardening.
 - `0.5.6` — accessibility, performance, and visual polish.
 - `0.5.7` — conflict-safe freshness, resume behavior, and premium iPhone shell.
+- `0.5.8` — complete Career read mode and premium roadmap interaction.
 
 Each milestone must have its own release document and pass the release
 governance Definition of Done before the next one begins.
