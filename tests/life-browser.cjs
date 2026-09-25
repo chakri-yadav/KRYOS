@@ -185,7 +185,7 @@ const assert = require('node:assert/strict');
     await page.getByRole('button', { name: 'Rewards', exact: true }).first().click();
     assert.equal(await page.locator('.reward-gates > div').count(), 3);
     assert.ok(await page.getByText('Astrology remains protected', { exact: true }).count() > 0);
-    assert.ok(await page.getByText('No reviewed days yet. Journal evidence alone does not create credits.', { exact: true }).count() > 0);
+    assert.equal(await page.evaluate(() => lifeStore().dailyAssessments.filter(item => ['2026-09-21', '2026-09-22', '2026-09-23', '2026-09-24'].includes(item.date)).length), 4);
     assert.deepEqual(errors, []);
     console.log('PASS: Inner Command, Action Vault, Career, Launch, Rhythm, Money, analytics, rewards and persistence');
   } finally {

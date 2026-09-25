@@ -2,6 +2,12 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.5.12 - Confirmed Historical Reviews
+
+- Marked Personal reward reviews for Sunday September 21 through Wednesday September 24, 2026 as founder-confirmed truthful reviews.
+- Reused the existing dated evidence and reward rules; no scores or evidence were invented.
+- Kept Demo profiles unchanged and made the correction idempotent so it runs once.
+
 ## 0.5.11 - Career Sync Ordering
 
 - Fixed the Career startup race that could upload a local roadmap migration before the first cloud pull completed.
