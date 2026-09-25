@@ -85,6 +85,15 @@ const assert = require('node:assert/strict');
     assert.equal(await page.locator('#career-view').evaluate(element => element.scrollWidth <= element.clientWidth), true);
     await page.setViewportSize({ width: 900, height: 1000 });
     assert.equal(await page.locator('#career-view').evaluate(element => element.scrollWidth <= element.clientWidth), true);
+    await page.setViewportSize({ width: 430, height: 932 });
+    assert.equal(await page.locator('.career-detail').evaluate(element => getComputedStyle(element).display), 'grid');
+    assert.equal(await page.locator('.career-detail .module-block').count(), 9);
+    assert.ok(await page.locator('.career-detail .topic-block').count() > 9);
+    assert.ok(await page.locator('.career-detail .check-item.read-only').count() > 20);
+    assert.equal(await page.locator('.career-edit-toggle').isVisible(), false);
+    assert.equal(await page.locator('.career-quick-add').isVisible(), false);
+    assert.equal(await page.locator('.career-mobile-index button').count(), 4);
+    assert.equal(await page.locator('#career-view').evaluate(element => element.scrollWidth <= element.clientWidth), true);
     await page.setViewportSize({ width: 1440, height: 1000 });
 
     await page.getByRole('button', { name: 'Launch', exact: true }).first().click();

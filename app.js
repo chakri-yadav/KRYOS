@@ -15,13 +15,16 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.5.7";
-const APP_STAGE = "Mobile Freshness";
+const APP_VERSION = "0.5.8";
+const APP_STAGE = "Mobile Career Read Mode";
 const APP_RELEASE_DATE = "2026-09-25";
-const APP_STATUS = "Fresh, conflict-safe, premium iPhone execution surfaces";
+const APP_STATUS = "Complete, readable, and touch-safe iPhone career execution";
 const APP_NEXT_MILESTONE = "Set realistic Core deadlines module by module";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Restored the complete Career roadmap read mode on mobile, including modules, topics, deadlines, confidence, progress, and every completion checkbox.",
+  "Added a compact Career section navigator for Now, Deadlines, Roadmaps, and Full plan.",
+  "Removed mobile editing and creation noise while preserving reversible complete and incomplete actions with cloud sync.",
   "Added conflict-safe cloud freshness checks on launch, resume, and manual refresh.",
   "Added iPhone 15 Plus safe-area metadata and a premium icon-led mobile navigation system.",
   "Improved mobile hierarchy, touch feedback, loading state, and compact cloud status.",
@@ -4141,12 +4144,19 @@ function renderCareerView() {
       <div class="career-command-stat"><span>Current rhythm</span><strong>${stats.currentStreak}<small> days</small></strong><em>Personal best ${stats.bestStreak}</em></div>
     </header>
 
+    <nav class="career-mobile-index" aria-label="Career sections">
+      <button type="button" data-career-scroll="current"><span>01</span>Now</button>
+      <button type="button" data-career-scroll="deadlines"><span>02</span>Deadlines</button>
+      <button type="button" data-career-scroll="portfolio"><span>03</span>Roadmaps</button>
+      <button type="button" data-career-scroll="detail"><span>04</span>Full plan</button>
+    </nav>
+
     <section class="career-section career-week-section">
       <div class="career-section-head"><div><p class="section-kicker">Weekly pulse</p><h2>Four useful days, not seven perfect days.</h2></div><span class="career-target ${qualifiedDays >= 4 ? "is-met" : ""}">${qualifiedDays >= 4 ? "Target reached" : `${4 - qualifiedDays} days to target`}</span></div>
       <div class="career-week-pulse">${week.map(renderCareerPulseDay).join("")}</div>
     </section>
 
-    ${renderCareerDeadlinePanel(deadlines)}
+    <div id="career-deadlines">${renderCareerDeadlinePanel(deadlines)}</div>
 
     <div class="career-dashboard-grid">
       <section class="career-section career-field-panel">
@@ -4160,7 +4170,7 @@ function renderCareerView() {
       </section>
     </div>
 
-    <section class="career-section">
+    <section id="career-portfolio" class="career-section career-portfolio-section">
       <div class="career-section-head"><div><p class="section-kicker">Skill portfolio</p><h2>Choose the path. See the movement.</h2></div><div class="quick-add career-quick-add"><input type="text" id="new-roadmap-title" placeholder="New skill roadmap" /><button class="primary-button" type="button" data-career-add="roadmap">Add roadmap</button></div></div>
       <div class="career-portfolio">${careerState.roadmaps.length ? careerState.roadmaps.map(renderCareerPortfolioRow).join("") : emptyState("Create the first skill roadmap.")}</div>
     </section>
@@ -4174,7 +4184,7 @@ function renderCareerView() {
         <div class="career-section-head"><div><p class="section-kicker">Current module</p><h2>${next ? escapeHtml(next.module.title) : "Roadmap complete"}</h2></div><span>${next ? `${getTopicStats(next.topic).done}/${getTopicStats(next.topic).total} topic steps` : "All current steps complete"}</span></div>
         ${next ? renderCareerCurrentFocus(selectedRoadmap, next) : `<div class="career-complete-state"><strong>Coverage complete.</strong><p>Review confidence before adding more material.</p></div>`}
       </section>
-      ${renderRoadmapDetail(selectedRoadmap)}
+      <div id="career-roadmap-detail">${renderRoadmapDetail(selectedRoadmap)}</div>
     ` : ""}
   `;
 }
@@ -9160,7 +9170,13 @@ document.addEventListener("click", async (event) => {
 
   const careerScroll = target.closest("[data-career-scroll]");
   if (careerScroll) {
-    document.querySelector("#career-current-focus")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    const targets = {
+      current: "#career-current-focus",
+      deadlines: "#career-deadlines",
+      portfolio: "#career-portfolio",
+      detail: "#career-roadmap-detail",
+    };
+    document.querySelector(targets[careerScroll.dataset.careerScroll] || targets.current)?.scrollIntoView({ behavior: "smooth", block: "start" });
     return;
   }
 
