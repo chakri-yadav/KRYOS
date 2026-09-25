@@ -9,13 +9,13 @@ major.minor.patch
 Canonical current version:
 
 ```text
-0.5.6
+0.5.7
 ```
 
 ## Meaning
 
 - `0`: private product built for the founder's personal ADHD support.
-- `4`: the Life Execution Foundation line.
+- `5`: the focused iPhone mobile experience line.
 - Patch: a compatible correction with no new user workflow or data migration.
 - Minor: a complete compatible user capability or milestone.
 - Major: an incompatible product or data foundation change.
@@ -55,5 +55,5 @@ sync/backup impact, QA evidence, updated README/CHANGELOG/release documentation,
 and a matching Git tag for a published milestone.
 
 The older display forms such as `0.004.030` are retired. New canonical tags use
-the standard form, currently `v0.5.6`.
+the standard form, currently `v0.5.7`.
 See `docs/project/release-governance.md` for the complete workflow.
