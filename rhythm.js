@@ -4,18 +4,18 @@ const RHYTHM_HABITS = [
   { id: 'dinner', title: 'Dinner', group: 'body', cadence: 'daily', essential: true, icon: 'moon' },
   { id: 'protein', title: 'Protein shake', group: 'body', cadence: 'daily', essential: true, icon: 'cup-soda' },
   { id: 'supplements', title: 'Supplements', group: 'body', cadence: 'daily', essential: true, icon: 'pill' },
-  { id: 'water', title: 'Water', group: 'body', cadence: 'daily', essential: true, unit: 'L', target: 3.5, step: .5, icon: 'droplets' },
+  { id: 'water', title: 'Water', group: 'body', cadence: 'daily', essential: true, unit: 'L', target: 3, step: .5, icon: 'droplets' },
+  { id: 'face-wash', title: 'Face wash', group: 'care', cadence: 'daily', essential: true, icon: 'sparkles' },
   { id: 'moisturizer', title: 'Moisturizer', group: 'care', cadence: 'daily', essential: true, icon: 'sparkles' },
   { id: 'serum', title: 'Face serum', group: 'care', cadence: 'daily', essential: true, icon: 'flask-conical' },
-  { id: 'eye-cream', title: 'Eye cream', group: 'care', cadence: 'daily', essential: true, icon: 'eye' },
+  { id: 'eye-cream', title: 'Eye serum', group: 'care', cadence: 'daily', essential: true, icon: 'eye' },
   { id: 'sunscreen', title: 'Sunscreen', group: 'care', cadence: 'daily', essential: true, icon: 'sun' },
-  { id: 'exercise', title: 'Exercise', group: 'body', cadence: 'weekly', target: 3, unit: 'sessions', icon: 'dumbbell' },
-  { id: 'hair-care', title: 'Shampoo and conditioner', group: 'care', cadence: 'weekly', target: 2, unit: 'times', icon: 'shower-head' },
+  { id: 'exercise', title: 'Exercise', group: 'body', cadence: 'weekly', target: 2, unit: 'sessions', icon: 'dumbbell' },
+  { id: 'hair-care', title: 'Shampoo and conditioner', group: 'care', cadence: 'weekly', target: 1, unit: 'time', icon: 'shower-head' },
   { id: 'groceries', title: 'Buy groceries', group: 'body', cadence: 'weekly', target: 1, unit: 'trip', icon: 'shopping-basket' },
-  { id: 'nama-japa', title: 'Nama japa', group: 'spirit', cadence: 'opportunity', icon: 'circle-dot' },
   { id: 'gita', title: 'Bhagavad Gita', group: 'spirit', cadence: 'opportunity', icon: 'book-open' },
-  { id: 'chalisa', title: 'Hanuman Chalisa', group: 'spirit', cadence: 'opportunity', target: 3, unit: 'recitations', icon: 'book-heart' },
-  { id: 'aditya', title: 'Aditya Hridayam', group: 'spirit', cadence: 'opportunity', target: 3, unit: 'repetitions', icon: 'sun-medium' },
+  { id: 'chalisa', title: 'Hanuman Chalisa', group: 'spirit', cadence: 'opportunity', icon: 'book-heart' },
+  { id: 'aditya', title: 'Aditya Hridayam', group: 'spirit', cadence: 'opportunity', icon: 'sun-medium' },
   { id: 'meditation', title: 'Meditation', group: 'spirit', cadence: 'opportunity', icon: 'brain' },
   { id: 'pranayama', title: 'Pranayama', group: 'spirit', cadence: 'opportunity', icon: 'wind' },
 ];
@@ -24,9 +24,19 @@ let rhythmSelectedDate = '';
 let rhythmSettingsOpen = false;
 
 function rhythmStore() {
-  taskState.rhythm ||= { version: 1, events: [], settings: { foundationThreshold: 70, waterTarget: 3.5, exerciseTarget: 3, hairTarget: 2 } };
+  taskState.rhythm ||= { version: 2, events: [], settings: { foundationThreshold: 70, waterTarget: 3, exerciseTarget: 2, hairTarget: 1 } };
   taskState.rhythm.events ||= [];
-  taskState.rhythm.settings ||= { foundationThreshold: 70, waterTarget: 3.5, exerciseTarget: 3, hairTarget: 2 };
+  taskState.rhythm.settings ||= {};
+  if (Number(taskState.rhythm.version || 1) < 2) {
+    taskState.rhythm.version = 2;
+    taskState.rhythm.settings.waterTarget = 3;
+    taskState.rhythm.settings.exerciseTarget = 2;
+    taskState.rhythm.settings.hairTarget = 1;
+  }
+  taskState.rhythm.settings.foundationThreshold ||= 70;
+  taskState.rhythm.settings.waterTarget ||= 3;
+  taskState.rhythm.settings.exerciseTarget ||= 2;
+  taskState.rhythm.settings.hairTarget ||= 1;
   return taskState.rhythm;
 }
 
@@ -54,13 +64,17 @@ function rhythmSetValue(habitId, value, date = toDateKey(), source = 'manual') {
 
 function rhythmDay(date) {
   const essentials = RHYTHM_HABITS.filter(habit => habit.cadence === 'daily' && habit.essential);
-  const completed = essentials.filter(habit => rhythmValue(habit.id, date) >= rhythmTarget(habit)).length;
   const body = RHYTHM_HABITS.filter(habit => habit.cadence === 'daily' && habit.group === 'body');
   const care = RHYTHM_HABITS.filter(habit => habit.cadence === 'daily' && habit.group === 'care');
   const spirit = RHYTHM_HABITS.filter(habit => habit.group === 'spirit');
   const score = habits => habits.length ? Math.round(habits.reduce((sum, habit) => sum + Math.min(1, rhythmValue(habit.id, date) / rhythmTarget(habit)), 0) / habits.length * 100) : 0;
+  const meals = ['breakfast','lunch','dinner'].filter(id => rhythmValue(id,date)>0).length;
+  const skincare = care.filter(habit => rhythmValue(habit.id,date)>0).length;
   const spiritualPractices = spirit.filter(habit => rhythmValue(habit.id, date) > 0).length;
-  return { date, completed, total: essentials.length, percent: Math.round(completed / essentials.length * 100), qualified: Math.round(completed / essentials.length * 100) >= rhythmStore().settings.foundationThreshold, body: score(body), care: score(care), spirit: Math.min(100, spiritualPractices * 25), spiritualPractices };
+  const foundations = [meals>=2,rhythmValue('protein',date)>0,rhythmValue('supplements',date)>0,rhythmValue('water',date)>=rhythmTarget(rhythmHabit('water')),skincare>=2,spiritualPractices>=2];
+  const completed = foundations.filter(Boolean).length;
+  const percent = Math.round(completed / foundations.length * 100);
+  return { date, completed, total: foundations.length, percent, qualified: foundations.every(Boolean), body: score(body), care: Math.min(100,skincare*50), spirit: Math.min(100,spiritualPractices*50), meals, skincare, spiritualPractices, foundations };
 }
 
 function rhythmWeek(date = new Date()) {

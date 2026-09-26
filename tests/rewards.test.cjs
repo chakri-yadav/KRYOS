@@ -28,6 +28,7 @@ function setup(overrides = {}) {
       if (index >= 0) target.dailyAssessments[index] = assessment; else target.dailyAssessments.push(assessment);
     },
     rhythmHabit: id => ({ id, title: id, group: id.startsWith('spirit') ? 'spirit' : 'daily' }),
+    rhythmValue: (id,date) => Number(taskState.rhythm.events.find(event => event.habitId === id && event.date === date)?.value || 0),
     rhythmDay: date => ({ qualified: overrides.foundationDates?.includes(date) || false }),
     getSupabaseSession: overrides.getSupabaseSession || (async () => null),
     ensureSupabaseProfile: async () => 'profile-id',
@@ -163,15 +164,48 @@ test('empty cloud ledger reports a successful connection rather than appearing i
     getSupabaseClient: () => ({ rpc: async () => ({ data: { balance: 0, accepted: false }, error: null }) }),
   });
   await context.syncRewardLedger();
-  assert.equal(vm.runInContext('rewardCloudNotice', context), 'Cloud connected. Nothing to upload until you confirm a qualifying daily review.');
+  assert.equal(vm.runInContext('rewardCloudNotice', context), 'Cloud connected. Recorded evidence will sync automatically.');
 });
 
-test('astrology covenant preserves prior kept days and requires a final review', () => {
-  const containmentDays = Array.from({ length: 56 }, (_, index) => ({ date: dateAt(index), status: index === 4 ? 'breach' : 'kept', boundary: index === 4 ? 'astrology' : '' }));
-  const first = setup({ life: { innerCommand: { covenant: { startDate: '2026-09-19', days: 55 }, containmentDays } } }).context.covenantStats(dateAt(55));
-  assert.equal(first.qualified, 55);
+test('48-day Sadhana preserves aligned days without a manual final review', () => {
+  const containmentDays = Array.from({ length: 49 }, (_, index) => ({ date: dateAt(index + 7), status: index === 4 ? 'breach' : 'kept', boundary: index === 4 ? 'astrology' : '' }));
+  const first = setup({ life: { innerCommand: { covenant: { startDate: '2026-09-26', days: 48 }, containmentDays } } }).context.covenantStats(dateAt(55));
+  assert.equal(first.qualified, 48);
   assert.equal(first.breaches, 1);
-  assert.equal(first.unlocked, false);
-  const reviewed = setup({ life: { innerCommand: { covenant: { startDate: '2026-09-19', days: 55 }, containmentDays }, dailyAssessments: [assessment(dateAt(55), 9, { ruleVersion: 2, covenantReviewApproved: true })] } }).context.covenantStats(dateAt(55));
-  assert.equal(reviewed.unlocked, true);
+  assert.equal(first.unlocked, true);
+});
+
+test('v3 independently awards grouped nourishment, skincare, and spiritual evidence', () => {
+  const date='2026-09-26';
+  const events=['breakfast','lunch','protein','supplements','face-wash','moisturizer','gita','meditation'].map((habitId,index)=>({id:`e${index}`,date,habitId,value:1}));
+  events.push({id:'water',date,habitId:'water',value:3});
+  const evidence=setup({tasks:{rhythm:{events}}}).context.rewardEvidence(date);
+  assert.equal(evidence.ruleVersion,3);
+  assert.equal(evidence.scores.foundation,20);
+  assert.equal(evidence.scores.care,6);
+  assert.equal(evidence.scores.spiritual,8);
+  assert.equal(evidence.total,34);
+});
+
+test('v3 boundary deductions are capped and never create negative daily earnings', () => {
+  const date='2026-09-26';
+  const events=[{id:'protein',date,habitId:'protein',value:1}];
+  const innerCommand={covenant:{startDate:date,days:48},containmentDays:[{date,status:'breach',boundary:'astrology',boundaries:['astrology','social','information','validation']}]};
+  const evidence=setup({life:{innerCommand},tasks:{rhythm:{events}}}).context.rewardEvidence(date);
+  assert.equal(evidence.gross,5);
+  assert.equal(evidence.deductionRate,.2);
+  assert.equal(evidence.deduction,1);
+  assert.equal(evidence.total,4);
+});
+
+test('v3 Action scoring rewards deadlines modestly and caps the daily lane', () => {
+  const date='2026-09-26';
+  const actions=[
+    {id:'late',title:'Late',priority:'important',deadline:'2026-09-25',status:'done',completedAt:`${date}T12:00:00Z`},
+    {id:'critical',title:'Critical',priority:'critical',deadline:date,status:'done',completedAt:`${date}T13:00:00Z`},
+    {id:'important',title:'Important',priority:'important',deadline:date,status:'done',completedAt:`${date}T14:00:00Z`},
+  ];
+  const evidence=setup({life:{actions}}).context.rewardEvidence(date);
+  assert.equal(evidence.scores.responsibility,6);
+  assert.equal(evidence.total,6);
 });

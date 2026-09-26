@@ -50,5 +50,5 @@ test('refresh bypasses stale cloud responses and covenant ends November 12', () 
   assert.match(app, /cache: "no-store"/);
   assert.match(app, /else if \(document\.visibilityState === "visible"\) refreshCloudData/);
   assert.match(html, /data-sync-action="safe-refresh"/);
-  assert.match(rewards, /end:'2026-11-12', requiredDays:55/);
+  assert.match(rewards, /start:'2026-09-26', end:'2026-11-12', requiredDays:48/);
 });
