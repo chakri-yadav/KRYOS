@@ -73,6 +73,7 @@ small utility surface. They are services, not primary destinations.
 - `0.5.11` — cloud-first Career startup ordering that prevents migration overwrites.
 - `0.5.12` — confirmed historical reward reviews for September 21–24.
 - `0.5.13` — reliable refresh and November 12 Inner Command extension.
+- `0.6.0` — assistant capture and revision-safe cross-device sync.
 
 Each milestone must have its own release document and pass the release
 governance Definition of Done before the next one begins.
