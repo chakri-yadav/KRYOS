@@ -13,10 +13,15 @@ function lifeStore() {
   taskState.life.rewardRedemptions ||= [];
   taskState.life.dailyAssessments ||= [];
   taskState.life.innerCommand ||= {
-    covenant: { startDate: '2026-09-19', days: 45 },
+    covenant: { startDate: '2026-09-19', endDate: '2026-11-12', days: 55 },
     containmentDays: [],
   };
   taskState.life.innerCommand.containmentDays ||= [];
+  taskState.life.innerCommand.covenant ||= { startDate: '2026-09-19', endDate: '2026-11-12', days: 55 };
+  if (taskState.life.innerCommand.covenant.startDate === '2026-09-19' && Number(taskState.life.innerCommand.covenant.days || 0) < 55) {
+    taskState.life.innerCommand.covenant.days = 55;
+    taskState.life.innerCommand.covenant.endDate = '2026-11-12';
+  }
   return taskState.life;
 }
 function lifeOptions(items) { return items.map(x => `<option>${escapeHtml(x)}</option>`).join(''); }

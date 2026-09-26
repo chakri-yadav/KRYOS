@@ -4,8 +4,8 @@ const fs = require('node:fs');
 
 test('deployment loads Supabase before KRYOS application code', () => {
   const html = fs.readFileSync('index.html', 'utf8');
-  const supabase = html.indexOf('vendor/supabase.js?v=0.5.12');
-  const app = html.indexOf('app.js?v=0.5.12');
+  const supabase = html.indexOf('vendor/supabase.js?v=0.5.13');
+  const app = html.indexOf('app.js?v=0.5.13');
   assert.ok(supabase >= 0, 'Supabase browser client is missing');
   assert.ok(supabase < app, 'Supabase must load before app.js');
 });
@@ -41,4 +41,14 @@ test('confirmed historical review correction is bounded and idempotent', () => {
   assert.match(app, /\["2026-09-21", "2026-09-22", "2026-09-23", "2026-09-24"\]/);
   assert.match(app, /confirmedReviewCorrection_2026_09_21_24/);
   assert.match(app, /if \(isDemoMode\(\) \|\| typeof reviewRewardDay !== "function"\) return/);
+});
+
+test('refresh bypasses stale cloud responses and covenant ends November 12', () => {
+  const app = fs.readFileSync('app.js', 'utf8');
+  const html = fs.readFileSync('index.html', 'utf8');
+  const rewards = fs.readFileSync('rewards.js', 'utf8');
+  assert.match(app, /cache: "no-store"/);
+  assert.match(app, /else if \(document\.visibilityState === "visible"\) refreshCloudData/);
+  assert.match(html, /data-sync-action="safe-refresh"/);
+  assert.match(rewards, /end:'2026-11-12', requiredDays:55/);
 });

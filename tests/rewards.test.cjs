@@ -12,7 +12,7 @@ function dateAt(index) {
 function setup(overrides = {}) {
   const store = {
     entries: [], records: [], actions: [], rewardRedemptions: [], dailyAssessments: [],
-    innerCommand: { covenant: { startDate: '2026-09-19', days: 45 }, containmentDays: [] },
+    innerCommand: { covenant: { startDate: '2026-09-19', days: 55 }, containmentDays: [] },
     ...overrides.life,
   };
   const taskState = { launch: { marketEvents: [], mockSessions: [] }, rhythm: { events: [] }, money: { contacts: [] }, ...overrides.tasks };
@@ -89,7 +89,7 @@ test('all active workspaces feed one capped reward review', () => {
       entries: [{ date, text: 'Closed the day honestly.' }],
       records: [{ id: 'spiritual-record', date, completed: true, domain: 'Spiritual practice', title: 'Prayer' }],
       actions: [{ id: 'action-one', title: 'Important responsibility', priority: 'important', deadline: date, status: 'done', completedAt: `${date}T18:00:00Z` }],
-      innerCommand: { covenant: { startDate: date, days: 45 }, containmentDays: [{ date, status: 'kept' }] },
+      innerCommand: { covenant: { startDate: date, days: 55 }, containmentDays: [{ date, status: 'kept' }] },
     },
     tasks: {
       launch: { marketEvents: [
@@ -167,11 +167,11 @@ test('empty cloud ledger reports a successful connection rather than appearing i
 });
 
 test('astrology covenant preserves prior kept days and requires a final review', () => {
-  const containmentDays = Array.from({ length: 46 }, (_, index) => ({ date: dateAt(index), status: index === 4 ? 'breach' : 'kept', boundary: index === 4 ? 'astrology' : '' }));
-  const first = setup({ life: { innerCommand: { covenant: { startDate: '2026-09-19', days: 45 }, containmentDays } } }).context.covenantStats(dateAt(45));
-  assert.equal(first.qualified, 45);
+  const containmentDays = Array.from({ length: 56 }, (_, index) => ({ date: dateAt(index), status: index === 4 ? 'breach' : 'kept', boundary: index === 4 ? 'astrology' : '' }));
+  const first = setup({ life: { innerCommand: { covenant: { startDate: '2026-09-19', days: 55 }, containmentDays } } }).context.covenantStats(dateAt(55));
+  assert.equal(first.qualified, 55);
   assert.equal(first.breaches, 1);
   assert.equal(first.unlocked, false);
-  const reviewed = setup({ life: { innerCommand: { covenant: { startDate: '2026-09-19', days: 45 }, containmentDays }, dailyAssessments: [assessment(dateAt(45), 9, { ruleVersion: 2, covenantReviewApproved: true })] } }).context.covenantStats(dateAt(45));
+  const reviewed = setup({ life: { innerCommand: { covenant: { startDate: '2026-09-19', days: 55 }, containmentDays }, dailyAssessments: [assessment(dateAt(55), 9, { ruleVersion: 2, covenantReviewApproved: true })] } }).context.covenantStats(dateAt(55));
   assert.equal(reviewed.unlocked, true);
 });

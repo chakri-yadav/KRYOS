@@ -15,13 +15,15 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.5.12";
-const APP_STAGE = "Confirmed Historical Reviews";
+const APP_VERSION = "0.5.13";
+const APP_STAGE = "Reliable Refresh and Covenant";
 const APP_RELEASE_DATE = "2026-09-25";
-const APP_STATUS = "Truth-confirmed daily reward reviews with auditable evidence";
+const APP_STATUS = "Fresh cloud reads with containment extended through November 12";
 const APP_NEXT_MILESTONE = "Set realistic Core deadlines module by module";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Added cache-free cloud reads and a refresh check on every visible page show.",
+  "Extended the Inner Command covenant through November 12, 2026 while preserving prior evidence.",
   "Marked the confirmed Personal reward reviews for Sunday September 21 through Wednesday September 24, 2026.",
   "Stored those reviews from existing dated evidence without changing reward scoring rules or Demo data.",
   "Stopped startup Career migrations from uploading before the first cloud recovery check finishes.",
@@ -6518,6 +6520,9 @@ function getSupabaseClient() {
   if (!window.supabase?.createClient) return null;
   if (!getSupabaseClient.instance) {
     getSupabaseClient.instance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: {
+        fetch: (url, options = {}) => window.fetch(url, { ...options, cache: "no-store" }),
+      },
       auth: {
         persistSession: true,
         autoRefreshToken: true,
@@ -9641,6 +9646,12 @@ document.addEventListener("input", (event) => {
 
 if (isSecurityUnlocked) touchSecuritySession(true);
 applyConfirmedHistoricalRewardReviews();
+const covenantExtensionNeeded = !isDemoMode()
+  && Number(taskState.life?.innerCommand?.covenant?.days || 0) < 55;
+if (covenantExtensionNeeded) {
+  lifeStore();
+  saveTasks();
+}
 render();
 renderSecurityOverlay();
 resetLockTimer();
@@ -9652,6 +9663,7 @@ refreshSyncAuthState({ silent: true }).then(async (session) => {
 });
 window.addEventListener("pageshow", (event) => {
   if (event.persisted) window.location.reload();
+  else if (document.visibilityState === "visible") refreshCloudData({ automatic: true });
 });
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState !== "visible") return;
