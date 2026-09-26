@@ -46,6 +46,17 @@ test('career checklist completion uses a stable exact check ID', () => {
   assert.equal(career.roadmaps[0].modules[0].topics[0].checklist[0].done, false);
 });
 
+test('career checklist correction reopens only the exact completed item', () => {
+  const career = { ...baseCareer, roadmaps: [{ id: 'roadmap', title: 'Career', modules: [{ id: 'module', title: 'Backend', topics: [{ id: 'topic', title: 'APIs', checklist: [{ id: 'exact-check', text: 'Explain idempotency', done: false }, { id: 'other-check', text: 'Explain caching', done: true }] }] }] }] };
+  const completed = projectRequest(makeRequest([{ type: 'career.check.complete', check_id: 'exact-check', evidence_quote: 'read Bhagavad Gita' }]), baseTasks, career, '2026-09-26T20:00:00Z');
+  const correction = { ...makeRequest([{ type: 'career.check.reopen', check_id: 'exact-check', evidence_quote: 'read Bhagavad Gita' }]), idempotency_key: 'chat-message-correction' };
+  const reopened = projectRequest(correction, completed.tasks, completed.career, '2026-09-26T21:00:00Z');
+  const checks = reopened.career.roadmaps[0].modules[0].topics[0].checklist;
+  assert.equal(checks.find(item => item.id === 'exact-check').done, false);
+  assert.equal(checks.find(item => item.id === 'other-check').done, true);
+  assert.equal(reopened.career.activityLog.some(item => item.checkId === 'exact-check'), false);
+});
+
 test('water is set to a reported total rather than summed on a retry', () => {
   const request = makeRequest([{ type: 'rhythm.measure', habit_key: 'water', value: 3, unit: 'L', evidence_quote: 'three litres' }], 'I drank three litres.');
   const first = projectRequest(request, baseTasks, baseCareer);
