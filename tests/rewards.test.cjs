@@ -209,3 +209,50 @@ test('v3 Action scoring rewards deadlines modestly and caps the daily lane', () 
   assert.equal(evidence.scores.responsibility,6);
   assert.equal(evidence.total,6);
 });
+
+test('v3 skincare correction removes only the affected reward lane', () => {
+  const date='2026-09-26';
+  const events=[
+    {id:'face',date,habitId:'face-wash',value:1},
+    {id:'moisturizer',date,habitId:'moisturizer',value:1},
+    {id:'protein',date,habitId:'protein',value:1},
+  ];
+  const {context,taskState}=setup({tasks:{rhythm:{events}}});
+  assert.equal(context.rewardEvidence(date).scores.care,6);
+  taskState.rhythm.events.find(event=>event.id==='moisturizer').value=0;
+  const corrected=context.rewardEvidence(date);
+  assert.equal(corrected.scores.care,0);
+  assert.equal(corrected.scores.foundation,5);
+  assert.equal(corrected.total,5);
+});
+
+test('v3 rolling maintenance gates enforce exercise, hair-care, and grocery spacing', () => {
+  const events=[
+    {id:'exercise-1',date:'2026-09-26',habitId:'exercise',value:1},
+    {id:'exercise-2',date:'2026-09-27',habitId:'exercise',value:1},
+    {id:'exercise-3',date:'2026-09-28',habitId:'exercise',value:1},
+    {id:'hair-1',date:'2026-09-26',habitId:'hair-care',value:1},
+    {id:'hair-2',date:'2026-09-27',habitId:'hair-care',value:1},
+    {id:'grocery-1',date:'2026-09-26',habitId:'groceries',value:1},
+    {id:'grocery-early',date:'2026-10-02',habitId:'groceries',value:1},
+    {id:'grocery-ready',date:'2026-10-03',habitId:'groceries',value:1},
+  ];
+  const {context}=setup({tasks:{rhythm:{events}}});
+  assert.equal(context.rewardEvidence('2026-09-26').scores.maintenance,12);
+  assert.equal(context.rewardEvidence('2026-09-27').scores.maintenance,4);
+  assert.equal(context.rewardEvidence('2026-09-28').scores.maintenance,0);
+  assert.equal(context.rewardEvidence('2026-10-02').scores.maintenance,0);
+  assert.equal(context.rewardEvidence('2026-10-03').scores.maintenance,0);
+  const spacedEvents=events.filter(event=>event.id!=='grocery-early');
+  assert.equal(setup({tasks:{rhythm:{events:spacedEvents}}}).context.rewardEvidence('2026-10-03').scores.maintenance,5);
+});
+
+test('v3 consistency bonuses require Career 5/7, Launch 4/5 weekdays, and articulation cadence', () => {
+  const dates=['2026-09-28','2026-09-29','2026-09-30','2026-10-01','2026-10-02'];
+  const reviews=dates.map((date,index)=>assessment(date,12,{ruleVersion:3,scores:{career:12,launch:index<4?12:0,articulation:index<3?(index===2?10:6):0}}));
+  const bonuses=setup({life:{dailyAssessments:reviews}}).context.weeklyConsistencyBonuses(reviews);
+  assert.equal(bonuses.find(item=>item.week.startsWith('career:')).credits,8);
+  assert.equal(bonuses.find(item=>item.week.startsWith('launch:')).credits,8);
+  assert.equal(bonuses.find(item=>item.week.startsWith('articulation:')).credits,4);
+  assert.equal(bonuses.reduce((sum,item)=>sum+item.credits,0),20);
+});

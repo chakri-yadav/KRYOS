@@ -10,6 +10,7 @@ All notable KRYOS changes should be recorded here.
 - Added the founder's small, social, medium, movie, and important-call reward catalog.
 - Made current reward days recalculate automatically while preserving historical reward rules.
 - Included the production assistant ingestion bridge so spoken or written reports can update the existing Personal data blocks.
+- Added evidence-safe Rhythm, Action, and Career checklist reopening so corrections remove only their affected progress and reward lane.
 - Corrected the weekly Rewards explanation and refreshed every browser asset cache key.
 
 ## 0.6.0 - Assistant Capture and Safe Sync
