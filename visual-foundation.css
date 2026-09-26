@@ -111,6 +111,36 @@
   .rhythm-group-note { font-size: 13px; color: #52635d; }
   .rhythm-surface { border-radius: 16px; padding: 24px; }
 }
+.evidence-bars { display:flex; gap:16px; align-items:end; margin:28px 0 16px; }
+.evidence-bar { flex:1; min-width:0; border:0; background:transparent; color:var(--text); display:grid; gap:10px; text-align:center; border-radius:8px; }
+.evidence-bar:hover { background:var(--surface-2); }
+.evidence-stack { height:160px; display:flex; flex-direction:column-reverse; gap:0; background:#eef1ed; border-radius:8px; overflow:hidden; }
+.evidence-stack i { display:block; flex-shrink:0; }
+.evidence-color-0 { background:#216a54; }
+.evidence-color-1 { background:#4483ac; }
+.evidence-color-2 { background:#8c6bae; }
+.evidence-color-3 { background:#72a88a; }
+.evidence-color-4 { background:#c89940; }
+.evidence-color-5 { background:#947960; }
+.evidence-color-6 { background:#7a8797; }
+.evidence-legend { display:flex; flex-wrap:wrap; gap:16px; font-size:13px; }
+.evidence-legend span { display:flex; align-items:center; gap:6px; }
+.evidence-legend i { width:10px; height:10px; border-radius:3px; }
+.evidence-targets { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:24px; margin-top:32px; }
+.evidence-targets article > div { display:flex; justify-content:space-between; gap:12px; }
+.evidence-targets progress { width:100%; height:10px; margin:12px 0; }
+.evidence-targets small, .evidence-note { color:var(--muted); font-size:13px; line-height:1.6; }
+.evidence-calendar { display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); gap:8px; margin:24px 0; }
+.evidence-calendar button { display:grid; place-items:center; min-height:56px; border:1px solid #bccac1; border-radius:10px; background:#fff; color:#52635d; }
+.evidence-calendar .journey-recorded { background:#e8f4ee; color:#155a43; border-color:#73ab8d; }
+.evidence-calendar .journey-drift { background:#fff4df; color:#805611; border-color:#d8b979; }
+.evidence-calendar .journey-future { background:#f1f2ef; border-style:dashed; }
+.evidence-today { border-left:4px solid #16765c; }
+@media (max-width:900px) {
+  .evidence-targets { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .evidence-calendar { grid-template-columns:repeat(6,minmax(0,1fr)); }
+  .evidence-bars { gap:6px; }
+}
 /* Motion preferences also apply to existing component animations. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
