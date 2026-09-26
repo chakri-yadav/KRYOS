@@ -1,46 +1,52 @@
 # KRYOS
 
-KRYOS is a private inner-alignment operating system for daily execution, habit consistency, career roadmaps, journaling, and progress review.
+KRYOS is a private directed-attention operating system. It converts intention, distraction, urges, and setbacks into small physical actions that produce visible evidence.
 
-It is not a generic todo app. KRYOS is designed to help one person keep life, work, body, mind, and spiritual discipline inside one coherent system without turning the product into noise.
+It is not a generic todo app, journal, or habit tracker. KRYOS is designed to help one person choose one outcome, enter focus quickly, redirect impulses, recover from slips, and advance one breakthrough project without turning self-improvement into more reading.
 
 ## Current Status
 
-- Version: `0.002.001`
-- Stage: Profile Login Correction
-- Audience: personal daily use plus safe demo/interview showcase
+- Version: `0.6.0`
+- Stage: Assistant Capture and Safe Sync
+- Audience: private personal daily use
 - App type: local-first browser application
-- Sync status: not enabled yet
-- Backend status: not enabled yet
+- Sync status: local-first with Supabase task, career, and reward paths configured
+- Backend status: Personal assistant ingestion and revision-checked task/career writes use Supabase; a private assistant token is required for direct capture
 
 ## Product Promise
 
-KRYOS should answer three questions every day:
+KRYOS should answer three questions in the moment:
 
-1. What should I do now?
-2. What pattern is shaping me?
-3. What evidence proves I am becoming stable?
+1. What is the one outcome that matters now?
+2. What is the smallest physical action I can start?
+3. When attention breaks, where should it be redirected?
 
 ## Core Areas
 
-- Foundation: why the system exists, vows, strengths, weaknesses, return protocol.
-- Career: roadmap structure and career consistency evidence.
-- Today: execution cockpit for dated tasks, carry-forward, and inbox work.
-- Habits: recurring discipline tracking with visual feedback.
-- Journal: mind containment, truth filter, shutdown, and daily pulse.
-- Progress: read-only analytics from the other areas.
+- Journal: saved drafts, free writing, structured life records, reviewed JSON imports and search.
+- Progress: 84-day activity grid, scheduled streaks, existing VP totals, focus history and domain counts.
+- Import contract and current limits: `docs/journal-import.md`.
+- Assistant ingestion implementation and deployment: `docs/architecture/assistant-ingestion-implementation.md`.
+
+- Today: one outcome, one first action, at most two support tasks, and four daily non-negotiables.
+- Focus: a five- or twenty-five-minute build/analyze session with visible output.
+- Redirect: short protocols for urges, distraction, slips, and minimum viable recovery.
+- Rewards: Alignment XP earned only from verified behaviors, with explicit reward costs.
+- Project: one breakthrough project, its next physical action, and shipped artifacts.
+- Weekly Review: read-only evidence for build ratio, redirects, slips, artifacts, and recovery.
 - Settings: privacy, lock behavior, export, import, and reset.
-- Field Mode: mobile quick capture and checkoff.
 
 ## Product Rules
 
-- One page owns one job.
-- Progress reads data; it does not create work.
-- Mobile is for quick input, not full analysis.
-- Career roadmaps are visual by default and editable only through a deliberate editor.
-- Personal data and demo data must stay separated.
-- Demo profile opens from login credentials, not from an in-app switch.
-- Sync comes after local trust.
+- One page owns one decision.
+- The system must route behavior, not merely describe it.
+- One breakthrough project is active at a time.
+- Build time and analyze time are measured separately.
+- XP comes from append-only behavior events; totals are derived, never manually edited.
+- A slip never creates negative points. Recovery is always available.
+- Weekly Review reads evidence; it does not create work.
+- Personal and demo storage remain separated.
+- Existing task and career blocks still own behavior state. Version 0.6.0 adds a metadata and assistant-event migration without replacing those blocks.
 
 ## Documentation Map
 
