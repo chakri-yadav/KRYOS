@@ -26,6 +26,7 @@ KRYOS should answer three questions in the moment:
 - Journal: saved drafts, free writing, structured life records, reviewed JSON imports and search.
 - Progress: 84-day activity grid, scheduled streaks, existing VP totals, focus history and domain counts.
 - Import contract and current limits: `docs/journal-import.md`.
+- Assistant ingestion implementation and deployment: `docs/architecture/assistant-ingestion-implementation.md`.
 
 - Today: one outcome, one first action, at most two support tasks, and four daily non-negotiables.
 - Focus: a five- or twenty-five-minute build/analyze session with visible output.

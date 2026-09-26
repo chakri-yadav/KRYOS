@@ -93,8 +93,7 @@ async function flushTaskCloudSync() {
     const client = getSupabaseClient();
     const profileId = await ensureSupabaseProfile(session);
     const taskBlock = getSyncBlockPayloads().find(block => block.block_key === 'tasks');
-    const { error } = await client.from('kryos_sync_blocks').upsert([{ ...taskBlock, profile_id: profileId, updated_at: new Date().toISOString() }], { onConflict: 'profile_id,block_key' });
-    if (error) throw error;
+    const revision = await writeVersionedBlock(client, profileId, taskBlock);
     syncState = {
       ...syncState,
       enabled: true,
@@ -103,6 +102,7 @@ async function flushTaskCloudSync() {
       lastSyncAt: new Date().toISOString(),
       lastAttemptAt: new Date().toISOString(),
       remoteBlockVersions: { ...syncState.remoteBlockVersions, tasks: taskBlock.payload_updated_at },
+      remoteBlockRevisions: { ...syncState.remoteBlockRevisions, tasks: revision },
       remoteProfileId: profileId,
       userEmail: session.user.email || syncState.userEmail,
       userId: session.user.id,
@@ -112,10 +112,11 @@ async function flushTaskCloudSync() {
   } catch (error) {
     console.warn('KRYOS action auto-sync failed.', error);
     actionSyncState = 'error';
+    if (!String(error?.message || '').includes('KRYOS_CONFLICT')) actionSyncDirty = true;
   } finally {
     actionSyncRunning = false;
     updateActionSyncIndicator();
-    if (actionSyncDirty) scheduleTaskCloudSync();
+    if (actionSyncDirty && actionSyncState !== 'error') scheduleTaskCloudSync();
   }
 }
 
