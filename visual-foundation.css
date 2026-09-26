@@ -79,6 +79,20 @@
   .reward-week strong { font-size: 20px; font-variant-numeric: tabular-nums; }
   .reward-covenant-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
   .reward-covenant-grid i { font-size: 12px; border-radius: 6px; }
+  .reward-target-card { position:relative; overflow:hidden; background:linear-gradient(145deg,#f8fcf9,#e8f4ee) !important; border-color:#a9cfba !important; }
+  .reward-target-card.is-ready { background:linear-gradient(145deg,#eefaf2,#d8f0e1) !important; border-color:#67ad85 !important; }
+  .reward-target-meter { display:flex; align-items:baseline; gap:8px; margin:18px 0 6px; }
+  .reward-target-meter strong { font-size:34px; line-height:1; color:#105a46; font-variant-numeric:tabular-nums; }
+  .reward-target-meter span { color:#4a685b; font-size:14px; }
+  .reward-target-card .primary-button { margin-top:14px; width:100%; }
+  .reward-week-heading { display:flex; justify-content:space-between; gap:18px; align-items:start; }
+  .reward-week-heading h2 { margin:5px 0 0; font-size:21px; }
+  .reward-week-heading > span { color:#366452; font-size:13px; text-align:right; }
+  .reward-catalogue .life-heading { margin-bottom:0; }
+  .reward-card { position:relative; }
+  .reward-card.selected { border:2px solid #257756; background:#f3fbf6; }
+  .reward-card progress { width:100%; height:8px; margin:3px 0; accent-color:#16765c; }
+  .reward-card em { color:#155a43; font-size:13px; font-style:normal; font-weight:700; }
   .global-cloud-state, .career-sync-state { font-size: 13px; line-height: 1.4; padding: 8px 12px; border-radius: 999px; }
   .global-cloud-state.state-local, .career-sync-state.state-local { color: #465650; background: #edf1ec; }
   .global-cloud-state.state-saving, .career-sync-state.state-saving { color: #76520d; background: #fff4d9; }
@@ -140,6 +154,7 @@
   .evidence-targets { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .evidence-calendar { grid-template-columns:repeat(6,minmax(0,1fr)); }
   .evidence-bars { gap:6px; }
+  .reward-week-heading { align-items:start; }
 }
 /* Motion preferences also apply to existing component animations. */
 @media (prefers-reduced-motion: reduce) {
