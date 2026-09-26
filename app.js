@@ -9737,9 +9737,10 @@ document.addEventListener("input", (event) => {
 
 if (isSecurityUnlocked) touchSecuritySession(true);
 applyConfirmedHistoricalRewardReviews();
-const covenantExtensionNeeded = !isDemoMode()
-  && Number(taskState.life?.innerCommand?.covenant?.days || 0) < 55;
-if (covenantExtensionNeeded) {
+const commitmentMigrationNeeded = !isDemoMode()
+  && (taskState.life?.innerCommand?.covenant?.startDate !== '2026-09-26'
+    || Number(taskState.life?.innerCommand?.covenant?.days || 0) !== 48);
+if (commitmentMigrationNeeded) {
   lifeStore();
   saveTasks();
 }
