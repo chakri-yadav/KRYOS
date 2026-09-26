@@ -15,8 +15,8 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.5.13";
-const APP_STAGE = "Reliable Refresh and Covenant";
+const APP_VERSION = "0.6.0";
+const APP_STAGE = "Assistant Capture and Safe Sync";
 const APP_RELEASE_DATE = "2026-09-25";
 const APP_STATUS = "Fresh cloud reads with containment extended through November 12";
 const APP_NEXT_MILESTONE = "Set realistic Core deadlines module by module";
@@ -104,6 +104,7 @@ const APP_RELEASE_NOTES = [
   "Behavior events live inside the existing synced task block, so the Supabase schema does not need a migration.",
   "Legacy KRYOS records remain preserved locally and in backups.",
 ];
+let assistantTokenOnce = "";
 const DATA_STORAGE_KEYS = [
   FOUNDATION_STORAGE_KEY,
   CAREER_STORAGE_KEY,
@@ -1910,6 +1911,7 @@ function createDefaultSyncState(overrides = {}) {
     lastReadinessAt: null,
     conflictCount: 0,
     remoteBlockVersions: {},
+    remoteBlockRevisions: {},
     remoteProfileId: "",
     endpointConfigured: false,
     userEmail: "",
@@ -1938,6 +1940,9 @@ function normalizeSyncState(saved = {}) {
     conflictCount: Number.isFinite(Number(saved.conflictCount)) ? Number(saved.conflictCount) : 0,
     remoteBlockVersions: saved.remoteBlockVersions && typeof saved.remoteBlockVersions === "object"
       ? saved.remoteBlockVersions
+      : {},
+    remoteBlockRevisions: saved.remoteBlockRevisions && typeof saved.remoteBlockRevisions === "object"
+      ? saved.remoteBlockRevisions
       : {},
     remoteProfileId: saved.remoteProfileId || "",
     endpointConfigured: Boolean(saved.endpointConfigured),
@@ -2365,8 +2370,7 @@ async function flushCareerCloudSync() {
     const client = getSupabaseClient();
     const profileId = await ensureSupabaseProfile(session);
     const careerBlock = getSyncBlockPayloads().find((block) => block.block_key === "career");
-    const { error } = await client.from("kryos_sync_blocks").upsert([{ ...careerBlock, profile_id: profileId, updated_at: new Date().toISOString() }], { onConflict: "profile_id,block_key" });
-    if (error) throw error;
+    const revision = await writeVersionedBlock(client, profileId, careerBlock);
     syncState = {
       ...syncState,
       enabled: true,
@@ -2375,6 +2379,7 @@ async function flushCareerCloudSync() {
       lastSyncAt: new Date().toISOString(),
       lastAttemptAt: new Date().toISOString(),
       remoteBlockVersions: { ...syncState.remoteBlockVersions, career: careerBlock.payload_updated_at },
+      remoteBlockRevisions: { ...syncState.remoteBlockRevisions, career: revision },
       remoteProfileId: profileId,
       userEmail: session.user.email || syncState.userEmail,
       userId: session.user.id,
@@ -2384,10 +2389,11 @@ async function flushCareerCloudSync() {
   } catch (error) {
     console.warn("KRYOS career auto-sync failed.", error);
     careerSyncState = "error";
+    if (!String(error?.message || "").includes("KRYOS_CONFLICT")) careerSyncDirty = true;
   } finally {
     careerSyncRunning = false;
     updateCareerSyncIndicator();
-    if (careerSyncDirty) scheduleCareerCloudSync();
+    if (careerSyncDirty && careerSyncState !== "error") scheduleCareerCloudSync();
   }
 }
 
@@ -3049,6 +3055,7 @@ function resetLockTimer() {
 
 function lockApp(message = "KRYOS is locked.") {
   if (!securityState.configured) return;
+  assistantTokenOnce = "";
   isSecurityUnlocked = false;
   recoveryMode = false;
   securityNotice = message;
@@ -6623,6 +6630,49 @@ function getSyncBlockPayloads() {
   });
 }
 
+async function writeVersionedBlock(client, profileId, block) {
+  const { data, error } = await client.rpc("kryos_write_sync_block", {
+    p_profile: profileId,
+    p_block_key: block.block_key,
+    p_payload: block.payload,
+    p_schema_version: block.schema_version,
+    p_payload_updated_at: block.payload_updated_at,
+    p_expected_revision: Number(syncState.remoteBlockRevisions?.[block.block_key] || 0),
+  });
+  if (error) throw error;
+  return Number(data);
+}
+
+async function issueAssistantToken() {
+  try {
+    const session = await refreshSyncAuthState({ silent: true });
+    if (!session || isDemoMode()) throw new Error("Sign in to the Personal cloud profile first.");
+    const profileId = await ensureSupabaseProfile(session);
+    const { data, error } = await getSupabaseClient().rpc("kryos_issue_assistant_token", { p_profile: profileId });
+    if (error) throw error;
+    assistantTokenOnce = data;
+    syncNotice = "Assistant access created. Copy this token now; KRYOS will not display it again.";
+  } catch (error) {
+    syncNotice = `Assistant access failed: ${getSyncErrorMessage(error)}`;
+  }
+  render();
+}
+
+async function revokeAssistantTokens() {
+  try {
+    const session = await refreshSyncAuthState({ silent: true });
+    if (!session || isDemoMode()) throw new Error("Sign in to the Personal cloud profile first.");
+    const profileId = await ensureSupabaseProfile(session);
+    const { data, error } = await getSupabaseClient().rpc("kryos_revoke_assistant_tokens", { p_profile: profileId });
+    if (error) throw error;
+    assistantTokenOnce = "";
+    syncNotice = `${Number(data || 0)} assistant access token${Number(data) === 1 ? "" : "s"} revoked.`;
+  } catch (error) {
+    syncNotice = `Revocation failed: ${getSyncErrorMessage(error)}`;
+  }
+  render();
+}
+
 async function ensureSupabaseProfile(session) {
   const client = getSupabaseClient();
   if (!client || !session) throw new Error("Sign in before syncing.");
@@ -6776,6 +6826,7 @@ async function signOutSupabase() {
   const client = getSupabaseClient();
   if (!client) return;
   await client.auth.signOut();
+  assistantTokenOnce = "";
   syncState = {
     ...syncState,
     status: "signed-out",
@@ -6801,10 +6852,18 @@ async function pushToSupabase() {
       profile_id: profileId,
       updated_at: new Date().toISOString(),
     }));
-    const { error } = await client
-      .from("kryos_sync_blocks")
-      .upsert(rows, { onConflict: "profile_id,block_key" });
-    if (error) throw error;
+    const revisions = { ...syncState.remoteBlockRevisions };
+    for (const row of [...rows].sort((a, b) => Number(["tasks", "career"].includes(b.block_key)) - Number(["tasks", "career"].includes(a.block_key)))) {
+      if (row.block_key === "tasks" || row.block_key === "career") {
+        revisions[row.block_key] = await writeVersionedBlock(client, profileId, row);
+        syncState.remoteBlockRevisions = { ...syncState.remoteBlockRevisions, [row.block_key]: revisions[row.block_key] };
+        syncState.remoteBlockVersions = { ...syncState.remoteBlockVersions, [row.block_key]: row.payload_updated_at };
+        saveSyncState();
+      } else {
+        const { error } = await client.from("kryos_sync_blocks").upsert([row], { onConflict: "profile_id,block_key" });
+        if (error) throw error;
+      }
+    }
     syncState = {
       ...syncState,
       enabled: true,
@@ -6813,6 +6872,7 @@ async function pushToSupabase() {
       lastSyncAt: new Date().toISOString(),
       lastAttemptAt: new Date().toISOString(),
       remoteBlockVersions: Object.fromEntries(rows.map((row) => [row.block_key, row.payload_updated_at])),
+      remoteBlockRevisions: revisions,
       remoteProfileId: profileId,
       userEmail: session.user.email || syncState.userEmail,
       userId: session.user.id,
@@ -6881,12 +6941,13 @@ async function refreshCloudData({ automatic = false } = {}) {
     const profileId = await ensureSupabaseProfile(session);
     const { data, error } = await client
       .from("kryos_sync_blocks")
-      .select("block_key,payload,payload_updated_at,updated_at,schema_version")
+      .select("block_key,payload,payload_updated_at,updated_at,schema_version,revision")
       .eq("profile_id", profileId);
     if (error) throw error;
     const safeKeys = new Set(["foundation", "career", "tasks", "journal"]);
     const localPreview = createSyncPayloadPreview();
     const nextRemoteBlockVersions = { ...syncState.remoteBlockVersions };
+    const nextRemoteBlockRevisions = { ...syncState.remoteBlockRevisions };
     let updated = 0;
     let conflicts = 0;
     const updatedKeys = [];
@@ -6902,6 +6963,7 @@ async function refreshCloudData({ automatic = false } = {}) {
       const remoteEvidence = getSyncEvidenceScore(row.block_key, row.payload);
       const recoveryFromStaleLocal = !knownRemoteAt && remoteEvidence > localEvidence;
       const remoteAdvanced = isAfter(remoteAt, knownRemoteAt);
+      if (!remoteAdvanced && knownRemoteAt === remoteAt) nextRemoteBlockRevisions[row.block_key] = Number(row.revision || 0);
       if (!recoveryFromStaleLocal && !remoteAdvanced) continue;
       const localChangedSinceRemote = knownRemoteAt
         ? isAfter(localAt, knownRemoteAt)
@@ -6912,6 +6974,7 @@ async function refreshCloudData({ automatic = false } = {}) {
       }
       applyRemoteBlock(row.block_key, row.payload);
       nextRemoteBlockVersions[row.block_key] = remoteAt;
+      nextRemoteBlockRevisions[row.block_key] = Number(row.revision || 0);
       updated += 1;
       updatedKeys.push(row.block_key);
     }
@@ -6922,6 +6985,7 @@ async function refreshCloudData({ automatic = false } = {}) {
       lastSyncAt: updated ? new Date().toISOString() : syncState.lastSyncAt,
       conflictCount: conflicts,
       remoteBlockVersions: nextRemoteBlockVersions,
+      remoteBlockRevisions: nextRemoteBlockRevisions,
       remoteProfileId: profileId,
       userEmail: session.user.email || syncState.userEmail,
       userId: session.user.id,
@@ -6958,6 +7022,7 @@ async function refreshCloudData({ automatic = false } = {}) {
     } else if (!automatic && currentPage === "settings") {
       render();
     }
+    if (!conflicts) retryPendingCloudWrites();
     return { updated, conflicts, updatedKeys };
   } catch (error) {
     console.warn("KRYOS freshness check failed.", error);
@@ -6969,6 +7034,18 @@ async function refreshCloudData({ automatic = false } = {}) {
     return { updated: 0, conflicts: 0, error };
   } finally {
     cloudFreshnessRunning = false;
+  }
+}
+
+function retryPendingCloudWrites() {
+  const tasksLocalAt = getLocalSyncBlockUpdatedAt("tasks");
+  const careerLocalAt = getLocalSyncBlockUpdatedAt("career");
+  if ((typeof actionSyncDirty !== "undefined" && actionSyncDirty)
+      || (syncState.remoteBlockVersions?.tasks && isAfter(tasksLocalAt, syncState.remoteBlockVersions.tasks))) {
+    scheduleTaskCloudSync();
+  }
+  if (careerSyncDirty || (syncState.remoteBlockVersions?.career && isAfter(careerLocalAt, syncState.remoteBlockVersions.career))) {
+    scheduleCareerCloudSync();
   }
 }
 
@@ -7008,7 +7085,7 @@ async function pullFromSupabase() {
     const profileId = await ensureSupabaseProfile(session);
     const { data, error } = await client
       .from("kryos_sync_blocks")
-      .select("block_key,payload,payload_updated_at,updated_at")
+      .select("block_key,payload,payload_updated_at,updated_at,revision")
       .eq("profile_id", profileId);
     if (error) throw error;
     if (!Array.isArray(data) || !data.length) {
@@ -7025,6 +7102,7 @@ async function pullFromSupabase() {
       lastSyncAt: new Date().toISOString(),
       lastAttemptAt: new Date().toISOString(),
       remoteBlockVersions: Object.fromEntries(data.map((row) => [row.block_key, row.payload_updated_at || row.updated_at])),
+      remoteBlockRevisions: Object.fromEntries(data.map((row) => [row.block_key, Number(row.revision || 0)])),
       remoteProfileId: profileId,
       userEmail: session.user.email || syncState.userEmail,
       userId: session.user.id,
@@ -7281,6 +7359,12 @@ function renderSyncSettingsPanel() {
           </div>
         </div>
       </div>
+
+      ${isDemoMode() ? "" : `<div class="assistant-access-panel">
+        <div><p class="section-kicker">Assistant connection</p><h3>Let your assistant record what you say</h3><p class="meta">Create access once, then add the token to your private Codex environment. Your PIN is separate.</p></div>
+        <div class="sync-button-row"><button class="secondary-button" type="button" ${signedIn ? "" : "disabled"} data-sync-action="assistant-token">Create assistant access</button><button class="secondary-button" type="button" ${signedIn ? "" : "disabled"} data-sync-action="assistant-revoke">Revoke assistant access</button></div>
+        ${assistantTokenOnce ? `<label class="field-label" for="assistant-token-once">Copy this once</label><input id="assistant-token-once" type="text" readonly value="${escapeHtml(assistantTokenOnce)}" autocomplete="off" spellcheck="false"><button class="secondary-button" type="button" data-sync-action="assistant-copy">Copy token</button>` : ""}
+      </div>`}
 
       <details class="sync-details">
         <summary>Technical checks</summary>
@@ -9083,6 +9167,13 @@ document.addEventListener("click", async (event) => {
     }
     if (syncAction.dataset.syncAction === "pull-cloud") {
       await pullFromSupabase();
+    }
+    if (syncAction.dataset.syncAction === "assistant-token") await issueAssistantToken();
+    if (syncAction.dataset.syncAction === "assistant-revoke") await revokeAssistantTokens();
+    if (syncAction.dataset.syncAction === "assistant-copy" && assistantTokenOnce) {
+      await navigator.clipboard.writeText(assistantTokenOnce);
+      syncNotice = "Assistant token copied. Keep it in a private credential store, not GitHub.";
+      render();
     }
     return;
   }

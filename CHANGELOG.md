@@ -2,6 +2,14 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.6.0 - Assistant Capture and Safe Sync
+
+- Added an authenticated assistant-to-Supabase capture path for dated Journal, Rhythm, Actions, Career progress, and Inner Command observations.
+- Added one-time assistant access creation and revocation in Personal cloud settings; the local screen PIN is not a cloud credential.
+- Added atomic request receipts, idempotency, evidence records, and revision-checked task and career writes to prevent stale-device overwrites.
+- Kept Rewards derived from accepted evidence; daily reward review remains a deliberate action.
+- Preserved existing personal block payloads and local-first behavior.
+
 ## 0.5.13 - Reliable Refresh and Covenant
 
 - Added cache-free Supabase reads and foreground refresh on normal tab reload and resume.
