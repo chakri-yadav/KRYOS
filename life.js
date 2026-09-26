@@ -257,6 +257,29 @@ function innerCommandStats() {
 function renderInnerCommandPurpose() {
   return `<section class="command-purpose"><div class="command-purpose-copy"><p class="section-kicker">48-DAY DEVI SADHANA</p><h1>Become capable of carrying the blessing.</h1><p>I undertake this Devi Sadhana to transform my inner identity. Through devotion to Devi Mother, I practise discipline, responsibility, care, courageous work, and conscious return.</p><blockquote>Each truthful action helps me become capable of receiving and sustaining her blessings.</blockquote></div><div class="command-archetypes"><article><span>01</span><div><p>DEVOTION / DIRECTION</p><h2>Remember why this journey began.</h2><small>Let the promise choose the next action when attention drifts.</small></div></article><article><span>02</span><div><p>CARE / CAPACITY</p><h2>Nourish the body that carries the work.</h2><small>Meals, water, care, movement, and spiritual regulation protect the ability to act.</small></div></article><article><span>03</span><div><p>COURAGE / RETURN</p><h2>Do the uncomfortable work and return after drift.</h2><small>Career, Launch, articulation, and responsibility build the new identity through evidence.</small></div></article></div></section>`;
 }
+function innerCommandNextStep() {
+  const today = toDateKey();
+  const careerDone = typeof careerState !== 'undefined' && (careerState.activityLog || []).some(item => item.date === today && (item.checkId || item.eventType === 'module-complete'));
+  if (!careerDone && typeof getNextCareerItem === 'function' && typeof careerState !== 'undefined') {
+    const roadmap = typeof findRoadmap === 'function' ? findRoadmap(selectedRoadmapId) || careerState.roadmaps?.[0] : careerState.roadmaps?.[0];
+    const next = getNextCareerItem(roadmap);
+    if (next) return { page: 'career', area: 'CAREER', title: next.item.text, detail: `${next.topic.title} · build one piece of evidence`, action: 'Continue Career' };
+  }
+  const weekday = ![0, 6].includes(new Date(`${today}T12:00:00`).getDay());
+  const launchDone = typeof launchEventsOn === 'function' && launchEventsOn(today).length > 0;
+  if (weekday && !launchDone) return { page: 'launch', area: 'LAUNCH', title: 'Complete one real market exposure.', detail: 'A thoughtful application, message, follow-up, or professional conversation counts.', action: 'Enter the market' };
+  if (typeof rhythmDay === 'function') {
+    const rhythm = rhythmDay(today);
+    if (!rhythm.qualified) return { page: 'rhythm', area: 'RHYTHM', title: 'Complete the next visible foundation.', detail: `${rhythm.completed} of ${rhythm.total} daily foundations are recorded.`, action: 'Open Rhythm' };
+  }
+  const openAction = (lifeStore().actions || []).find(item => item.status === 'active') || (lifeStore().actions || []).find(item => item.status === 'open');
+  if (openAction) return { page: 'actions', area: 'ACTIONS', title: openAction.nextAction || openAction.title, detail: openAction.nextAction ? openAction.title : 'Move one bounded responsibility forward.', action: 'Continue action' };
+  return { page: 'journal', area: 'RETURN', title: 'Close the day with one truthful record.', detail: 'Evidence makes progress visible and gives tomorrow a clean starting point.', action: 'Write today’s record' };
+}
+function renderInnerCommandNextStep() {
+  const next = innerCommandNextStep();
+  return `<section class="command-next"><div><p class="section-kicker">THE NEXT RIGHT ACTION</p><span>${escapeHtml(next.area)}</span><h2>${escapeHtml(next.title)}</h2><p>${escapeHtml(next.detail)}</p></div><button class="primary-button" type="button" data-page="${next.page}">${escapeHtml(next.action)}</button></section>`;
+}
 function renderContainmentCovenant() {
   const store = lifeStore(), covenant = store.innerCommand.covenant, stats = innerCommandStats();
   const day = innerCommandDayNumber(), todayStatus = innerCommandStatus(toDateKey());
@@ -273,7 +296,7 @@ function renderLifeJournal() {
   const todayRecords = store.records.filter(record => record.date === today && record.completed);
   const domains = new Set(todayRecords.map(record => record.domain));
   const streak = typeof journalProgressStreak === 'function' ? journalProgressStreak() : { current: 0 };
-  journalView.innerHTML = `${renderInnerCommandPurpose()}${renderContainmentCovenant()}${renderContainmentDialog()}<header class="journal-title inner-journal-title"><div><p class="section-kicker">DAILY EVIDENCE</p><h1>Tell the truth about the day.</h1><p>Record what happened. KRYOS and your assistant can organize the signal.</p></div><div class="journal-today"><strong>${todayRecords.length}</strong><span>actions today</span><small>${domains.size} domains · ${streak.current} day rhythm</small></div></header>
+  journalView.innerHTML = `${renderInnerCommandPurpose()}${renderInnerCommandNextStep()}${renderContainmentCovenant()}${renderContainmentDialog()}<header class="journal-title inner-journal-title"><div><p class="section-kicker">DAILY EVIDENCE</p><h1>Tell the truth about the day.</h1><p>Record what happened. KRYOS and your assistant can organize the signal.</p></div><div class="journal-today"><strong>${todayRecords.length}</strong><span>actions today</span><small>${domains.size} domains · ${streak.current} day rhythm</small></div></header>
     <div class="life-status" role="status">${escapeHtml(lifeNotice)}</div>
     <section class="life-compose premium-compose">
       <div class="compose-rail"><span>DAILY CAPTURE</span><strong>${new Date(`${today}T12:00:00`).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})}</strong><p>Work, body, mood, relationships, and whatever affected the day.</p></div>
