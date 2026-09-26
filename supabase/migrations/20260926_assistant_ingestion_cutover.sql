@@ -1,5 +1,5 @@
--- Apply only after the 0.6.0 browser app is live and both desktop and phone
--- have loaded revision-aware sync. Older cached clients must be refreshed.
+-- Apply only after the 0.6.0 browser app is live. Older cached clients must
+-- refresh before editing tasks or career; they cannot bypass revision checks.
 begin;
 drop policy if exists "kryos_sync_blocks_insert_own" on public.kryos_sync_blocks;
 create policy "kryos_sync_blocks_insert_own" on public.kryos_sync_blocks for insert to authenticated
