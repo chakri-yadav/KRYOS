@@ -6,8 +6,8 @@ It is not a generic todo app, journal, or habit tracker. KRYOS is designed to he
 
 ## Current Status
 
-- Version: `0.6.0`
-- Stage: Assistant Capture and Safe Sync
+- Version: `0.7.0`
+- Stage: Devi Sadhana and Automatic Rewards
 - Audience: private personal daily use
 - App type: local-first browser application
 - Sync status: local-first with Supabase task, career, and reward paths configured
@@ -46,7 +46,7 @@ KRYOS should answer three questions in the moment:
 - A slip never creates negative points. Recovery is always available.
 - Weekly Review reads evidence; it does not create work.
 - Personal and demo storage remain separated.
-- Existing task and career blocks still own behavior state. Version 0.6.0 adds a metadata and assistant-event migration without replacing those blocks.
+- Existing task and career blocks still own behavior state. Version 0.7.0 adds the 48-day Devi Sadhana and evidence-derived reward rules without replacing those blocks.
 
 ## Documentation Map
 

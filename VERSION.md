@@ -9,7 +9,7 @@ major.minor.patch
 Canonical current version:
 
 ```text
-0.6.0
+0.7.0
 ```
 
 ## Meaning
@@ -30,6 +30,7 @@ Canonical current version:
 | `0.4.x` | Life Execution Foundation |
 | `0.5.x` | Focused iPhone mobile experience |
 | `0.6.x` | Assistant capture and revision-safe sync |
+| `0.7.x` | Devi Sadhana and automatic reward system |
 | `1.0.0` | Future public-ready product line |
 
 ## Bump Rules
@@ -56,5 +57,5 @@ sync/backup impact, QA evidence, updated README/CHANGELOG/release documentation,
 and a matching Git tag for a published milestone.
 
 The older display forms such as `0.004.030` are retired. New canonical tags use
-the standard form, currently `v0.6.0`.
+the standard form, currently `v0.7.0`.
 See `docs/project/release-governance.md` for the complete workflow.
