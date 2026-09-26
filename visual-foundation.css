@@ -88,6 +88,29 @@
   ::selection { background: #cce8d9; color: #132d22; }
 }
 
+.action-next, .action-finished { display: none; }
+@media (min-width: 901px) {
+  .action-next { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin: 24px 0; padding: 28px; background: #e8f4ee; border: 1px solid #b4d6c4; border-radius: 18px; }
+  .action-next h2 { margin: 8px 0; max-width: 48ch; }
+  .action-next p { color: #395e50; margin-bottom: 0; }
+  .action-next > div:last-child { display: grid; gap: 12px; }
+  .action-finished { display: block; padding: 24px; margin-top: 24px; background: white; border: 1px solid var(--line); border-radius: 16px; }
+  .action-finished > div { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .action-finished > div:last-child { border-bottom: 0; }
+  .action-card { border-radius: 14px; padding: 20px; margin-bottom: 12px; }
+  .action-card h3 { font-size: 18px; }
+  .action-check { min-width: 44px; min-height: 44px; border-radius: 12px; }
+  .action-meta, .action-main p, .action-controls select { font-size: 14px; }
+  .rhythm-item-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .rhythm-item { min-height: 100px; padding: 18px; border: 1px solid #d3dfd7; border-radius: 14px; background: white; gap: 12px; }
+  .rhythm-item strong { font-size: 16px; }
+  .rhythm-item small, .rhythm-item b, .rhythm-group-head p { font-size: 13px; line-height: 1.5; }
+  .rhythm-item.is-done { background: #e8f4ee; border-color: #73ab8d; color: #155a43; }
+  .rhythm-item-icon { width: 40px; height: 40px; border-radius: 12px; background: #f0f4ee; }
+  .rhythm-water { grid-column: 1 / -1; }
+  .rhythm-group-note { font-size: 13px; color: #52635d; }
+  .rhythm-surface { border-radius: 16px; padding: 24px; }
+}
 /* Motion preferences also apply to existing component animations. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
