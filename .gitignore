@@ -13,6 +13,7 @@ build/
 # Local environment files
 .env
 .env.*
+.private/
 
 # Codex/agent scratch state
 .agents/

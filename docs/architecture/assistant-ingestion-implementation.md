@@ -6,7 +6,7 @@ This build adds a direct assistant-to-Supabase write path for a Personal KRYOS p
 
 - `supabase/migrations/20260926_assistant_ingestion.sql` adds revision-checked block writes, assistant credentials, idempotent request receipts, immutable event evidence, and a change log. The migration preserves existing data. A separate cutover migration restricts legacy direct writes only after the new browser version is live.
 - `supabase/functions/kryos-ingest/` validates typed operations, maps them to existing KRYOS task and career data, and calls one atomic database transaction.
-- `scripts/kryos-ingest.mjs` is a private command-line connector. It reads a JSON request from standard input and uses `KRYOS_ASSISTANT_TOKEN` from the environment.
+- `scripts/kryos-ingest.mjs` is a private command-line connector. On this Windows workspace, `scripts/kryos-assistant-access.ps1` decrypts a local DPAPI token and supplies it only to that process. Request JSON and the encrypted token stay under ignored `.private/`.
 - Settings can issue a one-time assistant token and revoke all current assistant tokens.
 - Task and Career browser saves use revision-checked RPC calls. A stale device receives a conflict instead of overwriting a newer assistant update.
 - Existing block Realtime subscriptions and foreground refresh carry accepted assistant changes to other open clients.
@@ -35,7 +35,7 @@ Progress and Rewards read these source records through their existing derivation
 5. Publish browser version 0.6.0 with cache-busted asset URLs. Verify desktop and iPhone have loaded it and can save Actions and Career.
 6. Apply `supabase/migrations/20260926_assistant_ingestion_cutover.sql` to reject legacy direct task/career writes. A stale cached browser must refresh before editing.
 7. Sign in to the Personal cloud profile, push existing Personal data once if the cloud blocks are empty, then create assistant access under Cloud settings.
-8. Store the one-time token as `KRYOS_ASSISTANT_TOKEN` in the private Codex environment. Never put it in Git, a URL, or a chat transcript.
+8. Store the one-time token in a private environment or the Windows DPAPI vault used by `scripts/kryos-assistant-access.ps1`. Never put it in Git, a URL, or a chat transcript.
 9. Send a harmless test statement, read the receipt, and verify both desktop and iPhone converge before sending journal text.
 
 ## Request example
@@ -68,7 +68,7 @@ The connector reads this JSON from standard input. Its output is an accepted rec
 
 ## Current limits and next gates
 
-- The initial migration and Edge Function were applied to production on 2026-09-26. The deployed function returned HTTP 401 for a request without an assistant token. An authenticated write, cross-device convergence, cutover, and restore drill still require verification before the release is called complete.
+- The initial migration and Edge Function were applied to production on 2026-09-26. The deployed function returned HTTP 401 for a request without an assistant token. The founder's September 25 journal received an accepted receipt; a same-key retry returned `duplicate: true` and the cloud contains one entry. Cross-device convergence, cutover, and restore drill remain to be verified before the release is called complete.
 - The current browser still stores local state in large blocks. Revision checking prevents silent overwrites, but a true persistent offline operation outbox and automatic field-level conflict merge remain separate work.
 - Corrections to historical assistant events, Career checklist reopening, and automatic reward-day review require explicit event reversal rules before release.
 - The connector is a local command-line capability. Automatic invocation from every ChatGPT conversation requires a configured Codex tool or MCP connection with the private credential.

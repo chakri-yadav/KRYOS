@@ -61,6 +61,11 @@ revoke all on public.kryos_assistant_requests from anon, authenticated;
 revoke all on public.kryos_assistant_events from anon, authenticated;
 revoke all on public.kryos_change_log from anon, authenticated;
 grant select on public.kryos_assistant_requests, public.kryos_assistant_events, public.kryos_change_log to authenticated;
+-- This project grants application tables explicitly; service_role does not
+-- inherit authenticated table privileges. The Edge Function reads these
+-- tables directly, then uses the transactional RPC for writes.
+grant select, update on public.kryos_assistant_credentials to service_role;
+grant select on public.kryos_assistant_requests, public.kryos_sync_blocks to service_role;
 
 create policy kryos_assistant_requests_owner on public.kryos_assistant_requests
   for select to authenticated using (exists (
