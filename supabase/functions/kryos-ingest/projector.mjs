@@ -1,7 +1,7 @@
 const HABITS = new Set(['breakfast', 'lunch', 'dinner', 'protein', 'supplements', 'water', 'face-wash', 'moisturizer', 'serum', 'eye-cream', 'sunscreen', 'exercise', 'hair-care', 'groceries', 'nama-japa', 'gita', 'chalisa', 'aditya', 'meditation', 'pranayama']);
 const DOMAINS = new Set(['Career', 'Personal tasks', 'Job applications', 'Skincare', 'Supplements', 'Food', 'Sleep', 'Mood', 'Movement', 'Spiritual practice', 'Relationships', 'Other']);
 const PRIORITIES = new Set(['critical', 'important', 'normal']);
-const TYPES = new Set(['journal.capture', 'rhythm.measure', 'rhythm.complete', 'rhythm.reopen', 'action.create', 'action.complete', 'action.reopen', 'career.progress', 'career.check.complete', 'inner_command.observe']);
+const TYPES = new Set(['journal.capture', 'rhythm.measure', 'rhythm.complete', 'rhythm.reopen', 'action.create', 'action.complete', 'action.reopen', 'career.progress', 'career.check.complete', 'career.check.reopen', 'inner_command.observe']);
 
 function fail(message) { throw new Error(message); }
 function dateIsValid(value) {
@@ -45,7 +45,7 @@ export function validateRequest(request) {
       if (!present(operation.action_id, 180)) fail('Use the exact action ID.');
     }
     if (operation.type === 'career.progress' && (!present(operation.title, 300) || !Number.isInteger(operation.count) || operation.count < 1 || operation.count > 100)) fail('Career progress needs a title and count from 1 to 100.');
-    if (operation.type === 'career.check.complete' && !present(operation.check_id, 180)) fail('Use the exact career checklist ID.');
+    if (['career.check.complete', 'career.check.reopen'].includes(operation.type) && !present(operation.check_id, 180)) fail('Use the exact career checklist ID.');
     if (operation.type === 'inner_command.observe' && !present(operation.note, 500)) fail('An observation note is required.');
   }
   return request;
@@ -101,17 +101,26 @@ export function projectRequest(request, taskPayload, careerPayload, now = new Da
       case 'career.progress':
         life.records.push({ id, entryId: null, date, title: `${operation.title.trim()} (${operation.count})`, domain: 'Career', kind: 'activity', evidence, minutes: null, completed: true, effort: Math.min(5, operation.count), sourceRef: `journal:${id}` });
         effects.push({ area: 'Career', result: `${operation.count} recorded` }); tasksChanged = true; break;
-      case 'career.check.complete': {
+      case 'career.check.complete':
+      case 'career.check.reopen': {
         const matches = [];
         for (const roadmap of career.roadmaps || []) for (const module of roadmap.modules || []) for (const topic of module.topics || []) for (const check of topic.checklist || []) if (check.id === operation.check_id) matches.push({ roadmap, module, topic, check });
         if (matches.length !== 1) fail('Career checklist ID is missing or ambiguous.');
         const { roadmap, module, topic, check } = matches[0];
-        if (!check.done) {
+        const completed = operation.type === 'career.check.complete';
+        if (completed && !check.done) {
           check.done = true;
+          check.completedAt = now;
           career.activityLog.push({ id, date, checkId: check.id, checkText: check.text, topicId: topic.id, topicTitle: topic.title, moduleId: module.id, moduleTitle: module.title, roadmapId: roadmap.id, roadmapTitle: roadmap.title, createdAt: now, source: 'assistant' });
           careerChanged = true;
         }
-        effects.push({ area: 'Career', result: check.done ? 'Checklist item complete' : 'Checklist item unchanged' }); break;
+        if (!completed && check.done) {
+          check.done = false;
+          check.completedAt = null;
+          career.activityLog = career.activityLog.filter(item => item.checkId !== check.id);
+          careerChanged = true;
+        }
+        effects.push({ area: 'Career', result: completed ? 'Checklist item complete' : 'Checklist item reopened' }); break;
       }
       case 'inner_command.observe':
         life.records.push({ id, entryId: null, date, title: operation.note.trim(), domain: 'Mood', kind: 'observation', evidence, minutes: null, completed: false, effort: 0, sourceRef: '' });
