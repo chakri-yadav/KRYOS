@@ -2,8 +2,8 @@ let launchDialog = '';
 
 function launchStore() {
   taskState.launch ||= {
-    version: 1,
-    targets: { marketWeekdays: 5, mockMinimum: 3, mockStretch: 6 },
+    version: 2,
+    targets: { marketWeekdays: 4, mockMinimum: 3, mockStretch: 6 },
     platforms: [{id:'linkedin',name:'LinkedIn'},{id:'builtin',name:'Built In'},{id:'glassdoor',name:'Glassdoor'},{id:'indeed',name:'Indeed'},{id:'company-sites',name:'Company sites'}],
     marketEvents: [],
     mockSessions: [],
@@ -11,6 +11,14 @@ function launchStore() {
   taskState.launch.marketEvents ||= [];
   taskState.launch.mockSessions ||= [];
   taskState.launch.platforms ||= [];
+  taskState.launch.targets ||= {};
+  if (Number(taskState.launch.version || 1) < 2) {
+    taskState.launch.version = 2;
+    taskState.launch.targets.marketWeekdays = 4;
+  }
+  taskState.launch.targets.marketWeekdays = 4;
+  taskState.launch.targets.mockMinimum ||= 3;
+  taskState.launch.targets.mockStretch ||= 6;
   return taskState.launch;
 }
 function launchWeekStart(date = new Date()) {
@@ -80,13 +88,13 @@ function launchTimeline() {
 }
 function renderLaunchView() {
   if(!launchView)return;
-  const week=launchCurrentWeek(),streak=launchWeekdayStreak(),marketPct=Math.min(100,Math.round(week.marketDays/5*100)),mockPct=Math.min(100,Math.round(week.mocks.length/6*100));
-  launchView.innerHTML=`<header class="launch-command"><div><p class="section-kicker">KRYOS / CAREER LAUNCH</p><h1>Enter the market before you feel ready.</h1><p>Skill-building, visibility, applications, and rehearsal move in parallel. Preparation does not get to postpone exposure.</p><div class="launch-actions"><button data-launch-open="market">Log market action</button><button data-launch-open="mock">Log rehearsal</button></div></div><div class="launch-command-stat"><span>Weekday exposure</span><strong>${week.marketDays}<em>/5</em></strong><small>${marketPct}% of this week</small></div><div class="launch-command-stat"><span>Interview reps</span><strong>${week.mocks.length}<em>/3–6</em></strong><small>${week.mocks.length>=3?'Minimum secured':'Minimum still open'}</small></div><div class="launch-command-stat"><span>Exposure streak</span><strong>${streak}<em> days</em></strong><small>Weekdays with market evidence</small></div></header>
+  const week=launchCurrentWeek(),streak=launchWeekdayStreak(),marketPct=Math.min(100,Math.round(week.marketDays/4*100)),mockPct=Math.min(100,Math.round(week.mocks.length/6*100));
+  launchView.innerHTML=`<header class="launch-command"><div><p class="section-kicker">KRYOS / CAREER LAUNCH</p><h1>Enter the market before you feel ready.</h1><p>Skill-building, visibility, applications, and rehearsal move in parallel. Preparation does not get to postpone exposure.</p><div class="launch-actions"><button data-launch-open="market">Log market action</button><button data-launch-open="mock">Log rehearsal</button></div></div><div class="launch-command-stat"><span>Weekday exposure</span><strong>${week.marketDays}<em>/4</em></strong><small>${marketPct}% of the 4-day target</small></div><div class="launch-command-stat"><span>Interview reps</span><strong>${week.mocks.length}<em>/3–6</em></strong><small>${week.mocks.length>=3?'Minimum secured':'Minimum still open'}</small></div><div class="launch-command-stat"><span>Exposure streak</span><strong>${streak}<em> days</em></strong><small>Weekdays with market evidence</small></div></header>
     <section class="launch-parallel"><div><span>01</span><strong>BUILD CAPABILITY</strong><small>Career Skills continues.</small></div><i></i><div><span>02</span><strong>ENTER THE MARKET</strong><small>Applications and real people.</small></div><i></i><div><span>03</span><strong>REHEARSE OUT LOUD</strong><small>Self and AI mocks.</small></div><b>All three move together</b></section>
     <div class="launch-grid"><main><section class="launch-surface"><div class="launch-head"><div><p class="section-kicker">THIS WEEK</p><h2>Seven-day exposure pulse</h2></div><div class="launch-key"><span><i class="market"></i>Market</span><span><i class="mock"></i>Rehearsal</span></div></div>${launchWeekPulse()}<div class="launch-minimum"><div><span>WHEN RESISTANCE IS HIGH</span><strong>Minimum viable rep</strong><p>One thoughtful application or one genuine professional message. Then answer one interview question aloud for five minutes.</p></div><button data-launch-open="market">Start with one</button></div></section>
       <section class="launch-surface"><div class="launch-head"><div><p class="section-kicker">WEEKDAY PLATFORM CIRCUIT</p><h2>Search broadly without losing the trail.</h2><p>Check a source only after reviewing and processing relevant roles.</p></div><button class="secondary-button" data-launch-open="platform">Add source</button></div>${launchPlatformCircuit()}</section><section class="launch-surface"><div class="launch-head"><div><p class="section-kicker">NETWORK & VISIBILITY</p><h2>Relationships and public proof.</h2></div><span>Two different forms of market presence</span></div>${launchNetworkVisibility()}</section><section class="launch-surface"><div class="launch-head"><div><p class="section-kicker">CONSISTENCY FIELD</p><h2>Visible proof across 12 weeks</h2></div><span>${launchStore().marketEvents.length+launchStore().mockSessions.length} total reps</span></div>${launchExposureGrid()}</section>
       <section class="launch-surface"><div class="launch-head"><div><p class="section-kicker">EVIDENCE LOG</p><h2>Exposure, not intention.</h2></div></div><div class="launch-timeline">${launchTimeline()}</div></section></main>
-      <aside><section class="launch-surface launch-lane market"><div class="launch-lane-title"><span>${launchIcon('send')}</span><div><p>MARKET</p><h2>Be findable. Apply. Contact.</h2></div></div><div class="launch-ring" style="--launch-angle:${marketPct*3.6}deg"><div><strong>${week.marketDays}</strong><span>of 5 weekdays</span></div></div><div class="launch-metrics"><div><strong>${week.marketEvents.filter(item=>item.type==='application').length}</strong><span>applications</span></div><div><strong>${week.marketEvents.filter(item=>['connection','message','followup'].includes(item.type)).length}</strong><span>people actions</span></div></div><button class="primary-button" data-launch-open="market">Add market evidence</button></section>
+      <aside><section class="launch-surface launch-lane market"><div class="launch-lane-title"><span>${launchIcon('send')}</span><div><p>MARKET</p><h2>Be findable. Apply. Contact.</h2></div></div><div class="launch-ring" style="--launch-angle:${marketPct*3.6}deg"><div><strong>${week.marketDays}</strong><span>of 4 weekdays</span></div></div><div class="launch-metrics"><div><strong>${week.marketEvents.filter(item=>item.type==='application').length}</strong><span>applications</span></div><div><strong>${week.marketEvents.filter(item=>['connection','message','followup'].includes(item.type)).length}</strong><span>people actions</span></div></div><button class="primary-button" data-launch-open="market">Add market evidence</button></section>
       <section class="launch-surface launch-lane mock"><div class="launch-lane-title"><span>${launchIcon('mic-2')}</span><div><p>REHEARSE</p><h2>Make speaking familiar.</h2></div></div><div class="launch-ring" style="--launch-angle:${mockPct*3.6}deg"><div><strong>${week.mocks.length}</strong><span>of 3–6 reps</span></div></div><div class="launch-metrics"><div><strong>${week.mocks.filter(item=>item.mode==='self').length}</strong><span>self / AirPods</span></div><div><strong>${week.mocks.filter(item=>item.mode==='ai').length}</strong><span>AI mocks</span></div></div><button class="primary-button" data-launch-open="mock">Add rehearsal</button></section>
       <section class="launch-surface"><div class="launch-head"><div><p class="section-kicker">APPLICATION SIGNAL</p><h2>Pipeline movement</h2></div></div>${launchMarketPipeline()}<p class="launch-footnote">Pipeline outcomes matter, but daily exposure remains the behavior KRYOS measures.</p></section></aside></div>${renderLaunchDialog()}`;
   if(window.lucide)lucide.createIcons({attrs:{width:16,height:16,'stroke-width':2}});

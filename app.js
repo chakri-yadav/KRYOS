@@ -4194,7 +4194,7 @@ function renderCareerView() {
         <strong>${stats.progress}<small>%</small></strong>
         <em>${stats.doneItems} of ${stats.totalItems} evidence steps</em>
       </div>
-      <div class="career-command-stat"><span>This week</span><strong>${qualifiedDays}<small>/4 days</small></strong><em>${stats.weekActions} completed steps</em></div>
+      <div class="career-command-stat"><span>This week</span><strong>${qualifiedDays}<small>/5 days</small></strong><em>${stats.weekActions} completed steps</em></div>
       <div class="career-command-stat"><span>Current rhythm</span><strong>${stats.currentStreak}<small> days</small></strong><em>Personal best ${stats.bestStreak}</em></div>
     </header>
 
@@ -4206,7 +4206,7 @@ function renderCareerView() {
     </nav>
 
     <section class="career-section career-week-section">
-      <div class="career-section-head"><div><p class="section-kicker">Weekly pulse</p><h2>Four useful days, not seven perfect days.</h2></div><span class="career-target ${qualifiedDays >= 4 ? "is-met" : ""}">${qualifiedDays >= 4 ? "Target reached" : `${4 - qualifiedDays} days to target`}</span></div>
+      <div class="career-section-head"><div><p class="section-kicker">Weekly pulse</p><h2>Five useful days, with room to return.</h2></div><span class="career-target ${qualifiedDays >= 5 ? "is-met" : ""}">${qualifiedDays >= 5 ? "Target reached" : `${5 - qualifiedDays} days to target`}</span></div>
       <div class="career-week-pulse">${week.map(renderCareerPulseDay).join("")}</div>
     </section>
 
