@@ -1,5 +1,6 @@
 let progressMetric = 'all';
 let progressRange = 84;
+let progressEvidence = [];
 
 function progressDate(key, offset = 0) {
   const date = new Date(`${key}T12:00:00`);
@@ -12,7 +13,7 @@ function progressShortDate(key, options = { month: 'short', day: 'numeric' }) {
 }
 
 function journalProgressDays() {
-  return [...new Set(lifeStore().entries.map(entry => entry.date))].sort();
+  return [...new Set(progressEvidence.map(entry => entry.date))].sort();
 }
 
 function journalProgressStreak() {
@@ -32,7 +33,7 @@ function journalProgressStreak() {
 }
 
 function progressRecords(key, metric = progressMetric) {
-  const records = lifeStore().records.filter(record => record.date === key && record.completed);
+  const records = progressEvidence.filter(record => record.date === key);
   return metric === 'all' ? records : records.filter(record => record.domain === metric);
 }
 
@@ -85,7 +86,7 @@ function momentumDial(percent) {
 
 function bestDayRecord() {
   const counts = new Map();
-  lifeStore().records.filter(record => record.completed).forEach(record => counts.set(record.date, (counts.get(record.date) || 0) + 1));
+  progressEvidence.forEach(record => counts.set(record.date, (counts.get(record.date) || 0) + 1));
   return [...counts.entries()].sort((a, b) => b[1] - a[1] || b[0].localeCompare(a[0]))[0] || ['', 0];
 }
 
@@ -119,13 +120,16 @@ function progressDeadlineTracker() {
 function renderProgressDashboard() {
   const store = lifeStore();
   const today = toDateKey();
+  progressEvidence = collectProgressEvidence(store, taskState, careerState, today);
   const streak = journalProgressStreak();
   const momentum = momentumStats(today);
   const days = Array.from({ length: progressRange }, (_, index) => progressDate(today, index - progressRange + 1));
-  const domains = LIFE_DOMAINS.filter(domain => store.records.some(record => record.domain === domain));
+  const domains = [...new Set(progressEvidence.map(record => record.domain))].sort();
   if (!['all', ...domains].includes(progressMetric)) progressMetric = 'all';
-  const selected = lifeDay(lifeSelectedDate || today);
-  const completed = store.records.filter(record => record.completed);
+  const selectedDate = lifeSelectedDate || today;
+  const selectedRecords = progressRecords(selectedDate);
+  const selected = { date: selectedDate, completed: selectedRecords.length, records: selectedRecords };
+  const completed = progressEvidence;
   const domainCounts = domains.map(domain => ({ domain, count: completed.filter(record => record.domain === domain).length })).filter(item => item.count).sort((a, b) => b.count - a.count);
   const maximum = Math.max(1, ...domainCounts.map(item => item.count));
   const [bestDate, bestCount] = bestDayRecord();
@@ -137,18 +141,21 @@ function renderProgressDashboard() {
   const periodTotal = periodValues.reduce((sum, value) => sum + value, 0);
   const periodActive = periodValues.filter(Boolean).length;
 
-  progressView.innerHTML = `<header class="progress-title progress-title-premium"><div><p class="section-kicker">KRYOS / Progress</p><h1>Proof that you are moving.</h1><p>Every mark comes from journal evidence.</p></div><span>${progressShortDate(today, { weekday: 'long', month: 'short', day: 'numeric' })}</span></header>
+  progressView.innerHTML = `<header class="progress-title progress-title-premium"><div><p class="section-kicker">KRYOS / Progress</p><h1>Proof that you are moving.</h1><p>Journal and direct activity, brought together. Corrections update these visuals.</p></div><span>${progressShortDate(today, { weekday: 'long', month: 'short', day: 'numeric' })}</span></header>
+    <section class="life-section evidence-today"><p class="section-kicker">TODAY</p><h2>${progressRecords(today, 'all').length} recorded activities</h2><p>Your saved activity is visible here, including partial Rhythm progress.</p><button class="secondary-button" data-life="day" data-date="${today}">See today's evidence</button></section>
+    ${progressOverview(today)}
+    ${progressJourney(today)}
     <section class="momentum-command">
       <div class="momentum-copy"><span class="signal-dot"></span><p>Current rhythm</p><h2>${momentum.activeDays ? `${momentum.activeDays} active ${momentum.activeDays === 1 ? 'day' : 'days'} this week` : 'The next action starts the signal'}</h2><small>${trendLabel}</small></div>
       ${momentumDial(momentum.momentum)}
-      <div class="command-stat"><strong>${streak.current}</strong><span>current streak</span><small>Best ${streak.best}</small></div>
-      <div class="command-stat"><strong>${momentum.actions}</strong><span>actions this week</span><small>${completed.length} lifetime</small></div>
+      <div class="command-stat"><strong>${streak.current}</strong><span>consecutive recorded days</span><small>Best ${streak.best}</small></div>
+      <div class="command-stat"><strong>${momentum.actions}</strong><span>activities this week</span><small>${completed.length} lifetime</small></div>
     </section>
     <section class="progress-records" aria-label="Personal records">
-      <div><span>Evidence days</span><strong>${streak.total}</strong><small>journal days recorded</small></div>
+      <div><span>Evidence days</span><strong>${streak.total}</strong><small>days with recorded activity</small></div>
       <div><span>Strongest day</span><strong>${bestCount}</strong><small>${bestDate ? progressShortDate(bestDate) : 'No record yet'}</small></div>
       <div><span>Leading domain</span><strong>${topDomain ? escapeHtml(topDomain.domain) : '—'}</strong><small>${topDomain ? `${topDomain.count} completed` : 'No record yet'}</small></div>
-      <div><span>Qualified days</span><strong>${qualified}</strong><small>strictly reviewed</small></div>
+      <div><span>Reward-qualified days</span><strong>${qualified}</strong><small>saved reward assessments</small></div>
     </section>
     ${compactCareerProgress()}
     ${progressDeadlineTracker()}
