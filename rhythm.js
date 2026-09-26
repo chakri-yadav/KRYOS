@@ -124,8 +124,8 @@ function renderRhythmHabit(habit, date) {
 
 function renderRhythmGroup(title, subtitle, habits, date, optional = false) {
   const completed = habits.filter(habit => rhythmValue(habit.id, date) >= rhythmTarget(habit));
-  const remaining = habits.filter(habit => rhythmValue(habit.id, date) < rhythmTarget(habit));
-  return `<section class="rhythm-routine-group ${optional ? 'is-optional' : ''}"><div class="rhythm-group-head"><div><span>${title}</span><p>${subtitle}</p></div><strong>${optional ? `${completed.length} practised` : `${completed.length}/${habits.length}`}</strong></div><div class="rhythm-item-grid">${remaining.map(habit => renderRhythmHabit(habit, date)).join('') || `<div class="rhythm-group-complete">${rhythmIcon('check-circle-2')}<span><strong>${optional ? 'Practices recorded.' : 'Foundation complete.'}</strong><small>${optional ? 'Nothing else is required.' : 'The scheduled actions are finished.'}</small></span></div>`}</div>${completed.length ? `<details class="rhythm-completed"><summary>${rhythmIcon('check')} ${completed.length} completed</summary><div class="rhythm-item-grid">${completed.map(habit => renderRhythmHabit(habit, date)).join('')}</div></details>` : ''}</section>`;
+  const guidance = title === 'Care' ? 'Any 2 skincare steps complete this daily gate' : optional ? 'Any 2 distinct practices complete this daily gate' : '2 meals · protein · supplements · 3 L water';
+  return `<section class="rhythm-routine-group ${optional ? 'is-optional' : ''}"><div class="rhythm-group-head"><div><span>${title}</span><p>${guidance}</p></div><strong>${completed.length}/${habits.length}</strong></div><div class="rhythm-item-grid">${habits.map(habit => renderRhythmHabit(habit, date)).join('')}</div><p class="rhythm-group-note">${completed.length} recorded · Select a completed tile to correct it.</p></section>`;
 }
 
 function renderRhythmConstellation() {
