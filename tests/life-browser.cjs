@@ -25,7 +25,7 @@ const assert = require('node:assert/strict');
     assert.equal(await page.evaluate(() => lifeStore().actions.find(action => action.externalId === 'action-haircut-2026-09-21').deadline), '2026-09-21');
     assert.equal(await page.evaluate(() => lifeStore().actions.find(action => action.externalId === 'action-part-time-payment-balance').nextAction), 'Confirm and collect approximately $225-$226.');
     assert.equal(await page.locator('.command-archetypes article').count(), 3);
-    assert.equal(await page.locator('.containment-days button').count(), 45);
+    assert.equal(await page.locator('.containment-days button').count(), 55);
     await page.getByRole('button', { name: 'Record breach' }).click();
     await page.locator('#life-containment-form [value=social]').check();
     await page.locator('#life-containment-form [name=note]').fill('Test evidence.');

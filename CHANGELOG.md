@@ -2,6 +2,13 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.5.13 - Reliable Refresh and Covenant
+
+- Added cache-free Supabase reads and foreground refresh on normal tab reload and resume.
+- Kept the visible mobile refresh control on the conflict-safe cloud refresh path.
+- Extended Inner Command from 45 to 55 days, ending November 12, 2026.
+- Preserved existing kept days and breach history.
+
 ## 0.5.12 - Confirmed Historical Reviews
 
 - Marked Personal reward reviews for Sunday September 21 through Wednesday September 24, 2026 as founder-confirmed truthful reviews.

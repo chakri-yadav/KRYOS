@@ -9,7 +9,7 @@ major.minor.patch
 Canonical current version:
 
 ```text
-0.5.12
+0.5.13
 ```
 
 ## Meaning
@@ -55,5 +55,5 @@ sync/backup impact, QA evidence, updated README/CHANGELOG/release documentation,
 and a matching Git tag for a published milestone.
 
 The older display forms such as `0.004.030` are retired. New canonical tags use
-the standard form, currently `v0.5.12`.
+the standard form, currently `v0.5.13`.
 See `docs/project/release-governance.md` for the complete workflow.
