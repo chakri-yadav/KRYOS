@@ -6,12 +6,12 @@ It is not a generic todo app, journal, or habit tracker. KRYOS is designed to he
 
 ## Current Status
 
-- Version: `0.5.13`
-- Stage: Reliable Refresh and Covenant
+- Version: `0.6.0`
+- Stage: Assistant Capture and Safe Sync
 - Audience: private personal daily use
 - App type: local-first browser application
 - Sync status: local-first with Supabase task, career, and reward paths configured
-- Backend status: Supabase schema and credentials are required for cloud round trips
+- Backend status: Personal assistant ingestion and revision-checked task/career writes use Supabase; a private assistant token is required for direct capture
 
 ## Product Promise
 
@@ -46,7 +46,7 @@ KRYOS should answer three questions in the moment:
 - A slip never creates negative points. Recovery is always available.
 - Weekly Review reads evidence; it does not create work.
 - Personal and demo storage remain separated.
-- The existing task sync block owns the new behavior state, so no schema migration is required.
+- Existing task and career blocks still own behavior state. Version 0.6.0 adds a metadata and assistant-event migration without replacing those blocks.
 
 ## Documentation Map
 

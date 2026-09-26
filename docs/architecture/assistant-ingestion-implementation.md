@@ -4,7 +4,7 @@ This build adds a direct assistant-to-Supabase write path for a Personal KRYOS p
 
 ## Delivered code
 
-- `supabase/migrations/20260926_assistant_ingestion.sql` adds revision-checked block writes, assistant credentials, idempotent request receipts, immutable event evidence, and a change log. The migration preserves existing data.
+- `supabase/migrations/20260926_assistant_ingestion.sql` adds revision-checked block writes, assistant credentials, idempotent request receipts, immutable event evidence, and a change log. The migration preserves existing data. A separate cutover migration restricts legacy direct writes only after the new browser version is live.
 - `supabase/functions/kryos-ingest/` validates typed operations, maps them to existing KRYOS task and career data, and calls one atomic database transaction.
 - `scripts/kryos-ingest.mjs` is a private command-line connector. It reads a JSON request from standard input and uses `KRYOS_ASSISTANT_TOKEN` from the environment.
 - Settings can issue a one-time assistant token and revoke all current assistant tokens.
@@ -32,10 +32,11 @@ Progress and Rewards read these source records through their existing derivation
 2. Apply the baseline `supabase-schema.sql` only if the project has not already been initialized.
 3. Apply `supabase/migrations/20260926_assistant_ingestion.sql` to the existing Supabase project.
 4. Deploy `kryos-ingest` with the per-function `verify_jwt = false` setting from `supabase/config.toml`. The handler authenticates every request using a long random assistant token. Confirm `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are available only to the Edge Function.
-5. Publish the browser app with a new release version and cache-busted asset URLs.
-6. Sign in to the Personal cloud profile, push existing Personal data once if the cloud blocks are empty, then create assistant access under Cloud settings.
-7. Store the one-time token as `KRYOS_ASSISTANT_TOKEN` in the private Codex environment. Never put it in Git, a URL, or a chat transcript.
-8. Send a harmless test statement, read the receipt, and verify both desktop and iPhone converge before sending journal text.
+5. Publish browser version 0.6.0 with cache-busted asset URLs. Verify desktop and iPhone have loaded it and can save Actions and Career.
+6. Apply `supabase/migrations/20260926_assistant_ingestion_cutover.sql` to reject legacy direct task/career writes. A stale cached browser must refresh before editing.
+7. Sign in to the Personal cloud profile, push existing Personal data once if the cloud blocks are empty, then create assistant access under Cloud settings.
+8. Store the one-time token as `KRYOS_ASSISTANT_TOKEN` in the private Codex environment. Never put it in Git, a URL, or a chat transcript.
+9. Send a harmless test statement, read the receipt, and verify both desktop and iPhone converge before sending journal text.
 
 ## Request example
 
@@ -67,7 +68,7 @@ The connector reads this JSON from standard input. Its output is an accepted rec
 
 ## Current limits and next gates
 
-- The database migration and Edge Function have not been executed against production by the local test suite. Production claims require a live Supabase test and a restore drill.
+- The initial migration and Edge Function were applied to production on 2026-09-26. The deployed function returned HTTP 401 for a request without an assistant token. An authenticated write, cross-device convergence, cutover, and restore drill still require verification before the release is called complete.
 - The current browser still stores local state in large blocks. Revision checking prevents silent overwrites, but a true persistent offline operation outbox and automatic field-level conflict merge remain separate work.
 - Corrections to historical assistant events, Career checklist reopening, and automatic reward-day review require explicit event reversal rules before release.
 - The connector is a local command-line capability. Automatic invocation from every ChatGPT conversation requires a configured Codex tool or MCP connection with the private credential.
