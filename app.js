@@ -5,30 +5,133 @@ const JOURNAL_STORAGE_KEY = "kryos-journal-v1";
 const SECURITY_STORAGE_KEY = "kryos-security-v1";
 const SECURITY_SESSION_KEY = "kryos-security-session-v1";
 const UI_STATE_STORAGE_KEY = "kryos-ui-state-v1";
+const SYNC_STATE_STORAGE_KEY = "kryos-sync-state-v1";
 const ACCOUNT_MODE_STORAGE_KEY = "kryos-account-mode-v1";
 const ACCOUNT_MODES = ["personal", "demo"];
 const DEMO_STORAGE_PREFIX = "kryos-demo";
-const DEMO_PROFILE_PIN = "9619";
+const PERSONAL_PROFILE_PIN_HASH = "c028a67bdd676aadfb7ef48c3725b8ca9c8da0998960a5c7f7ab4e286f938460";
+const SUPABASE_URL = "https://ogpkaxprhjhrewoxsyla.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
+const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
-const APP_VERSION = "0.002.001";
-const APP_STAGE = "Profile Login Correction";
-const APP_RELEASE_DATE = "2026-07-06";
-const APP_STATUS = "Personal and demo profiles use separate credentials";
-const APP_NEXT_MILESTONE = "0.002.002 Manual QA Hardening";
+const KRYOS_DAY_START_HOUR = 7;
+const APP_VERSION = "0.6.0";
+const APP_STAGE = "Assistant Capture and Safe Sync";
+const APP_RELEASE_DATE = "2026-09-25";
+const APP_STATUS = "Fresh cloud reads with containment extended through November 12";
+const APP_NEXT_MILESTONE = "Set realistic Core deadlines module by module";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
-  "Demo access now happens from the lock screen with the fixed demo PIN.",
-  "The Settings Personal/Demo switch has been removed from the product UI.",
-  "Personal credentials open Personal; demo PIN opens the safe showcase profile.",
-  "Demo sample data is created automatically and stays separate from Personal data.",
-  "Backup, import, reset, lock session, and UI state still apply to the active profile only.",
+  "Added cache-free cloud reads and a refresh check on every visible page show.",
+  "Extended the Inner Command covenant through November 12, 2026 while preserving prior evidence.",
+  "Marked the confirmed Personal reward reviews for Sunday September 21 through Wednesday September 24, 2026.",
+  "Stored those reviews from existing dated evidence without changing reward scoring rules or Demo data.",
+  "Stopped startup Career migrations from uploading before the first cloud recovery check finishes.",
+  "Made the first signed-in Career reconciliation complete before any migration autosave can reach Supabase.",
+  "Fixed fresh phones incorrectly treating empty starter Career data as newer than completed desktop progress.",
+  "Added per-section cloud version tracking so Career, Actions, Journal, and Foundation sync independently.",
+  "Added monotonic Career recovery so a more-complete cloud roadmap safely restores a stale or blank phone.",
+  "Rebuilt Actions mobile for compact one-handed capture, scanning, status changes, editing, and completion.",
+  "Added Supabase realtime listening with a 15-second visible-page fallback freshness check.",
+  "Applied safe remote updates in place without a disruptive page reload and preserved local changes on conflict.",
+  "Restored the complete Career roadmap read mode on mobile, including modules, topics, deadlines, confidence, progress, and every completion checkbox.",
+  "Added a compact Career section navigator for Now, Deadlines, Roadmaps, and Full plan.",
+  "Removed mobile editing and creation noise while preserving reversible complete and incomplete actions with cloud sync.",
+  "Added conflict-safe cloud freshness checks on launch, resume, and manual refresh.",
+  "Added iPhone 15 Plus safe-area metadata and a premium icon-led mobile navigation system.",
+  "Improved mobile hierarchy, touch feedback, loading state, and compact cloud status.",
+  "Rebuilt DSA into the exact 18-module NeetCode 150 sequence with a separate Extra Practice lane.",
+  "Preserved prior completion evidence through normalized problem matching without allowing extras to inflate Core progress.",
+  "Added dedicated Core and Extra progress signals while keeping Core progress fixed at 150 problems.",
+  "Imported the reviewed September 19 Radhashtami journal across Journal, Actions, and Rhythm.",
+  "Added evidence-backed backdated Rhythm imports and correct journal-day Action completion timestamps.",
+  "Added topic-level Career deadlines with automatic completion dates and topic-aware delivery scoring.",
+  "Made on-time Critical and Important Actions eligible for the single capped Responsibility evidence point.",
+  "Reduced Career and Actions cloud-save delay while keeping every page on one shared local state.",
+  "Added module deadlines, automatic completion dates, deadline health, and delivery scoring across Career and Progress.",
+  "Made Rewards local-first and exposed every qualification gate before cloud ledger confirmation.",
+  "Reflowed the complete Career workspace so long roadmaps, phase briefs, modules, and checklists stay inside the page at every supported desktop width.",
+  "Kept Career writes immediate on-device with the existing quiet Supabase autosave and visible local, saving, synced, or unavailable status.",
+  "Imported the complete API Design and Backend Engineering roadmap as nine gated learning phases.",
+  "Added phase goals, core patterns, difficulty signals, and separate Theory, Build, and Interview Gate evidence lanes.",
+  "Added one global cloud-state signal so every workspace clearly reports local, saving, synced, or unavailable state.",
+  "Made reward evidence provenance visible across Inner Command, Actions, Career, Launch, Rhythm, and Money.",
+  "Added cross-feature reward integration tests while preserving strict category caps and manual daily confirmation.",
+  "Imported the complete 163-question DSA roadmap across 14 focused topics, with every problem reset for a clean start.",
+  "Organized the DSA roadmap into foundations, core data structures, and advanced algorithms so the larger plan remains scannable.",
+  "Added visible reward-ledger progress and explicit zero-data sync confirmation.",
+  "Bundled the Supabase client with KRYOS so cloud login no longer depends on third-party scripts at runtime.",
+  "Moved the Supabase browser client to the same reliable CDN already used by KRYOS icons.",
+  "Restored the official Supabase browser client required for cloud authentication and ledger sync.",
+  "Added a bounded 30-minute music reward with a three-day cooldown.",
+  "Made reward-ledger authentication explicit and added a direct route to Cloud settings.",
+  "Added one evidence-based reward review across Launch, Career, Actions, Money, Rhythm, Inner Command, and Journal.",
+  "Added slow credit tiers, sustained-day gates, a 45-reviewed-day astrology boundary, and an auditable reward ledger.",
+  "Added premium progress visuals and an idempotent Supabase transaction for cloud-confirmed redemptions.",
+  "Added Network and Visibility inside Career Launch.",
+  "Separated meaningful connection actions from passive browsing and added a two-published-posts weekly target.",
+  "Added connection-action and post evidence dialogs with a seven-day publishing cadence.",
+  "Added Career Launch as a separate market-exposure and interview-rehearsal workspace.",
+  "Added a configurable weekday platform circuit for LinkedIn, Built In, Glassdoor, Indeed, company sites, and custom sources.",
+  "Added 3–6 weekly self and AI mock tracking with exposure pulse, 12-week consistency, and pipeline visuals.",
+  "Rebuilt Journal as Inner Command: purpose, a 45-day containment covenant, and daily evidence in one page.",
+  "Added Rama, Sita, and Hanuman as personal direction, protected energy, and service principles.",
+  "Made anxiety a return signal rather than a breach while recording chosen boundary violations honestly.",
+  "Added Money as a focused friend-credit responsibility tracker rather than a generic budgeting system.",
+  "Separated follow-up discipline from financial recovery with contact, promise, payment, interest, and card histories.",
+  "Added responsibility resolution, balance movement, contact rhythm, card health, and an evidence-led activity timeline.",
+  "Added Rhythm as a unified health, weekly maintenance, and spiritual-practice workspace.",
+  "Separated essential foundation scoring from optional spiritual opportunity, with recovery and weekly-goal analytics.",
+  "Added a 28-day Body, Care, and Spirit constellation backed by synced source events rather than stored percentages.",
+  "Reintroduced Career as a focused skill-development command center, separate from job search and interview preparation.",
+  "Added weekly pulse, 52-week evidence field, roadmap journey, coverage versus confidence, and current-module focus.",
+  "Kept detailed Career analytics inside Career while Progress receives only a compact cross-domain summary.",
+  "Redesigned Actions as a premium, low-friction command surface with human deadline signals and calm visual hierarchy.",
+  "Replaced browser prompts with a complete action editor and added quiet, debounced task-block cloud synchronization.",
+  "Imported the 13 reviewed master actions from notebook page one, including corrected deadlines and the part-time balance amount.",
+  "Added one persistent Action Vault with priorities, next actions, optional deadlines and a three-item active limit.",
+  "Restored Rewards as a journal-driven effort-credit system with transparent costs and history.",
+  "Added domain-level 14-day activity graphs and simplified motivational analytics.",
+  "Reduced KRYOS to Journal and Progress while preserving older data for later use.",
+  "Made 9619 the personal profile credential and removed the accidental empty-demo route.",
+  "Added assistant-maintained progress packages that import once into the existing KRYOS profile.",
+  "KRYOS days now run from 7:00 AM to 6:59 AM for records, streaks and analytics.",
+  "Refined daily outcome progress, weekly consistency, metric-specific heatmaps and selected reward progress.",
+  "Added journal drafts, structured life records, reviewed imports and timeline search.",
+  "Added an 84-day progress grid, scheduled streaks, focus bars and domain summaries.",
+  "Replaced broad tracking with a six-screen behavior-routing system.",
+  "Added One Outcome, ignition timers, Build versus Analyze, redirects, slips, recovery, rewards, and one breakthrough project.",
+  "Behavior events live inside the existing synced task block, so the Supabase schema does not need a migration.",
+  "Legacy KRYOS records remain preserved locally and in backups.",
 ];
+let assistantTokenOnce = "";
 const DATA_STORAGE_KEYS = [
   FOUNDATION_STORAGE_KEY,
   CAREER_STORAGE_KEY,
   TASKS_STORAGE_KEY,
   JOURNAL_STORAGE_KEY,
   SECURITY_STORAGE_KEY,
+  SYNC_STATE_STORAGE_KEY,
+];
+const SYNC_SAFE_BLOCKS = [
+  FOUNDATION_STORAGE_KEY,
+  CAREER_STORAGE_KEY,
+  TASKS_STORAGE_KEY,
+  JOURNAL_STORAGE_KEY,
+  SECURITY_STORAGE_KEY,
+  UI_STATE_STORAGE_KEY,
+];
+const SYNC_EXCLUDED_BLOCKS = [
+  SECURITY_SESSION_KEY,
+  SYNC_STATE_STORAGE_KEY,
+];
+const SYNC_BLOCKS = [
+  { key: "foundation", storageKey: FOUNDATION_STORAGE_KEY },
+  { key: "career", storageKey: CAREER_STORAGE_KEY },
+  { key: "tasks", storageKey: TASKS_STORAGE_KEY },
+  { key: "journal", storageKey: JOURNAL_STORAGE_KEY },
+  { key: "security", storageKey: SECURITY_STORAGE_KEY },
+  { key: "ui_state", payloadKey: "uiState", storageKey: UI_STATE_STORAGE_KEY },
 ];
 
 const TASK_DOMAINS = [
@@ -45,7 +148,7 @@ const TASK_TYPES = ["Task", "Checklist", "Goal", "Routine", "Habit"];
 const TASK_PRIORITIES = ["Low", "Medium", "High", "Critical"];
 const TASK_REPEATS = ["none", "daily", "weekdays", "weekly", "selected"];
 const TASK_VIEWS = ["today", "inbox", "upcoming"];
-const APP_PAGES = ["foundation", "career", "today", "habits", "journal", "progress", "settings"];
+const APP_PAGES = ["journal", "actions", "career", "launch", "rhythm", "money", "progress", "rewards"];
 const FIELD_TABS = ["today", "add", "habits", "pulse"];
 const HABIT_RANGES = [14, 30, 60, 90];
 const HABIT_PERIODS = ["day", "week", "month"];
@@ -86,8 +189,8 @@ const STATE_METRICS = [
 const AUTO_LOCK_OPTIONS = [1, 5, 10, 15, 30, 60];
 
 const defaultSecurity = {
-  configured: false,
-  passHash: "",
+  configured: true,
+  passHash: PERSONAL_PROFILE_PIN_HASH,
   recovery: [
     { question: "", answerHash: "" },
     { question: "", answerHash: "" },
@@ -268,6 +371,567 @@ const defaultFoundation = {
   },
 };
 
+const DSA_ROADMAP_VERSION = 2;
+
+const DSA_LEGACY_ROADMAP_GROUPS = [
+  {
+    id: "dsa-foundations",
+    title: "Pattern Foundations",
+    topics: [
+      {
+        id: "dsa-arrays-hash-maps",
+        title: "Arrays & Hash Maps",
+        items: [
+          "Two Sum - HashMap complement lookup",
+          "Top K Frequent Elements - Frequency map / histogram",
+          "Find All Anagrams in a String - Fixed sliding window",
+          "Longest Substring with At Most K Distinct - Variable sliding window",
+          "Subarray Sum Equals K - Prefix sums + HashMap",
+          "Continuous Subarray Sum - Prefix sums + modulo",
+          "Product of Array Except Self - Prefix/suffix products",
+          "Longest Consecutive Sequence - Set-based sequence trick",
+          "First Missing Positive - Index-as-hash / in-place marking",
+          "Insert Delete GetRandom O(1) - Randomization with O(1) operations",
+          "Random Pick with Weight - Weighted random pick",
+          "Range Sum Query 2D - Immutable - 2D prefix sums",
+          "Sparse Matrix Multiplication - Sparse representation",
+          "Isomorphic Strings - Bijection mapping",
+          "Check If a String Contains All Binary Codes of Size K - Rolling bitmask / hash",
+          "Increasing Triplet Subsequence - Greedy extremes tracking",
+          "Minimum Moves to Equal Array Elements II - Median minimizes absolute deviation",
+          "Partition Labels - Greedy + last occurrence",
+          "Encode and Decode Strings - Custom serialization / parsing",
+          "Design HashMap - Hashing internals",
+          "Valid Sudoku - Validation via composite keys",
+        ],
+      },
+      {
+        id: "dsa-two-pointers",
+        title: "Two Pointers",
+        items: [
+          "Valid Palindrome",
+          "Two Sum II - Sorted",
+          "Container With Most Water",
+          "Trapping Rain Water",
+          "4Sum",
+          "Boats to Save People",
+          "Compare Version Numbers",
+          "Find the Duplicate Number",
+          "Is Subsequence",
+          "Number of Subsequences That Satisfy Sum Condition",
+          "Partition List",
+          "Remove Duplicates from Sorted Array",
+          "Reverse String",
+          "Shortest Distance to a Character",
+          "Sort Colors",
+          "Squares of a Sorted Array",
+        ],
+      },
+      {
+        id: "dsa-sliding-window",
+        title: "Sliding Window",
+        items: [
+          "Longest Substring Without Repeating Characters",
+          "Longest Repeating Character Replacement",
+          "Permutation in String",
+          "Minimum Window Substring",
+          "Sliding Window Maximum",
+          "Count Unique Characters of All Substrings",
+          "Fruit Into Baskets",
+          "Longest Subarray of 1s After Deleting One",
+          "Max Consecutive Ones III",
+          "Maximum Average Subarray I",
+          "Maximum Number of Robots Within Budget",
+          "Maximum Number of Vowels in Substring of Length K",
+          "Minimum Operations to Reduce X to Zero",
+          "Substring with Concatenation of All Words",
+          "Substring With Largest Variance",
+        ],
+      },
+      {
+        id: "dsa-strings",
+        title: "Strings",
+        items: [
+          "Longest Common Prefix",
+          "String Compression",
+          "Text Justification",
+          "First Unique Character in a String",
+          "Longest Palindrome",
+          "Reverse Words in a String",
+          "Reorganize String",
+          "Verifying an Alien Dictionary",
+          "Valid Palindrome II",
+        ],
+      },
+      {
+        id: "dsa-binary-search",
+        title: "Binary Search",
+        items: [
+          "Binary Search",
+          "First Bad Version",
+          "Search a 2D Matrix",
+          "Koko Eating Bananas",
+          "Find Minimum in Rotated Sorted Array",
+          "Search in Rotated Sorted Array",
+          "Median of Two Sorted Arrays",
+          "Find Peak Element",
+          "Guess Number Higher or Lower",
+          "Maximum Value at a Given Index in a Bounded Array",
+          "Online Election",
+          "Search Suggestions System",
+          "Single Element in a Sorted Array",
+          "Successful Pairs of Spells and Potions",
+        ],
+      },
+    ],
+  },
+  {
+    id: "dsa-core-structures",
+    title: "Core Data Structures",
+    topics: [
+      {
+        id: "dsa-linked-list",
+        title: "Linked List",
+        items: [
+          "Reverse Linked List",
+          "Merge Two Sorted Lists",
+          "Reorder List",
+          "Copy List with Random Pointer",
+          "Add Two Numbers",
+          "Linked List Cycle",
+          "Palindrome Linked List",
+          "Reverse Nodes in K-Group",
+          "Odd Even Linked List",
+        ],
+      },
+      {
+        id: "dsa-stack",
+        title: "Stack / Monotonic Stack",
+        items: [
+          "Valid Parentheses",
+          "Min Stack",
+          "Evaluate Reverse Polish Notation",
+          "Daily Temperatures",
+          "Largest Rectangle in Histogram",
+          "Asteroid Collision",
+          "Simplify Path",
+          "Sum of Subarray Minimums",
+        ],
+      },
+      {
+        id: "dsa-trees-bst",
+        title: "Trees / BST",
+        items: [
+          "Invert Binary Tree",
+          "Maximum Depth of Binary Tree",
+          "Same Tree",
+          "Subtree of Another Tree",
+          "Symmetric Tree",
+          "Validate BST",
+          "Kth Smallest in BST",
+          "LCA of BST",
+          "LCA of Binary Tree",
+          "Diameter of Binary Tree",
+          "Maximum Path Sum",
+          "Binary Tree Level Order Traversal",
+          "Serialize and Deserialize Binary Tree",
+          "Construct Binary Tree from Preorder and Inorder Traversal",
+          "Iterative Inorder Traversal / BST Iterator",
+          "Path Sum - Root-to-Leaf Constraint DFS",
+          "Path Sum III",
+        ],
+      },
+      {
+        id: "dsa-graphs",
+        title: "Graphs",
+        items: [
+          "Clone Graph",
+          "Course Schedule",
+          "Course Schedule II",
+          "Number of Islands",
+          "Rotting Oranges",
+          "Shortest Path in Binary Matrix",
+          "Pacific Atlantic Water Flow",
+          "Graph Valid Tree",
+          "Is Graph Bipartite?",
+          "Network Delay Time",
+          "Redundant Connection",
+          "Critical Connections in a Network",
+        ],
+      },
+      {
+        id: "dsa-heap-pq",
+        title: "Heap / Priority Queue",
+        items: [
+          "Kth Largest in a Stream",
+          "K Closest Points to Origin",
+          "Task Scheduler",
+          "Find Median from Data Stream",
+          "Merge K Sorted Lists",
+          "Top K Frequent Words",
+          "Find K Pairs with Smallest Sums",
+          "Furthest Building You Can Reach",
+          "IPO",
+        ],
+      },
+    ],
+  },
+  {
+    id: "dsa-advanced-algorithms",
+    title: "Advanced Algorithms",
+    topics: [
+      {
+        id: "dsa-greedy-intervals",
+        title: "Greedy & Intervals",
+        items: [
+          "Jump Game",
+          "Jump Game II",
+          "Gas Station",
+          "Minimum Number of Arrows to Burst Balloons",
+          "Boats to Save People",
+          "Merge Triplets to Form Target Triplet",
+          "Insert Interval",
+          "Merge Intervals",
+          "Meeting Rooms",
+          "Meeting Rooms II",
+        ],
+      },
+      {
+        id: "dsa-dynamic-programming",
+        title: "Dynamic Programming",
+        items: [
+          "Climbing Stairs",
+          "Coin Change",
+          "House Robber",
+          "House Robber II",
+          "Word Break",
+          "Longest Increasing Subsequence",
+          "Longest Common Subsequence",
+          "Edit Distance",
+          "Decode Ways",
+          "Partition Equal Subset Sum",
+          "Target Sum",
+          "Unique Paths",
+          "Best Time to Buy and Sell Stock with Cooldown",
+          "Best Time to Buy and Sell Stock with Transaction Fee",
+        ],
+      },
+      {
+        id: "dsa-backtracking",
+        title: "Backtracking",
+        items: [
+          "Subsets",
+          "Permutations",
+          "Combination Sum",
+          "Combination Sum II",
+          "Generate Parentheses",
+          "Word Search",
+          "Palindrome Partitioning",
+        ],
+      },
+      {
+        id: "dsa-bit-manipulation",
+        title: "Bit Manipulation",
+        items: [
+          "Number of 1 Bits",
+          "Sum of Two Integers",
+        ],
+      },
+    ],
+  },
+];
+
+const DSA_NEETCODE_MODULES = [
+  { id: "arrays-hashing", title: "Arrays & Hashing", items: ["Contains Duplicate", "Valid Anagram", "Two Sum", "Group Anagrams", "Top K Frequent Elements", "Encode and Decode Strings", "Product of Array Except Self", "Valid Sudoku", "Longest Consecutive Sequence"] },
+  { id: "two-pointers", title: "Two Pointers", items: ["Valid Palindrome", "Two Sum II Input Array Is Sorted", "3Sum", "Container With Most Water", "Trapping Rain Water"] },
+  { id: "sliding-window", title: "Sliding Window", items: ["Best Time to Buy And Sell Stock", "Longest Substring Without Repeating Characters", "Longest Repeating Character Replacement", "Permutation In String", "Minimum Window Substring", "Sliding Window Maximum"] },
+  { id: "stack", title: "Stack", items: ["Valid Parentheses", "Min Stack", "Evaluate Reverse Polish Notation", "Daily Temperatures", "Car Fleet", "Largest Rectangle In Histogram"] },
+  { id: "binary-search", title: "Binary Search", items: ["Binary Search", "Search a 2D Matrix", "Koko Eating Bananas", "Find Minimum In Rotated Sorted Array", "Search In Rotated Sorted Array", "Time Based Key Value Store", "Median of Two Sorted Arrays"] },
+  { id: "linked-list", title: "Linked List", items: ["Reverse Linked List", "Merge Two Sorted Lists", "Linked List Cycle", "Reorder List", "Remove Nth Node From End of List", "Copy List With Random Pointer", "Add Two Numbers", "Find The Duplicate Number", "LRU Cache", "Merge K Sorted Lists", "Reverse Nodes In K Group"] },
+  { id: "trees", title: "Trees", items: ["Invert Binary Tree", "Maximum Depth of Binary Tree", "Diameter of Binary Tree", "Balanced Binary Tree", "Same Tree", "Subtree of Another Tree", "Lowest Common Ancestor of a Binary Search Tree", "Binary Tree Level Order Traversal", "Binary Tree Right Side View", "Count Good Nodes In Binary Tree", "Validate Binary Search Tree", "Kth Smallest Element In a Bst", "Construct Binary Tree From Preorder And Inorder Traversal", "Binary Tree Maximum Path Sum", "Serialize And Deserialize Binary Tree"] },
+  { id: "heap-priority-queue", title: "Heap / Priority Queue", items: ["Kth Largest Element In a Stream", "Last Stone Weight", "K Closest Points to Origin", "Kth Largest Element In An Array", "Task Scheduler", "Design Twitter", "Find Median From Data Stream"] },
+  { id: "backtracking", title: "Backtracking", items: ["Subsets", "Combination Sum", "Combination Sum II", "Permutations", "Subsets II", "Generate Parentheses", "Word Search", "Palindrome Partitioning", "Letter Combinations of a Phone Number", "N Queens"] },
+  { id: "tries", title: "Tries", items: ["Implement Trie Prefix Tree", "Design Add And Search Words Data Structure", "Word Search II"] },
+  { id: "graphs", title: "Graphs", items: ["Number of Islands", "Max Area of Island", "Clone Graph", "Walls And Gates", "Rotting Oranges", "Pacific Atlantic Water Flow", "Surrounded Regions", "Course Schedule", "Course Schedule II", "Graph Valid Tree", "Number of Connected Components In An Undirected Graph", "Redundant Connection", "Word Ladder"] },
+  { id: "advanced-graphs", title: "Advanced Graphs", items: ["Network Delay Time", "Reconstruct Itinerary", "Min Cost to Connect All Points", "Swim In Rising Water", "Alien Dictionary", "Cheapest Flights Within K Stops"] },
+  { id: "1d-dynamic-programming", title: "1-D Dynamic Programming", items: ["Climbing Stairs", "Min Cost Climbing Stairs", "House Robber", "House Robber II", "Longest Palindromic Substring", "Palindromic Substrings", "Decode Ways", "Coin Change", "Maximum Product Subarray", "Word Break", "Longest Increasing Subsequence", "Partition Equal Subset Sum"] },
+  { id: "2d-dynamic-programming", title: "2-D Dynamic Programming", items: ["Unique Paths", "Longest Common Subsequence", "Best Time to Buy And Sell Stock With Cooldown", "Coin Change II", "Target Sum", "Interleaving String", "Longest Increasing Path In a Matrix", "Distinct Subsequences", "Edit Distance", "Burst Balloons", "Regular Expression Matching"] },
+  { id: "greedy", title: "Greedy", items: ["Maximum Subarray", "Jump Game", "Jump Game II", "Gas Station", "Hand of Straights", "Merge Triplets to Form Target Triplet", "Partition Labels", "Valid Parenthesis String"] },
+  { id: "intervals", title: "Intervals", items: ["Insert Interval", "Merge Intervals", "Non Overlapping Intervals", "Meeting Rooms", "Meeting Rooms II", "Minimum Interval to Include Each Query"] },
+  { id: "math-geometry", title: "Math & Geometry", items: ["Rotate Image", "Spiral Matrix", "Set Matrix Zeroes", "Happy Number", "Plus One", "Pow(x, n)", "Multiply Strings", "Detect Squares"] },
+  { id: "bit-manipulation", title: "Bit Manipulation", items: ["Single Number", "Number of 1 Bits", "Counting Bits", "Reverse Bits", "Missing Number", "Sum of Two Integers", "Reverse Integer"] },
+];
+
+const DSA_PROBLEM_ALIASES = {
+  "two sum ii sorted": "two sum ii input array is sorted",
+  "validate bst": "validate binary search tree",
+  "kth smallest in bst": "kth smallest element in a bst",
+  "lca of bst": "lowest common ancestor of a binary search tree",
+  "maximum path sum": "binary tree maximum path sum",
+  "kth largest in a stream": "kth largest element in a stream",
+};
+
+function dsaProblemKey(value) {
+  const title = String(value || "").split(" - ")[0].replace(/&/g, " and ");
+  const key = title.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  return DSA_PROBLEM_ALIASES[key] || key;
+}
+
+function dsaLegacyDestination(topicTitle, itemText = "") {
+  const title = String(topicTitle || "").toLowerCase();
+  const text = String(itemText || "").toLowerCase();
+  if (title.includes("two pointer")) return "two-pointers";
+  if (title.includes("sliding")) return "sliding-window";
+  if (title.includes("binary search")) return "binary-search";
+  if (title.includes("linked")) return "linked-list";
+  if (title.includes("stack")) return "stack";
+  if (title.includes("tree")) return "trees";
+  if (title.includes("graph")) return "graphs";
+  if (title.includes("heap")) return "heap-priority-queue";
+  if (title.includes("backtracking")) return "backtracking";
+  if (title.includes("bit")) return "bit-manipulation";
+  if (title.includes("dynamic")) return "1d-dynamic-programming";
+  if (title.includes("greedy") || title.includes("interval")) {
+    return /interval|meeting room|arrows/.test(text) ? "intervals" : "greedy";
+  }
+  return "arrays-hashing";
+}
+
+function collectDsaSourceItems(existingRoadmap = null) {
+  const items = [];
+  DSA_LEGACY_ROADMAP_GROUPS.forEach((group) => group.topics.forEach((topic) => topic.items.forEach((text) => items.push({ text, topicTitle: topic.title, done: false }))));
+  (existingRoadmap?.modules || []).forEach((module) => (module.topics || []).forEach((topic) => (topic.checklist || []).forEach((check) => items.push({
+    text: check.text,
+    topicTitle: topic.title,
+    done: Boolean(check.done),
+    confidence: topic.confidence,
+  }))));
+  return items;
+}
+
+function buildDsaRoadmapModules(existingRoadmap = null) {
+  const sourceItems = collectDsaSourceItems(existingRoadmap);
+  const evidence = new Map();
+  sourceItems.forEach((item) => {
+    const key = dsaProblemKey(item.text);
+    const prior = evidence.get(key);
+    if (!prior || item.done) evidence.set(key, item);
+  });
+  const coreDestination = new Map();
+  DSA_NEETCODE_MODULES.forEach((module) => module.items.forEach((text) => coreDestination.set(dsaProblemKey(text), module.id)));
+  const extrasByModule = new Map(DSA_NEETCODE_MODULES.map((module) => [module.id, []]));
+  const seenExtras = new Set();
+  sourceItems.forEach((item) => {
+    const key = dsaProblemKey(item.text);
+    if (!key || coreDestination.has(key) || seenExtras.has(key)) return;
+    seenExtras.add(key);
+    const destination = dsaLegacyDestination(item.topicTitle, item.text);
+    extrasByModule.get(destination)?.push({ ...item, key });
+  });
+
+  return DSA_NEETCODE_MODULES.map((module) => {
+    const coreTopicId = `dsa-${module.id}-core`;
+    const extraTopicId = `dsa-${module.id}-extras`;
+    const extras = extrasByModule.get(module.id) || [];
+    return {
+      id: `dsa-module-${module.id}`,
+      title: module.title,
+      targetDate: "",
+      completedAt: "",
+      topics: [
+        {
+          id: coreTopicId,
+          title: "NeetCode 150 Core",
+          lane: "core",
+          confidence: "Low",
+          targetDate: "",
+          completedAt: "",
+          checklist: module.items.map((text, index) => ({ id: `${coreTopicId}-${index + 1}`, text, done: Boolean(evidence.get(dsaProblemKey(text))?.done) })),
+        },
+        {
+          id: extraTopicId,
+          title: "Extra Practice",
+          lane: "extra",
+          confidence: "Low",
+          targetDate: "",
+          completedAt: "",
+          checklist: extras.map((item, index) => ({ id: `${extraTopicId}-${index + 1}`, text: item.text, done: Boolean(evidence.get(item.key)?.done) })),
+        },
+      ],
+    };
+  });
+}
+
+function migrateDsaRoadmap(nextCareerState) {
+  if (!nextCareerState || typeof nextCareerState !== "object") return false;
+  nextCareerState.meta = nextCareerState.meta && typeof nextCareerState.meta === "object" ? nextCareerState.meta : {};
+  if (Number(nextCareerState.meta.dsaRoadmapVersion || 0) >= DSA_ROADMAP_VERSION) return false;
+
+  nextCareerState.roadmaps = Array.isArray(nextCareerState.roadmaps) ? nextCareerState.roadmaps : [];
+  let roadmap = nextCareerState.roadmaps.find((item) => String(item?.title || "").trim().toLowerCase() === "dsa roadmap");
+  if (!roadmap) {
+    roadmap = { id: "roadmap-dsa", title: "DSA Roadmap" };
+    nextCareerState.roadmaps.unshift(roadmap);
+  }
+
+  const existingRoadmap = structuredClone(roadmap);
+  roadmap.purpose = "Complete the NeetCode 150 in its canonical order, then use preserved extra problems for reinforcement.";
+  roadmap.targetDate = roadmap.targetDate || "";
+  roadmap.modules = buildDsaRoadmapModules(existingRoadmap);
+  nextCareerState.meta.dsaRoadmapVersion = DSA_ROADMAP_VERSION;
+  nextCareerState.meta.updatedAt = new Date().toISOString();
+  return true;
+}
+
+const API_DESIGN_ROADMAP_VERSION = 1;
+
+const API_DESIGN_PHASES = [
+  {
+    id: "api-phase-0",
+    title: "Phase 0 - Backend Thinking Foundation",
+    goal: "Shift from writing Python functions to designing enforceable API contracts.",
+    pattern: "Contract thinking",
+    difficulty: 25,
+    topics: [
+      { id: "api-phase-0-theory", title: "Theory - 20%", items: ["API is not a function call", "Request is not an argument", "Response is not a return value", "Treat every client as untrusted", "Make the server enforce contracts"] },
+      { id: "api-phase-0-build", title: "Build - 80%", items: ["Write pure Python functions that accept dictionary input", "Add manual request validation", "Return structured JSON-like responses", "Simulate malformed and hostile client requests"] },
+      { id: "api-phase-0-gate", title: "Interview Gate", items: ["#19 Design error response contracts", "#3 Design a user profile API - basic contract only"] },
+    ],
+  },
+  {
+    id: "api-phase-1",
+    title: "Phase 1 - CRUD & Resource Modeling",
+    goal: "Model resources, collections, identity, and state transitions through HTTP.",
+    pattern: "CRUD & state transitions",
+    difficulty: 30,
+    topics: [
+      { id: "api-phase-1-theory", title: "Theory - 20%", items: ["Distinguish a resource from an action", "Define stable resource identity", "Distinguish collections from individual resources", "Explain HTTP method semantics"] },
+      { id: "api-phase-1-build", title: "Build - 80%", items: ["Create the FastAPI service foundation", "Use in-memory storage", "Implement GET /users", "Implement GET /users/{id}", "Implement POST /users", "Implement PUT /users/{id}", "Implement DELETE /users/{id}"] },
+      { id: "api-phase-1-gate", title: "Interview Gate", items: ["#3 Design a user profile API", "#4 Design an order service - CRUD only"] },
+    ],
+  },
+  {
+    id: "api-phase-2",
+    title: "Phase 2 - Validation & Error Contracts",
+    goal: "Reject invalid input predictably and return stable machine-readable failures.",
+    pattern: "Contract safety",
+    difficulty: 45,
+    topics: [
+      { id: "api-phase-2-theory", title: "Theory - 20%", items: ["Separate request schemas from response schemas", "Define validation boundaries", "Design one consistent error structure", "Use HTTP status codes correctly"] },
+      { id: "api-phase-2-build", title: "Build - 80%", items: ["Create Pydantic request and response models", "Implement centralized error handling", "Add field-level validation", "Return one clean response envelope"] },
+      { id: "api-phase-2-gate", title: "Interview Gate", items: ["#19 Design error response contracts", "#4 Design an order service with validation"] },
+    ],
+  },
+  {
+    id: "api-phase-3",
+    title: "Phase 3 - Authentication & Authorization",
+    goal: "Establish identity and enforce permissions without trusting client claims.",
+    pattern: "Identity & permissions",
+    difficulty: 55,
+    topics: [
+      { id: "api-phase-3-theory", title: "Theory - 20%", items: ["Distinguish authentication from authorization", "Explain JWT structure and trust", "Explain stateless API authentication", "Model role-based access"] },
+      { id: "api-phase-3-build", title: "Build - 80%", items: ["Implement signup API", "Implement login API", "Generate and validate JWTs", "Protect authenticated routes", "Enforce admin versus user access"] },
+      { id: "api-phase-3-gate", title: "Interview Gate", items: ["#1 Design a login API", "#2 Design a signup API", "#3 Design a user profile API with authorization"] },
+    ],
+  },
+  {
+    id: "api-phase-4",
+    title: "Phase 4 - Pagination, Filtering & Large Data",
+    goal: "Keep collection APIs bounded, predictable, and usable as data grows.",
+    pattern: "Scalable collection access",
+    difficulty: 60,
+    topics: [
+      { id: "api-phase-4-theory", title: "Theory - 20%", items: ["Explain why returning all data fails", "Design pagination contracts", "Define safe filtering rules", "Define deterministic sorting"] },
+      { id: "api-phase-4-build", title: "Build - 80%", items: ["Implement limit and offset pagination", "Return pagination metadata", "Validate filter, sort, and pagination query parameters"] },
+      { id: "api-phase-4-gate", title: "Interview Gate", items: ["#11 Design a search API", "#12 Handle large datasets", "#13 Design a pagination strategy"] },
+    ],
+  },
+  {
+    id: "api-phase-5",
+    title: "Phase 5 - Idempotency & Retry Safety",
+    goal: "Make retried mutations safe and prevent duplicate side effects.",
+    pattern: "Reliable mutations",
+    difficulty: 70,
+    topics: [
+      { id: "api-phase-5-theory", title: "Theory - 20%", items: ["Explain why network retries happen", "Identify duplicate-request failure modes", "Design idempotency-key contracts", "Distinguish safe and unsafe POST behavior"] },
+      { id: "api-phase-5-build", title: "Build - 80%", items: ["Implement an idempotent POST endpoint", "Simulate timeout and retry behavior", "Apply atomic idempotency handling to an order or payment API"] },
+      { id: "api-phase-5-gate", title: "Interview Gate", items: ["#5 Design an order creation API", "#6 Design a payment flow", "#7 Prevent duplicate requests", "#8 Handle client retries safely"] },
+    ],
+  },
+  {
+    id: "api-phase-6",
+    title: "Phase 6 - Async Workflows & File APIs",
+    goal: "Represent long-running work without blocking clients or hiding state.",
+    pattern: "Long-running operations",
+    difficulty: 65,
+    topics: [
+      { id: "api-phase-6-theory", title: "Theory - 20%", items: ["Distinguish blocking from asynchronous APIs", "Use 202 Accepted for queued work", "Compare polling and webhooks"] },
+      { id: "api-phase-6-build", title: "Build - 80%", items: ["Create an asynchronous job endpoint", "Implement job-status tracking", "Simulate file upload handling", "Implement file download behavior"] },
+      { id: "api-phase-6-gate", title: "Interview Gate", items: ["#9 Design a file upload API", "#10 Design a file download API", "#17 Handle long-running operations"] },
+    ],
+  },
+  {
+    id: "api-phase-7",
+    title: "Phase 7 - Versioning & Backward Compatibility",
+    goal: "Evolve contracts without silently breaking existing clients.",
+    pattern: "API evolution",
+    difficulty: 75,
+    topics: [
+      { id: "api-phase-7-theory", title: "Theory - 20%", items: ["Distinguish breaking from non-breaking changes", "Plan schema evolution", "Compare API versioning strategies"] },
+      { id: "api-phase-7-build", title: "Build - 80%", items: ["Implement /api/v1", "Implement /api/v2", "Practice additive backward-compatible changes"] },
+      { id: "api-phase-7-gate", title: "Interview Gate", items: ["#14 Support old mobile clients", "#15 Handle breaking API changes", "#16 Design API versioning"] },
+    ],
+  },
+  {
+    id: "api-phase-8",
+    title: "Phase 8 - Downstream Failures & Ownership",
+    goal: "Own production behavior when dependencies slow down, fail, or return uncertainty.",
+    pattern: "Production readiness",
+    difficulty: 80,
+    topics: [
+      { id: "api-phase-8-theory", title: "Theory - 20%", items: ["Model dependency failures", "Choose explicit timeout budgets", "Bound retries and avoid retry storms", "Design graceful degradation", "Adopt an operational monitoring mindset"] },
+      { id: "api-phase-8-build", title: "Build - 80%", items: ["Simulate downstream service failure", "Return safe and useful dependency errors", "Implement a health endpoint", "Add structured logging"] },
+      { id: "api-phase-8-gate", title: "Interview Gate", items: ["#18 Handle downstream service failures", "#20 Design a production-ready API"] },
+    ],
+  },
+];
+
+function buildApiDesignRoadmapModules() {
+  return API_DESIGN_PHASES.map((phase) => ({
+    id: phase.id,
+    title: phase.title,
+    goal: phase.goal,
+    pattern: phase.pattern,
+    difficulty: phase.difficulty,
+    topics: phase.topics.map((topic) => ({
+      id: topic.id,
+      title: topic.title,
+      confidence: "Low",
+      checklist: topic.items.map((text, index) => ({ id: `${topic.id}-item-${index + 1}`, text, done: false })),
+    })),
+  }));
+}
+
+function migrateApiDesignRoadmap(nextCareerState) {
+  if (!nextCareerState || typeof nextCareerState !== "object") return false;
+  nextCareerState.meta = nextCareerState.meta && typeof nextCareerState.meta === "object" ? nextCareerState.meta : {};
+  if (Number(nextCareerState.meta.apiDesignRoadmapVersion || 0) >= API_DESIGN_ROADMAP_VERSION) return false;
+  nextCareerState.roadmaps = Array.isArray(nextCareerState.roadmaps) ? nextCareerState.roadmaps : [];
+
+  let roadmap = nextCareerState.roadmaps.find((item) => String(item?.title || "").trim().toLowerCase() === "api design & backend engineering roadmap");
+  if (!roadmap) {
+    roadmap = { id: "roadmap-api-design", title: "API Design & Backend Engineering Roadmap" };
+    nextCareerState.roadmaps.push(roadmap);
+  }
+  roadmap.purpose = "Build Amazon SDE-2-oriented backend judgment through 80% implementation, 20% theory, and repeated interview proof.";
+  roadmap.targetDate = roadmap.targetDate || "";
+  roadmap.estimatedHours = "70-90 focused hours";
+  roadmap.modules = buildApiDesignRoadmapModules();
+  nextCareerState.meta.apiDesignRoadmapVersion = API_DESIGN_ROADMAP_VERSION;
+  nextCareerState.meta.updatedAt = new Date().toISOString();
+  return true;
+}
+
 const defaultCareer = {
   roadmaps: [
     {
@@ -363,6 +1027,35 @@ const defaultCareer = {
 };
 
 const defaultTasks = {
+  behavior: {
+    dailyPlans: {},
+    sessions: [],
+    urgeEvents: [],
+    slipEvents: [],
+    pointEvents: [],
+    rewards: [
+      { id: "reward-coffee", title: "Specialty coffee", cost: 20, active: true },
+      { id: "reward-game", title: "30 minutes gaming", cost: 40, active: true },
+      { id: "reward-meal", title: "Favorite meal", cost: 75, active: true },
+      { id: "reward-movie", title: "Movie or outing", cost: 150, active: true },
+    ],
+    redemptions: [],
+    project: {
+      title: "",
+      purpose: "",
+      mission: "",
+      weeklyOutput: "",
+      nextAction: "",
+      status: "IDEA",
+      artifacts: [],
+    },
+    weeklyReviews: {},
+    settings: {
+      buildRatioTarget: 2,
+      dailyFocusTarget: 50,
+      instantRewards: ["One song", "Coffee or tea", "5-minute walk", "Stretch"],
+    },
+  },
   tasks: [
     {
       id: createId(),
@@ -460,16 +1153,18 @@ const defaultJournal = {
   },
 };
 
-let accountMode = loadAccountMode();
+let accountMode = "personal";
+saveAccountMode(accountMode);
 ensureDemoData();
 let state = loadFoundation();
 let careerState = loadCareer();
 let taskState = loadTasks();
 let journalState = loadJournal();
 let securityState = loadSecurity();
+let syncState = loadSyncState();
 const savedUiState = loadUiState();
 let mode = savedUiState.mode === "edit" ? "edit" : "read";
-let currentPage = APP_PAGES.includes(savedUiState.currentPage) ? savedUiState.currentPage : "foundation";
+let currentPage = APP_PAGES.includes(savedUiState.currentPage) ? savedUiState.currentPage : "journal";
 let activeEditSection = savedUiState.activeEditSection || "declaration";
 let returnProtocolOpen = false;
 let returnChecks = {};
@@ -477,6 +1172,34 @@ let selectedRoadmapId = careerState.roadmaps.some((roadmap) => roadmap.id === sa
   ? savedUiState.selectedRoadmapId
   : careerState.roadmaps[0]?.id ?? null;
 let editingCareerRoadmapId = null;
+let careerEditorDraft = null;
+let careerEditorNotice = "";
+let careerSyncTimer = null;
+let careerSyncRunning = false;
+let careerSyncDirty = false;
+let careerSyncState = "local";
+const dsaRoadmapMigrated = migrateDsaRoadmap(careerState);
+const apiDesignRoadmapMigrated = migrateApiDesignRoadmap(careerState);
+let pendingCareerMigrationSync = dsaRoadmapMigrated || apiDesignRoadmapMigrated;
+if (dsaRoadmapMigrated || apiDesignRoadmapMigrated) {
+  setModeStorageValue(CAREER_STORAGE_KEY, JSON.stringify(careerState));
+}
+
+function applyConfirmedHistoricalRewardReviews() {
+  if (isDemoMode() || typeof reviewRewardDay !== "function") return;
+  const store = lifeStore();
+  store.meta ||= {};
+  if (store.meta.confirmedReviewCorrection_2026_09_21_24) return;
+  ["2026-09-21", "2026-09-22", "2026-09-23", "2026-09-24"].forEach((date) => {
+    const existing = store.dailyAssessments.find((assessment) => assessment.date === date);
+    if (!existing || existing.ruleVersion === 2) {
+      reviewRewardDay(date, "Founder-confirmed truthful review for the recorded day.");
+    }
+  });
+  store.meta.confirmedReviewCorrection_2026_09_21_24 = new Date().toISOString();
+  saveTasks();
+}
+
 let selectedTaskDate = isDateKey(savedUiState.selectedTaskDate) ? savedUiState.selectedTaskDate : toDateKey();
 let activeTaskView = TASK_VIEWS.includes(savedUiState.activeTaskView) ? savedUiState.activeTaskView : "today";
 let activeFieldTab = FIELD_TABS.includes(savedUiState.activeFieldTab) ? savedUiState.activeFieldTab : "today";
@@ -487,16 +1210,32 @@ let isSecurityUnlocked = !securityState.configured || hasActiveSecuritySession()
 let lockTimer = null;
 let lastSecurityActivityWrite = 0;
 let securityNotice = "";
+let syncNotice = "";
+let cloudFreshnessChannel = null;
+let cloudFreshnessPollTimer = null;
+let cloudFreshnessRunning = false;
 let recoveryMode = false;
+let focusTicker = null;
+let activeFocus = null;
+let redirectFlow = null;
 
 const readView = document.querySelector("#read-view");
 const editView = document.querySelector("#edit-view");
 const careerView = document.querySelector("#career-view");
+const launchView = document.querySelector("#launch-view");
+const rhythmView = document.querySelector("#rhythm-view");
+const moneyView = document.querySelector("#money-view");
 const todayView = document.querySelector("#today-view");
 const habitsView = document.querySelector("#habits-view");
 const journalView = document.querySelector("#journal-view");
+const actionsView = document.querySelector("#actions-view");
 const progressView = document.querySelector("#progress-view");
 const settingsView = document.querySelector("#settings-view");
+const focusView = document.querySelector("#focus-view");
+const redirectView = document.querySelector("#redirect-view");
+const rewardsView = document.querySelector("#rewards-view");
+const projectView = document.querySelector("#project-view");
+const reviewView = document.querySelector("#review-view");
 const fieldView = document.querySelector("#field-view");
 const securityOverlay = document.querySelector("#security-overlay");
 const modeButtons = document.querySelectorAll(".mode-button");
@@ -505,6 +1244,8 @@ const fieldButtons = document.querySelectorAll("[data-field-tab]");
 const modeSwitch = document.querySelector(".mode-switch");
 const topbarEyebrow = document.querySelector(".topbar .eyebrow");
 const topbarTitle = document.querySelector(".topbar h1");
+const activeProfileBadge = document.querySelector("[data-profile-badge]");
+const globalCloudState = document.querySelector("[data-global-cloud-state]");
 const appShell = document.querySelector(".app-shell");
 const mobileNav = document.querySelector(".mobile-nav");
 
@@ -1159,6 +1900,60 @@ function createDemoUiState() {
   };
 }
 
+function createDefaultSyncState(overrides = {}) {
+  const now = new Date().toISOString();
+  return {
+    provider: "supabase",
+    enabled: false,
+    status: "not-configured",
+    lastSyncAt: null,
+    lastAttemptAt: null,
+    lastReadinessAt: null,
+    conflictCount: 0,
+    remoteBlockVersions: {},
+    remoteBlockRevisions: {},
+    remoteProfileId: "",
+    endpointConfigured: false,
+    userEmail: "",
+    userId: "",
+    authCheckedAt: null,
+    demoFirstRequired: true,
+    updatedAt: now,
+    ...overrides,
+  };
+}
+
+function normalizeSyncState(saved = {}) {
+  const base = createDefaultSyncState();
+  const status = ["not-configured", "demo-ready", "personal-blocked", "blocked"].includes(saved.status)
+    ? saved.status
+    : base.status;
+  return {
+    ...base,
+    ...saved,
+    provider: saved.provider || base.provider,
+    enabled: Boolean(saved.enabled),
+    status,
+    lastSyncAt: saved.lastSyncAt || null,
+    lastAttemptAt: saved.lastAttemptAt || null,
+    lastReadinessAt: saved.lastReadinessAt || null,
+    conflictCount: Number.isFinite(Number(saved.conflictCount)) ? Number(saved.conflictCount) : 0,
+    remoteBlockVersions: saved.remoteBlockVersions && typeof saved.remoteBlockVersions === "object"
+      ? saved.remoteBlockVersions
+      : {},
+    remoteBlockRevisions: saved.remoteBlockRevisions && typeof saved.remoteBlockRevisions === "object"
+      ? saved.remoteBlockRevisions
+      : {},
+    remoteProfileId: saved.remoteProfileId || "",
+    endpointConfigured: Boolean(saved.endpointConfigured),
+    userEmail: saved.userEmail || "",
+    userId: saved.userId || "",
+    authCheckedAt: saved.authCheckedAt || null,
+    demoFirstRequired: saved.demoFirstRequired !== false,
+    updatedAt: saved.updatedAt || base.updatedAt,
+  };
+}
+
 function loadFoundation() {
   try {
     const saved = getModeStorageValue(FOUNDATION_STORAGE_KEY);
@@ -1177,7 +1972,20 @@ function loadCareer() {
     return {
       ...structuredClone(defaultCareer),
       ...parsed,
-      roadmaps: Array.isArray(parsed.roadmaps) ? parsed.roadmaps : defaultCareer.roadmaps,
+      roadmaps: (Array.isArray(parsed.roadmaps) ? parsed.roadmaps : defaultCareer.roadmaps).map((roadmap) => ({
+        ...roadmap,
+        targetDate: roadmap.targetDate || "",
+        modules: (Array.isArray(roadmap.modules) ? roadmap.modules : []).map((module) => ({
+          ...module,
+          targetDate: module.targetDate || "",
+          completedAt: module.completedAt || "",
+          topics: (Array.isArray(module.topics) ? module.topics : []).map((topic) => ({
+            ...topic,
+            targetDate: topic.targetDate || "",
+            completedAt: topic.completedAt || "",
+          })),
+        })),
+      })),
       activityLog: Array.isArray(parsed.activityLog) ? parsed.activityLog : [],
       meta: { ...defaultCareer.meta, ...parsed.meta },
     };
@@ -1186,12 +1994,32 @@ function loadCareer() {
   }
 }
 
+function normalizeBehavior(value = {}) {
+  const base = structuredClone(defaultTasks.behavior);
+  const source = value && typeof value === "object" ? value : {};
+  return {
+    ...base,
+    ...source,
+    dailyPlans: source.dailyPlans && typeof source.dailyPlans === "object" ? source.dailyPlans : {},
+    sessions: Array.isArray(source.sessions) ? source.sessions : [],
+    urgeEvents: Array.isArray(source.urgeEvents) ? source.urgeEvents : [],
+    slipEvents: Array.isArray(source.slipEvents) ? source.slipEvents : [],
+    pointEvents: Array.isArray(source.pointEvents) ? source.pointEvents : [],
+    rewards: Array.isArray(source.rewards) ? source.rewards : base.rewards,
+    redemptions: Array.isArray(source.redemptions) ? source.redemptions : [],
+    project: { ...base.project, ...(source.project || {}) },
+    weeklyReviews: source.weeklyReviews && typeof source.weeklyReviews === "object" ? source.weeklyReviews : {},
+    settings: { ...base.settings, ...(source.settings || {}) },
+  };
+}
+
 function loadTasks() {
   try {
     const saved = getModeStorageValue(TASKS_STORAGE_KEY);
     if (!saved) {
       return {
         ...structuredClone(defaultTasks),
+        behavior: normalizeBehavior(defaultTasks.behavior),
         tasks: defaultTasks.tasks.map(normalizeTask),
       };
     }
@@ -1199,12 +2027,14 @@ function loadTasks() {
     return {
       ...structuredClone(defaultTasks),
       ...parsed,
+      behavior: normalizeBehavior(parsed.behavior),
       tasks: Array.isArray(parsed.tasks) ? parsed.tasks.map(normalizeTask) : [],
       meta: { ...defaultTasks.meta, ...parsed.meta },
     };
   } catch {
     return {
       ...structuredClone(defaultTasks),
+      behavior: normalizeBehavior(defaultTasks.behavior),
       tasks: defaultTasks.tasks.map(normalizeTask),
     };
   }
@@ -1234,7 +2064,7 @@ function loadSecurity(modeName = accountMode) {
     const saved = getModeStorageValue(SECURITY_STORAGE_KEY, modeName);
     if (!saved) return structuredClone(defaultSecurity);
     const parsed = JSON.parse(saved);
-    return {
+    const loaded = {
       ...structuredClone(defaultSecurity),
       ...parsed,
       recovery: Array.isArray(parsed.recovery) && parsed.recovery.length >= 2
@@ -1245,8 +2075,23 @@ function loadSecurity(modeName = accountMode) {
         : structuredClone(defaultSecurity.recovery),
       settings: { ...defaultSecurity.settings, ...parsed.settings },
     };
+    if (modeName === "personal") {
+      loaded.configured = true;
+      loaded.passHash = PERSONAL_PROFILE_PIN_HASH;
+    }
+    return loaded;
   } catch {
     return structuredClone(defaultSecurity);
+  }
+}
+
+function loadSyncState() {
+  try {
+    const saved = getModeStorageValue(SYNC_STATE_STORAGE_KEY);
+    if (!saved) return createDefaultSyncState();
+    return normalizeSyncState(JSON.parse(saved));
+  } catch {
+    return createDefaultSyncState();
   }
 }
 
@@ -1447,6 +2292,39 @@ function mergeDefaults(saved, defaults) {
   };
 }
 
+function getGlobalCloudState() {
+  if (isDemoMode()) return { state: "local", label: "Demo saved", detail: "Demo data stays in this browser." };
+  if (careerSyncState === "error" || (typeof actionSyncState !== "undefined" && actionSyncState === "error")) {
+    return { state: "error", label: "Cloud unavailable", detail: "Changes are safe in KRYOS and will retry after the next edit." };
+  }
+  if (careerSyncState === "saving" || (typeof actionSyncState !== "undefined" && actionSyncState === "saving")) {
+    return { state: "saving", label: "Saving", detail: "Sending the latest KRYOS changes to Supabase." };
+  }
+  if (syncState.status === "connected" && syncState.userId) {
+    return { state: "synced", label: "Cloud ready", detail: syncState.lastSyncAt ? `Last cloud save ${formatDateTime(syncState.lastSyncAt)}.` : "Signed in and ready to sync." };
+  }
+  return { state: "local", label: "Browser saved", detail: "Sign in through Cloud settings to back up this KRYOS website." };
+}
+
+function updateGlobalCloudState() {
+  if (!globalCloudState) return;
+  const cloud = getGlobalCloudState();
+  globalCloudState.className = `global-cloud-state state-${cloud.state}`;
+  globalCloudState.title = cloud.detail;
+  const label = globalCloudState.querySelector("span");
+  if (label) label.textContent = cloud.label;
+}
+
+function setMobileRefreshState(stateName = "idle", label = "Refresh cloud data") {
+  const button = document.querySelector(".mobile-refresh-button");
+  if (!button) return;
+  button.classList.toggle("is-refreshing", stateName === "refreshing");
+  button.classList.toggle("has-conflict", stateName === "conflict");
+  button.disabled = stateName === "refreshing";
+  button.setAttribute("aria-label", label);
+  button.title = label;
+}
+
 function saveFoundation() {
   state.meta.updatedAt = new Date().toISOString();
   setModeStorageValue(FOUNDATION_STORAGE_KEY, JSON.stringify(state));
@@ -1455,11 +2333,74 @@ function saveFoundation() {
 function saveCareer() {
   careerState.meta.updatedAt = new Date().toISOString();
   setModeStorageValue(CAREER_STORAGE_KEY, JSON.stringify(careerState));
+  scheduleCareerCloudSync();
+}
+
+function careerSyncLabel() {
+  return { local: "Saved on device", saving: "Saving changes", synced: "Saved to cloud", error: "Saved locally - cloud unavailable" }[careerSyncState] || "Saved on device";
+}
+
+function updateCareerSyncIndicator() {
+  updateGlobalCloudState();
+  const indicator = document.querySelector("#career-sync-state");
+  if (!indicator) return;
+  indicator.className = `career-sync-state state-${careerSyncState}`;
+  indicator.innerHTML = `<i></i>${escapeHtml(careerSyncLabel())}`;
+}
+
+function scheduleCareerCloudSync() {
+  if (isDemoMode()) return;
+  careerSyncDirty = true;
+  careerSyncState = "saving";
+  updateCareerSyncIndicator();
+  window.clearTimeout(careerSyncTimer);
+  careerSyncTimer = window.setTimeout(flushCareerCloudSync, 400);
+}
+
+async function flushCareerCloudSync() {
+  if (careerSyncRunning || !careerSyncDirty) return;
+  careerSyncRunning = true;
+  careerSyncDirty = false;
+  try {
+    const session = await refreshSyncAuthState({ silent: true });
+    if (!session) {
+      careerSyncState = "local";
+      return;
+    }
+    const client = getSupabaseClient();
+    const profileId = await ensureSupabaseProfile(session);
+    const careerBlock = getSyncBlockPayloads().find((block) => block.block_key === "career");
+    const revision = await writeVersionedBlock(client, profileId, careerBlock);
+    syncState = {
+      ...syncState,
+      enabled: true,
+      endpointConfigured: true,
+      status: "connected",
+      lastSyncAt: new Date().toISOString(),
+      lastAttemptAt: new Date().toISOString(),
+      remoteBlockVersions: { ...syncState.remoteBlockVersions, career: careerBlock.payload_updated_at },
+      remoteBlockRevisions: { ...syncState.remoteBlockRevisions, career: revision },
+      remoteProfileId: profileId,
+      userEmail: session.user.email || syncState.userEmail,
+      userId: session.user.id,
+    };
+    saveSyncState();
+    careerSyncState = "synced";
+  } catch (error) {
+    console.warn("KRYOS career auto-sync failed.", error);
+    careerSyncState = "error";
+    if (!String(error?.message || "").includes("KRYOS_CONFLICT")) careerSyncDirty = true;
+  } finally {
+    careerSyncRunning = false;
+    updateCareerSyncIndicator();
+    if (careerSyncDirty && careerSyncState !== "error") scheduleCareerCloudSync();
+  }
 }
 
 function saveTasks() {
   taskState.meta.updatedAt = new Date().toISOString();
   setModeStorageValue(TASKS_STORAGE_KEY, JSON.stringify(taskState));
+  if (typeof scheduleTaskCloudSync === "function") scheduleTaskCloudSync();
 }
 
 function saveJournal() {
@@ -1470,6 +2411,11 @@ function saveJournal() {
 function saveSecurity() {
   securityState.updatedAt = new Date().toISOString();
   setModeStorageValue(SECURITY_STORAGE_KEY, JSON.stringify(securityState));
+}
+
+function saveSyncState() {
+  syncState.updatedAt = new Date().toISOString();
+  setModeStorageValue(SYNC_STATE_STORAGE_KEY, JSON.stringify(syncState));
 }
 
 function readSecuritySessionForMode(modeName = accountMode) {
@@ -1594,7 +2540,9 @@ function normalizeDateInput(date = new Date()) {
 }
 
 function toDateKey(date = new Date()) {
+  if (isDateKey(date)) return date;
   const value = normalizeDateInput(date);
+  if (value.getHours() < KRYOS_DAY_START_HOUR) value.setDate(value.getDate() - 1);
   const year = value.getFullYear();
   const month = String(value.getMonth() + 1).padStart(2, "0");
   const day = String(value.getDate()).padStart(2, "0");
@@ -1634,6 +2582,73 @@ function getModuleStats(module) {
   return {
     ...stats,
     percent: stats.total ? Math.round((stats.done / stats.total) * 100) : 0,
+  };
+}
+
+function careerDateDistance(fromKey, toKey) {
+  if (!isDateKey(fromKey) || !isDateKey(toKey)) return 0;
+  return Math.round((getDateFromKey(toKey) - getDateFromKey(fromKey)) / 86400000);
+}
+
+function getCareerDeadlineState(item, stats, todayKey = toDateKey()) {
+  const targetDate = isDateKey(item.targetDate) ? item.targetDate : "";
+  const completedDate = item.completedAt ? toDateKey(item.completedAt) : "";
+  if (!targetDate) return { key: "unscheduled", label: "No deadline", targetDate, completedDate, days: null, score: null, stats };
+  if (stats.total > 0 && stats.done === stats.total) {
+    const daysLate = careerDateDistance(targetDate, completedDate || todayKey);
+    return daysLate <= 0
+      ? { key: "on-time", label: daysLate < 0 ? `${Math.abs(daysLate)}d early` : "On time", targetDate, completedDate, days: daysLate, score: 100, stats }
+      : { key: "late", label: `${daysLate}d late`, targetDate, completedDate, days: daysLate, score: Math.max(40, 100 - daysLate * 6), stats };
+  }
+  const daysLeft = careerDateDistance(todayKey, targetDate);
+  if (daysLeft < 0) return { key: "overdue", label: `${Math.abs(daysLeft)}d overdue`, targetDate, completedDate, days: daysLeft, score: null, stats };
+  if (daysLeft <= 7) return { key: "due-soon", label: daysLeft === 0 ? "Due today" : `${daysLeft}d left`, targetDate, completedDate, days: daysLeft, score: null, stats };
+  return { key: "scheduled", label: `${daysLeft}d left`, targetDate, completedDate, days: daysLeft, score: null, stats };
+}
+
+function getModuleDeadlineState(module, todayKey = toDateKey()) {
+  return getCareerDeadlineState(module, getModuleStats(module), todayKey);
+}
+
+function getTopicDeadlineState(topic, todayKey = toDateKey()) {
+  return getCareerDeadlineState(topic, getTopicStats(topic), todayKey);
+}
+
+function getCareerDeadlineStats(todayKey = toDateKey()) {
+  const modules = careerState.roadmaps.flatMap((roadmap) => roadmap.modules.map((module) => ({
+    scope: "module",
+    roadmap,
+    module,
+    topic: null,
+    deadline: getModuleDeadlineState(module, todayKey),
+  }))).filter((item) => item.deadline.targetDate);
+  const topics = careerState.roadmaps.flatMap((roadmap) => roadmap.modules.flatMap((module) => module.topics.map((topic) => ({
+    scope: "topic",
+    roadmap,
+    module,
+    topic,
+    deadline: getTopicDeadlineState(topic, todayKey),
+  })))).filter((item) => item.deadline.targetDate);
+  const items = [...topics, ...modules];
+  const moduleFallbacks = modules.filter(({ module }) => !module.topics.some((topic) => isDateKey(topic.targetDate)));
+  const scoredItems = [...topics, ...moduleFallbacks];
+  const completed = scoredItems.filter((item) => item.deadline.score !== null);
+  const onTime = completed.filter((item) => item.deadline.key === "on-time").length;
+  const scored = completed.length ? Math.round(completed.reduce((sum, item) => sum + item.deadline.score, 0) / completed.length) : null;
+  const open = scoredItems.filter((item) => !["on-time", "late"].includes(item.deadline.key));
+  const next = open.slice().sort((a, b) => a.deadline.targetDate.localeCompare(b.deadline.targetDate))[0] || null;
+  return {
+    modules,
+    topics,
+    items,
+    completed: completed.length,
+    onTime,
+    onTimeRate: completed.length ? Math.round((onTime / completed.length) * 100) : null,
+    deliveryScore: scored,
+    overdue: open.filter((item) => item.deadline.key === "overdue").length,
+    dueSoon: open.filter((item) => item.deadline.key === "due-soon").length,
+    unscheduled: careerState.roadmaps.reduce((sum, roadmap) => sum + roadmap.modules.reduce((topicSum, module) => topicSum + module.topics.filter((topic) => !isDateKey(topic.targetDate)).length, 0), 0),
+    next,
   };
 }
 
@@ -1723,7 +2738,8 @@ function countActionsThisWeek() {
 
 function getDateFromKey(dateKey) {
   const [year, month, day] = dateKey.split("-").map(Number);
-  return new Date(year, month - 1, day);
+  // Noon keeps civil calendar dates stable when KRYOS applies its 7 AM day boundary.
+  return new Date(year, month - 1, day, 12);
 }
 
 function formatDateKey(dateKey) {
@@ -1741,6 +2757,11 @@ function formatTime(value) {
     hour: "numeric",
     minute: "2-digit",
   }).format(new Date(value));
+}
+
+function formatDateTime(value, fallback = "Never") {
+  if (!value) return fallback;
+  return `${formatDate(value)}, ${formatTime(value)}`;
 }
 
 function getTaskById(id) {
@@ -2034,6 +3055,7 @@ function resetLockTimer() {
 
 function lockApp(message = "KRYOS is locked.") {
   if (!securityState.configured) return;
+  assistantTokenOnce = "";
   isSecurityUnlocked = false;
   recoveryMode = false;
   securityNotice = message;
@@ -2049,6 +3071,8 @@ function unlockApp(message = "") {
   renderSecurityOverlay();
   resetLockTimer();
   render();
+  if (typeof consumeBundledAssistantImports === "function") consumeBundledAssistantImports();
+  if (typeof openAssistantImportFromHash === "function") openAssistantImportFromHash();
 }
 
 function applyPrivacyMode() {
@@ -2158,7 +3182,7 @@ function renderUnlockScreen() {
       </div>
       <p class="section-kicker">Profile entry</p>
       <h2>Enter KRYOS</h2>
-      <p class="profile-login-note">Personal credentials open your private workspace. Demo credentials open the showcase profile.</p>
+      <p class="profile-login-note">Open your personal journal.</p>
       ${securityNotice ? `<p class="security-notice">${escapeHtml(securityNotice)}</p>` : ""}
       <div class="security-form">
         <div class="field">
@@ -2166,7 +3190,6 @@ function renderUnlockScreen() {
           <input id="unlock-pass" type="password" autocomplete="current-password" autofocus />
         </div>
         <button class="primary-button" type="button" data-security-action="unlock">Enter KRYOS</button>
-        <button class="secondary-button" type="button" data-security-action="show-recovery">Recovery</button>
       </div>
     </div>
   `;
@@ -2223,12 +3246,332 @@ function setMode(nextMode) {
   render();
 }
 
+function getBehavior() {
+  taskState.behavior = normalizeBehavior(taskState.behavior);
+  return taskState.behavior;
+}
+
+function getDailyPlan(dateKey = toDateKey()) {
+  const behavior = getBehavior();
+  if (!behavior.dailyPlans[dateKey]) {
+    behavior.dailyPlans[dateKey] = {
+      outcome: "",
+      nextAction: "",
+      plannedStart: "",
+      supportTasks: ["", ""],
+      outcomeCompletedAt: null,
+      morningProtected: false,
+      workoutDone: false,
+      sadhanaDone: false,
+      shutdownDone: false,
+      updatedAt: new Date().toISOString(),
+    };
+  }
+  return behavior.dailyPlans[dateKey];
+}
+
+function saveBehavior() {
+  saveTasks();
+}
+
+function awardBehaviorPoints(eventType, points, sourceId, capKey = "") {
+  const behavior = getBehavior();
+  const dateKey = toDateKey();
+  const idempotencyKey = `${eventType}:${sourceId}`;
+  if (behavior.pointEvents.some((event) => event.idempotencyKey === idempotencyKey)) return;
+  if (capKey) {
+    const used = behavior.pointEvents.filter((event) => event.date === dateKey && event.capKey === capKey).length;
+    const cap = capKey === "focus" ? 4 : capKey === "redirect" ? 3 : Infinity;
+    if (used >= cap) return;
+  }
+  behavior.pointEvents.push({
+    id: createId(),
+    timestamp: new Date().toISOString(),
+    date: dateKey,
+    eventType,
+    sourceId,
+    points,
+    capKey,
+    idempotencyKey,
+  });
+}
+
+function getPointBalance() {
+  const behavior = getBehavior();
+  const earned = behavior.pointEvents.reduce((sum, event) => sum + Number(event.points || 0), 0);
+  const spent = behavior.redemptions.reduce((sum, item) => sum + Number(item.cost || 0), 0);
+  return earned - spent;
+}
+
+function sessionsForDate(dateKey = toDateKey()) {
+  return getBehavior().sessions.filter((session) => session.date === dateKey && session.completed);
+}
+
+function behaviorMetrics(dateKey = toDateKey()) {
+  const sessions = sessionsForDate(dateKey);
+  const build = sessions.filter((item) => item.mode === "BUILD").reduce((sum, item) => sum + item.minutes, 0);
+  const analyze = sessions.filter((item) => item.mode === "ANALYZE").reduce((sum, item) => sum + item.minutes, 0);
+  const ratio = analyze > 0 ? build / analyze : build > 0 ? build : 0;
+  return { build, analyze, ratio };
+}
+
+function renderBehaviorToday() {
+  if (!todayView) return;
+  const plan = getDailyPlan();
+  const metrics = behaviorMetrics();
+  const redirects = getBehavior().urgeEvents.filter((event) => event.date === toDateKey() && event.redirectCompleted).length;
+  const done = Boolean(plan.outcomeCompletedAt);
+  todayView.innerHTML = `
+    <section class="command-layout">
+      <article class="command-primary">
+        <p class="section-kicker">Today's one outcome</p>
+        <input class="outcome-input ${done ? "is-done" : ""}" data-behavior-plan="outcome" value="${escapeHtml(plan.outcome)}" placeholder="A visible result that will exist today" maxlength="160" />
+        <label class="next-action-label">First physical action</label>
+        <input class="next-action-input" data-behavior-plan="nextAction" value="${escapeHtml(plan.nextAction)}" placeholder="Open the file, make the call, write the first line" maxlength="160" />
+        <div class="start-row">
+          <button class="primary-button ignition-button" data-behavior-action="start-focus" data-minutes="5" data-mode="BUILD">Start 5 minutes</button>
+          <button class="secondary-button" data-behavior-action="start-focus" data-minutes="25" data-mode="BUILD">Start 25 minutes</button>
+          <label class="planned-start">Planned <input type="time" data-behavior-plan="plannedStart" value="${escapeHtml(plan.plannedStart)}" /></label>
+        </div>
+        <button class="outcome-complete ${done ? "is-complete" : ""}" data-behavior-action="complete-outcome" type="button">
+          ${done ? "Outcome completed" : "Mark outcome complete"}
+        </button>
+      </article>
+
+      <aside class="command-side">
+        <div class="metric-strip">
+          <div><span>Build</span><strong>${metrics.build}m</strong></div>
+          <div><span>Analyze</span><strong>${metrics.analyze}m</strong></div>
+          <div><span>Ratio</span><strong>${metrics.ratio.toFixed(1)} : 1</strong></div>
+        </div>
+        <div class="xp-panel"><span>Available VP</span><strong>${getPointBalance()}</strong></div>
+        <div class="support-box">
+          <p class="section-kicker">Maximum two support tasks</p>
+          ${plan.supportTasks.map((task, index) => `<input data-behavior-support="${index}" value="${escapeHtml(task)}" placeholder="Support task ${index + 1}" maxlength="100" />`).join("")}
+        </div>
+        <div class="anchor-checks">
+          ${renderAnchorCheck("morningProtected", "First focus before high stimulation", plan.morningProtected)}
+          ${renderAnchorCheck("workoutDone", "Move", plan.workoutDone)}
+          ${renderAnchorCheck("sadhanaDone", "Sadhana", plan.sadhanaDone)}
+          ${renderAnchorCheck("shutdownDone", "Shutdown", plan.shutdownDone)}
+        </div>
+      </aside>
+    </section>
+    <section class="interrupt-bar">
+      <button data-behavior-action="open-urge">Urge / obsession</button>
+      <button data-behavior-action="open-distraction">I am distracted</button>
+      <button data-behavior-action="open-slip">I slipped</button>
+      <button class="rescue" data-behavior-action="open-rescue">I cannot do anything</button>
+      <span>${redirects} successful redirects today</span>
+    </section>
+    <p class="dharma-anchor">Jai Shri Ram</p>
+  `;
+}
+
+function renderAnchorCheck(field, label, checked) {
+  return `<label><input type="checkbox" data-behavior-anchor="${field}" ${checked ? "checked" : ""} /> <span>${escapeHtml(label)}</span></label>`;
+}
+
+function startBehaviorFocus(minutes, focusMode = "BUILD") {
+  const plan = getDailyPlan();
+  const now = new Date();
+  let latencyMinutes = null;
+  if (plan.plannedStart) {
+    const [hours, mins] = plan.plannedStart.split(":").map(Number);
+    const planned = new Date(now);
+    planned.setHours(hours, mins, 0, 0);
+    latencyMinutes = Math.max(0, Math.round((now - planned) / 60000));
+  }
+  activeFocus = {
+    id: createId(),
+    mode: focusMode,
+    plannedMinutes: Number(minutes),
+    remainingSeconds: Number(minutes) * 60,
+    startedAt: now.toISOString(),
+    pausedAt: null,
+    pausedMilliseconds: 0,
+    latencyMinutes,
+    paused: false,
+  };
+  setPage("focus");
+  startFocusTicker();
+}
+
+function startFocusTicker() {
+  clearInterval(focusTicker);
+  focusTicker = setInterval(() => {
+    if (!activeFocus || activeFocus.paused) return;
+    activeFocus.remainingSeconds = Math.max(0, activeFocus.remainingSeconds - 1);
+    if (activeFocus.remainingSeconds === 0) {
+      clearInterval(focusTicker);
+      completeBehaviorFocus();
+      return;
+    }
+    if (currentPage === "focus") renderBehaviorFocus();
+  }, 1000);
+}
+
+function renderBehaviorFocus() {
+  if (!focusView) return;
+  const plan = getDailyPlan();
+  if (!activeFocus) {
+    focusView.innerHTML = `
+      <section class="focus-launch">
+        <p class="section-kicker">Choose the kind of attention</p>
+        <h2>${escapeHtml(plan.nextAction || "Define the next physical action on Today first.")}</h2>
+        <div class="focus-mode-grid">
+          <button data-behavior-action="start-focus" data-mode="BUILD" data-minutes="25"><strong>Build</strong><span>Create, solve, implement, ship</span></button>
+          <button data-behavior-action="start-focus" data-mode="ANALYZE" data-minutes="25"><strong>Analyze</strong><span>Read, research, compare, decide</span></button>
+        </div>
+      </section>`;
+    return;
+  }
+  const minutes = Math.floor(activeFocus.remainingSeconds / 60).toString().padStart(2, "0");
+  const seconds = (activeFocus.remainingSeconds % 60).toString().padStart(2, "0");
+  focusView.innerHTML = `
+    <section class="focus-stage ${activeFocus.mode.toLowerCase()}">
+      <p class="section-kicker">${activeFocus.mode} mode</p>
+      <h2>${escapeHtml(plan.nextAction || plan.outcome || "Work only on the chosen action")}</h2>
+      <div class="focus-clock">${minutes}:${seconds}</div>
+      <p>${activeFocus.plannedMinutes === 5 ? "Starting is the repetition. Continuing is optional." : "One task. No switching."}</p>
+      <div class="actions">
+        <button class="secondary-button" data-behavior-action="pause-focus">${activeFocus.paused ? "Resume" : "Pause"}</button>
+        <button class="primary-button" data-behavior-action="complete-focus">Complete now</button>
+        <button class="danger-button" data-behavior-action="cancel-focus">Cancel</button>
+      </div>
+    </section>`;
+}
+
+function completeBehaviorFocus() {
+  if (!activeFocus) return;
+  const currentPause = activeFocus.pausedAt ? Date.now() - new Date(activeFocus.pausedAt).getTime() : 0;
+  const activeMilliseconds = Date.now()
+    - new Date(activeFocus.startedAt).getTime()
+    - Number(activeFocus.pausedMilliseconds || 0)
+    - currentPause;
+  const elapsed = Math.max(1, Math.round(activeMilliseconds / 60000));
+  const completedMinutes = Math.min(activeFocus.plannedMinutes, elapsed);
+  const session = {
+    ...activeFocus,
+    date: toDateKey(),
+    minutes: completedMinutes,
+    completed: true,
+    completedAt: new Date().toISOString(),
+  };
+  getBehavior().sessions.push(session);
+  if (session.mode === "BUILD" && session.minutes >= 25) awardBehaviorPoints("build_block", 3, session.id, "focus");
+  if (session.latencyMinutes !== null && session.latencyMinutes <= 10) awardBehaviorPoints("on_time_start", 2, session.id);
+  activeFocus = null;
+  clearInterval(focusTicker);
+  saveBehavior();
+  render();
+}
+
+function openRedirectFlow(type) {
+  redirectFlow = { type, step: type === "rescue" ? 0 : 1, trigger: "Boredom", intensity: 3, startedAt: new Date().toISOString() };
+  setPage("redirect");
+}
+
+function renderBehaviorRedirect() {
+  if (!redirectView) return;
+  if (!redirectFlow) {
+    redirectView.innerHTML = `
+      <section class="redirect-choice">
+        <p class="section-kicker">The next decision still matters</p>
+        <h2>What happened?</h2>
+        <div class="redirect-choice-grid">
+          <button data-behavior-action="open-urge">Urge / obsession</button>
+          <button data-behavior-action="open-distraction">Distraction</button>
+          <button data-behavior-action="open-slip">Slip</button>
+          <button data-behavior-action="open-rescue">Rescue mode</button>
+        </div>
+      </section>`;
+    return;
+  }
+  if (redirectFlow.type === "rescue") {
+    redirectView.innerHTML = `<section class="rescue-stage"><p class="section-kicker">Rescue mode</p><h2>Forget the day. Save the next ten minutes.</h2><div class="rescue-grid">${["Shower", "Eat", "Walk 5 min", "Clean desk 2 min", "Work 5 min", "Contact support"].map((item) => `<button data-behavior-action="rescue-choice" data-choice="${item}">${item}</button>`).join("")}</div></section>`;
+    return;
+  }
+  if (redirectFlow.step === 1) {
+    redirectView.innerHTML = `<section class="redirect-stage"><p class="section-kicker">Recognize</p><h2>${redirectFlow.type === "slip" ? "A slip already happened." : "An urge is present."}</h2><p>No essay. Record only enough to choose the next behavior.</p><label>Trigger<select data-redirect-field="trigger">${["Saw person", "Social media", "Memory", "Loneliness", "Sexual trigger", "Boredom", "Rejection", "Other"].map((item) => `<option ${item === redirectFlow.trigger ? "selected" : ""}>${item}</option>`).join("")}</select></label><label>Intensity <input type="range" min="1" max="5" value="${redirectFlow.intensity}" data-redirect-field="intensity" /></label><button class="primary-button" data-behavior-action="redirect-next">Redirect now</button></section>`;
+    return;
+  }
+  if (redirectFlow.step === 2) {
+    redirectView.innerHTML = `<section class="redirect-stage"><p class="section-kicker">Move</p><h2>Do not analyze.</h2><p>The feeling can exist. No action toward the trigger is required.</p><div class="movement-instruction">Stand up · 10 slow breaths · Move for 60 seconds</div><button class="primary-button" data-behavior-action="redirect-next">Movement complete</button></section>`;
+    return;
+  }
+  const action = getDailyPlan().nextAction || getBehavior().project.nextAction || "Choose one useful five-minute action";
+  redirectView.innerHTML = `<section class="redirect-stage"><p class="section-kicker">Return</p><h2>Jai Shri Ram</h2><p>Return attention to what you chose.</p><div class="return-action">${escapeHtml(action)}</div><button class="primary-button" data-behavior-action="complete-redirect">Work 5 minutes</button></section>`;
+}
+
+function completeRedirect() {
+  if (!redirectFlow) return;
+  const behavior = getBehavior();
+  const event = { id: createId(), date: toDateKey(), ...redirectFlow, redirectCompleted: true, completedAt: new Date().toISOString() };
+  if (redirectFlow.type === "slip") {
+    event.recoverySeconds = Math.round((Date.now() - new Date(redirectFlow.startedAt).getTime()) / 1000);
+    behavior.slipEvents.push(event);
+    awardBehaviorPoints("slip_recovery", 2, event.id);
+  } else {
+    behavior.urgeEvents.push(event);
+    awardBehaviorPoints("redirect", redirectFlow.type === "urge" ? 3 : 2, event.id, "redirect");
+  }
+  redirectFlow = null;
+  saveBehavior();
+  startBehaviorFocus(5, "BUILD");
+}
+
+function renderBehaviorRewards() {
+  if (!rewardsView) return;
+  const behavior = getBehavior();
+  const balance = getPointBalance();
+  rewardsView.innerHTML = `<section class="reward-header"><p class="section-kicker">Available balance</p><strong>${balance} VP</strong><p>VP records useful actions. It is not a moral score.</p></section><section class="reward-grid">${behavior.rewards.filter((item) => item.active).map((item) => `<article><h3>${escapeHtml(item.title)}</h3><strong>${item.cost} VP</strong><button class="secondary-button" data-behavior-action="redeem-reward" data-reward-id="${item.id}" ${balance < item.cost ? "disabled" : ""}>Redeem</button></article>`).join("")}</section><section class="compact-form"><h2>Add a bounded reward</h2><input id="reward-title" placeholder="One episode, meal, outing" maxlength="80" /><input id="reward-cost" type="number" min="1" value="40" /><button class="primary-button" data-behavior-action="add-reward">Add reward</button><p>Never use open-ended scrolling, checking, pornography or another compulsion as a reward.</p></section>`;
+}
+
+function renderBehaviorProject() {
+  if (!projectView) return;
+  const project = getBehavior().project;
+  projectView.innerHTML = `<section class="project-editor"><p class="section-kicker">Exactly one active project</p><label>Project<input data-project-field="title" value="${escapeHtml(project.title)}" placeholder="The breakthrough project" /></label><label>Purpose<textarea data-project-field="purpose" maxlength="240" placeholder="What useful change will this create?">${escapeHtml(project.purpose)}</textarea></label><label>12-week mission<textarea data-project-field="mission" maxlength="240" placeholder="A measurable result">${escapeHtml(project.mission)}</textarea></label><div class="project-row"><label>Status<select data-project-field="status">${["IDEA", "LEARNING", "BUILDING", "TESTING", "SHIPPED", "VALIDATING"].map((status) => `<option ${project.status === status ? "selected" : ""}>${status}</option>`).join("")}</select></label><label>This week's output<input data-project-field="weeklyOutput" value="${escapeHtml(project.weeklyOutput)}" placeholder="One artifact" /></label></div><label>Next physical action<input data-project-field="nextAction" value="${escapeHtml(project.nextAction)}" placeholder="Open file and implement..." /></label><button class="primary-button" data-behavior-action="ship-artifact">Record shipped artifact</button>${project.artifacts.length ? `<div class="artifact-list">${project.artifacts.slice(-8).reverse().map((item) => `<div><strong>${escapeHtml(item.title)}</strong><span>${formatDateTime(item.createdAt)}</span></div>`).join("")}</div>` : ""}</section>`;
+}
+
+function getRecentBehaviorStats(days = 7) {
+  const behavior = getBehavior();
+  const keys = Array.from({ length: days }, (_, offset) => toDateKey(addDays(new Date(), -(days - 1 - offset))));
+  const sessions = behavior.sessions.filter((item) => keys.includes(item.date) && item.completed);
+  const build = sessions.filter((item) => item.mode === "BUILD").reduce((sum, item) => sum + item.minutes, 0);
+  const analyze = sessions.filter((item) => item.mode === "ANALYZE").reduce((sum, item) => sum + item.minutes, 0);
+  const latencies = sessions.map((item) => item.latencyMinutes).filter((value) => Number.isFinite(value)).sort((a, b) => a - b);
+  const slips = behavior.slipEvents.filter((item) => keys.includes(item.date));
+  const urges = behavior.urgeEvents.filter((item) => keys.includes(item.date));
+  const recoveries = slips.map((item) => Math.round((item.recoverySeconds || 0) / 60)).sort((a, b) => a - b);
+  const completed = keys.filter((key) => behavior.dailyPlans[key]?.outcomeCompletedAt).length;
+  const artifacts = behavior.project.artifacts.filter((item) => keys.includes(item.date)).length;
+  const median = (values) => values.length ? values[Math.floor(values.length / 2)] : 0;
+  return { build, analyze, ratio: analyze ? build / analyze : build, startLatency: median(latencies), urges, slips, recovery: median(recoveries), completed, artifacts };
+}
+
+function getWeekKey(date = new Date()) {
+  const monday = new Date(date);
+  const day = monday.getDay();
+  monday.setDate(monday.getDate() - (day === 0 ? 6 : day - 1));
+  return toDateKey(monday);
+}
+
+function renderBehaviorReview() {
+  if (!reviewView) return;
+  const stats = getRecentBehaviorStats();
+  const key = getWeekKey();
+  const review = getBehavior().weeklyReviews[key] || { worked: "", captured: "", rule: "" };
+  reviewView.innerHTML = `<section class="weekly-score"><div><span>Main outcomes</span><strong>${stats.completed} / 7</strong></div><div><span>Build</span><strong>${stats.build}m</strong></div><div><span>Analyze</span><strong>${stats.analyze}m</strong></div><div><span>Build ratio</span><strong>${stats.ratio.toFixed(2)}</strong></div><div><span>Start latency</span><strong>${stats.startLatency}m</strong></div><div><span>Redirects</span><strong>${stats.urges.length}</strong></div><div><span>Recovery latency</span><strong>${stats.recovery}m</strong></div><div><span>Artifacts</span><strong>${stats.artifacts}</strong></div></section><section class="review-form"><h2>Three questions only</h2><label>What worked?<textarea data-review-field="worked" maxlength="300">${escapeHtml(review.worked)}</textarea></label><label>What repeatedly captured attention?<textarea data-review-field="captured" maxlength="300">${escapeHtml(review.captured)}</textarea></label><label>What one rule changes next week?<textarea data-review-field="rule" maxlength="300">${escapeHtml(review.rule)}</textarea></label><button class="primary-button" data-behavior-action="save-review">Save review</button></section>`;
+}
+
 function setPage(nextPage) {
   currentPage = nextPage;
   pageButtons.forEach((button) => {
     button.classList.toggle("is-active", button.dataset.page === currentPage);
   });
   render();
+  if (["actions", "career", "rhythm", "journal"].includes(nextPage)) refreshCloudData({ automatic: true });
 }
 
 function setFieldTab(nextTab) {
@@ -2244,16 +3587,29 @@ function render() {
   saveUiState();
   document.body.classList.toggle("demo-mode", isDemoMode());
   appShell?.classList.toggle("is-demo-mode", isDemoMode());
+  if (activeProfileBadge) {
+    activeProfileBadge.textContent = getModeLabel();
+    activeProfileBadge.classList.toggle("demo", isDemoMode());
+    activeProfileBadge.classList.toggle("personal", !isDemoMode());
+  }
+  updateGlobalCloudState();
   const pageCopy = {
-    foundation: ["Foundation", "Why I Started"],
-    career: ["Execution", "Career Roadmaps"],
-    today: ["Command Center", "Today"],
-    habits: ["Consistency", "Habit Tracker"],
-    journal: ["Mind Containment", "Daily Shutdown"],
-    progress: ["Analytics", "Progress"],
+    journal: ["Purpose, containment, evidence", "Inner Command"],
+    actions: ["Persistent commitments", "Action Vault"],
+    career: ["Skill evidence", "Career"],
+    launch: ["Exposure and rehearsal", "Career Launch"],
+    rhythm: ["Sustainable foundations", "Rhythm"],
+    money: ["Accountability and recovery", "Money"],
+    progress: ["Evidence of effort", "Progress"],
+    today: ["Command", "Today"],
+    focus: ["Execution", "Focus"],
+    redirect: ["Recovery", "Redirect"],
+    rewards: ["Reinforcement", "Rewards"],
+    project: ["Direction", "Breakthrough Project"],
+    review: ["Weekly only", "Review"],
     settings: ["Privacy", "Settings"],
   };
-  const [eyebrow, title] = pageCopy[currentPage] ?? pageCopy.foundation;
+  const [eyebrow, title] = pageCopy[currentPage] ?? pageCopy.today;
   topbarEyebrow.textContent = eyebrow;
   topbarTitle.textContent = title;
   modeSwitch.classList.toggle("is-hidden", currentPage !== "foundation");
@@ -2264,39 +3620,48 @@ function render() {
     button.classList.toggle("is-active", button.dataset.mode === mode);
   });
 
-  readView.classList.toggle("is-hidden", currentPage !== "foundation" || mode !== "read");
-  editView.classList.toggle("is-hidden", currentPage !== "foundation" || mode !== "edit");
-  careerView.classList.toggle("is-hidden", currentPage !== "career");
-  todayView.classList.toggle("is-hidden", currentPage !== "today");
-  habitsView.classList.toggle("is-hidden", currentPage !== "habits");
-  journalView.classList.toggle("is-hidden", currentPage !== "journal");
-  progressView.classList.toggle("is-hidden", currentPage !== "progress");
-  settingsView.classList.toggle("is-hidden", currentPage !== "settings");
+  readView?.classList.add("is-hidden");
+  editView?.classList.add("is-hidden");
+  careerView?.classList.add("is-hidden");
+  launchView?.classList.add("is-hidden");
+  rhythmView?.classList.add("is-hidden");
+  moneyView?.classList.add("is-hidden");
+  habitsView?.classList.add("is-hidden");
+  journalView?.classList.add("is-hidden");
+  actionsView?.classList.add("is-hidden");
+  progressView?.classList.add("is-hidden");
+  journalView?.classList.toggle("is-hidden", currentPage !== "journal");
+  actionsView?.classList.toggle("is-hidden", currentPage !== "actions");
+  careerView?.classList.toggle("is-hidden", currentPage !== "career");
+  launchView?.classList.toggle("is-hidden", currentPage !== "launch");
+  rhythmView?.classList.toggle("is-hidden", currentPage !== "rhythm");
+  moneyView?.classList.toggle("is-hidden", currentPage !== "money");
+  progressView?.classList.toggle("is-hidden", currentPage !== "progress");
+  todayView?.classList.toggle("is-hidden", currentPage !== "today");
+  focusView?.classList.toggle("is-hidden", currentPage !== "focus");
+  redirectView?.classList.toggle("is-hidden", currentPage !== "redirect");
+  rewardsView?.classList.toggle("is-hidden", currentPage !== "rewards");
+  projectView?.classList.toggle("is-hidden", currentPage !== "project");
+  reviewView?.classList.toggle("is-hidden", currentPage !== "review");
+  settingsView?.classList.toggle("is-hidden", currentPage !== "settings");
 
-  if (currentPage === "foundation") {
-    renderReadView();
-    renderEditView();
-  }
-  if (currentPage === "career") {
-    renderCareerView();
-  }
-  if (currentPage === "today") {
-    renderTodayView();
-  }
-  if (currentPage === "habits") {
-    renderHabitView();
-  }
-  if (currentPage === "journal") {
-    renderJournalView();
-  }
-  if (currentPage === "progress") {
-    renderProgressView();
-  }
+  if (currentPage === "today") renderBehaviorToday();
+  if (currentPage === "journal") renderLifeJournal();
+  if (currentPage === "actions") renderActionVault();
+  if (currentPage === "career") renderCareerView();
+  if (currentPage === "launch") renderLaunchView();
+  if (currentPage === "rhythm") renderRhythmView();
+  if (currentPage === "money") renderMoneyView();
+  if (currentPage === "progress") renderLifeProgress();
+  if (currentPage === "focus") renderBehaviorFocus();
+  if (currentPage === "redirect") renderBehaviorRedirect();
+  if (currentPage === "rewards") renderJournalRewards();
+  if (currentPage === "project") renderBehaviorProject();
+  if (currentPage === "review") renderBehaviorReview();
   if (currentPage === "settings") {
     renderSettingsView();
   }
-
-  renderFieldView();
+  fieldView?.classList.add("is-hidden");
 }
 
 function renderFieldView() {
@@ -2809,52 +4174,182 @@ function renderCareerView() {
   }
   const stats = getCareerStats();
   const selectedRoadmap = findRoadmap(selectedRoadmapId) ?? careerState.roadmaps[0];
+  const next = getNextCareerItem(selectedRoadmap);
+  const week = getCareerWeekPulse();
+  const qualifiedDays = week.filter((day) => day.count > 0).length;
+  const confidence = getCareerConfidence();
+  const deadlines = getCareerDeadlineStats();
 
   careerView.innerHTML = `
-    <article class="career-hero">
-      <div>
-        <p class="section-kicker">Career block</p>
-        <h2>One streak for meaningful career work.</h2>
-        <p class="principle-body">Roadmaps show progress. The career block shows consistency. A day counts when you complete any roadmap checklist item.</p>
+    <header class="career-command">
+      <div class="career-command-copy">
+        <p class="section-kicker">KRYOS / Career Skills</p>
+        <h1>${selectedRoadmap ? escapeHtml(selectedRoadmap.title) : "Build proof, not pressure."}</h1>
+        <p>${next ? `Continue ${escapeHtml(next.topic.title)}: ${escapeHtml(next.item.text)}` : "Choose one skill roadmap and create its next evidence step."}</p>
+        <span id="career-sync-state" class="career-sync-state state-${careerSyncState}"><i></i>${escapeHtml(careerSyncLabel())}</span>
+        ${next ? `<button class="career-continue" type="button" data-career-scroll="current">Continue next step ${careerIcon("arrow")}</button>` : ""}
       </div>
-      <div class="career-metrics">
-        ${metricTile("Career streak", `${stats.currentStreak} days`, stats.hasTodayAction ? "Logged today" : "Waiting for today's action", "signal")}
-        ${metricTile("Roadmap progress", `${stats.progress}%`, `${stats.doneItems}/${stats.totalItems} checklist items`, "blue")}
+      <div class="career-command-score">
+        <span>Skill momentum</span>
+        <strong>${stats.progress}<small>%</small></strong>
+        <em>${stats.doneItems} of ${stats.totalItems} evidence steps</em>
       </div>
-    </article>
+      <div class="career-command-stat"><span>This week</span><strong>${qualifiedDays}<small>/4 days</small></strong><em>${stats.weekActions} completed steps</em></div>
+      <div class="career-command-stat"><span>Current rhythm</span><strong>${stats.currentStreak}<small> days</small></strong><em>Personal best ${stats.bestStreak}</em></div>
+    </header>
 
-    <div class="career-layout">
-      <section class="section-card">
-        <div class="section-header">
-          <div>
-            <p class="section-kicker">Roadmaps</p>
-            <h2>Career paths</h2>
-          </div>
-          <div class="quick-add">
-            <input type="text" id="new-roadmap-title" placeholder="New roadmap name" />
-            <button class="primary-button" type="button" data-career-add="roadmap">Add</button>
-          </div>
-        </div>
-        <div class="roadmap-grid">
-          ${careerState.roadmaps.map(renderRoadmapCard).join("")}
-        </div>
+    <nav class="career-mobile-index" aria-label="Career sections">
+      <button type="button" data-career-scroll="current"><span>01</span>Now</button>
+      <button type="button" data-career-scroll="deadlines"><span>02</span>Deadlines</button>
+      <button type="button" data-career-scroll="portfolio"><span>03</span>Roadmaps</button>
+      <button type="button" data-career-scroll="detail"><span>04</span>Full plan</button>
+    </nav>
+
+    <section class="career-section career-week-section">
+      <div class="career-section-head"><div><p class="section-kicker">Weekly pulse</p><h2>Four useful days, not seven perfect days.</h2></div><span class="career-target ${qualifiedDays >= 4 ? "is-met" : ""}">${qualifiedDays >= 4 ? "Target reached" : `${4 - qualifiedDays} days to target`}</span></div>
+      <div class="career-week-pulse">${week.map(renderCareerPulseDay).join("")}</div>
+    </section>
+
+    <div id="career-deadlines">${renderCareerDeadlinePanel(deadlines)}</div>
+
+    <div class="career-dashboard-grid">
+      <section class="career-section career-field-panel">
+        <div class="career-section-head"><div><p class="section-kicker">Consistency field</p><h2>52 weeks of skill evidence</h2></div><span>Every square is earned</span></div>
+        ${renderCareerHeatmap()}
       </section>
-
-      <aside class="section-stack">
-        <section class="section-card">
-          <div class="section-header">
-            <div>
-              <p class="section-kicker">Rule</p>
-              <h2>What counts?</h2>
-            </div>
-          </div>
-          <p class="principle-body">A career day is logged only when a checklist item inside any career roadmap is completed. Reading this page does not count. Planning alone does not count.</p>
-        </section>
-      </aside>
+      <section class="career-section career-split-panel">
+        <div class="career-section-head"><div><p class="section-kicker">Truthful progress</p><h2>Coverage is not mastery</h2></div></div>
+        ${renderCareerTruthBars(stats.progress, confidence)}
+        <p class="career-footnote">Coverage comes from completed roadmap steps. Confidence comes from topic evidence and stays separate.</p>
+      </section>
     </div>
 
-    ${selectedRoadmap ? renderRoadmapDetail(selectedRoadmap) : emptyState("Create your first roadmap to begin.")}
+    <section id="career-portfolio" class="career-section career-portfolio-section">
+      <div class="career-section-head"><div><p class="section-kicker">Skill portfolio</p><h2>Choose the path. See the movement.</h2></div><div class="quick-add career-quick-add"><input type="text" id="new-roadmap-title" placeholder="New skill roadmap" /><button class="primary-button" type="button" data-career-add="roadmap">Add roadmap</button></div></div>
+      <div class="career-portfolio">${careerState.roadmaps.length ? careerState.roadmaps.map(renderCareerPortfolioRow).join("") : emptyState("Create the first skill roadmap.")}</div>
+    </section>
+
+    ${selectedRoadmap ? `
+      <section class="career-section career-journey-section">
+        <div class="career-section-head"><div><p class="section-kicker">Roadmap journey</p><h2>${escapeHtml(selectedRoadmap.title)}</h2><p>${escapeHtml(selectedRoadmap.purpose || "A sequence of evidence, one step at a time.")}</p></div></div>
+        ${renderCareerJourney(selectedRoadmap)}
+      </section>
+      <section id="career-current-focus" class="career-section career-focus-section">
+        <div class="career-section-head"><div><p class="section-kicker">Current module</p><h2>${next ? escapeHtml(next.module.title) : "Roadmap complete"}</h2></div><span>${next ? `${getTopicStats(next.topic).done}/${getTopicStats(next.topic).total} topic steps` : "All current steps complete"}</span></div>
+        ${next ? renderCareerCurrentFocus(selectedRoadmap, next) : `<div class="career-complete-state"><strong>Coverage complete.</strong><p>Review confidence before adding more material.</p></div>`}
+      </section>
+      <div id="career-roadmap-detail">${renderRoadmapDetail(selectedRoadmap)}</div>
+    ` : ""}
   `;
+}
+
+function renderCareerDeadlinePanel(deadlines) {
+  const next = deadlines.next;
+  const sorted = deadlines.items.slice().sort((a, b) => a.deadline.targetDate.localeCompare(b.deadline.targetDate)).slice(0, 8);
+  const itemTitle = (item) => item.topic?.title || item.module.title;
+  return `<section class="career-section career-deadline-panel">
+    <div class="career-section-head"><div><p class="section-kicker">Delivery control</p><h2>Deadlines you can see before they become pressure.</h2><p>Topic dates drive the score. Module dates remain broader checkpoints.</p></div><span class="deadline-score ${deadlines.deliveryScore === null ? "is-empty" : ""}"><strong>${deadlines.deliveryScore ?? "—"}</strong><small>delivery score</small></span></div>
+    <div class="deadline-command-grid">
+      <article><span>Next deadline</span><strong>${next ? escapeHtml(itemTitle(next)) : "Nothing scheduled"}</strong><small>${next ? `${formatDateKey(next.deadline.targetDate)} · ${escapeHtml(next.deadline.label)}` : "Add topic dates inside roadmap edit mode"}</small></article>
+      <article class="${deadlines.overdue ? "is-danger" : ""}"><span>Overdue</span><strong>${deadlines.overdue}</strong><small>unfinished milestones</small></article>
+      <article class="${deadlines.dueSoon ? "is-warning" : ""}"><span>Due in 7 days</span><strong>${deadlines.dueSoon}</strong><small>visible early warning</small></article>
+      <article><span>On-time rate</span><strong>${deadlines.onTimeRate === null ? "—" : `${deadlines.onTimeRate}%`}</strong><small>${deadlines.completed} dated completions</small></article>
+    </div>
+    ${sorted.length ? `<div class="deadline-lane">${sorted.map(({ scope, roadmap, module, topic, deadline }) => `<button type="button" data-career-select-roadmap="${roadmap.id}" class="deadline-lane-item state-${deadline.key}"><time>${formatDateKey(deadline.targetDate)}</time><span><strong>${escapeHtml(topic?.title || module.title)}</strong><small>${scope === "topic" ? `${escapeHtml(module.title)} · Topic` : `${escapeHtml(roadmap.title)} · Module`}</small></span><b>${deadline.stats.percent}%</b><em>${escapeHtml(deadline.label)}</em></button>`).join("")}</div>` : `<p class="career-footnote">No deadlines yet. Open a roadmap’s pencil editor and date the topics you intend to finish.</p>`}
+  </section>`;
+}
+
+function getNextCareerItem(roadmap) {
+  if (!roadmap) return null;
+  if (isDsaRoadmap(roadmap)) {
+    for (const lane of ["core", "extra"]) {
+      for (const module of roadmap.modules) {
+        for (const topic of module.topics.filter((item) => item.lane === lane)) {
+          const item = topic.checklist.find((check) => !check.done);
+          if (item) return { module, topic, item };
+        }
+      }
+    }
+  }
+  for (const module of roadmap.modules) {
+    for (const topic of module.topics) {
+      const item = topic.checklist.find((check) => !check.done);
+      if (item) return { module, topic, item };
+    }
+  }
+  return null;
+}
+
+function isDsaRoadmap(roadmap) {
+  return String(roadmap?.title || "").trim().toLowerCase() === "dsa roadmap";
+}
+
+function getDsaLaneStats(roadmap) {
+  const laneStats = (lane) => {
+    const checks = roadmap.modules.flatMap((module) => module.topics.filter((topic) => topic.lane === lane).flatMap((topic) => topic.checklist));
+    const done = checks.filter((check) => check.done).length;
+    return { done, total: checks.length, percent: checks.length ? Math.round((done / checks.length) * 100) : 0 };
+  };
+  return { core: laneStats("core"), extra: laneStats("extra") };
+}
+
+function getCareerWeekPulse() {
+  const today = normalizeDateInput(new Date());
+  const monday = addDays(today, -(today.getDay() === 0 ? 6 : today.getDay() - 1));
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = addDays(monday, index);
+    const key = toDateKey(date);
+    return { date, key, count: careerState.activityLog.filter((item) => item.date === key).length, future: date > today };
+  });
+}
+
+function renderCareerPulseDay(day) {
+  const label = day.date.toLocaleDateString(undefined, { weekday: "short" });
+  const level = Math.min(4, day.count);
+  return `<div class="career-pulse-day level-${level} ${day.future ? "is-future" : ""}"><span>${label}</span><strong>${day.count ? day.count : "·"}</strong><em>${day.count ? `${day.count} step${day.count === 1 ? "" : "s"}` : day.future ? "Ahead" : "No evidence"}</em></div>`;
+}
+
+function getCareerConfidence(roadmaps = careerState.roadmaps) {
+  const values = { Low: 25, Medium: 60, High: 100 };
+  const topics = roadmaps.flatMap((roadmap) => roadmap.modules.flatMap((module) => module.topics));
+  return topics.length ? Math.round(topics.reduce((sum, topic) => sum + (values[topic.confidence] || 0), 0) / topics.length) : 0;
+}
+
+function renderCareerTruthBars(coverage, confidence) {
+  return `<div class="career-truth-bars"><div><span><b>Coverage</b><em>${coverage}%</em></span><i><u style="width:${coverage}%"></u></i></div><div><span><b>Confidence</b><em>${confidence}%</em></span><i><u class="confidence" style="width:${confidence}%"></u></i></div></div>`;
+}
+
+function renderCareerPortfolioRow(roadmap) {
+  const stats = getRoadmapStats(roadmap);
+  const confidence = getCareerConfidence([roadmap]);
+  const next = getNextCareerItem(roadmap);
+  const dsa = isDsaRoadmap(roadmap) ? getDsaLaneStats(roadmap) : null;
+  const progress = dsa?.core || stats;
+  const detail = dsa ? `${dsa.core.percent}% core · ${dsa.extra.done}/${dsa.extra.total} extra` : `${stats.percent}% coverage · ${confidence}% confidence`;
+  return `<button class="career-portfolio-row ${roadmap.id === selectedRoadmapId ? "is-selected" : ""}" type="button" data-career-select-roadmap="${roadmap.id}"><span class="career-portfolio-name"><strong>${escapeHtml(roadmap.title)}</strong><em>${next ? escapeHtml(next.module.title) : "Coverage complete"}</em></span><span class="career-portfolio-bars"><i><u style="width:${progress.percent}%"></u></i><small>${detail}</small></span><b>${progress.done}/${progress.total}</b>${careerIcon("arrow")}</button>`;
+}
+
+function renderCareerJourney(roadmap) {
+  return `<div class="career-journey">${roadmap.modules.map((module, moduleIndex) => {
+    const moduleStats = getModuleStats(module);
+    const coreTopic = module.topics.find((topic) => topic.lane === "core");
+    const extraTopic = module.topics.find((topic) => topic.lane === "extra");
+    const stats = isDsaRoadmap(roadmap) && coreTopic ? getTopicStats(coreTopic) : moduleStats;
+    const priorComplete = roadmap.modules.slice(0, moduleIndex).every((item) => {
+      if (!isDsaRoadmap(roadmap)) return getModuleStats(item).percent === 100;
+      const priorCore = item.topics.find((topic) => topic.lane === "core");
+      return priorCore ? getTopicStats(priorCore).percent === 100 : true;
+    });
+    const active = stats.done < stats.total && priorComplete;
+    const deadline = getModuleDeadlineState(module);
+    const extraStats = extraTopic ? getTopicStats(extraTopic) : null;
+    return `<article class="career-journey-module ${stats.percent === 100 ? "is-complete" : active ? "is-current" : ""}"><div class="journey-node">${stats.percent === 100 ? careerIcon("done") : moduleIndex + 1}</div><div><span>Module ${moduleIndex + 1}</span><strong>${escapeHtml(module.title)}</strong><em>${stats.done}/${stats.total} core · ${stats.percent}%${extraStats ? ` · ${extraStats.done}/${extraStats.total} extra` : ""}</em>${deadline.targetDate ? `<small class="module-deadline state-${deadline.key}">${formatDateKey(deadline.targetDate)} · ${escapeHtml(deadline.label)}</small>` : ""}</div><div class="journey-topics">${module.topics.map((topic) => { const topicStats = getTopicStats(topic); return `<span class="${topicStats.percent === 100 ? "is-complete" : ""}">${escapeHtml(topic.title)} <b>${topicStats.percent}%</b></span>`; }).join("")}</div></article>`;
+  }).join("")}</div>`;
+}
+
+function renderCareerCurrentFocus(roadmap, next) {
+  const topicStats = getTopicStats(next.topic);
+  return `<div class="career-current-grid"><div class="career-current-copy"><span>Next evidence step</span><h3>${escapeHtml(next.item.text)}</h3><p>${escapeHtml(next.topic.title)} · ${escapeHtml(next.topic.confidence)} confidence</p><label class="career-next-check"><input type="checkbox" data-career-check="${next.item.id}" data-roadmap-id="${roadmap.id}" data-module-id="${next.module.id}" data-topic-id="${next.topic.id}" /> <span>Mark this evidence complete</span></label></div><div class="career-current-ring" style="--career-progress:${topicStats.percent * 3.6}deg"><strong>${topicStats.percent}<small>%</small></strong><span>topic coverage</span></div></div>`;
 }
 
 function metricTile(label, value, note, tone) {
@@ -2890,27 +4385,30 @@ function renderCareerHeatmap() {
     return acc;
   }, {});
   const today = new Date();
-  const days = Array.from({ length: 91 }, (_, index) => addDays(today, index - 90));
+  const days = Array.from({ length: 364 }, (_, index) => addDays(today, index - 363));
+  const active = days.filter((day) => counts[toDateKey(day)]).length;
+  const actions = days.reduce((sum, day) => sum + (counts[toDateKey(day)] || 0), 0);
 
   return `
-    <div class="heatmap" aria-label="Career activity heatmap">
-      ${days
-        .map((day) => {
-          const key = toDateKey(day);
-          const count = counts[key] ?? 0;
-          const level = Math.min(count, 4);
-          return `<span class="heat-cell level-${level}" title="${key}: ${count} action${count === 1 ? "" : "s"}"></span>`;
-        })
-        .join("")}
+    <div class="career-year-summary"><div><strong>${active}</strong><span>active days</span></div><div><strong>${actions}</strong><span>evidence steps</span></div><div><strong>${getCareerStats().bestStreak}</strong><span>best rhythm</span></div></div>
+    <div class="career-heatmap-scroll">
+      <div class="career-heatmap" aria-label="Career activity over the last 52 weeks">
+        ${days.map((day) => {
+            const key = toDateKey(day);
+            const count = counts[key] ?? 0;
+            const level = Math.min(count, 4);
+            return `<span class="heat-cell level-${level}" title="${key}: ${count} completed step${count === 1 ? "" : "s"}"></span>`;
+          }).join("")}
+      </div>
     </div>
     <div class="heatmap-legend">
-      <span class="meta">Less</span>
+      <span class="meta">No evidence</span>
       <span class="heat-cell level-0"></span>
       <span class="heat-cell level-1"></span>
       <span class="heat-cell level-2"></span>
       <span class="heat-cell level-3"></span>
       <span class="heat-cell level-4"></span>
-      <span class="meta">More</span>
+      <span class="meta">Deep work</span>
     </div>
   `;
 }
@@ -4994,6 +6492,705 @@ function renderCareerProgressRow(roadmap) {
   `;
 }
 
+function getSyncStatusLabel() {
+  const labels = {
+    "not-configured": "Not configured",
+    "demo-ready": "Demo ready",
+    connected: "Connected",
+    "signed-out": "Signed out",
+    "sync-error": "Sync error",
+    "personal-blocked": "Personal blocked",
+    blocked: "Blocked",
+  };
+  return labels[syncState.status] || "Not configured";
+}
+
+function getSyncTone() {
+  if (syncState.status === "demo-ready") return "green";
+  if (syncState.status === "connected") return "green";
+  if (syncState.status === "signed-out") return "amber";
+  if (syncState.status === "personal-blocked" || syncState.status === "blocked") return "amber";
+  return "blue";
+}
+
+function getLatestProfileUpdatedAt() {
+  const candidates = [
+    state?.meta?.updatedAt,
+    careerState?.meta?.updatedAt,
+    taskState?.meta?.updatedAt,
+    journalState?.meta?.updatedAt,
+  ].filter(Boolean);
+  return candidates.sort().at(-1) || null;
+}
+
+function getSupabaseClient() {
+  if (!window.supabase?.createClient) return null;
+  if (!getSupabaseClient.instance) {
+    getSupabaseClient.instance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: {
+        fetch: (url, options = {}) => window.fetch(url, { ...options, cache: "no-store" }),
+      },
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      },
+    });
+  }
+  return getSupabaseClient.instance;
+}
+
+async function getSupabaseSession() {
+  const client = getSupabaseClient();
+  if (!client) return null;
+  const { data, error } = await client.auth.getSession();
+  if (error) return null;
+  return data?.session || null;
+}
+
+async function refreshSyncAuthState({ silent = true } = {}) {
+  const session = await getSupabaseSession();
+  syncState = {
+    ...syncState,
+    endpointConfigured: Boolean(getSupabaseClient()),
+    userEmail: session?.user?.email || syncState.userEmail || "",
+    userId: session?.user?.id || "",
+    status: session ? "connected" : "signed-out",
+    authCheckedAt: new Date().toISOString(),
+  };
+  saveSyncState();
+  if (!silent) {
+    syncNotice = session ? `Signed in as ${session.user.email}.` : "Supabase is connected, but you are signed out.";
+    render();
+  }
+  return session;
+}
+
+function createSyncPayloadPreview() {
+  return {
+    app: "KRYOS",
+    appVersion: APP_VERSION,
+    syncSchemaVersion: KRYOS_SYNC_SCHEMA_VERSION,
+    accountMode,
+    profile: getModeLabel(),
+    generatedAt: new Date().toISOString(),
+    latestLocalUpdateAt: getLatestProfileUpdatedAt(),
+    blocks: {
+      foundation: {
+        storageKey: FOUNDATION_STORAGE_KEY,
+        updatedAt: state?.meta?.updatedAt || null,
+        value: state,
+      },
+      career: {
+        storageKey: CAREER_STORAGE_KEY,
+        updatedAt: careerState?.meta?.updatedAt || null,
+        value: careerState,
+      },
+      tasks: {
+        storageKey: TASKS_STORAGE_KEY,
+        updatedAt: taskState?.meta?.updatedAt || null,
+        value: taskState,
+      },
+      journal: {
+        storageKey: JOURNAL_STORAGE_KEY,
+        updatedAt: journalState?.meta?.updatedAt || null,
+        value: journalState,
+      },
+      security: {
+        storageKey: SECURITY_STORAGE_KEY,
+        updatedAt: securityState?.updatedAt || null,
+        value: securityState,
+      },
+      uiState: {
+        storageKey: UI_STATE_STORAGE_KEY,
+        updatedAt: getCurrentUiState().updatedAt,
+        value: getCurrentUiState(),
+      },
+    },
+    excluded: {
+      storageKeys: SYNC_EXCLUDED_BLOCKS,
+      reason: "Active lock sessions and local sync metadata stay local.",
+    },
+  };
+}
+
+function getSyncBlockPayloads() {
+  const payload = createSyncPayloadPreview();
+  return SYNC_BLOCKS.map((block) => {
+    const payloadKey = block.payloadKey || block.key;
+    const value = payload.blocks[payloadKey]?.value ?? {};
+    const updatedAt = payload.blocks[payloadKey]?.updatedAt || getLatestProfileUpdatedAt() || new Date().toISOString();
+    return {
+      block_key: block.key,
+      schema_version: KRYOS_SYNC_SCHEMA_VERSION,
+      payload: value,
+      payload_updated_at: updatedAt,
+      client_updated_at: new Date().toISOString(),
+    };
+  });
+}
+
+async function writeVersionedBlock(client, profileId, block) {
+  const { data, error } = await client.rpc("kryos_write_sync_block", {
+    p_profile: profileId,
+    p_block_key: block.block_key,
+    p_payload: block.payload,
+    p_schema_version: block.schema_version,
+    p_payload_updated_at: block.payload_updated_at,
+    p_expected_revision: Number(syncState.remoteBlockRevisions?.[block.block_key] || 0),
+  });
+  if (error) throw error;
+  return Number(data);
+}
+
+async function issueAssistantToken() {
+  try {
+    const session = await refreshSyncAuthState({ silent: true });
+    if (!session || isDemoMode()) throw new Error("Sign in to the Personal cloud profile first.");
+    const profileId = await ensureSupabaseProfile(session);
+    const { data, error } = await getSupabaseClient().rpc("kryos_issue_assistant_token", { p_profile: profileId });
+    if (error) throw error;
+    assistantTokenOnce = data;
+    syncNotice = "Assistant access created. Copy this token now; KRYOS will not display it again.";
+  } catch (error) {
+    syncNotice = `Assistant access failed: ${getSyncErrorMessage(error)}`;
+  }
+  render();
+}
+
+async function revokeAssistantTokens() {
+  try {
+    const session = await refreshSyncAuthState({ silent: true });
+    if (!session || isDemoMode()) throw new Error("Sign in to the Personal cloud profile first.");
+    const profileId = await ensureSupabaseProfile(session);
+    const { data, error } = await getSupabaseClient().rpc("kryos_revoke_assistant_tokens", { p_profile: profileId });
+    if (error) throw error;
+    assistantTokenOnce = "";
+    syncNotice = `${Number(data || 0)} assistant access token${Number(data) === 1 ? "" : "s"} revoked.`;
+  } catch (error) {
+    syncNotice = `Revocation failed: ${getSyncErrorMessage(error)}`;
+  }
+  render();
+}
+
+async function ensureSupabaseProfile(session) {
+  const client = getSupabaseClient();
+  if (!client || !session) throw new Error("Sign in before syncing.");
+  const profileType = accountMode;
+  const displayName = `${getModeLabel()} Profile`;
+  const { data: existing, error: selectError } = await client
+    .from("kryos_profiles")
+    .select("id")
+    .eq("profile_type", profileType)
+    .maybeSingle();
+  if (selectError) throw selectError;
+  if (existing?.id) return existing.id;
+  const { data: created, error: insertError } = await client
+    .from("kryos_profiles")
+    .insert({
+      user_id: session.user.id,
+      profile_type: profileType,
+      display_name: displayName,
+    })
+    .select("id")
+    .single();
+  if (insertError) throw insertError;
+  return created.id;
+}
+
+function getSyncCredentials() {
+  const email = getFormValue("sync-email");
+  const password = getFormValue("sync-password");
+  return { email, password };
+}
+
+function getSyncErrorMessage(error) {
+  const message = error?.message || "Unknown Supabase error.";
+  if (/relation .* does not exist/i.test(message) || /schema cache/i.test(message)) {
+    return `${message} Run supabase-schema.sql in Supabase SQL Editor first.`;
+  }
+  if (/permission denied for table/i.test(message)) {
+    return `${message} Rerun the updated supabase-schema.sql so the authenticated role gets table grants.`;
+  }
+  if (/row-level security/i.test(message) || /permission denied/i.test(message)) {
+    return `${message} Check that the SQL policies and grants were created.`;
+  }
+  if (/invalid login credentials/i.test(message)) {
+    return "Invalid Supabase email or password. Use Create account first, or enter the password you used.";
+  }
+  if (/email not confirmed/i.test(message) || /confirm/i.test(message)) {
+    return "Email is not confirmed yet. Open the Supabase confirmation email, or click Resend confirmation. Fastest: in Supabase Auth settings, turn off Confirm email for this private app.";
+  }
+  if (/signup disabled/i.test(message)) {
+    return "Supabase signups are disabled. Enable Email signup in Supabase Auth settings.";
+  }
+  return message;
+}
+
+async function createSupabaseAccount() {
+  const { email, password } = getSyncCredentials();
+  if (!email || !email.includes("@")) {
+    syncNotice = "Enter your email before creating the Supabase sync account.";
+    render();
+    return;
+  }
+  if (!password || password.length < 6) {
+    syncNotice = "Use a Supabase sync password with at least 6 characters.";
+    render();
+    return;
+  }
+  const client = getSupabaseClient();
+  if (!client) {
+    syncNotice = "Supabase library did not load. Check your internet connection and reload.";
+    render();
+    return;
+  }
+  const { data, error } = await client.auth.signUp({
+    email,
+    password,
+    options: { emailRedirectTo: window.location.href.split("#")[0] },
+  });
+  if (error) {
+    syncNotice = `Account creation failed: ${getSyncErrorMessage(error)}`;
+    syncState.status = "sync-error";
+  } else {
+    syncNotice = data.session
+      ? `Signed in as ${email}.`
+      : `Account created for ${email}. If Supabase asks for email confirmation, confirm it once, then sign in here.`;
+    syncState.userEmail = email;
+    syncState.userId = data.session?.user?.id || "";
+    syncState.status = data.session ? "connected" : "signed-out";
+  }
+  saveSyncState();
+  render();
+}
+
+async function signInSupabaseWithPassword() {
+  const { email, password } = getSyncCredentials();
+  if (!email || !email.includes("@") || !password) {
+    syncNotice = "Enter Supabase email and password before signing in.";
+    render();
+    return;
+  }
+  const client = getSupabaseClient();
+  if (!client) {
+    syncNotice = "Supabase library did not load. Check your internet connection and reload.";
+    render();
+    return;
+  }
+  const { data, error } = await client.auth.signInWithPassword({ email, password });
+  if (error) {
+    syncNotice = `Sign in failed: ${getSyncErrorMessage(error)}`;
+    syncState.status = "sync-error";
+  } else {
+    syncNotice = `Signed in as ${email}.`;
+    syncState.userEmail = email;
+    syncState.userId = data.session?.user?.id || "";
+    syncState.status = "connected";
+  }
+  saveSyncState();
+  render();
+}
+
+async function resendSupabaseConfirmation() {
+  const email = getFormValue("sync-email");
+  if (!email || !email.includes("@")) {
+    syncNotice = "Enter your email before resending confirmation.";
+    render();
+    return;
+  }
+  const client = getSupabaseClient();
+  if (!client) {
+    syncNotice = "Supabase library did not load. Check your internet connection and reload.";
+    render();
+    return;
+  }
+  const { error } = await client.auth.resend({
+    type: "signup",
+    email,
+    options: { emailRedirectTo: window.location.href.split("#")[0] },
+  });
+  if (error) {
+    syncNotice = `Confirmation resend failed: ${getSyncErrorMessage(error)}`;
+    syncState.status = "sync-error";
+  } else {
+    syncNotice = `Confirmation email sent to ${email}. Confirm it once, then sign in.`;
+    syncState.userEmail = email;
+    syncState.status = "signed-out";
+  }
+  saveSyncState();
+  render();
+}
+
+async function signOutSupabase() {
+  const client = getSupabaseClient();
+  if (!client) return;
+  await client.auth.signOut();
+  assistantTokenOnce = "";
+  syncState = {
+    ...syncState,
+    status: "signed-out",
+    userId: "",
+  };
+  syncNotice = "Signed out of Supabase on this browser.";
+  saveSyncState();
+  render();
+}
+
+async function pushToSupabase() {
+  const session = await refreshSyncAuthState({ silent: true });
+  if (!session) {
+    syncNotice = "Sign in to Supabase before pushing this device to cloud.";
+    render();
+    return;
+  }
+  try {
+    const client = getSupabaseClient();
+    const profileId = await ensureSupabaseProfile(session);
+    const rows = getSyncBlockPayloads().map((row) => ({
+      ...row,
+      profile_id: profileId,
+      updated_at: new Date().toISOString(),
+    }));
+    const revisions = { ...syncState.remoteBlockRevisions };
+    for (const row of [...rows].sort((a, b) => Number(["tasks", "career"].includes(b.block_key)) - Number(["tasks", "career"].includes(a.block_key)))) {
+      if (row.block_key === "tasks" || row.block_key === "career") {
+        revisions[row.block_key] = await writeVersionedBlock(client, profileId, row);
+        syncState.remoteBlockRevisions = { ...syncState.remoteBlockRevisions, [row.block_key]: revisions[row.block_key] };
+        syncState.remoteBlockVersions = { ...syncState.remoteBlockVersions, [row.block_key]: row.payload_updated_at };
+        saveSyncState();
+      } else {
+        const { error } = await client.from("kryos_sync_blocks").upsert([row], { onConflict: "profile_id,block_key" });
+        if (error) throw error;
+      }
+    }
+    syncState = {
+      ...syncState,
+      enabled: true,
+      endpointConfigured: true,
+      status: "connected",
+      lastSyncAt: new Date().toISOString(),
+      lastAttemptAt: new Date().toISOString(),
+      remoteBlockVersions: Object.fromEntries(rows.map((row) => [row.block_key, row.payload_updated_at])),
+      remoteBlockRevisions: revisions,
+      remoteProfileId: profileId,
+      userEmail: session.user.email || syncState.userEmail,
+      userId: session.user.id,
+    };
+    syncNotice = `${getModeLabel()} data pushed to Supabase.`;
+    saveSyncState();
+    render();
+  } catch (error) {
+    syncState.status = "sync-error";
+    syncState.lastAttemptAt = new Date().toISOString();
+    syncNotice = `Cloud push failed: ${getSyncErrorMessage(error)}`;
+    saveSyncState();
+    render();
+  }
+}
+
+function applyRemoteBlock(blockKey, payload) {
+  const block = SYNC_BLOCKS.find((item) => item.key === blockKey);
+  if (!block) return;
+  setModeStorageValue(block.storageKey, JSON.stringify(payload));
+}
+
+function getLocalSyncBlockUpdatedAt(blockKey) {
+  const payload = createSyncPayloadPreview();
+  const block = SYNC_BLOCKS.find((item) => item.key === blockKey);
+  const payloadKey = block?.payloadKey || blockKey;
+  return payload.blocks[payloadKey]?.updatedAt || null;
+}
+
+function isAfter(left, right) {
+  if (!left) return false;
+  if (!right) return true;
+  return new Date(left).getTime() > new Date(right).getTime();
+}
+
+function getSyncEvidenceScore(blockKey, payload) {
+  if (!payload || typeof payload !== "object") return 0;
+  if (blockKey === "career") {
+    const completed = (payload.roadmaps || []).reduce((roadmapTotal, roadmap) => roadmapTotal
+      + (roadmap.modules || []).reduce((moduleTotal, module) => moduleTotal
+        + (module.topics || []).reduce((topicTotal, topic) => topicTotal
+          + (topic.checklist || []).filter((item) => item.done).length, 0), 0), 0);
+    return (completed * 1000) + (payload.activityLog || []).length;
+  }
+  if (blockKey === "tasks") {
+    const actions = payload.life?.actions || payload.actions || [];
+    const completedActions = actions.filter((action) => action.status === "done").length;
+    return (actions.length * 100) + completedActions;
+  }
+  if (blockKey === "journal") return Object.keys(payload.entries || {}).length;
+  return 0;
+}
+
+async function refreshCloudData({ automatic = false } = {}) {
+  if (isDemoMode()) return { updated: 0, conflicts: 0 };
+  if (cloudFreshnessRunning) return { updated: 0, conflicts: 0, busy: true };
+  cloudFreshnessRunning = true;
+  const session = await refreshSyncAuthState({ silent: true });
+  if (!session) {
+    cloudFreshnessRunning = false;
+    return { updated: 0, conflicts: 0 };
+  }
+  setMobileRefreshState("refreshing", "Checking cloud for fresh data");
+  try {
+    const client = getSupabaseClient();
+    const profileId = await ensureSupabaseProfile(session);
+    const { data, error } = await client
+      .from("kryos_sync_blocks")
+      .select("block_key,payload,payload_updated_at,updated_at,schema_version,revision")
+      .eq("profile_id", profileId);
+    if (error) throw error;
+    const safeKeys = new Set(["foundation", "career", "tasks", "journal"]);
+    const localPreview = createSyncPayloadPreview();
+    const nextRemoteBlockVersions = { ...syncState.remoteBlockVersions };
+    const nextRemoteBlockRevisions = { ...syncState.remoteBlockRevisions };
+    let updated = 0;
+    let conflicts = 0;
+    const updatedKeys = [];
+    for (const row of Array.isArray(data) ? data : []) {
+      if (!safeKeys.has(row.block_key) || Number(row.schema_version) > KRYOS_SYNC_SCHEMA_VERSION) continue;
+      const remoteAt = row.payload_updated_at || row.updated_at;
+      const block = SYNC_BLOCKS.find((item) => item.key === row.block_key);
+      const payloadKey = block?.payloadKey || row.block_key;
+      const localBlock = localPreview.blocks[payloadKey];
+      const localAt = localBlock?.updatedAt || null;
+      const knownRemoteAt = syncState.remoteBlockVersions?.[row.block_key] || null;
+      const localEvidence = getSyncEvidenceScore(row.block_key, localBlock?.value);
+      const remoteEvidence = getSyncEvidenceScore(row.block_key, row.payload);
+      const recoveryFromStaleLocal = !knownRemoteAt && remoteEvidence > localEvidence;
+      const remoteAdvanced = isAfter(remoteAt, knownRemoteAt);
+      if (!remoteAdvanced && knownRemoteAt === remoteAt) nextRemoteBlockRevisions[row.block_key] = Number(row.revision || 0);
+      if (!recoveryFromStaleLocal && !remoteAdvanced) continue;
+      const localChangedSinceRemote = knownRemoteAt
+        ? isAfter(localAt, knownRemoteAt)
+        : localEvidence > 0;
+      if (localChangedSinceRemote && remoteAdvanced && !recoveryFromStaleLocal) {
+        conflicts += 1;
+        continue;
+      }
+      applyRemoteBlock(row.block_key, row.payload);
+      nextRemoteBlockVersions[row.block_key] = remoteAt;
+      nextRemoteBlockRevisions[row.block_key] = Number(row.revision || 0);
+      updated += 1;
+      updatedKeys.push(row.block_key);
+    }
+    syncState = {
+      ...syncState,
+      status: "connected",
+      lastAttemptAt: new Date().toISOString(),
+      lastSyncAt: updated ? new Date().toISOString() : syncState.lastSyncAt,
+      conflictCount: conflicts,
+      remoteBlockVersions: nextRemoteBlockVersions,
+      remoteBlockRevisions: nextRemoteBlockRevisions,
+      remoteProfileId: profileId,
+      userEmail: session.user.email || syncState.userEmail,
+      userId: session.user.id,
+    };
+    saveSyncState();
+    if (conflicts) {
+      syncNotice = `${conflicts} cloud block${conflicts === 1 ? " needs" : "s need"} review. Local work was preserved.`;
+      setMobileRefreshState("conflict", syncNotice);
+    } else {
+      syncNotice = updated ? "Fresh cloud data received." : "KRYOS is up to date.";
+      setMobileRefreshState("idle", syncNotice);
+    }
+    if (updated) {
+      if (updatedKeys.includes("foundation")) state = loadFoundation();
+      if (updatedKeys.includes("career")) {
+        careerState = loadCareer();
+        const remoteDsaMigrated = migrateDsaRoadmap(careerState);
+        const remoteApiMigrated = migrateApiDesignRoadmap(careerState);
+        const remoteCareerMigrated = remoteDsaMigrated || remoteApiMigrated;
+        if (remoteCareerMigrated) {
+          setModeStorageValue(CAREER_STORAGE_KEY, JSON.stringify(careerState));
+          pendingCareerMigrationSync = true;
+        } else {
+          pendingCareerMigrationSync = false;
+        }
+        careerSyncState = "synced";
+      }
+      if (updatedKeys.includes("tasks")) {
+        taskState = loadTasks();
+        if (typeof actionSyncState !== "undefined") actionSyncState = "synced";
+      }
+      if (updatedKeys.includes("journal")) journalState = loadJournal();
+      render();
+    } else if (!automatic && currentPage === "settings") {
+      render();
+    }
+    if (!conflicts) retryPendingCloudWrites();
+    return { updated, conflicts, updatedKeys };
+  } catch (error) {
+    console.warn("KRYOS freshness check failed.", error);
+    syncState.status = "sync-error";
+    syncState.lastAttemptAt = new Date().toISOString();
+    saveSyncState();
+    setMobileRefreshState("idle", "Cloud unavailable. Local data is safe.");
+    updateGlobalCloudState();
+    return { updated: 0, conflicts: 0, error };
+  } finally {
+    cloudFreshnessRunning = false;
+  }
+}
+
+function retryPendingCloudWrites() {
+  const tasksLocalAt = getLocalSyncBlockUpdatedAt("tasks");
+  const careerLocalAt = getLocalSyncBlockUpdatedAt("career");
+  if ((typeof actionSyncDirty !== "undefined" && actionSyncDirty)
+      || (syncState.remoteBlockVersions?.tasks && isAfter(tasksLocalAt, syncState.remoteBlockVersions.tasks))) {
+    scheduleTaskCloudSync();
+  }
+  if (careerSyncDirty || (syncState.remoteBlockVersions?.career && isAfter(careerLocalAt, syncState.remoteBlockVersions.career))) {
+    scheduleCareerCloudSync();
+  }
+}
+
+async function startCloudFreshnessMonitor(session) {
+  if (!session || isDemoMode()) return;
+  const client = getSupabaseClient();
+  if (!client) return;
+  const profileId = await ensureSupabaseProfile(session);
+  if (!cloudFreshnessChannel && typeof client.channel === "function") {
+    cloudFreshnessChannel = client
+      .channel(`kryos-freshness-${profileId}`)
+      .on("postgres_changes", {
+        event: "*",
+        schema: "public",
+        table: "kryos_sync_blocks",
+        filter: `profile_id=eq.${profileId}`,
+      }, () => {
+        if (document.visibilityState === "visible") refreshCloudData({ automatic: true });
+      })
+      .subscribe();
+  }
+  window.clearInterval(cloudFreshnessPollTimer);
+  cloudFreshnessPollTimer = window.setInterval(() => {
+    if (document.visibilityState === "visible") refreshCloudData({ automatic: true });
+  }, 5000);
+}
+
+async function pullFromSupabase() {
+  const session = await refreshSyncAuthState({ silent: true });
+  if (!session) {
+    syncNotice = "Sign in to Supabase before pulling cloud data.";
+    render();
+    return;
+  }
+  try {
+    const client = getSupabaseClient();
+    const profileId = await ensureSupabaseProfile(session);
+    const { data, error } = await client
+      .from("kryos_sync_blocks")
+      .select("block_key,payload,payload_updated_at,updated_at,revision")
+      .eq("profile_id", profileId);
+    if (error) throw error;
+    if (!Array.isArray(data) || !data.length) {
+      syncNotice = `No cloud data found for ${getModeLabel()}. Push from your old browser first.`;
+      render();
+      return;
+    }
+    data.forEach((row) => applyRemoteBlock(row.block_key, row.payload));
+    syncState = {
+      ...syncState,
+      enabled: true,
+      endpointConfigured: true,
+      status: "connected",
+      lastSyncAt: new Date().toISOString(),
+      lastAttemptAt: new Date().toISOString(),
+      remoteBlockVersions: Object.fromEntries(data.map((row) => [row.block_key, row.payload_updated_at || row.updated_at])),
+      remoteBlockRevisions: Object.fromEntries(data.map((row) => [row.block_key, Number(row.revision || 0)])),
+      remoteProfileId: profileId,
+      userEmail: session.user.email || syncState.userEmail,
+      userId: session.user.id,
+    };
+    saveSyncState();
+    syncNotice = `${getModeLabel()} cloud data pulled. Reloading KRYOS.`;
+    window.setTimeout(() => window.location.reload(), 650);
+  } catch (error) {
+    syncState.status = "sync-error";
+    syncState.lastAttemptAt = new Date().toISOString();
+    syncNotice = `Cloud pull failed: ${getSyncErrorMessage(error)}`;
+    saveSyncState();
+    render();
+  }
+}
+
+function getSyncReadiness() {
+  const payload = createSyncPayloadPreview();
+  const safeStorageKeys = Object.values(payload.blocks).map((block) => block.storageKey);
+  const expectedSafeBlockCount = SYNC_SAFE_BLOCKS.length;
+  const localSessionExcluded = !safeStorageKeys.includes(SECURITY_SESSION_KEY)
+    && !safeStorageKeys.includes(SYNC_STATE_STORAGE_KEY);
+  const checks = [
+    {
+      label: "Local profile data is grouped into syncable blocks",
+      detail: `${Object.keys(payload.blocks).length}/${expectedSafeBlockCount} safe blocks are available for a future remote write.`,
+      passed: SYNC_SAFE_BLOCKS.every((key) => safeStorageKeys.includes(key)),
+    },
+    {
+      label: "Security setup can move with your data",
+      detail: "PIN and recovery setup sync so a new browser does not stay blank after pull.",
+      passed: localSessionExcluded && safeStorageKeys.includes(SECURITY_STORAGE_KEY),
+    },
+    {
+      label: "Export/import remains available",
+      detail: "Backup remains the rollback path before any remote experiment.",
+      passed: typeof collectBackupData === "function" && typeof importBackupFile === "function",
+    },
+    {
+      label: "Supabase project is configured",
+      detail: SUPABASE_URL && SUPABASE_ANON_KEY ? "Project URL and publishable key are wired." : "Project URL or publishable key is missing.",
+      passed: Boolean(SUPABASE_URL && SUPABASE_ANON_KEY),
+    },
+    {
+      label: "Supabase account is signed in",
+      detail: syncState.userEmail ? `Using ${syncState.userEmail}.` : "Create or sign in with email and password.",
+      passed: syncState.status === "connected" && Boolean(syncState.userId),
+    },
+  ];
+  const localReady = checks.slice(0, 4).every((check) => check.passed);
+  const remoteReady = checks.every((check) => check.passed);
+  const status = remoteReady ? "connected" : "signed-out";
+  const message = remoteReady
+    ? `${getModeLabel()} is ready for manual cloud push/pull.`
+    : localReady
+      ? "Supabase is wired. Sign in before pushing or pulling cloud data."
+      : "Sync readiness needs cleanup before cloud sync.";
+  return { checks, localReady, remoteReady, status, message };
+}
+
+function runSyncReadinessCheck() {
+  const readiness = getSyncReadiness();
+  syncState = {
+    ...syncState,
+    status: readiness.status,
+    lastReadinessAt: new Date().toISOString(),
+    conflictCount: Math.max(0, Number(syncState.conflictCount) || 0),
+  };
+  syncNotice = readiness.message;
+  saveSyncState();
+  render();
+}
+
+function runSyncDryRun() {
+  const readiness = getSyncReadiness();
+  syncState = {
+    ...syncState,
+    status: readiness.status,
+    lastAttemptAt: new Date().toISOString(),
+    lastReadinessAt: new Date().toISOString(),
+  };
+  syncNotice = isDemoMode()
+    ? "Dry run completed locally. No remote data was sent."
+    : "Dry run blocked for Personal. Use Demo first.";
+  saveSyncState();
+  render();
+}
+
 function renderSettingsView() {
   settingsView.innerHTML = `
     <article class="settings-hero">
@@ -5013,6 +7210,7 @@ function renderSettingsView() {
 
     <div class="settings-layout">
       ${renderProductIdentityPanel()}
+      ${renderSyncSettingsPanel()}
 
       <section class="section-card">
         <div class="section-header">
@@ -5083,6 +7281,109 @@ function renderSettingsView() {
   `;
 }
 
+function renderSyncSettingsPanel() {
+  const readiness = getSyncReadiness();
+  const signedIn = syncState.status === "connected" && Boolean(syncState.userId);
+  const readyCount = readiness.checks.filter((check) => check.passed).length;
+  return `
+    <section class="section-card sync-status-card">
+      <div class="sync-command-head">
+        <div>
+          <p class="section-kicker">Cloud sync</p>
+          <h2>Move KRYOS between devices</h2>
+          <p class="principle-body">Push from the device that has your newest data. Pull on the phone or GitHub Pages device.</p>
+        </div>
+        <div class="sync-command-status">
+          <span class="space-badge sync-${readiness.status}">${getSyncStatusLabel()}</span>
+          <strong>${signedIn ? escapeHtml(syncState.userEmail || "Signed in") : "Not signed in"}</strong>
+        </div>
+      </div>
+
+      ${syncNotice ? `<p class="security-notice inline">${escapeHtml(syncNotice)}</p>` : ""}
+
+      <div class="sync-command-grid">
+        <div class="sync-step-panel">
+          <div class="sync-step-number">1</div>
+          <div class="sync-step-body">
+            <p class="section-kicker">Account</p>
+            <h3>Sign in once</h3>
+            <p class="meta">Use the same Supabase email and password on laptop and phone. If sign-in says email not confirmed, confirm the email once or disable Confirm email in Supabase Auth settings.</p>
+            <div class="sync-auth-grid">
+              <div class="field">
+                <label class="field-label" for="sync-email">Email</label>
+                <input id="sync-email" type="email" autocomplete="email" value="${escapeHtml(syncState.userEmail || "")}" placeholder="your@email.com" />
+              </div>
+              <div class="field">
+                <label class="field-label" for="sync-password">Password</label>
+                <input id="sync-password" type="password" autocomplete="current-password" placeholder="Minimum 6 characters" />
+              </div>
+              <div class="sync-button-row">
+                <button class="secondary-button" type="button" data-sync-action="create-account">Create account</button>
+                <button class="primary-button" type="button" data-sync-action="sign-in">Sign in</button>
+                <button class="secondary-button" type="button" data-sync-action="resend-confirmation">Resend confirmation</button>
+                <button class="secondary-button" type="button" ${signedIn ? "" : "disabled"} data-sync-action="sign-out">Sign out</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sync-step-panel sync-transfer-panel">
+          <div class="sync-step-number">2</div>
+          <div class="sync-step-body">
+            <p class="section-kicker">Transfer</p>
+            <h3>Choose direction</h3>
+            <div class="sync-transfer-actions">
+              <button class="sync-transfer-button push" type="button" ${signedIn ? "" : "disabled"} data-sync-action="push-cloud">
+                <strong>Push this device</strong>
+                <span>Upload the data currently on this browser.</span>
+              </button>
+              <button class="sync-transfer-button pull" type="button" ${signedIn ? "" : "disabled"} data-sync-action="pull-cloud">
+                <strong>Pull from cloud</strong>
+                <span>Replace this browser with your cloud data.</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sync-step-panel">
+          <div class="sync-step-number">3</div>
+          <div class="sync-step-body">
+            <p class="section-kicker">Status</p>
+            <h3>Quick check</h3>
+            <div class="sync-status-list">
+              <span><strong>Profile</strong>${getModeLabel()}</span>
+              <span><strong>Last sync</strong>${formatDateTime(syncState.lastSyncAt)}</span>
+              <span><strong>Ready</strong>${readyCount}/${readiness.checks.length} checks</span>
+            </div>
+            <button class="secondary-button" type="button" data-sync-action="readiness-check">Refresh status</button>
+          </div>
+        </div>
+      </div>
+
+      ${isDemoMode() ? "" : `<div class="assistant-access-panel">
+        <div><p class="section-kicker">Assistant connection</p><h3>Let your assistant record what you say</h3><p class="meta">Create access once, then add the token to your private Codex environment. Your PIN is separate.</p></div>
+        <div class="sync-button-row"><button class="secondary-button" type="button" ${signedIn ? "" : "disabled"} data-sync-action="assistant-token">Create assistant access</button><button class="secondary-button" type="button" ${signedIn ? "" : "disabled"} data-sync-action="assistant-revoke">Revoke assistant access</button></div>
+        ${assistantTokenOnce ? `<label class="field-label" for="assistant-token-once">Copy this once</label><input id="assistant-token-once" type="text" readonly value="${escapeHtml(assistantTokenOnce)}" autocomplete="off" spellcheck="false"><button class="secondary-button" type="button" data-sync-action="assistant-copy">Copy token</button>` : ""}
+      </div>`}
+
+      <details class="sync-details">
+        <summary>Technical checks</summary>
+        <ul class="sync-check-list compact">
+          ${readiness.checks.map((check) => `
+            <li class="${check.passed ? "passed" : "pending"}">
+              <span class="sync-check-token">${check.passed ? "OK" : "Hold"}</span>
+              <span>
+                <strong>${escapeHtml(check.label)}</strong>
+                <em>${escapeHtml(check.detail)}</em>
+              </span>
+            </li>
+          `).join("")}
+        </ul>
+      </details>
+    </section>
+  `;
+}
+
 function renderProductIdentityPanel() {
   return `
     <section class="section-card product-identity-card">
@@ -5096,12 +7397,14 @@ function renderProductIdentityPanel() {
           <span>Version</span>
           <strong>${escapeHtml(APP_VERSION)}</strong>
         </div>
+        <span class="space-badge ${isDemoMode() ? "demo" : "personal"}">${getModeLabel()} Profile</span>
       </div>
 
       <div class="product-version-grid">
         ${metricTile("Stage", APP_STAGE, "Current release line", "signal")}
         ${metricTile("Released", formatDateKey(APP_RELEASE_DATE), "Private build date", "blue")}
         ${metricTile("Backup", `v${KRYOS_BACKUP_VERSION}`, "Export format", "green")}
+        ${metricTile("Profile", getModeLabel(), isDemoMode() ? "Showcase data" : "Private data", isDemoMode() ? "amber" : "green")}
         ${metricTile("Next", APP_NEXT_MILESTONE, "Planned milestone", "amber")}
       </div>
 
@@ -5199,6 +7502,7 @@ function collectBackupData() {
       [TASKS_STORAGE_KEY]: taskState,
       [JOURNAL_STORAGE_KEY]: journalState,
       [SECURITY_STORAGE_KEY]: securityState,
+      [SYNC_STATE_STORAGE_KEY]: syncState,
       [UI_STATE_STORAGE_KEY]: getCurrentUiState(),
     },
   };
@@ -5274,8 +7578,85 @@ function careerIcon(name) {
   const icons = {
     edit: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>`,
     done: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>`,
+    close: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>`,
+    trash: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path><path d="M10 11v5"></path><path d="M14 11v5"></path></svg>`,
+    arrow: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>`,
   };
   return icons[name] || "";
+}
+
+function startCareerEditor(roadmapId) {
+  const roadmap = findRoadmap(roadmapId);
+  if (!roadmap) return;
+  editingCareerRoadmapId = roadmap.id;
+  selectedRoadmapId = roadmap.id;
+  careerEditorDraft = structuredClone(roadmap);
+  careerEditorNotice = "";
+  render();
+}
+
+function cancelCareerEditor() {
+  editingCareerRoadmapId = null;
+  careerEditorDraft = null;
+  careerEditorNotice = "";
+  render();
+}
+
+function getCareerEditorRoadmap(roadmapId) {
+  if (editingCareerRoadmapId === roadmapId && careerEditorDraft?.id === roadmapId) {
+    return { roadmap: careerEditorDraft, isDraft: true };
+  }
+  return { roadmap: findRoadmap(roadmapId), isDraft: false };
+}
+
+function normalizeCareerDraft() {
+  if (!careerEditorDraft) return "No roadmap is open in the editor.";
+  careerEditorDraft.title = careerEditorDraft.title.trim();
+  careerEditorDraft.purpose = String(careerEditorDraft.purpose || "").trim();
+  careerEditorDraft.targetDate = careerEditorDraft.targetDate || "";
+  if (!careerEditorDraft.title) return "Roadmap name cannot be empty.";
+
+  for (const module of careerEditorDraft.modules) {
+    module.title = String(module.title || "").trim();
+    module.targetDate = isDateKey(module.targetDate) ? module.targetDate : "";
+    module.completedAt = module.completedAt || "";
+    if (!module.title) return "Module names cannot be empty.";
+    for (const topic of module.topics) {
+      topic.title = String(topic.title || "").trim();
+      if (!topic.title) return "Topic names cannot be empty.";
+      topic.confidence = ["Low", "Medium", "High"].includes(topic.confidence) ? topic.confidence : "Low";
+      topic.targetDate = isDateKey(topic.targetDate) ? topic.targetDate : "";
+      topic.completedAt = topic.completedAt || "";
+      for (const check of topic.checklist) {
+        check.text = String(check.text || "").trim();
+        if (!check.text) return "Checklist items cannot be empty.";
+        check.done = Boolean(check.done);
+      }
+    }
+  }
+
+  return "";
+}
+
+function saveCareerEditor() {
+  const error = normalizeCareerDraft();
+  if (error) {
+    careerEditorNotice = error;
+    render();
+    return;
+  }
+  const index = careerState.roadmaps.findIndex((roadmap) => roadmap.id === editingCareerRoadmapId);
+  if (index === -1 || !careerEditorDraft) {
+    cancelCareerEditor();
+    return;
+  }
+  careerState.roadmaps[index] = structuredClone(careerEditorDraft);
+  selectedRoadmapId = careerEditorDraft.id;
+  editingCareerRoadmapId = null;
+  careerEditorDraft = null;
+  careerEditorNotice = "Roadmap saved.";
+  saveCareer();
+  render();
 }
 
 function careerTextBlock(label, value, size = "normal") {
@@ -5309,63 +7690,76 @@ function careerTitleInput({ label, value, roadmapId, moduleId = "", topicId = ""
 }
 
 function renderRoadmapDetail(roadmap) {
-  const stats = getRoadmapStats(roadmap);
   const isEditing = editingCareerRoadmapId === roadmap.id;
+  const editorRoadmap = isEditing && careerEditorDraft?.id === roadmap.id ? careerEditorDraft : roadmap;
+  const stats = getRoadmapStats(editorRoadmap);
+  const dsa = isDsaRoadmap(editorRoadmap) ? getDsaLaneStats(editorRoadmap) : null;
   return `
     <section class="section-card career-detail ${isEditing ? "is-editing" : ""}">
       <div class="section-header career-detail-header">
         <div>
-          <p class="section-kicker">Selected roadmap</p>
+          <p class="section-kicker">${isEditing ? "Roadmap editor" : "Selected roadmap"}</p>
           ${isEditing
-            ? careerTitleInput({ label: "Roadmap name", value: roadmap.title, roadmapId: roadmap.id })
-            : careerTextBlock("Roadmap", roadmap.title)}
+            ? careerTitleInput({ label: "Roadmap name", value: editorRoadmap.title, roadmapId: editorRoadmap.id })
+            : careerTextBlock("Roadmap", editorRoadmap.title)}
           <p class="meta">${stats.done}/${stats.total} checklist items completed</p>
         </div>
-        <div class="row-actions">
+        <div class="row-actions ${isEditing ? "career-editor-actions" : ""}">
           <span class="chip signal">${stats.percent}% complete</span>
-          <button
-            class="icon-button career-edit-toggle"
-            type="button"
-            title="${isEditing ? "Close roadmap editor" : "Edit roadmap"}"
-            aria-label="${isEditing ? "Close roadmap editor" : "Edit roadmap"}"
-            data-career-edit-toggle="${roadmap.id}"
-          >${careerIcon(isEditing ? "done" : "edit")}</button>
-          ${isEditing ? `<button class="danger-button" type="button" data-career-delete="roadmap" data-roadmap-id="${roadmap.id}">Delete roadmap</button>` : ""}
+          ${isEditing
+            ? `
+              <button class="primary-button" type="button" data-career-editor-action="save">Save changes</button>
+              <button class="secondary-button" type="button" data-career-editor-action="cancel">Cancel</button>
+              <button class="icon-button danger-icon" type="button" title="Delete roadmap" aria-label="Delete roadmap" data-career-delete="roadmap" data-roadmap-id="${roadmap.id}">${careerIcon("trash")}</button>
+            `
+            : `
+              <button
+                class="icon-button career-edit-toggle"
+                type="button"
+                title="Edit roadmap"
+                aria-label="Edit roadmap"
+                data-career-edit-toggle="${roadmap.id}"
+              >${careerIcon("edit")}</button>
+            `}
         </div>
       </div>
+
+      ${careerEditorNotice ? `<p class="security-notice inline">${escapeHtml(careerEditorNotice)}</p>` : ""}
+
+      ${dsa ? `<div class="dsa-lane-summary"><article><span>NeetCode 150 Core</span><strong>${dsa.core.done}<small>/150</small></strong><i><u style="width:${dsa.core.percent}%"></u></i><p>Canonical interview path</p></article><article><span>Extra Practice</span><strong>${dsa.extra.done}<small>/${dsa.extra.total}</small></strong><i><u style="width:${dsa.extra.percent}%"></u></i><p>Reinforcement after core coverage</p></article></div>` : ""}
 
       <div class="form-grid two career-roadmap-meta">
         ${isEditing
           ? `
             <div class="field">
-              <label class="field-label" for="roadmap-purpose-${roadmap.id}">Purpose</label>
-              <textarea id="roadmap-purpose-${roadmap.id}" data-career-field="purpose" data-roadmap-id="${roadmap.id}">${escapeHtml(roadmap.purpose)}</textarea>
+              <label class="field-label" for="roadmap-purpose-${editorRoadmap.id}">Purpose</label>
+              <textarea id="roadmap-purpose-${editorRoadmap.id}" data-career-field="purpose" data-roadmap-id="${editorRoadmap.id}">${escapeHtml(editorRoadmap.purpose)}</textarea>
             </div>
             <div class="field">
-              <label class="field-label" for="roadmap-target-${roadmap.id}">Target date</label>
-              <input id="roadmap-target-${roadmap.id}" type="date" value="${escapeHtml(roadmap.targetDate)}" data-career-field="targetDate" data-roadmap-id="${roadmap.id}" />
+              <label class="field-label" for="roadmap-target-${editorRoadmap.id}">Target date</label>
+              <input id="roadmap-target-${editorRoadmap.id}" type="date" value="${escapeHtml(editorRoadmap.targetDate)}" data-career-field="targetDate" data-roadmap-id="${editorRoadmap.id}" />
             </div>
           `
           : `
             <div class="career-read-panel">
               <p class="field-label">Purpose</p>
-              <p class="principle-body">${escapeHtml(roadmap.purpose || "No purpose written yet.")}</p>
+              <p class="principle-body">${escapeHtml(editorRoadmap.purpose || "No purpose written yet.")}</p>
             </div>
             <div class="career-read-panel">
               <p class="field-label">Target date</p>
-              <strong>${roadmap.targetDate ? formatDateKey(roadmap.targetDate) : "No target date"}</strong>
+              <strong>${editorRoadmap.targetDate ? formatDateKey(editorRoadmap.targetDate) : "No target date"}</strong>
             </div>
           `}
       </div>
 
       <div class="module-stack">
-        ${roadmap.modules.length ? roadmap.modules.map((module) => renderModuleBlock(roadmap, module, isEditing)).join("") : emptyState("No modules yet. Use the roadmap editor to add the first module.")}
+        ${editorRoadmap.modules.length ? editorRoadmap.modules.map((module) => renderModuleBlock(editorRoadmap, module, isEditing)).join("") : emptyState("No modules yet. Use the roadmap editor to add the first module.")}
       </div>
 
       ${isEditing ? `
         <div class="quick-add footer-add">
-          <input type="text" id="new-module-title-${roadmap.id}" placeholder="New module, e.g. Graphs" />
-          <button class="primary-button" type="button" data-career-add="module" data-roadmap-id="${roadmap.id}">Add module</button>
+          <input type="text" id="new-module-title-${editorRoadmap.id}" placeholder="New module, e.g. Graphs" />
+          <button class="primary-button" type="button" data-career-add="module" data-roadmap-id="${editorRoadmap.id}">Add module</button>
         </div>
       ` : ""}
     </section>
@@ -5374,6 +7768,8 @@ function renderRoadmapDetail(roadmap) {
 
 function renderModuleBlock(roadmap, module, isEditing) {
   const stats = getModuleStats(module);
+  const difficulty = Number(module.difficulty || 0);
+  const deadline = getModuleDeadlineState(module);
   return `
     <article class="module-block">
       <div class="module-header">
@@ -5383,8 +7779,16 @@ function renderModuleBlock(roadmap, module, isEditing) {
             : careerTextBlock("Module", module.title, "compact")}
           <p class="meta">${stats.percent}% - ${stats.done}/${stats.total} checks</p>
         </div>
-        ${isEditing ? `<button class="icon-button" type="button" title="Delete module" data-career-delete="module" data-roadmap-id="${roadmap.id}" data-module-id="${module.id}">X</button>` : ""}
+        ${isEditing ? `<button class="icon-button danger-icon" type="button" title="Delete module" aria-label="Delete module" data-career-delete="module" data-roadmap-id="${roadmap.id}" data-module-id="${module.id}">${careerIcon("trash")}</button>` : ""}
       </div>
+      ${isEditing ? `<div class="module-deadline-editor"><label for="module-target-${module.id}"><span>Module deadline</span><input id="module-target-${module.id}" type="date" value="${escapeHtml(module.targetDate || "")}" data-career-field="targetDate" data-roadmap-id="${roadmap.id}" data-module-id="${module.id}" /></label><p>Date the module, not every checklist item. Completion is recorded automatically.</p></div>` : deadline.targetDate ? `<div class="module-deadline-summary state-${deadline.key}"><span>${formatDateKey(deadline.targetDate)}</span><strong>${escapeHtml(deadline.label)}</strong><small>${deadline.score === null ? `${stats.percent}% complete` : `${deadline.score}/100 delivery score`}</small></div>` : ""}
+      ${module.goal || module.pattern || difficulty ? `
+        <div class="career-phase-brief">
+          ${module.pattern ? `<span class="career-phase-pattern">${escapeHtml(module.pattern)}</span>` : ""}
+          ${difficulty ? `<span class="career-phase-difficulty">Difficulty ${difficulty}/100</span>` : ""}
+          ${module.goal ? `<p>${escapeHtml(module.goal)}</p>` : ""}
+        </div>
+      ` : ""}
       <span class="progress-track"><span style="width: ${stats.percent}%"></span></span>
 
       <div class="topic-list">
@@ -5403,6 +7807,7 @@ function renderModuleBlock(roadmap, module, isEditing) {
 
 function renderTopicBlock(roadmap, module, topic, isEditing) {
   const stats = getTopicStats(topic);
+  const deadline = getTopicDeadlineState(topic);
   return `
     <article class="topic-block">
       <div class="topic-header">
@@ -5420,11 +7825,12 @@ function renderTopicBlock(roadmap, module, topic, isEditing) {
                   .map((option) => `<option value="${option}" ${topic.confidence === option ? "selected" : ""}>${option}</option>`)
                   .join("")}
               </select>
-              <button class="icon-button" type="button" title="Delete topic" data-career-delete="topic" data-roadmap-id="${roadmap.id}" data-module-id="${module.id}" data-topic-id="${topic.id}">X</button>
+              <button class="icon-button danger-icon" type="button" title="Delete topic" aria-label="Delete topic" data-career-delete="topic" data-roadmap-id="${roadmap.id}" data-module-id="${module.id}" data-topic-id="${topic.id}">${careerIcon("trash")}</button>
             `
             : `<span class="chip blue">${escapeHtml(topic.confidence)}</span>`}
         </div>
       </div>
+      ${isEditing ? `<div class="topic-deadline-editor"><label for="topic-target-${topic.id}"><span>Topic deadline</span><input id="topic-target-${topic.id}" type="date" value="${escapeHtml(topic.targetDate || "")}" data-career-field="targetDate" data-roadmap-id="${roadmap.id}" data-module-id="${module.id}" data-topic-id="${topic.id}" /></label><small>${stats.total} checklist item${stats.total === 1 ? "" : "s"}</small></div>` : deadline.targetDate ? `<div class="topic-deadline-summary state-${deadline.key}"><span>${formatDateKey(deadline.targetDate)}</span><strong>${escapeHtml(deadline.label)}</strong><small>${deadline.score === null ? `${stats.percent}% complete` : `${deadline.score}/100`}</small></div>` : ""}
       <span class="progress-track slim"><span style="width: ${stats.percent}%"></span></span>
 
       <div class="checklist-list">
@@ -5442,13 +7848,28 @@ function renderTopicBlock(roadmap, module, topic, isEditing) {
 }
 
 function renderChecklistItem(roadmap, module, topic, item, isEditing) {
+  if (isEditing) {
+    return `
+      <div class="check-item checklist-editor-row ${item.done ? "is-done" : ""}">
+        <input type="checkbox" ${item.done ? "checked" : ""} data-career-check="${item.id}" data-roadmap-id="${roadmap.id}" data-module-id="${module.id}" data-topic-id="${topic.id}" />
+        <input
+          type="text"
+          value="${escapeHtml(item.text)}"
+          data-career-field="text"
+          data-roadmap-id="${roadmap.id}"
+          data-module-id="${module.id}"
+          data-topic-id="${topic.id}"
+          data-check-id="${item.id}"
+        />
+        <button class="icon-button danger-icon" type="button" title="Delete check" aria-label="Delete check" data-career-delete="checklist" data-roadmap-id="${roadmap.id}" data-module-id="${module.id}" data-topic-id="${topic.id}" data-check-id="${item.id}">${careerIcon("trash")}</button>
+      </div>
+    `;
+  }
+
   return `
-    <label class="check-item ${isEditing ? "" : "read-only"} ${item.done ? "is-done" : ""}">
+    <label class="check-item read-only ${item.done ? "is-done" : ""}">
       <input type="checkbox" ${item.done ? "checked" : ""} data-career-check="${item.id}" data-roadmap-id="${roadmap.id}" data-module-id="${module.id}" data-topic-id="${topic.id}" />
-      ${isEditing
-        ? `<input type="text" value="${escapeHtml(item.text)}" data-career-field="text" data-roadmap-id="${roadmap.id}" data-module-id="${module.id}" data-topic-id="${topic.id}" data-check-id="${item.id}" />`
-        : `<span class="check-text">${escapeHtml(item.text)}</span>`}
-      ${isEditing ? `<button class="icon-button" type="button" title="Delete check" data-career-delete="checklist" data-roadmap-id="${roadmap.id}" data-module-id="${module.id}" data-topic-id="${topic.id}" data-check-id="${item.id}">X</button>` : ""}
+      <span class="check-text">${escapeHtml(item.text)}</span>
     </label>
   `;
 }
@@ -5846,22 +8267,22 @@ function addCareerItem(type, dataset) {
   }
 
   if (type === "module") {
-    const roadmap = findRoadmap(dataset.roadmapId);
+    const { roadmap } = getCareerEditorRoadmap(dataset.roadmapId);
     const title = getInputValue(`new-module-title-${dataset.roadmapId}`);
     if (!roadmap || !title) return;
-    roadmap.modules.push({ id: createId(), title, topics: [] });
+    roadmap.modules.push({ id: createId(), title, targetDate: "", completedAt: "", topics: [] });
   }
 
   if (type === "topic") {
-    const roadmap = findRoadmap(dataset.roadmapId);
+    const { roadmap } = getCareerEditorRoadmap(dataset.roadmapId);
     const module = findModule(roadmap, dataset.moduleId);
     const title = getInputValue(`new-topic-title-${dataset.moduleId}`);
     if (!module || !title) return;
-    module.topics.push({ id: createId(), title, confidence: "Low", checklist: [] });
+    module.topics.push({ id: createId(), title, confidence: "Low", targetDate: "", completedAt: "", checklist: [] });
   }
 
   if (type === "checklist") {
-    const roadmap = findRoadmap(dataset.roadmapId);
+    const { roadmap } = getCareerEditorRoadmap(dataset.roadmapId);
     const module = findModule(roadmap, dataset.moduleId);
     const topic = findTopic(module, dataset.topicId);
     const title = getInputValue(`new-check-title-${dataset.topicId}`);
@@ -5869,15 +8290,17 @@ function addCareerItem(type, dataset) {
     topic.checklist.push({ id: createId(), text: title, done: false });
   }
 
-  saveCareer();
+  if (editingCareerRoadmapId !== dataset.roadmapId) {
+    saveCareer();
+  }
   render();
 }
 
 function updateCareerField(dataset, field, value) {
-  const roadmap = findRoadmap(dataset.roadmapId);
+  const { roadmap, isDraft } = getCareerEditorRoadmap(dataset.roadmapId);
   if (!roadmap) return;
-  const nextValue = field === "title" ? value.trim() : value;
-  if (field === "title" && !nextValue) return;
+  const nextValue = field === "title" && !isDraft ? value.trim() : value;
+  if (field === "title" && !isDraft && !nextValue) return;
 
   if (!dataset.moduleId) {
     roadmap[field] = nextValue;
@@ -5899,18 +8322,20 @@ function updateCareerField(dataset, field, value) {
     }
   }
 
-  saveCareer();
+  if (!isDraft) {
+    saveCareer();
+  }
 }
 
 function toggleCareerCheck(dataset, checked) {
-  const roadmap = findRoadmap(dataset.roadmapId);
+  const { roadmap, isDraft } = getCareerEditorRoadmap(dataset.roadmapId);
   const module = findModule(roadmap, dataset.moduleId);
   const topic = findTopic(module, dataset.topicId);
   const check = topic?.checklist.find((item) => item.id === dataset.careerCheck);
   if (!check) return;
 
   check.done = checked;
-  if (checked) {
+  if (checked && !isDraft) {
     logCareerAction({
       roadmapId: roadmap.id,
       roadmapTitle: roadmap.title,
@@ -5920,7 +8345,45 @@ function toggleCareerCheck(dataset, checked) {
       checkText: check.text,
     });
   }
-  saveCareer();
+  if (!isDraft) {
+    const topicStats = getTopicStats(topic);
+    if (topicStats.total > 0 && topicStats.done === topicStats.total && !topic.completedAt) {
+      topic.completedAt = new Date().toISOString();
+      logCareerAction({
+        eventType: "topic-complete",
+        roadmapId: roadmap.id,
+        roadmapTitle: roadmap.title,
+        moduleId: module.id,
+        moduleTitle: module.title,
+        topicId: topic.id,
+        topicTitle: topic.title,
+        checkId: `topic:${topic.id}`,
+        checkText: `${topic.title} completed${topic.targetDate && toDateKey() <= topic.targetDate ? " on time" : ""}`,
+        targetDate: topic.targetDate || "",
+      });
+    } else if (topicStats.done < topicStats.total && topic.completedAt) {
+      topic.completedAt = "";
+    }
+    const moduleStats = getModuleStats(module);
+    if (moduleStats.total > 0 && moduleStats.done === moduleStats.total && !module.completedAt) {
+      module.completedAt = new Date().toISOString();
+      logCareerAction({
+        eventType: "module-complete",
+        roadmapId: roadmap.id,
+        roadmapTitle: roadmap.title,
+        moduleId: module.id,
+        moduleTitle: module.title,
+        checkId: `module:${module.id}`,
+        checkText: `${module.title} completed${module.targetDate && toDateKey() <= module.targetDate ? " on time" : ""}`,
+        targetDate: module.targetDate || "",
+      });
+    } else if (moduleStats.done < moduleStats.total && module.completedAt) {
+      module.completedAt = "";
+    }
+  }
+  if (!isDraft) {
+    saveCareer();
+  }
   render();
 }
 
@@ -5940,28 +8403,31 @@ function logCareerAction(details) {
 
 function deleteCareerItem(type, dataset) {
   if (type === "roadmap") {
+    if (!window.confirm("Delete this roadmap? This cannot be undone.")) return;
     careerState.roadmaps = careerState.roadmaps.filter((roadmap) => roadmap.id !== dataset.roadmapId);
     selectedRoadmapId = careerState.roadmaps[0]?.id ?? null;
     if (editingCareerRoadmapId === dataset.roadmapId) {
       editingCareerRoadmapId = null;
+      careerEditorDraft = null;
+      careerEditorNotice = "";
     }
   }
 
   if (type === "module") {
-    const roadmap = findRoadmap(dataset.roadmapId);
+    const { roadmap } = getCareerEditorRoadmap(dataset.roadmapId);
     if (!roadmap) return;
     roadmap.modules = roadmap.modules.filter((module) => module.id !== dataset.moduleId);
   }
 
   if (type === "topic") {
-    const roadmap = findRoadmap(dataset.roadmapId);
+    const { roadmap } = getCareerEditorRoadmap(dataset.roadmapId);
     const module = findModule(roadmap, dataset.moduleId);
     if (!module) return;
     module.topics = module.topics.filter((topic) => topic.id !== dataset.topicId);
   }
 
   if (type === "checklist") {
-    const roadmap = findRoadmap(dataset.roadmapId);
+    const { roadmap } = getCareerEditorRoadmap(dataset.roadmapId);
     const module = findModule(roadmap, dataset.moduleId);
     const topic = findTopic(module, dataset.topicId);
     if (!topic) return;
@@ -5971,7 +8437,9 @@ function deleteCareerItem(type, dataset) {
   if (editingCareerRoadmapId && !findRoadmap(editingCareerRoadmapId)) {
     editingCareerRoadmapId = null;
   }
-  saveCareer();
+  if (editingCareerRoadmapId !== dataset.roadmapId || type === "roadmap") {
+    saveCareer();
+  }
   render();
 }
 
@@ -6067,10 +8535,6 @@ async function unlockSecurity() {
   }
   if (await isPersonalCredential(pass)) {
     enterProfile("personal", "");
-    return;
-  }
-  if (pass === DEMO_PROFILE_PIN) {
-    enterProfile("demo", "Demo profile opened.");
     return;
   }
   setSecurityNotice("That PIN or passphrase is not correct.");
@@ -6622,7 +9086,13 @@ document.addEventListener("keydown", async (event) => {
 
 document.addEventListener("click", async (event) => {
   const target = event.target;
-  if (!(target instanceof HTMLElement)) return;
+  if (!(target instanceof Element)) return;
+
+  const inlinePageButton = target.closest(".progress-career-band [data-page]");
+  if (inlinePageButton) {
+    setPage(inlinePageButton.dataset.page);
+    return;
+  }
 
   const securityAction = target.closest("[data-security-action]");
   if (securityAction) {
@@ -6664,6 +9134,135 @@ document.addEventListener("click", async (event) => {
     }
     if (settingsAction.dataset.settingsAction === "reset-app") {
       resetAppData();
+    }
+    return;
+  }
+
+  const syncAction = target.closest("[data-sync-action]");
+  if (syncAction) {
+    if (syncAction.dataset.syncAction === "safe-refresh") {
+      await refreshCloudData();
+      return;
+    }
+    if (syncAction.dataset.syncAction === "readiness-check") {
+      runSyncReadinessCheck();
+    }
+    if (syncAction.dataset.syncAction === "dry-run") {
+      runSyncDryRun();
+    }
+    if (syncAction.dataset.syncAction === "create-account") {
+      await createSupabaseAccount();
+    }
+    if (syncAction.dataset.syncAction === "sign-in") {
+      await signInSupabaseWithPassword();
+    }
+    if (syncAction.dataset.syncAction === "resend-confirmation") {
+      await resendSupabaseConfirmation();
+    }
+    if (syncAction.dataset.syncAction === "sign-out") {
+      await signOutSupabase();
+    }
+    if (syncAction.dataset.syncAction === "push-cloud") {
+      await pushToSupabase();
+    }
+    if (syncAction.dataset.syncAction === "pull-cloud") {
+      await pullFromSupabase();
+    }
+    if (syncAction.dataset.syncAction === "assistant-token") await issueAssistantToken();
+    if (syncAction.dataset.syncAction === "assistant-revoke") await revokeAssistantTokens();
+    if (syncAction.dataset.syncAction === "assistant-copy" && assistantTokenOnce) {
+      await navigator.clipboard.writeText(assistantTokenOnce);
+      syncNotice = "Assistant token copied. Keep it in a private credential store, not GitHub.";
+      render();
+    }
+    return;
+  }
+
+  const behaviorAction = target.closest("[data-behavior-action]");
+  if (behaviorAction) {
+    const actionName = behaviorAction.dataset.behaviorAction;
+    if (actionName === "start-focus") startBehaviorFocus(Number(behaviorAction.dataset.minutes || 25), behaviorAction.dataset.mode || "BUILD");
+    if (actionName === "pause-focus" && activeFocus) {
+      if (activeFocus.paused) {
+        activeFocus.pausedMilliseconds += Date.now() - new Date(activeFocus.pausedAt).getTime();
+        activeFocus.pausedAt = null;
+        activeFocus.paused = false;
+      } else {
+        activeFocus.pausedAt = new Date().toISOString();
+        activeFocus.paused = true;
+      }
+      renderBehaviorFocus();
+    }
+    if (actionName === "complete-focus") completeBehaviorFocus();
+    if (actionName === "cancel-focus") {
+      clearInterval(focusTicker);
+      activeFocus = null;
+      renderBehaviorFocus();
+    }
+    if (actionName === "complete-outcome") {
+      const plan = getDailyPlan();
+      if (!plan.outcomeCompletedAt) {
+        plan.outcomeCompletedAt = new Date().toISOString();
+        awardBehaviorPoints("main_outcome", 12, toDateKey());
+        saveBehavior();
+      }
+      renderBehaviorToday();
+    }
+    if (actionName === "open-urge") openRedirectFlow("urge");
+    if (actionName === "open-distraction") openRedirectFlow("distraction");
+    if (actionName === "open-slip") openRedirectFlow("slip");
+    if (actionName === "open-rescue") openRedirectFlow("rescue");
+    if (actionName === "redirect-next" && redirectFlow) {
+      redirectFlow.step += 1;
+      renderBehaviorRedirect();
+    }
+    if (actionName === "complete-redirect") completeRedirect();
+    if (actionName === "rescue-choice") {
+      const choice = behaviorAction.dataset.choice || "Reset";
+      redirectFlow = null;
+      if (choice === "Work 5 min") startBehaviorFocus(5, "BUILD");
+      else {
+        getBehavior().sessions.push({ id: createId(), date: toDateKey(), mode: "RESCUE", title: choice, minutes: 0, completed: true, completedAt: new Date().toISOString() });
+        saveBehavior();
+        setPage("today");
+      }
+    }
+    if (actionName === "add-reward") {
+      const title = document.querySelector("#reward-title")?.value.trim();
+      const cost = Number(document.querySelector("#reward-cost")?.value || 0);
+      if (title && cost > 0) {
+        getBehavior().rewards.push({ id: createId(), title, cost, active: true });
+        saveBehavior();
+        renderBehaviorRewards();
+      }
+    }
+    if (actionName === "redeem-reward") {
+      const reward = getBehavior().rewards.find((item) => item.id === behaviorAction.dataset.rewardId);
+      if (reward && getPointBalance() >= reward.cost) {
+        getBehavior().redemptions.push({ id: createId(), rewardId: reward.id, title: reward.title, cost: reward.cost, createdAt: new Date().toISOString() });
+        saveBehavior();
+        renderBehaviorRewards();
+      }
+    }
+    if (actionName === "ship-artifact") {
+      const project = getBehavior().project;
+      const title = project.weeklyOutput.trim() || project.title.trim();
+      if (title) {
+        const artifact = { id: createId(), title, date: toDateKey(), createdAt: new Date().toISOString() };
+        project.artifacts.push(artifact);
+        project.status = "SHIPPED";
+        awardBehaviorPoints("artifact", 8, artifact.id);
+        saveBehavior();
+        renderBehaviorProject();
+      }
+    }
+    if (actionName === "save-review") {
+      const key = getWeekKey();
+      const fields = {};
+      document.querySelectorAll("[data-review-field]").forEach((input) => { fields[input.dataset.reviewField] = input.value.trim(); });
+      getBehavior().weeklyReviews[key] = { ...fields, savedAt: new Date().toISOString() };
+      saveBehavior();
+      renderBehaviorReview();
     }
     return;
   }
@@ -6790,10 +9389,30 @@ document.addEventListener("click", async (event) => {
 
   const careerEditToggle = target.closest("[data-career-edit-toggle]");
   if (careerEditToggle) {
-    const roadmapId = careerEditToggle.dataset.careerEditToggle;
-    editingCareerRoadmapId = editingCareerRoadmapId === roadmapId ? null : roadmapId;
-    selectedRoadmapId = roadmapId || selectedRoadmapId;
-    render();
+    startCareerEditor(careerEditToggle.dataset.careerEditToggle);
+    return;
+  }
+
+  const careerScroll = target.closest("[data-career-scroll]");
+  if (careerScroll) {
+    const targets = {
+      current: "#career-current-focus",
+      deadlines: "#career-deadlines",
+      portfolio: "#career-portfolio",
+      detail: "#career-roadmap-detail",
+    };
+    document.querySelector(targets[careerScroll.dataset.careerScroll] || targets.current)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
+
+  const careerEditorAction = target.closest("[data-career-editor-action]");
+  if (careerEditorAction) {
+    if (careerEditorAction.dataset.careerEditorAction === "save") {
+      saveCareerEditor();
+    }
+    if (careerEditorAction.dataset.careerEditorAction === "cancel") {
+      cancelCareerEditor();
+    }
     return;
   }
 
@@ -6801,6 +9420,8 @@ document.addEventListener("click", async (event) => {
   if (roadmapSelect) {
     selectedRoadmapId = roadmapSelect.dataset.careerSelectRoadmap;
     editingCareerRoadmapId = null;
+    careerEditorDraft = null;
+    careerEditorNotice = "";
     render();
     return;
   }
@@ -6866,17 +9487,38 @@ document.addEventListener("click", async (event) => {
 
 document.addEventListener("change", (event) => {
   const target = event.target;
-  if (!(target instanceof HTMLInputElement || target instanceof HTMLSelectElement)) return;
+  if (!(target instanceof HTMLInputElement || target instanceof HTMLSelectElement || target instanceof HTMLTextAreaElement)) return;
   if (target.dataset.settingsImport !== undefined) {
     importBackupFile(target.files?.[0]);
     target.value = "";
     return;
   }
 
+  if (target.dataset.behaviorAnchor && target instanceof HTMLInputElement) {
+    const plan = getDailyPlan();
+    const field = target.dataset.behaviorAnchor;
+    plan[field] = target.checked;
+    if (target.checked) {
+      const points = { morningProtected: 4, workoutDone: 6, sadhanaDone: 4, shutdownDone: 2 }[field] || 0;
+      awardBehaviorPoints(field, points, `${toDateKey()}:${field}`);
+    }
+    saveBehavior();
+    renderBehaviorToday();
+    return;
+  }
+
+  if (target.dataset.redirectField && redirectFlow) {
+    redirectFlow[target.dataset.redirectField] = target.dataset.redirectField === "intensity" ? Number(target.value) : target.value;
+    return;
+  }
+
   const careerField = target.dataset.careerField;
   if (careerField) {
     updateCareerField(target.dataset, careerField, target.value);
-    render();
+    const isDraftEdit = editingCareerRoadmapId === target.dataset.roadmapId && careerEditorDraft?.id === target.dataset.roadmapId;
+    if (!isDraftEdit) {
+      render();
+    }
     return;
   }
 
@@ -6897,6 +9539,28 @@ document.addEventListener("change", (event) => {
 document.addEventListener("input", (event) => {
   const target = event.target;
   if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement)) {
+    return;
+  }
+
+  if (target.dataset.behaviorPlan) {
+    const plan = getDailyPlan();
+    plan[target.dataset.behaviorPlan] = target.value;
+    plan.updatedAt = new Date().toISOString();
+    saveBehavior();
+    return;
+  }
+
+  if (target.dataset.behaviorSupport !== undefined) {
+    const plan = getDailyPlan();
+    plan.supportTasks[Number(target.dataset.behaviorSupport)] = target.value;
+    plan.updatedAt = new Date().toISOString();
+    saveBehavior();
+    return;
+  }
+
+  if (target.dataset.projectField) {
+    getBehavior().project[target.dataset.projectField] = target.value;
+    saveBehavior();
     return;
   }
 
@@ -7072,6 +9736,30 @@ document.addEventListener("input", (event) => {
 });
 
 if (isSecurityUnlocked) touchSecuritySession(true);
+applyConfirmedHistoricalRewardReviews();
+const covenantExtensionNeeded = !isDemoMode()
+  && Number(taskState.life?.innerCommand?.covenant?.days || 0) < 55;
+if (covenantExtensionNeeded) {
+  lifeStore();
+  saveTasks();
+}
 render();
 renderSecurityOverlay();
 resetLockTimer();
+refreshSyncAuthState({ silent: true }).then(async (session) => {
+  if (currentPage === "settings") render();
+  const recovery = await refreshCloudData({ automatic: true });
+  if (session && pendingCareerMigrationSync && !recovery.conflicts && !recovery.error) scheduleCareerCloudSync();
+  startCloudFreshnessMonitor(session).catch((error) => console.warn("KRYOS live freshness monitor unavailable.", error));
+});
+window.addEventListener("pageshow", (event) => {
+  if (event.persisted) window.location.reload();
+  else if (document.visibilityState === "visible") refreshCloudData({ automatic: true });
+});
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState !== "visible") return;
+  const lastAttempt = new Date(syncState.lastAttemptAt || 0).getTime();
+  if (Date.now() - lastAttempt > 5000) refreshCloudData({ automatic: true });
+});
+if (isSecurityUnlocked && typeof openAssistantImportFromHash === "function") openAssistantImportFromHash();
+if (isSecurityUnlocked && typeof consumeBundledAssistantImports === "function") consumeBundledAssistantImports();

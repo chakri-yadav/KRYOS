@@ -53,6 +53,7 @@ Owns:
 - career activity log
 
 Career activity is logged when a roadmap checklist item is completed.
+That event is consumed by both Career analytics and the reviewed reward engine; the checklist event remains the source of truth.
 
 ## Tasks
 
@@ -74,6 +75,17 @@ Owns:
 - habit measurements
 
 Tasks power Today, Habits, and parts of Progress.
+
+The active KRYOS experience also stores these coordinated feature domains inside the task block:
+
+- Inner Command journal evidence and containment reviews
+- Action Vault commitments
+- Career Launch exposure and interview rehearsal
+- Rhythm health, care, and spiritual events
+- Money responsibility records
+- reviewed reward assessments and redemption requests
+
+Keeping these domains in one block makes a user action, its analytics, and its reward evidence move together during cloud synchronization. Career roadmaps remain a separate block because they are larger and have their own editing lifecycle.
 
 ## Journal
 

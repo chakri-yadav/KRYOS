@@ -27,7 +27,7 @@ Target version: `0.002.x`
 - Keep active-profile backup/import/reset behavior.
 - Prevent personal data from leaking into demo exports.
 
-Status: shipped in `0.002.001`; demo polish remains in Phase 5.
+Status: hardened in `0.002.002`; demo polish remains in Phase 5.
 
 ## Phase 3 - Free Sync Foundation
 
@@ -40,7 +40,7 @@ Target version: `0.003.x`
 - Add last-synced status.
 - Keep secrets out of sync until the security model is clear.
 
-Status: planned.
+Status: foundation delivered in `0.003.000`; real Supabase connection and cross-device testing remain.
 
 ## Phase 4 - Daily Operating System Refinement
 
