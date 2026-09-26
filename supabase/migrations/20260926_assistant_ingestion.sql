@@ -202,23 +202,3 @@ begin
 end $$;
 revoke all on function public.kryos_apply_assistant_request(uuid,text,text,date,text,text,jsonb,jsonb,jsonb,jsonb,bigint,bigint) from public, anon, authenticated;
 grant execute on function public.kryos_apply_assistant_request(uuid,text,text,date,text,text,jsonb,jsonb,jsonb,jsonb,bigint,bigint) to service_role;
-
--- Require revision-checked RPC writes for the two blocks the assistant touches.
-drop policy if exists "kryos_sync_blocks_insert_own" on public.kryos_sync_blocks;
-create policy "kryos_sync_blocks_insert_own" on public.kryos_sync_blocks for insert to authenticated
-with check (block_key not in ('tasks', 'career') and exists (
-  select 1 from public.kryos_profiles p where p.id = profile_id and p.user_id = auth.uid()
-));
-drop policy if exists "kryos_sync_blocks_update_own" on public.kryos_sync_blocks;
-create policy "kryos_sync_blocks_update_own" on public.kryos_sync_blocks for update to authenticated
-using (block_key not in ('tasks', 'career') and exists (
-  select 1 from public.kryos_profiles p where p.id = profile_id and p.user_id = auth.uid()
-))
-with check (block_key not in ('tasks', 'career') and exists (
-  select 1 from public.kryos_profiles p where p.id = profile_id and p.user_id = auth.uid()
-));
-drop policy if exists "kryos_sync_blocks_delete_own" on public.kryos_sync_blocks;
-create policy "kryos_sync_blocks_delete_own" on public.kryos_sync_blocks for delete to authenticated
-using (block_key not in ('tasks', 'career') and exists (
-  select 1 from public.kryos_profiles p where p.id = profile_id and p.user_id = auth.uid()
-));
