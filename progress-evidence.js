@@ -16,6 +16,10 @@ function collectProgressEvidence(life, tasks, career, today) {
     add(`rhythm:${e.id}`, e.date, 'Rhythm', `${habit?.title || e.habitId}${habit?.unit ? ` · ${e.value} ${habit.unit}` : ''}`, 'Rhythm', Number(e.value) > 0);
   });
   (tasks.money?.contacts || []).forEach(e => add(`money:${e.id}`, e.date, 'Money', 'Financial follow-up', 'Money'));
+  (life.entries || []).forEach(e => {
+    const text = String(e.text || e.body || e.note || '').trim();
+    add(`journal-entry:${e.id || e.date}`, e.date, 'Journal', 'Journal recorded', 'Journal', Boolean(text || e.date));
+  });
   (life.records || []).forEach(e => {
     const action = e.actionRef && (life.actions || []).find(a => a.id === e.actionRef || a.externalId === e.actionRef);
     const ref = e.sourceRef || (action ? `action:${action.externalId || action.id}` : e.actionRef ? `action:${e.actionRef}` : '');

@@ -12,8 +12,24 @@ function progressShortDate(key, options = { month: 'short', day: 'numeric' }) {
   return new Date(`${key}T12:00:00`).toLocaleDateString(undefined, options);
 }
 
+function progressEvidenceRows() {
+  if (progressEvidence.length) return progressEvidence;
+  return (lifeStore().records || [])
+    .filter(record => record.completed && record.date)
+    .map((record, index) => ({
+      id: record.id || `record:${record.date}:${index}`,
+      date: record.date,
+      domain: record.domain || 'Journal',
+      title: record.title || record.note || 'Recorded progress',
+      source: record.source || 'Journal',
+      completed: true,
+    }));
+}
+
 function journalProgressDays() {
-  return [...new Set(progressEvidence.map(entry => entry.date))].sort();
+  const entryDays = (lifeStore().entries || []).map(entry => entry.date).filter(Boolean);
+  const evidenceDays = progressEvidenceRows().map(entry => entry.date);
+  return [...new Set([...entryDays, ...evidenceDays])].sort();
 }
 
 function journalProgressStreak() {
@@ -33,7 +49,7 @@ function journalProgressStreak() {
 }
 
 function progressRecords(key, metric = progressMetric) {
-  const records = progressEvidence.filter(record => record.date === key);
+  const records = progressEvidenceRows().filter(record => record.date === key);
   return metric === 'all' ? records : records.filter(record => record.domain === metric);
 }
 
@@ -86,7 +102,7 @@ function momentumDial(percent) {
 
 function bestDayRecord() {
   const counts = new Map();
-  progressEvidence.forEach(record => counts.set(record.date, (counts.get(record.date) || 0) + 1));
+  progressEvidenceRows().forEach(record => counts.set(record.date, (counts.get(record.date) || 0) + 1));
   return [...counts.entries()].sort((a, b) => b[1] - a[1] || b[0].localeCompare(a[0]))[0] || ['', 0];
 }
 
