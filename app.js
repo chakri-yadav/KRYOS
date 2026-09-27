@@ -15,11 +15,11 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.6.0";
-const APP_STAGE = "Assistant Capture and Safe Sync";
-const APP_RELEASE_DATE = "2026-09-25";
-const APP_STATUS = "Fresh cloud reads with containment extended through November 12";
-const APP_NEXT_MILESTONE = "Set realistic Core deadlines module by module";
+const APP_VERSION = "0.7.0";
+const APP_STAGE = "Devi Sadhana and Automatic Rewards";
+const APP_RELEASE_DATE = "2026-09-26";
+const APP_STATUS = "48-day Devi Sadhana, rule-versioned rewards, and assistant evidence capture are active";
+const APP_NEXT_MILESTONE = "Premium evidence visuals for Actions, Rhythm, Progress, and Rewards";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
   "Added cache-free cloud reads and a refresh check on every visible page show.",
@@ -4194,7 +4194,7 @@ function renderCareerView() {
         <strong>${stats.progress}<small>%</small></strong>
         <em>${stats.doneItems} of ${stats.totalItems} evidence steps</em>
       </div>
-      <div class="career-command-stat"><span>This week</span><strong>${qualifiedDays}<small>/4 days</small></strong><em>${stats.weekActions} completed steps</em></div>
+      <div class="career-command-stat"><span>This week</span><strong>${qualifiedDays}<small>/5 days</small></strong><em>${stats.weekActions} completed steps</em></div>
       <div class="career-command-stat"><span>Current rhythm</span><strong>${stats.currentStreak}<small> days</small></strong><em>Personal best ${stats.bestStreak}</em></div>
     </header>
 
@@ -4206,7 +4206,7 @@ function renderCareerView() {
     </nav>
 
     <section class="career-section career-week-section">
-      <div class="career-section-head"><div><p class="section-kicker">Weekly pulse</p><h2>Four useful days, not seven perfect days.</h2></div><span class="career-target ${qualifiedDays >= 4 ? "is-met" : ""}">${qualifiedDays >= 4 ? "Target reached" : `${4 - qualifiedDays} days to target`}</span></div>
+      <div class="career-section-head"><div><p class="section-kicker">Weekly pulse</p><h2>Five useful days, with room to return.</h2></div><span class="career-target ${qualifiedDays >= 5 ? "is-met" : ""}">${qualifiedDays >= 5 ? "Target reached" : `${5 - qualifiedDays} days to target`}</span></div>
       <div class="career-week-pulse">${week.map(renderCareerPulseDay).join("")}</div>
     </section>
 
