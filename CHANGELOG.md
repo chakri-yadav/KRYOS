@@ -2,6 +2,11 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.11.1 - Dated journal activity evidence
+
+- Added a dedicated dated-evidence record for completed journal activity that must appear in Progress and Rewards without becoming an unfinished Action Vault commitment.
+- Important and critical dated evidence can earn bounded responsibility credit under the same daily cap as Actions.
+
 ## 0.11.0 - Evidence integrity and focused rewards
 
 - Prevented past journal activity from being created as a new Action Vault commitment without explicit unfinished-action evidence.
