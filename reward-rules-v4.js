@@ -1,6 +1,8 @@
 /* Shared deterministic rules: browser preview and cloud calculation use this file. */
 (function(root) {
-  const start = '2026-09-29';
+  // One earning standard for every recorded KRYOS day. The original assessments
+  // remain archived in the Personal task block for an auditable comparison.
+  const start = '0001-01-01';
   const categories = {
     career:{title:'Career',cap:18}, launch:{title:'Launch',cap:18},
     foundation:{title:'Nourishment',cap:24}, care:{title:'Skincare',cap:6},
@@ -28,6 +30,9 @@
   }
   function evaluate(date,tasks={},career={}) {
     const life=tasks.life||{},rhythm=list(tasks.rhythm?.events);
+    const records=list(life.records).filter(e=>e.date===date&&e.completed===true&&e.kind==='activity');
+    const recordText=e=>String(e.title||'').toLowerCase();
+    const named=(domain,pattern)=>records.some(e=>e.domain===domain&&pattern.test(recordText(e)));
     const buckets=Object.fromEntries(Object.keys(categories).map(k=>[k,[]]));
     const scores=Object.fromEntries(Object.keys(categories).map(k=>[k,0]));
     const seen=new Set();
@@ -39,15 +44,20 @@
       scores[lane]+=earned;buckets[lane].push({id,title,source,points:earned});
     };
     const value=id=>Math.max(0,Number(rhythm.find(e=>e.date===date&&e.habitId===id)?.value)||0);
-    const meals=['breakfast','lunch','dinner'].filter(id=>value(id)>0).length;
+    const meals=['breakfast','lunch','dinner'].filter(id=>value(id)>0||named('Food',new RegExp('\\b'+id+'\\b'))).length;
     if(meals>=2)add('foundation','meals:'+date,'Two meals','Rhythm',6);
-    if(value('protein'))add('foundation','protein:'+date,'Protein routine','Rhythm',6);
-    if(value('supplements'))add('foundation','supplements:'+date,'Supplement routine','Rhythm',4);
+    if(value('protein')||named('Food',/protein\s*(shake|drink)/))add('foundation','protein:'+date,'Protein routine','Rhythm',6);
+    if(value('supplements')||records.some(e=>e.domain==='Supplements'))add('foundation','supplements:'+date,'Supplement routine','Rhythm',4);
     const waterTarget=Math.max(.5,Number(tasks.rhythm?.settings?.waterTarget)||3);
     if(value('water')>=waterTarget)add('foundation','water:'+date,waterTarget+' L water','Rhythm',8);
-    const skincare=['face-wash','moisturizer','serum','eye-cream','sunscreen'].filter(id=>value(id)>0).length;
+    const skincarePatterns={'face-wash':/face\s*wash/,'moisturizer':/moisturiz|moisturis|\bcream\b/,'serum':/face\s*serum|(?<!eye\s)serum/,'eye-cream':/eye\s*(serum|cream)/,'sunscreen':/sun\s*screen|sunscreen/};
+    const skincare=Object.keys(skincarePatterns).filter(id=>value(id)>0||named('Skincare',skincarePatterns[id])).length;
     if(skincare>=2)add('care','care:'+date,'Two skincare steps','Rhythm',6);
-    const spirits=['pranayama','meditation','nama-japa','gita','aditya','chalisa'].filter(id=>value(id)>=(['aditya','chalisa'].includes(id)?3:1)).length;
+    const spiritPatterns={'pranayama':/pranayama|nadi\s*shodhana/,'meditation':/meditat/,'nama-japa':/nama\s*japa|naam\s*jap/,'gita':/bhagavad\s*gita|\bgita\b/,'aditya':/aditya\s*hridayam/,'chalisa':/hanuman\s*chalisa/};
+    const spirits=Object.keys(spiritPatterns).filter(id=>{
+      if(value(id)>=(['aditya','chalisa'].includes(id)?3:1))return true;
+      return records.some(e=>e.domain==='Spiritual practice'&&spiritPatterns[id].test(recordText(e))&&(!['aditya','chalisa'].includes(id)||/\b(?:3|three)\s*(?:times|rounds|x)?\b/i.test(recordText(e))));
+    }).length;
     if(spirits>=2)add('spiritual','spirit:'+date,spirits+' completed spiritual practices','Rhythm',spirits===2?6:spirits===3?8:10);
 
     // Only current completed checks count; repeated toggles and parent summaries cannot duplicate them.
@@ -59,7 +69,13 @@
       const key=`${e.roadmapId}:${e.checkId}`;
       if(!firstChecks.has(key))firstChecks.set(key,e);
     });
-    [...firstChecks].filter(([key,e])=>e.date===date&&checkMap.get(key)?.done===true).forEach(([key,e])=>add('career','career:'+key,e.checkText||'Completed supporting step','Career',6));
+    const completedChecks=[...firstChecks].filter(([key,e])=>e.date===date&&checkMap.get(key)?.done===true);
+    completedChecks.forEach(([key,e])=>add('career','career:'+key,e.checkText||'Completed supporting step','Career',6));
+    const careerTitles=new Set(completedChecks.map(([,e])=>String(e.checkText||'').trim().toLowerCase()));
+    records.filter(e=>e.domain==='Career'&&!e.actionRef&&!String(e.sourceRef||'').startsWith('career:')&&!/articulat|mock\s*interview|speaking\s*practice/i.test(recordText(e))).forEach(e=>{
+      const title=recordText(e).trim();if(careerTitles.has(title))return;careerTitles.add(title);
+      add('career',e.sourceRef||'career-record:'+e.id,e.title||'Completed Career evidence','Journal evidence',6);
+    });
     const marketSeen=new Set();
     list(tasks.launch?.marketEvents).slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(e=>{
       const note=String(e.note||'').trim();
@@ -72,7 +88,8 @@
       if(points)add('launch','launch:'+e.id,e.topic||e.note,'Launch',points);
     });
     const mocks=list(tasks.launch?.mockSessions).filter(e=>e.date===date&&(e.completed===true||Number(e.minutes)>0));
-    const level=mocks.some(e=>(e.level==='large'||e.serious===true)&&e.completed===true)?'large':mocks.some(e=>Number(e.minutes)>=10||e.level==='medium'&&e.completed===true)?'medium':mocks.length?'small':'';
+    const articulation=records.filter(e=>e.domain==='Career'&&/articulat|mock\s*interview|speaking\s*practice/i.test(recordText(e)));
+    const level=mocks.some(e=>(e.level==='large'||e.serious===true)&&e.completed===true)||articulation.some(e=>/serious\s*mock|full\s*mock/i.test(recordText(e)))?'large':mocks.some(e=>Number(e.minutes)>=10||e.level==='medium'&&e.completed===true)||articulation.some(e=>Number(e.minutes)>=10)?'medium':mocks.length||articulation.length?'small':'';
     if(level)add('articulation','articulation:'+date,level+' articulation','Launch',{small:2,medium:5,large:8}[level]);
 
     const contacts=list(tasks.money?.contacts).slice().sort((a,b)=>a.date.localeCompare(b.date)||String(a.createdAt).localeCompare(String(b.createdAt)));
@@ -92,8 +109,10 @@
     if(receipt)add('responsibility','receipt:'+receipt.id,'Received payment reconciled','Money',2);
     const actions=list(life.actions).filter(e=>e.status==='done'&&dayOf(e)===date&&['important','critical'].includes(e.priority));
     let onTimeBonus=false;
+    const actionTitles=new Set();
     actions.forEach(e=>{
       if(e.sourceRef?.startsWith('money:')||e.sourceRef?.startsWith('money-contact:'))return;
+      const title=String(e.title||'').trim().toLowerCase();if(actionTitles.has(title))return;actionTitles.add(title);
       add('responsibility','action:'+(e.externalId||e.id),e.title,'Actions',e.priority==='critical'?3:2);
       if(!onTimeBonus&&e.deadline&&date<=e.deadline){add('responsibility','on-time:'+date,'On-time responsibility','Actions',1);onTimeBonus=true;}
     });

@@ -45,3 +45,19 @@ test('catalogue prices and gates match the agreement',()=>{
   assert.equal(R.catalog.find(r=>r.id==='initiated-call').cost,100);assert.equal(R.catalog.find(r=>r.id==='movie').cost,90);
   assert.equal(R.catalog.find(r=>r.id==='movie').qualifiedDaysInWindow,5);
 });
+test('all historical reward dates share the same rules and completed journal facts remain eligible',()=>{
+  const old='2026-09-17';
+  const tasks={life:{dailyAssessments:[{date:old,ruleVersion:2,total:9}],records:[
+    {date:old,id:'career',domain:'Career',kind:'activity',completed:true,title:'Completed a lesson exercise'},
+    {date:old,id:'breakfast',domain:'Food',kind:'activity',completed:true,title:'Ate breakfast'},
+    {date:old,id:'lunch',domain:'Food',kind:'activity',completed:true,title:'Ate lunch'},
+    {date:old,id:'gita',domain:'Spiritual practice',kind:'activity',completed:true,title:'Read Bhagavad Gita'},
+  ]}};
+  assert.ok(R.dates(tasks,{},'2026-09-18').includes(old));
+  const review=R.evaluate(old,tasks,{});
+  assert.equal(review.ruleVersion,4);
+  assert.equal(review.scores.career,6);
+  assert.equal(review.scores.foundation,6);
+  assert.equal(review.qualified,false);
+  assert.equal(review.credits,2);
+});
