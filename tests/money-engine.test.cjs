@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const { test } = require('node:test');
-const { position, suggestInterest, cycleWeights, forecast } = require('../money-engine.js');
+const { position, suggestInterest, cycleWeights, forecast, statementSeries, statementSummary } = require('../money-engine.js');
 
 const opening = { friendCardCents: 70000, ownCardCents: 30000, directCents: 10000 };
 
@@ -52,4 +52,14 @@ test('forecast is provisional and requires a valid dated APR', () => {
   assert.equal(projection.days, 5);
   assert.equal(projection.estimated, true);
   assert.ok(projection.friendCents > projection.ownCents);
+});
+
+test('statement evidence deduplicates fingerprints and calculates pressure truthfully', () => {
+  const base = { cycleStart: '2026-01-01', cycleClose: '2026-01-31', paymentDueDate: '2026-02-20', closingBalanceCents: 300000, minimumDueCents: 10000, purchaseInterestCents: 50, promoInterestCents: 7000, purchaseAprBasisPoints: 2849, promoAprBasisPoints: 2849, balanceSubjectToInterestCents: 305000, sourceStatementHash: 'a'.repeat(64) };
+  const next = { ...base, cycleStart: '2026-02-01', cycleClose: '2026-02-28', closingBalanceCents: 290000, promoInterestCents: 6800, sourceStatementHash: 'b'.repeat(64) };
+  assert.equal(statementSeries([base, base, next]).length, 2);
+  const summary = statementSummary([base, next]);
+  assert.equal(summary.totalInterestCents, 13900);
+  assert.equal(summary.latest.cycleClose, '2026-02-28');
+  assert.ok(summary.payoffMonthsAtMinimum > 0);
 });

@@ -64,5 +64,35 @@
     const friendCents = estimate(positionValue.friendCardCents), ownCents = estimate(positionValue.ownCardCents);
     return { days, friendCents, ownCents, totalCents: friendCents + ownCents, estimated: true };
   }
-  return { position, suggestInterest, cycleWeights, forecast };
+  function normalizeStatementCycle(value) {
+    if (!value || !day(value.cycleClose) || !day(value.cycleStart)) return null;
+    const integerFields = ['closingBalanceCents', 'minimumDueCents', 'purchaseInterestCents', 'promoInterestCents', 'purchaseAprBasisPoints', 'promoAprBasisPoints', 'balanceSubjectToInterestCents'];
+    if (integerFields.some(key => !Number.isInteger(value[key]) || value[key] < 0)) return null;
+    if (value.paymentDueDate && !day(value.paymentDueDate)) return null;
+    const span = Math.round((Date.parse(value.cycleClose + 'T00:00:00Z') - Date.parse(value.cycleStart + 'T00:00:00Z')) / 86400000) + 1;
+    if (span < 1 || span > 45) return null;
+    return { ...value, totalInterestCents: value.purchaseInterestCents + value.promoInterestCents, cycleDays: span };
+  }
+  function statementSeries(cycles = []) {
+    const unique = new Map();
+    for (const raw of cycles) {
+      const cycle = normalizeStatementCycle(raw);
+      if (!cycle) continue;
+      const key = cycle.sourceStatementHash || `${cycle.cycleStart}:${cycle.cycleClose}:${cycle.closingBalanceCents}:${cycle.totalInterestCents}`;
+      unique.set(key, cycle);
+    }
+    return [...unique.values()].sort((a, b) => a.cycleClose.localeCompare(b.cycleClose));
+  }
+  function statementSummary(cycles = []) {
+    const series = statementSeries(cycles);
+    const latest = series.at(-1) || null;
+    const totalInterestCents = series.reduce((sum, item) => sum + item.totalInterestCents, 0);
+    const firstInterest = series.find(item => item.totalInterestCents > 0) || null;
+    const recent = series.slice(-3);
+    const recentAverageInterestCents = recent.length ? Math.round(recent.reduce((sum, item) => sum + item.totalInterestCents, 0) / recent.length) : 0;
+    const payoffMonthsAtMinimum = latest && latest.minimumDueCents > latest.totalInterestCents
+      ? Math.ceil(latest.closingBalanceCents / (latest.minimumDueCents - latest.totalInterestCents)) : null;
+    return { series, latest, firstInterest, totalInterestCents, recentAverageInterestCents, payoffMonthsAtMinimum };
+  }
+  return { position, suggestInterest, cycleWeights, forecast, normalizeStatementCycle, statementSeries, statementSummary };
 });

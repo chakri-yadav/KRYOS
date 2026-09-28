@@ -602,3 +602,8 @@ Date: 2026-07-06
 - Browser visual QA could not be completed inside the in-app browser sandbox for local URLs.
 - Free cloud sync is not implemented.
 - Personal/demo separation is not implemented yet.
+# 0.10.0 - Statement evidence and interest pressure
+
+- Added private, deduplicated statement-cycle ingestion through the assistant bridge.
+- Added premium balance, interest, APR, minimum-payment, and payoff-pressure visuals to Money.
+- Kept raw PDFs out of browser state and GitHub; only structured financial facts sync privately.
