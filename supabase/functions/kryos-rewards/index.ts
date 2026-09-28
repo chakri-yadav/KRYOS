@@ -22,10 +22,11 @@ function legacyAwards(rows,today){
 Deno.serve(async req=>{
   if(req.method==='OPTIONS')return new Response(null,{headers});
   if(req.method!=='POST')return reply(405,{error:'Use POST.'});
+  let diagnostic=false;
   try{
     const token=req.headers.get('authorization')?.replace(/^Bearer /,'');
     if(!token)return reply(401,{error:'Sign in to sync rewards.'});
-    const body=await req.json();let profileId;
+    const body=await req.json();diagnostic=body.preview===true;let profileId;
     if(token.startsWith('kryos_')){
       const hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token)))].map(b=>b.toString(16).padStart(2,'0')).join('');
       const {data}=await admin.from('kryos_assistant_credentials').select('profile_id,revoked_at,expires_at').eq('token_hash',hash).maybeSingle();
@@ -50,6 +51,13 @@ Deno.serve(async req=>{
       const tasks=taskBlock.payload,career=careerBlock.payload;
       const assessments=rules.dates(tasks,career,today).map(date=>rules.evaluate(date,tasks,career));
       const awards=[...legacyAwards(tasks.life?.dailyAssessments||[],today),...assessments.map(a=>({id:'v4-day:'+a.date,amount:a.credits})),...rules.bonuses(assessments,tasks,today)];
+      if(body.preview===true){
+        const {data:existing,error:existingError}=await admin.from('kryos_reward_awards').select('amount').eq('profile_id',profileId);
+        if(existingError)throw existingError;
+        const previousEarned=existing.reduce((sum,a)=>sum+Number(a.amount||0),0);
+        const recalculatedEarned=awards.reduce((sum,a)=>sum+Number(a.amount||0),0);
+        return reply(200,{ruleVersion:4,previousEarned,recalculatedEarned,change:recalculatedEarned-previousEarned,rewardDays:assessments.length});
+      }
       const reward=rules.catalog.find(r=>r.id===body.request?.rewardId);
       const qualified=assessments.filter(a=>a.qualified&&a.date>=rules.shift(today,-6)).length;
       const eligible=!reward||qualified>=(reward.qualifiedDaysInWindow||0)&&(!reward.workToday||rules.evaluate(today,tasks,career).gates.work);
@@ -60,5 +68,5 @@ Deno.serve(async req=>{
       return reply(200,{...receipt,ruleVersion:4,effectiveDate:rules.start,qualifiedDays:qualified});
     }
     return reply(409,{error:'Records changed during calculation. Please retry.'});
-  }catch(error){console.error('Reward transaction failed',error?.code||'unknown');return reply(500,{error:'Reward calculation could not finish. Your records are safe; retry sync.'});}
+  }catch(error){console.error('Reward transaction failed',error?.code||'unknown');return reply(500,diagnostic?{error:'Reward preview failed.',code:String(error?.code||'unknown'),detail:String(error?.message||'').slice(0,160)}:{error:'Reward calculation could not finish. Your records are safe; retry sync.'});}
 });

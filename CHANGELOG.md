@@ -2,6 +2,14 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.14.0 - One reward rule for every recorded date
+
+- Recalculate all past and future reward days from completed source evidence using the same bounded rules.
+- Preserve old daily assessments in the Personal data block and retain every cloud credit change in the private adjustment audit.
+- Retire old day and weekly award entries when unified awards replace them, including after a correction.
+- Recognize clearly completed historical journal facts in Career, meals, care, supplements, spirit, and articulation without converting intentions into completion.
+- Show original and recalculated earnings on the Rewards page after cloud reconciliation.
+
 ## 0.13.0 - Strict evidence-based rewards
 
 - Initiated call costs 100 credits; movie night remains 90.
