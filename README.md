@@ -6,7 +6,7 @@ It is not a generic todo app, journal, or habit tracker. KRYOS is designed to he
 
 ## Current Status
 
-- Version: `0.13.0`
+- Version: `0.14.0`
 - Stage: Evidence Integrity across Journal, Actions, Inner Command, and Rewards
 - Audience: private personal daily use
 - App type: local-first browser application
