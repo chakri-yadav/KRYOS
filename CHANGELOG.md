@@ -2,6 +2,13 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.9.0 - Living Money ledger
+
+- Added private, dated card-payment and cash-reimbursement events after the existing checkpoint.
+- Added statement-interest posting with daily-balance-weighted allocation or explicit evidence-based split, and a visible reconciliation difference.
+- Added a guarded APR forecast that is never posted as a charge and is withheld when dates or intervening activity make it unreliable.
+- Existing historical interest remains inside the checkpoint and is not posted twice. No private financial values appear in public code.
+
 ## 0.8.1 - Money checkpoint context
 
 - Shows the founder-confirmed historical reconciliation details saved privately in the Personal profile.

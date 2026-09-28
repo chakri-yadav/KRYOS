@@ -6,8 +6,8 @@ It is not a generic todo app, journal, or habit tracker. KRYOS is designed to he
 
 ## Current Status
 
-- Version: `0.7.0`
-- Stage: Devi Sadhana and Automatic Rewards
+- Version: `0.9.0`
+- Stage: Living Money ledger alongside Devi Sadhana and Automatic Rewards
 - Audience: private personal daily use
 - App type: local-first browser application
 - Sync status: local-first with Supabase task, career, and reward paths configured
@@ -27,6 +27,7 @@ KRYOS should answer three questions in the moment:
 - Progress: 84-day activity grid, scheduled streaks, existing VP totals, focus history and domain counts.
 - Import contract and current limits: `docs/journal-import.md`.
 - Assistant ingestion implementation and deployment: `docs/architecture/assistant-ingestion-implementation.md`.
+- Money: private historical checkpoint plus dated card payments, reimbursements, posted statement interest, reconciliation, and clearly provisional APR estimates. The user still needs statement evidence for new cycles; the app never treats a projection as an issuer charge.
 
 - Today: one outcome, one first action, at most two support tasks, and four daily non-negotiables.
 - Focus: a five- or twenty-five-minute build/analyze session with visible output.
