@@ -9,13 +9,13 @@ major.minor.patch
 Canonical current version:
 
 ```text
-0.11.1
+0.12.0
 ```
 
 ## Meaning
 
 - `0`: private product built for the founder's personal ADHD support.
-- `11`: the evidence-integrity and low-friction reward line.
+- `12`: connected-page navigation and direct next-step handoff.
 - Patch: a compatible correction with no new user workflow or data migration.
 - Minor: a complete compatible user capability or milestone.
 - Major: an incompatible product or data foundation change.
@@ -35,6 +35,7 @@ Canonical current version:
 | `0.9.x` | Living Money ledger and statement-interest allocation |
 | `0.10.x` | Private statement evidence and interest-pressure analytics |
 | `0.11.x` | Evidence integrity, journal guardrails, and focused redemption |
+| `0.12.x` | Connected-page flow and direct next-step navigation |
 | `1.0.0` | Future public-ready product line |
 
 ## Bump Rules
