@@ -237,6 +237,14 @@ test('v3 Action scoring rewards deadlines modestly and caps the daily lane', () 
   assert.equal(evidence.total,6);
 });
 
+test('v3 dated important evidence earns responsibility credit without an Action Vault item', () => {
+  const date='2026-09-26';
+  const records=[{id:'past-work',date,title:'Completed money order',domain:'Personal tasks',kind:'activity',completed:true,importance:'important',sourceRef:'evidence:past-work'}];
+  const evidence=setup({life:{records,actions:[]}}).context.rewardEvidence(date);
+  assert.equal(evidence.scores.responsibility,2);
+  assert.equal(evidence.buckets.responsibility[0].source,'Journal evidence');
+});
+
 test('v3 skincare correction removes only the affected reward lane', () => {
   const date='2026-09-26';
   const events=[

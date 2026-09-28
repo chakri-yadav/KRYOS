@@ -1,7 +1,7 @@
 const HABITS = new Set(['breakfast', 'lunch', 'dinner', 'protein', 'supplements', 'water', 'face-wash', 'moisturizer', 'serum', 'eye-cream', 'sunscreen', 'exercise', 'hair-care', 'groceries', 'nama-japa', 'gita', 'chalisa', 'aditya', 'meditation', 'pranayama']);
 const DOMAINS = new Set(['Career', 'Personal tasks', 'Job applications', 'Skincare', 'Supplements', 'Food', 'Sleep', 'Mood', 'Movement', 'Spiritual practice', 'Relationships', 'Other']);
 const PRIORITIES = new Set(['critical', 'important', 'normal']);
-const TYPES = new Set(['journal.capture', 'rhythm.measure', 'rhythm.complete', 'rhythm.reopen', 'rhythm.count', 'action.create', 'action.complete', 'action.reopen', 'action.archive', 'career.progress', 'career.check.complete', 'career.check.reopen', 'inner_command.observe', 'money.statement.import']);
+const TYPES = new Set(['journal.capture', 'evidence.record', 'rhythm.measure', 'rhythm.complete', 'rhythm.reopen', 'rhythm.count', 'action.create', 'action.complete', 'action.reopen', 'action.archive', 'career.progress', 'career.check.complete', 'career.check.reopen', 'inner_command.observe', 'money.statement.import']);
 const BOUNDARIES = new Set(['astrology', 'social', 'information', 'validation']);
 
 function fail(message) { throw new Error(message); }
@@ -37,8 +37,12 @@ export function validateRequest(request) {
   for (const operation of request.operations) {
     if (!operation || !TYPES.has(operation.type)) fail('Unsupported operation.');
     if (!present(operation.evidence_quote, 1000) || !sameText(request.raw_text, operation.evidence_quote)) fail('Each operation needs an exact excerpt from the original statement.');
-    if (['rhythm.complete', 'rhythm.count', 'action.complete', 'career.progress', 'career.check.complete'].includes(operation.type) && completionLooksLikeIntentOrNegation(request.raw_text, operation.evidence_quote)) fail('This sounds like an intention or negation. Review before recording completion.');
+    if (['evidence.record', 'rhythm.complete', 'rhythm.count', 'action.complete', 'career.progress', 'career.check.complete'].includes(operation.type) && completionLooksLikeIntentOrNegation(request.raw_text, operation.evidence_quote)) fail('This sounds like an intention or negation. Review before recording completion.');
     if (operation.type === 'journal.capture' && !present(operation.text, 100000)) fail('Journal text is required.');
+    if (operation.type === 'evidence.record') {
+      if (!present(operation.title, 300) || !DOMAINS.has(operation.domain)) fail('Dated activity evidence needs a title and known domain.');
+      if (operation.importance && !PRIORITIES.has(operation.importance)) fail('Unknown evidence importance.');
+    }
     if (operation.type.startsWith('rhythm.')) {
       if (!HABITS.has(operation.habit_key)) fail('Unknown Rhythm habit.');
       if (operation.type === 'rhythm.measure' && operation.habit_key !== 'water') fail('Only water is measurable in this release.');
@@ -100,6 +104,9 @@ export function projectRequest(request, taskPayload, careerPayload, now = new Da
       case 'journal.capture':
         life.entries.push({ id, packageId: id, date, text: operation.text.trim(), createdAt: now, source: 'assistant' });
         effects.push({ area: 'Journal', result: 'Entry saved' }); tasksChanged = true; break;
+      case 'evidence.record':
+        life.records.push({ id, entryId: null, date, title: operation.title.trim(), domain: operation.domain, kind: 'activity', evidence, minutes: Number.isFinite(operation.minutes) ? Math.max(0, Math.min(1440, operation.minutes)) : null, completed: true, effort: operation.importance === 'critical' ? 3 : operation.importance === 'important' ? 2 : 1, importance: operation.importance || 'normal', sourceRef: `evidence:${id}`, source: 'assistant' });
+        effects.push({ area: 'Evidence', result: 'Dated activity recorded without creating a commitment' }); tasksChanged = true; break;
       case 'rhythm.measure':
       case 'rhythm.complete':
       case 'rhythm.count':
