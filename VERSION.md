@@ -9,13 +9,13 @@ major.minor.patch
 Canonical current version:
 
 ```text
-0.10.1
+0.11.0
 ```
 
 ## Meaning
 
 - `0`: private product built for the founder's personal ADHD support.
-- `5`: the focused iPhone mobile experience line.
+- `11`: the evidence-integrity and low-friction reward line.
 - Patch: a compatible correction with no new user workflow or data migration.
 - Minor: a complete compatible user capability or milestone.
 - Major: an incompatible product or data foundation change.
@@ -34,6 +34,7 @@ Canonical current version:
 | `0.8.x` | Money command and verified statement checkpoints |
 | `0.9.x` | Living Money ledger and statement-interest allocation |
 | `0.10.x` | Private statement evidence and interest-pressure analytics |
+| `0.11.x` | Evidence integrity, journal guardrails, and focused redemption |
 | `1.0.0` | Future public-ready product line |
 
 ## Bump Rules
@@ -60,5 +61,5 @@ sync/backup impact, QA evidence, updated README/CHANGELOG/release documentation,
 and a matching Git tag for a published milestone.
 
 The older display forms such as `0.004.030` are retired. New canonical tags use
-the standard form, currently `v0.7.0`.
+the standard form, currently `v0.11.0`.
 See `docs/project/release-governance.md` for the complete workflow.
