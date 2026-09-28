@@ -6,8 +6,8 @@ It is not a generic todo app, journal, or habit tracker. KRYOS is designed to he
 
 ## Current Status
 
-- Version: `0.10.0`
-- Stage: Living Money ledger alongside Devi Sadhana and Automatic Rewards
+- Version: `0.10.1`
+- Stage: Living Money ledger alongside Devi Sadhana Rhythm and Automatic Rewards
 - Audience: private personal daily use
 - App type: local-first browser application
 - Sync status: local-first with Supabase task, career, and reward paths configured

@@ -13,9 +13,10 @@ const RHYTHM_HABITS = [
   { id: 'exercise', title: 'Exercise', group: 'body', cadence: 'weekly', target: 2, unit: 'sessions', icon: 'dumbbell' },
   { id: 'hair-care', title: 'Shampoo and conditioner', group: 'care', cadence: 'weekly', target: 1, unit: 'time', icon: 'shower-head' },
   { id: 'groceries', title: 'Buy groceries', group: 'body', cadence: 'weekly', target: 1, unit: 'trip', icon: 'shopping-basket' },
+  { id: 'nama-japa', title: 'Nama Japa', group: 'spirit', cadence: 'opportunity', icon: 'circle-dot' },
   { id: 'gita', title: 'Bhagavad Gita', group: 'spirit', cadence: 'opportunity', icon: 'book-open' },
-  { id: 'chalisa', title: 'Hanuman Chalisa', group: 'spirit', cadence: 'opportunity', icon: 'book-heart' },
-  { id: 'aditya', title: 'Aditya Hridayam', group: 'spirit', cadence: 'opportunity', icon: 'sun-medium' },
+  { id: 'chalisa', title: 'Hanuman Chalisa', group: 'spirit', cadence: 'opportunity', target: 3, unit: 'rounds', icon: 'book-heart' },
+  { id: 'aditya', title: 'Aditya Hridayam', group: 'spirit', cadence: 'opportunity', target: 3, unit: 'rounds', icon: 'sun-medium' },
   { id: 'meditation', title: 'Meditation', group: 'spirit', cadence: 'opportunity', icon: 'brain' },
   { id: 'pranayama', title: 'Pranayama', group: 'spirit', cadence: 'opportunity', icon: 'wind' },
 ];
@@ -70,7 +71,7 @@ function rhythmDay(date) {
   const score = habits => habits.length ? Math.round(habits.reduce((sum, habit) => sum + Math.min(1, rhythmValue(habit.id, date) / rhythmTarget(habit)), 0) / habits.length * 100) : 0;
   const meals = ['breakfast','lunch','dinner'].filter(id => rhythmValue(id,date)>0).length;
   const skincare = care.filter(habit => rhythmValue(habit.id,date)>0).length;
-  const spiritualPractices = spirit.filter(habit => rhythmValue(habit.id, date) > 0).length;
+  const spiritualPractices = spirit.filter(habit => rhythmValue(habit.id, date) >= rhythmTarget(habit)).length;
   const foundations = [meals>=2,rhythmValue('protein',date)>0,rhythmValue('supplements',date)>0,rhythmValue('water',date)>=rhythmTarget(rhythmHabit('water')),skincare>=2,spiritualPractices>=2];
   const completed = foundations.filter(Boolean).length;
   const percent = Math.round(completed / foundations.length * 100);

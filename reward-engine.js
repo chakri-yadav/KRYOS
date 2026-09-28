@@ -87,7 +87,11 @@ function rewardEvidence(date) {
   if(value('hair-care')>0&&recentTotal('hair-care')===0)add('maintenance',`hair:${date}`,'Weekly shampoo and conditioner care','Rhythm',3);
   if(value('groceries')>0&&recentTotal('groceries')===0)add('maintenance',`groceries:${date}`,'Groceries restocked for the next 7–10 days','Rhythm',5);
 
-  const spirit=['pranayama','meditation','aditya','gita','chalisa'].filter(id=>value(id)>0);
+  const spirit=['pranayama','meditation','nama-japa','aditya','gita','chalisa'].filter(id=>{
+    const habit=typeof rhythmHabit==='function'?rhythmHabit(id):null;
+    const target=habit&&typeof rhythmTarget==='function'?rhythmTarget(habit):1;
+    return value(id)>=target;
+  });
   const spiritPoints=[0,3,8,10,12,14][spirit.length]??14;
   if(spiritPoints)add('spiritual',`spirit:${date}`,`${spirit.length} spiritual ${spirit.length===1?'practice':'practices'}`,'Rhythm',spiritPoints);
 

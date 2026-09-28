@@ -2,6 +2,13 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.10.1 - Sadhana spirit rhythm patch
+
+- Restored Nama Japa to the Rhythm spirit practice surface.
+- Made Aditya Hridayam and Hanuman Chalisa visible 0/3 counted practices before completion.
+- Added assistant ingestion support for exact counted Rhythm practices so late journal capture can still update the correct day.
+- Kept Reward scoring strict: counted practices only qualify when their configured target is reached.
+
 ## 0.9.0 - Living Money ledger
 
 - Added private, dated card-payment and cash-reimbursement events after the existing checkpoint.

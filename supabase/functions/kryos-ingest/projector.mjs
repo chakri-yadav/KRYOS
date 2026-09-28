@@ -1,7 +1,7 @@
 const HABITS = new Set(['breakfast', 'lunch', 'dinner', 'protein', 'supplements', 'water', 'face-wash', 'moisturizer', 'serum', 'eye-cream', 'sunscreen', 'exercise', 'hair-care', 'groceries', 'nama-japa', 'gita', 'chalisa', 'aditya', 'meditation', 'pranayama']);
 const DOMAINS = new Set(['Career', 'Personal tasks', 'Job applications', 'Skincare', 'Supplements', 'Food', 'Sleep', 'Mood', 'Movement', 'Spiritual practice', 'Relationships', 'Other']);
 const PRIORITIES = new Set(['critical', 'important', 'normal']);
-const TYPES = new Set(['journal.capture', 'rhythm.measure', 'rhythm.complete', 'rhythm.reopen', 'action.create', 'action.complete', 'action.reopen', 'career.progress', 'career.check.complete', 'career.check.reopen', 'inner_command.observe', 'money.statement.import']);
+const TYPES = new Set(['journal.capture', 'rhythm.measure', 'rhythm.complete', 'rhythm.reopen', 'rhythm.count', 'action.create', 'action.complete', 'action.reopen', 'career.progress', 'career.check.complete', 'career.check.reopen', 'inner_command.observe', 'money.statement.import']);
 
 function fail(message) { throw new Error(message); }
 function dateIsValid(value) {
@@ -28,13 +28,14 @@ export function validateRequest(request) {
   for (const operation of request.operations) {
     if (!operation || !TYPES.has(operation.type)) fail('Unsupported operation.');
     if (!present(operation.evidence_quote, 1000) || !sameText(request.raw_text, operation.evidence_quote)) fail('Each operation needs an exact excerpt from the original statement.');
-    if (['rhythm.complete', 'action.complete', 'career.progress', 'career.check.complete'].includes(operation.type) && completionLooksLikeIntentOrNegation(request.raw_text, operation.evidence_quote)) fail('This sounds like an intention or negation. Review before recording completion.');
+    if (['rhythm.complete', 'rhythm.count', 'action.complete', 'career.progress', 'career.check.complete'].includes(operation.type) && completionLooksLikeIntentOrNegation(request.raw_text, operation.evidence_quote)) fail('This sounds like an intention or negation. Review before recording completion.');
     if (operation.type === 'journal.capture' && !present(operation.text, 100000)) fail('Journal text is required.');
     if (operation.type.startsWith('rhythm.')) {
       if (!HABITS.has(operation.habit_key)) fail('Unknown Rhythm habit.');
       if (operation.type === 'rhythm.measure' && operation.habit_key !== 'water') fail('Only water is measurable in this release.');
       if (operation.type !== 'rhythm.measure' && operation.habit_key === 'water') fail('Water needs a litre value.');
       if (operation.type === 'rhythm.measure' && (typeof operation.value !== 'number' || !Number.isFinite(operation.value) || operation.value < 0 || operation.value > 24 || operation.unit !== 'L')) fail('Water must be 0 to 24 L.');
+      if (operation.type === 'rhythm.count' && (!Number.isInteger(operation.value) || operation.value < 0 || operation.value > 12)) fail('Rhythm count must be a whole number from 0 to 12.');
     }
     if (operation.type === 'action.create') {
       if (!present(operation.title, 180) || !DOMAINS.has(operation.domain)) fail('An action needs a title and known domain.');
@@ -86,12 +87,13 @@ export function projectRequest(request, taskPayload, careerPayload, now = new Da
         effects.push({ area: 'Journal', result: 'Entry saved' }); tasksChanged = true; break;
       case 'rhythm.measure':
       case 'rhythm.complete':
+      case 'rhythm.count':
       case 'rhythm.reopen': {
         const value = operation.type === 'rhythm.complete' ? 1 : operation.type === 'rhythm.reopen' ? 0 : operation.value;
         const existing = rhythm.events.find(item => item.date === date && item.habitId === operation.habit_key);
         const next = { id: existing?.id || id, date, habitId: operation.habit_key, value, unit: operation.habit_key === 'water' ? 'L' : 'completion', source: `assistant:${id}`, updatedAt: now };
         if (existing) Object.assign(existing, next); else rhythm.events.push(next);
-        effects.push({ area: 'Rhythm', result: operation.habit_key === 'water' ? `${value} L recorded` : `${operation.habit_key} ${value ? 'complete' : 'reopened'}` }); tasksChanged = true; break;
+        effects.push({ area: 'Rhythm', result: operation.habit_key === 'water' ? `${value} L recorded` : `${operation.habit_key} ${value ? 'recorded' : 'reopened'}` }); tasksChanged = true; break;
       }
       case 'action.create':
         life.actions.push({ id, externalId: id, title: operation.title.trim(), nextAction: String(operation.next_action || '').slice(0, 240), domain: operation.domain, priority: operation.priority || 'normal', deadline: operation.deadline || '', status: 'open', createdAt: now, updatedAt: now, completedAt: null });
