@@ -165,11 +165,15 @@ function rewardEvidenceDates() {
     ...(life.innerCommand?.containmentDays||[]).map(e=>e.date),
     ...(life.dailyAssessments||[]).filter(e=>e.ruleVersion===3).map(e=>e.date),
     ...(typeof careerState==='undefined'?[]:(careerState.activityLog||[]).map(e=>e.date)),
-  ].filter(date=>date>=REWARD_V3_START&&date<=toDateKey()))].sort();
+  ].filter(date=>date>=(typeof KryosRewardV4!=='undefined'?KryosRewardV4.start:REWARD_V3_START)&&date<=toDateKey()))].sort();
 }
 
 function refreshAutomaticRewardAssessments() {
   const store=lifeStore(); let changed=false;
+  if(typeof KryosRewardV4!=='undefined'&&!store.rewardAssessmentHistory){
+    store.rewardAssessmentHistory=store.dailyAssessments.filter(a=>a.ruleVersion!==4).map(a=>({date:a.date,ruleVersion:a.ruleVersion||1,total:a.total,qualified:a.qualified,credits:assessmentCredits(a),scores:a.scores||{}}));
+    changed=true;
+  }
   rewardEvidenceDates().forEach(date=>{
     const evidence=rewardEvidence(date),existing=store.dailyAssessments.find(e=>e.date===date);
     const evidenceIds=Object.values(evidence.buckets).flat().map(e=>e.id).sort();
