@@ -1,2 +1,5 @@
 [functions.kryos-ingest]
 verify_jwt = false
+
+[functions.kryos-rewards]
+verify_jwt = false

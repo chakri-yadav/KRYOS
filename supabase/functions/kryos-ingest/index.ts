@@ -18,6 +18,16 @@ function reply(status: number, body: object) {
   return Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
 }
 
+async function updateRewards(token: string) {
+  try {
+    const response = await fetch(`${supabaseUrl}/functions/v1/kryos-rewards`, {
+      method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ diagnostics: true }), signal: AbortSignal.timeout(10000),
+    });
+    return response.ok;
+  } catch { return false; }
+}
+
 Deno.serve(async request => {
   if (request.method !== 'POST') return reply(405, { error: 'Use POST.' });
   if (!admin) return reply(503, { error: 'Ingestion is not configured.' });
@@ -49,7 +59,7 @@ Deno.serve(async request => {
       .eq('idempotency_key', input.idempotency_key).maybeSingle();
     if (priorError) throw priorError;
     if (prior) return prior.request_hash === requestHash
-      ? reply(200, { ...prior.receipt, duplicate: true })
+      ? reply(200, { ...prior.receipt, duplicate: true, rewardsSynced: await updateRewards(token) })
       : reply(409, { error: 'IDEMPOTENCY_MISMATCH' });
     for (let attempt = 0; attempt < 3; attempt++) {
       const { data: blocks, error: blockError } = await admin.from('kryos_sync_blocks')
@@ -78,7 +88,7 @@ Deno.serve(async request => {
       });
       if (!applyError) {
         await admin.from('kryos_assistant_credentials').update({ last_used_at: new Date().toISOString() }).eq('id', credential.id);
-        return reply(200, receipt);
+        return reply(200, { ...receipt, rewardsSynced: await updateRewards(token) });
       }
       if (String(applyError.message).includes('IDEMPOTENCY_MISMATCH')) return reply(409, { error: 'IDEMPOTENCY_MISMATCH' });
       if (!String(applyError.message).includes('KRYOS_CONFLICT')) throw applyError;

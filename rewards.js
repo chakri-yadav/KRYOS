@@ -1,7 +1,7 @@
-const JOURNAL_REWARDS = [
+const JOURNAL_REWARDS = typeof KryosRewardV4 !== 'undefined' ? KryosRewardV4.catalog : [
   { id:'adhd-relief', title:'Two extra ADHD relief breaks', cost:15, tier:'Immediate relief', cooldownDays:1, note:'Two short, intentional reset sessions after purposeful action.' },
   { id:'casual-time', title:'One hour of casual time with people', cost:45, tier:'Social reward', cooldownDays:7, note:'A guilt-free hour of casual connection.' },
-  { id:'initiated-call', title:'One initiated call', cost:70, tier:'Weekly connection', cooldownDays:7, qualifiedDaysInWindow:5, windowDays:7, note:'Unlocked by five qualified days in the previous seven.' },
+  { id:'initiated-call', title:'One initiated call', cost:100, tier:'Weekly connection', cooldownDays:7, qualifiedDaysInWindow:5, windowDays:7, note:'Unlocked by five qualified days in the previous seven.' },
   { id:'movie', title:'Movie night', cost:90, tier:'Medium reward', cooldownDays:7, note:'One movie after sustained evidence.' },
 ];
 const COVENANT = { start:'2026-09-26', end:'2026-11-12', requiredDays:48 };
@@ -12,13 +12,14 @@ function journalRewardStore() { const s=lifeStore(); s.rewardRedemptions ||= [];
 function rewardDateAdd(key, days) { const d=new Date(`${key}T12:00:00`); d.setDate(d.getDate()+days); return toDateKey(d); }
 function rewardWeekKey(key) { const d=new Date(`${key}T12:00:00`); return rewardDateAdd(key,-((d.getDay()+6)%7)); }
 function assessmentCredits(a) {
+  if(a?.ruleVersion===4)return Math.max(0,Math.min(20,Math.floor(Number(a.total||0)/5)));
   if (!a?.qualified) return 0;
   if (a.ruleVersion===3) return Math.max(0,Number(a.total||0));
   if (a.ruleVersion===2) return a.total>=9?3:a.total>=7?2:a.total>=5?1:0;
   return a.total>=9?2:a.total>=7?1:0;
 }
 function weeklyConsistencyBonuses(assessments) {
-  const unique=[...new Map(assessments.map(a=>[a.date,a])).values()].filter(a=>a.qualified).sort((a,b)=>a.date.localeCompare(b.date));
+  const unique=[...new Map(assessments.map(a=>[a.date,a])).values()].filter(a=>a.qualified&&a.ruleVersion!==4).sort((a,b)=>a.date.localeCompare(b.date));
   const legacyWeeks=new Map();
   unique.filter(a=>a.ruleVersion!==3).forEach(a=>{
     const key=rewardWeekKey(a.date),row=legacyWeeks.get(key)||{week:key,days:0,modern:false,sourceDates:[]};
@@ -43,6 +44,7 @@ function weeklyConsistencyBonuses(assessments) {
     const key=rewardWeekKey(a.date),row=launchWeeks.get(key)||[]; row.push(a); launchWeeks.set(key,row);
   });
   launchWeeks.forEach((rows,key)=>{if(rows.length>=4)bonuses.push({week:`launch:${key}`,days:rows.length,credits:8,sourceDates:rows.map(a=>a.date)});});
+  if(typeof KryosRewardV4!=='undefined')KryosRewardV4.bonuses(assessments,taskState,toDateKey()).forEach(a=>bonuses.push({week:a.id,credits:a.amount,sourceDates:[]}));
   return bonuses;
 }
 function journalRewardStats() {
@@ -50,7 +52,7 @@ function journalRewardStats() {
   const s=journalRewardStore(),reviews=[...new Map(s.dailyAssessments.map(a=>[a.date,a])).values()];
   const daily=reviews.reduce((n,a)=>n+assessmentCredits(a),0),weekly=weeklyConsistencyBonuses(reviews).reduce((n,w)=>n+w.credits,0);
   const spent=s.rewardRedemptions.filter(r=>!['rejected','cancelled'].includes(r.status)).reduce((n,r)=>n+Number(r.cost||0),0);
-  return {daily,weekly,earned:daily+weekly,spent,balance:Math.max(0,daily+weekly-spent)};
+  return {daily,weekly,earned:daily+weekly,spent,balance:Math.max(0,daily+weekly-spent),adjustmentDue:Math.max(0,spent-daily-weekly)};
 }
 function covenantStats(today=toDateKey()) {
   const s=journalRewardStore(),records=s.innerCommand?.containmentDays||[],reviews=s.dailyAssessments,start=s.innerCommand?.covenant?.startDate||COVENANT.start;
@@ -91,6 +93,7 @@ function rewardNoticeText(gate,review) {
   return 'Ready. Confirm this daily review to add credits immediately on this device.';
 }
 function rewardTargetMessage(target, stats, eligibility) {
+  if(eligibility.missingWork)return 'Complete a meaningful Career, Launch or due Money follow-up outcome today.';
   if (stats.balance >= target.cost && eligibility.allowed) return `You have earned this. Request it when you are ready.`;
   const missing = Math.max(0, target.cost - stats.balance);
   if (eligibility.missingCooldown) return `${missing} credits left · available again in ${eligibility.missingCooldown} days.`;
@@ -100,6 +103,7 @@ function rewardTargetMessage(target, stats, eligibility) {
   return missing ? `${missing} credits left. Your recorded actions move this forward.` : 'Keep recording the requirement that unlocks this reward.';
 }
 function renderJournalRewards() {
+  if(typeof renderRewardV4==='function')return renderRewardV4();
   if(typeof refreshAutomaticRewardAssessments==='function')refreshAutomaticRewardAssessments();
   const s=journalRewardStore(),stats=journalRewardStats(),c=covenantStats(),date=rewardSelectedDate||latestRewardEvidenceDate(),e=rewardEvidence(date),review=s.dailyAssessments.find(a=>a.date===date),gate=rewardQualification(e);
   const displayCategories=e.ruleVersion===3?REWARD_CATEGORIES:LEGACY_REWARD_CATEGORIES;

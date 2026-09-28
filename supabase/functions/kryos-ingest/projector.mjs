@@ -39,6 +39,7 @@ export function validateRequest(request) {
     if (!present(operation.evidence_quote, 1000) || !sameText(request.raw_text, operation.evidence_quote)) fail('Each operation needs an exact excerpt from the original statement.');
     if (['evidence.record', 'rhythm.complete', 'rhythm.count', 'action.complete', 'career.progress', 'career.check.complete'].includes(operation.type) && completionLooksLikeIntentOrNegation(request.raw_text, operation.evidence_quote)) fail('This sounds like an intention or negation. Review before recording completion.');
     if (operation.type === 'journal.capture' && !present(operation.text, 100000)) fail('Journal text is required.');
+    if (operation.recovery_note && (operation.type !== 'inner_command.observe' || !present(operation.recovery_note, 400) || !sameText(request.raw_text, operation.recovery_note) || completionLooksLikeIntentOrNegation(request.raw_text, operation.recovery_note))) fail('Return evidence needs an exact completed-action excerpt.');
     if (operation.type === 'evidence.record') {
       if (!present(operation.title, 300) || !DOMAINS.has(operation.domain)) fail('Dated activity evidence needs a title and known domain.');
       if (operation.importance && !PRIORITIES.has(operation.importance)) fail('Unknown evidence importance.');
@@ -172,6 +173,7 @@ export function projectRequest(request, taskPayload, careerPayload, now = new Da
             boundaries: [...new Set([...(existing?.boundaries || []), operation.boundary])],
             note: operation.note.trim(),
             returned: operation.returned === true,
+            ...(operation.recovery_note ? { recoveryNote: operation.recovery_note.trim() } : {}),
             durationMinutes: operation.duration_minutes ?? null,
             updatedAt: now,
             source: `assistant:${id}`,
