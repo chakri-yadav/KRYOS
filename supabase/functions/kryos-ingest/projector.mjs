@@ -1,7 +1,7 @@
 const HABITS = new Set(['breakfast', 'lunch', 'dinner', 'protein', 'supplements', 'water', 'face-wash', 'moisturizer', 'serum', 'eye-cream', 'sunscreen', 'exercise', 'hair-care', 'groceries', 'nama-japa', 'gita', 'chalisa', 'aditya', 'meditation', 'pranayama']);
 const DOMAINS = new Set(['Career', 'Personal tasks', 'Job applications', 'Skincare', 'Supplements', 'Food', 'Sleep', 'Mood', 'Movement', 'Spiritual practice', 'Relationships', 'Other']);
 const PRIORITIES = new Set(['critical', 'important', 'normal']);
-const TYPES = new Set(['journal.capture', 'rhythm.measure', 'rhythm.complete', 'rhythm.reopen', 'action.create', 'action.complete', 'action.reopen', 'career.progress', 'career.check.complete', 'career.check.reopen', 'inner_command.observe']);
+const TYPES = new Set(['journal.capture', 'rhythm.measure', 'rhythm.complete', 'rhythm.reopen', 'action.create', 'action.complete', 'action.reopen', 'career.progress', 'career.check.complete', 'career.check.reopen', 'inner_command.observe', 'money.statement.import']);
 
 function fail(message) { throw new Error(message); }
 function dateIsValid(value) {
@@ -47,6 +47,16 @@ export function validateRequest(request) {
     if (operation.type === 'career.progress' && (!present(operation.title, 300) || !Number.isInteger(operation.count) || operation.count < 1 || operation.count > 100)) fail('Career progress needs a title and count from 1 to 100.');
     if (['career.check.complete', 'career.check.reopen'].includes(operation.type) && !present(operation.check_id, 180)) fail('Use the exact career checklist ID.');
     if (operation.type === 'inner_command.observe' && !present(operation.note, 500)) fail('An observation note is required.');
+    if (operation.type === 'money.statement.import') {
+      if (!dateIsValid(operation.cycle_start) || !dateIsValid(operation.cycle_close)) fail('Statement cycle dates are required.');
+      if (operation.payment_due_date && !dateIsValid(operation.payment_due_date)) fail('Invalid payment due date.');
+      const span = Math.round((Date.parse(operation.cycle_close) - Date.parse(operation.cycle_start)) / 86400000) + 1;
+      if (span < 1 || span > 45) fail('Statement cycle must be 1 to 45 days.');
+      for (const key of ['closing_balance_cents', 'minimum_due_cents', 'purchase_interest_cents', 'promo_interest_cents', 'purchase_apr_basis_points', 'promo_apr_basis_points', 'balance_subject_to_interest_cents']) {
+        if (!Number.isInteger(operation[key]) || operation[key] < 0) fail('Statement amounts and rates must be non-negative integers.');
+      }
+      if (!present(operation.source_statement_hash, 128) || !/^[a-f0-9]{64}$/i.test(operation.source_statement_hash)) fail('A SHA-256 statement fingerprint is required.');
+    }
   }
   return request;
 }
@@ -59,6 +69,8 @@ export function projectRequest(request, taskPayload, careerPayload, now = new Da
   life.entries ||= []; life.records ||= []; life.actions ||= [];
   const rhythm = tasks.rhythm ||= { version: 1, events: [], settings: {} };
   rhythm.events ||= [];
+  const money = tasks.money ||= { version: 1 };
+  money.statementCycles ||= [];
   career.activityLog ||= [];
   const effects = [];
   const events = [];
@@ -125,6 +137,19 @@ export function projectRequest(request, taskPayload, careerPayload, now = new Da
       case 'inner_command.observe':
         life.records.push({ id, entryId: null, date, title: operation.note.trim(), domain: 'Mood', kind: 'observation', evidence, minutes: null, completed: false, effort: 0, sourceRef: '' });
         effects.push({ area: 'Inner Command', result: 'Observation recorded' }); tasksChanged = true; break;
+      case 'money.statement.import': {
+        const next = {
+          id, cycleStart: operation.cycle_start, cycleClose: operation.cycle_close,
+          paymentDueDate: operation.payment_due_date || '', closingBalanceCents: operation.closing_balance_cents,
+          minimumDueCents: operation.minimum_due_cents, purchaseInterestCents: operation.purchase_interest_cents,
+          promoInterestCents: operation.promo_interest_cents, purchaseAprBasisPoints: operation.purchase_apr_basis_points,
+          promoAprBasisPoints: operation.promo_apr_basis_points, balanceSubjectToInterestCents: operation.balance_subject_to_interest_cents,
+          sourceStatementHash: operation.source_statement_hash.toLowerCase(), source: 'assistant-statement', importedAt: now,
+        };
+        const existing = money.statementCycles.find(item => item.sourceStatementHash === next.sourceStatementHash);
+        if (existing) Object.assign(existing, next, { id: existing.id }); else money.statementCycles.push(next);
+        effects.push({ area: 'Money', result: `Statement cycle ${operation.cycle_close} imported` }); tasksChanged = true; break;
+      }
     }
     events.push({ id, type: operation.type, date, evidence_quote: evidence, payload: operation });
   });

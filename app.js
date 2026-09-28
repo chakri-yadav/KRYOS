@@ -15,11 +15,11 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.9.0";
+const APP_VERSION = "0.10.0";
 const APP_STAGE = "Money Command";
 const APP_RELEASE_DATE = "2026-09-27";
-const APP_STATUS = "Money command view and reconciled statement checkpoints are active";
-const APP_NEXT_MILESTONE = "Transaction-level Money ledger and statement import";
+const APP_STATUS = "Statement evidence and interest-pressure analytics are active";
+const APP_NEXT_MILESTONE = "Private statement correction and payoff scenarios";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
   "Shows founder-confirmed Money reconciliation details from the Personal cloud checkpoint without publishing financial figures in code.",
