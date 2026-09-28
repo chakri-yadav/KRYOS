@@ -278,7 +278,7 @@ function innerCommandNextStep() {
 }
 function renderInnerCommandNextStep() {
   const next = innerCommandNextStep();
-  return `<section class="command-next"><div><p class="section-kicker">THE NEXT RIGHT ACTION</p><span>${escapeHtml(next.area)}</span><h2>${escapeHtml(next.title)}</h2><p>${escapeHtml(next.detail)}</p></div><button class="primary-button" type="button" data-page="${next.page}">${escapeHtml(next.action)}</button></section>`;
+  return `<section class="command-next"><div><p class="section-kicker">THE NEXT RIGHT ACTION</p><span>${escapeHtml(next.area)}</span><h2>${escapeHtml(next.title)}</h2><p>${escapeHtml(next.detail)}</p></div><button class="primary-button" type="button" data-page="${next.page}"${next.page === 'career' ? ' data-page-target="career-current-focus"' : ''}>${escapeHtml(next.action)} <span aria-hidden="true">→</span></button></section>`;
 }
 function renderContainmentCovenant() {
   const store = lifeStore(), covenant = store.innerCommand.covenant, stats = innerCommandStats();

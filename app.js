@@ -15,7 +15,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.11.1";
+const APP_VERSION = "0.12.0";
 const APP_STAGE = "Evidence Integrity";
 const APP_RELEASE_DATE = "2026-09-28";
 const APP_STATUS = "Journal guardrails, dated Actions, structured drift, and focused Rewards are active";
@@ -1256,6 +1256,7 @@ const fieldButtons = document.querySelectorAll("[data-field-tab]");
 const modeSwitch = document.querySelector(".mode-switch");
 const topbarEyebrow = document.querySelector(".topbar .eyebrow");
 const topbarTitle = document.querySelector(".topbar h1");
+const pageConnections = document.querySelector("#page-connections");
 const activeProfileBadge = document.querySelector("[data-profile-badge]");
 const globalCloudState = document.querySelector("[data-global-cloud-state]");
 const appShell = document.querySelector(".app-shell");
@@ -3577,12 +3578,46 @@ function renderBehaviorReview() {
   reviewView.innerHTML = `<section class="weekly-score"><div><span>Main outcomes</span><strong>${stats.completed} / 7</strong></div><div><span>Build</span><strong>${stats.build}m</strong></div><div><span>Analyze</span><strong>${stats.analyze}m</strong></div><div><span>Build ratio</span><strong>${stats.ratio.toFixed(2)}</strong></div><div><span>Start latency</span><strong>${stats.startLatency}m</strong></div><div><span>Redirects</span><strong>${stats.urges.length}</strong></div><div><span>Recovery latency</span><strong>${stats.recovery}m</strong></div><div><span>Artifacts</span><strong>${stats.artifacts}</strong></div></section><section class="review-form"><h2>Three questions only</h2><label>What worked?<textarea data-review-field="worked" maxlength="300">${escapeHtml(review.worked)}</textarea></label><label>What repeatedly captured attention?<textarea data-review-field="captured" maxlength="300">${escapeHtml(review.captured)}</textarea></label><label>What one rule changes next week?<textarea data-review-field="rule" maxlength="300">${escapeHtml(review.rule)}</textarea></label><button class="primary-button" data-behavior-action="save-review">Save review</button></section>`;
 }
 
-function setPage(nextPage) {
+const CONNECTED_PAGES = {
+  journal: [["career", "Continue Career"], ["rhythm", "Care for today"]],
+  actions: [["money", "Money commitments"], ["progress", "See evidence"]],
+  career: [["launch", "Take it to market"], ["progress", "See evidence"]],
+  launch: [["career", "Build career evidence"], ["progress", "See evidence"]],
+  rhythm: [["journal", "Return to command"], ["rewards", "See rewards"]],
+  money: [["actions", "Follow-up actions"], ["progress", "See evidence"]],
+  progress: [["career", "Continue Career"], ["rewards", "See rewards"]],
+  rewards: [["journal", "Return to command"], ["progress", "See evidence"]],
+};
+
+function renderPageConnections() {
+  if (!pageConnections) return;
+  const connections = CONNECTED_PAGES[currentPage];
+  pageConnections.classList.toggle("is-hidden", !connections);
+  if (!connections) {
+    pageConnections.innerHTML = "";
+    return;
+  }
+  pageConnections.innerHTML = `<span class="page-connections-label">Continue your flow</span><div class="page-connections-links">${connections.map(([page, label]) => `<button type="button" data-page="${page}"${page === "career" ? ' data-page-target="career-current-focus"' : ""}>${label}<span aria-hidden="true"> →</span></button>`).join("")}</div>`;
+}
+
+function setPage(nextPage, targetId = "") {
+  if (!document.querySelector(`#${nextPage}-view`)) return;
+  const changedPage = currentPage !== nextPage;
   currentPage = nextPage;
   pageButtons.forEach((button) => {
     button.classList.toggle("is-active", button.dataset.page === currentPage);
   });
   render();
+  if (changedPage || targetId) {
+    window.scrollTo({ top: 0, behavior: "instant" });
+    if (targetId) requestAnimationFrame(() => {
+      const target = document.getElementById(targetId);
+      if (!target || target.closest(".view.is-hidden")) return;
+      target.setAttribute("tabindex", "-1");
+      target.focus({ preventScroll: true });
+      target.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
+    });
+  }
   if (["actions", "career", "rhythm", "journal"].includes(nextPage)) refreshCloudData({ automatic: true });
 }
 
@@ -3624,6 +3659,7 @@ function render() {
   const [eyebrow, title] = pageCopy[currentPage] ?? pageCopy.today;
   topbarEyebrow.textContent = eyebrow;
   topbarTitle.textContent = title;
+  renderPageConnections();
   modeSwitch.classList.toggle("is-hidden", currentPage !== "foundation");
   pageButtons.forEach((button) => {
     button.classList.toggle("is-active", button.dataset.page === currentPage);
@@ -9064,10 +9100,6 @@ modeButtons.forEach((button) => {
   button.addEventListener("click", () => setMode(button.dataset.mode));
 });
 
-pageButtons.forEach((button) => {
-  button.addEventListener("click", () => setPage(button.dataset.page));
-});
-
 fieldButtons.forEach((button) => {
   button.addEventListener("click", () => setFieldTab(button.dataset.fieldTab));
 });
@@ -9100,9 +9132,9 @@ document.addEventListener("click", async (event) => {
   const target = event.target;
   if (!(target instanceof Element)) return;
 
-  const inlinePageButton = target.closest(".progress-career-band [data-page]");
+  const inlinePageButton = target.closest("[data-page]");
   if (inlinePageButton) {
-    setPage(inlinePageButton.dataset.page);
+    setPage(inlinePageButton.dataset.page, inlinePageButton.dataset.pageTarget || "");
     return;
   }
 
