@@ -159,6 +159,17 @@ test('music reward remains unavailable during its cooldown', () => {
   assert.equal(ready.allowed, true);
 });
 
+test('initiated call requires five qualified days inside the current seven-day window', () => {
+  const old = Array.from({ length: 5 }, (_, index) => assessment(`2026-11-${String(index + 10).padStart(2, '0')}`, 9, { ruleVersion: 2 }));
+  const blocked = setup({ life: { dailyAssessments: old } }).context.rewardEligibility({ id: 'initiated-call', qualifiedDaysInWindow: 5, windowDays: 7 });
+  assert.equal(blocked.allowed, false);
+  assert.equal(blocked.missingWindowDays, 5);
+  const recent = ['2026-11-24','2026-11-25','2026-11-26','2026-11-27','2026-11-28'].map(date => assessment(date, 9, { ruleVersion: 2 }));
+  const ready = setup({ life: { dailyAssessments: recent } }).context.rewardEligibility({ id: 'initiated-call', qualifiedDaysInWindow: 5, windowDays: 7 });
+  assert.equal(ready.allowed, true);
+  assert.equal(ready.qualifiedInWindow, 5);
+});
+
 test('empty cloud ledger reports a successful connection rather than appearing inert', async () => {
   const { context } = setup({
     getSupabaseSession: async () => ({ user: { id: 'user-id', email: 'owner@example.com' } }),
