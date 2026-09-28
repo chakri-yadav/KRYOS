@@ -121,7 +121,7 @@ async function flushTaskCloudSync() {
 }
 
 function actionEditor() {
-  return `<dialog class="action-dialog" id="action-edit-dialog"><form id="action-edit-form"><input type="hidden" name="actionId"><header><div><p class="section-kicker">EDIT ACTION</p><h2>Refine the commitment</h2></div><button type="button" class="dialog-close" data-dialog-close aria-label="Close editor" title="Close">&times;</button></header><div class="action-edit-fields"><label class="wide">Action<input name="title" required maxlength="180"></label><label class="wide">Smallest next action<input name="nextAction" maxlength="240"></label><label>Domain<select name="domain">${lifeOptions(LIFE_DOMAINS)}</select></label><label>Priority<select name="priority">${ACTION_PRIORITIES.map(priority => `<option value="${priority}">${actionPriorityLabel(priority)}</option>`).join('')}</select></label><label>Status<select name="status">${ACTION_STATUSES.map(status => `<option value="${status}">${actionStatusLabel(status)}</option>`).join('')}</select></label><label>Real deadline<input name="deadline" type="date"></label></div><footer><button type="button" class="secondary-button" data-dialog-close>Cancel</button><button type="submit" class="primary-button">Save changes</button></footer></form></dialog>`;
+  return `<dialog class="action-dialog" id="action-edit-dialog"><form id="action-edit-form"><input type="hidden" name="actionId"><header><div><p class="section-kicker">EDIT ACTION</p><h2>Refine the commitment</h2></div><button type="button" class="dialog-close" data-dialog-close aria-label="Close editor" title="Close">&times;</button></header><div class="action-edit-fields"><label class="wide">Action<input name="title" required maxlength="180"></label><label class="wide">Smallest next action<input name="nextAction" maxlength="240"></label><label>Domain<select name="domain">${lifeOptions(LIFE_DOMAINS)}</select></label><label>Priority<select name="priority">${ACTION_PRIORITIES.map(priority => `<option value="${priority}">${actionPriorityLabel(priority)}</option>`).join('')}</select></label><label>Status<select name="status">${ACTION_STATUSES.map(status => `<option value="${status}">${actionStatusLabel(status)}</option>`).join('')}</select></label><label>Real deadline<input name="deadline" type="date"></label></div><footer><button type="button" class="danger-button" data-action-command="archive-editor">Remove from vault</button><span></span><button type="button" class="secondary-button" data-dialog-close>Cancel</button><button type="submit" class="primary-button">Save changes</button></footer></form></dialog>`;
 }
 
 function renderActionVault() {
@@ -136,7 +136,17 @@ function renderActionVault() {
     <section class="action-toolbar"><nav class="action-filters" aria-label="Action status">${['open','active','waiting','done','all'].map(status => `<button class="${actionFilter === status ? 'active' : ''}" data-action-filter="${status}">${status === 'all' ? 'All' : actionStatusLabel(status)} <span>${status === 'all' ? actions.filter(action => action.status !== 'archived').length : actionCount(status)}</span></button>`).join('')}</nav><details class="action-add"><summary><span aria-hidden="true">+</span> New action</summary><form id="action-add-form"><label class="wide">Action<input name="title" required maxlength="180" placeholder="What must remain remembered?"></label><label class="wide">Smallest next action<input name="nextAction" maxlength="240" placeholder="The first physical step"></label><label>Domain<select name="domain">${lifeOptions(LIFE_DOMAINS)}</select></label><label>Priority<select name="priority"><option value="critical">Critical</option><option value="important">Important</option><option value="normal" selected>Normal</option></select></label><label>Real deadline<input name="deadline" type="date"></label><button class="primary-button">Keep in Vault</button></form></details></section>
     <section class="action-next" aria-label="Your next action"><div><p class="section-kicker">${next?.status === 'active' ? 'IN MOTION' : 'SUGGESTED NEXT'}</p><h2>${next ? escapeHtml(next.title) : 'Room to breathe.'}</h2><p>${next ? escapeHtml(next.nextAction || 'Choose the smallest step you can do now.') : 'Your open queue is clear. Completed work stays below.'}</p></div>${next ? `<div><button class="primary-button" data-action-command="${next.status === 'active' ? 'edit' : 'start'}" data-id="${escapeHtml(next.id)}">${next.status === 'active' ? 'View next step' : 'Start this action'}</button><button class="secondary-button" data-action-command="done" data-id="${escapeHtml(next.id)}">Mark complete</button></div>` : ''}</section>
     <section class="action-list" aria-live="polite">${visible.map(renderActionCard).join('') || `<div class="action-empty"><span>&#10003;</span><strong>No ${actionFilter} actions</strong><p>Nothing is asking for your attention in this view.</p></div>`}</section>
-    <section class="action-finished"><p class="section-kicker">COMPLETED TODAY · ${finished.length}</p>${finished.length ? finished.map(action => `<div><span>✓ ${escapeHtml(action.title)}</span><button class="secondary-button" data-action-command="reopen" data-id="${escapeHtml(action.id)}" aria-label="Undo completion of ${escapeHtml(action.title)}">Undo</button></div>`).join('') : '<p>Your completed actions will appear here.</p>'}</section>${actionEditor()}`;
+    <section class="action-finished"><p class="section-kicker">COMPLETED TODAY · ${finished.length}</p>${finished.length ? finished.map(action => `<div><span>✓ ${escapeHtml(action.title)}</span><button class="secondary-button" data-action-command="reopen" data-id="${escapeHtml(action.id)}" aria-label="Reopen ${escapeHtml(action.title)}">Reopen</button></div>`).join('') : '<p>Your completed actions will appear here.</p>'}</section>${actionEditor()}`;
+}
+
+function archiveAction(action) {
+  if (!window.confirm(`Remove “${action.title}” from the Action Vault? Its journal evidence will remain.`)) return false;
+  action.status = 'archived';
+  action.completedAt = null;
+  action.updatedAt = new Date().toISOString();
+  saveTasks();
+  scheduleTaskCloudSync();
+  return true;
 }
 
 function updateActionStatus(action, status) {
@@ -204,11 +214,19 @@ document.addEventListener('click', event => {
   if (filter) { actionFilter = filter.dataset.actionFilter; renderActionVault(); return; }
   const button = event.target.closest('[data-action-command]');
   if (!button) return;
+  if (button.dataset.actionCommand === 'archive-editor') {
+    const dialog = button.closest('dialog');
+    const actionId = dialog?.querySelector('[name="actionId"]')?.value;
+    const action = actionVault().find(item => item.id === actionId);
+    if (action && archiveAction(action)) { dialog.close(); renderActionVault(); }
+    return;
+  }
   const action = actionVault().find(item => item.id === button.dataset.id);
   if (!action) return;
   if (button.dataset.actionCommand === 'start') updateActionStatus(action, 'active');
   if (button.dataset.actionCommand === 'done') updateActionStatus(action, 'done');
   if (button.dataset.actionCommand === 'reopen') updateActionStatus(action, 'open');
+  if (button.dataset.actionCommand === 'archive') archiveAction(action);
   if (button.dataset.actionCommand === 'edit') { openActionEditor(action); return; }
   renderActionVault();
 });

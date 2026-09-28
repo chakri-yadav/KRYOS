@@ -32,6 +32,35 @@ test('a missing action rejects the whole request and leaves inputs untouched', (
   assert.equal(baseTasks.rhythm.events.length, 0);
 });
 
+test('past journal activity cannot silently become a new Action Vault commitment', () => {
+  const raw = 'I worked an eight-hour shift and then slept.';
+  const request = makeRequest([{ type: 'action.create', title: 'Eight-hour shift', domain: 'Career', priority: 'important', evidence_quote: 'worked an eight-hour shift' }], raw);
+  assert.throws(() => projectRequest(request, baseTasks, baseCareer), /unfinished commitment evidence/);
+});
+
+test('assistant completion uses the journal date and archive removes only that exact action', () => {
+  const tasks = { life: { entries: [], records: [], actions: [
+    { id: 'target', externalId: 'target', title: 'Call him', status: 'open' },
+    { id: 'other', externalId: 'other', title: 'Keep this', status: 'open' },
+  ] }, rhythm: { events: [] } };
+  const complete = projectRequest(makeRequest([{ type: 'action.complete', action_id: 'target', evidence_quote: 'I completed the call' }], 'I completed the call.'), tasks, baseCareer, '2026-09-28T21:00:00Z');
+  assert.equal(complete.tasks.life.actions.find(item => item.id === 'target').completedAt, '2026-09-26T12:00:00.000Z');
+  const archived = projectRequest({ ...makeRequest([{ type: 'action.archive', action_id: 'target', evidence_quote: 'remove that call action' }], 'Please remove that call action.'), idempotency_key: 'archive-target' }, complete.tasks, baseCareer);
+  assert.equal(archived.tasks.life.actions.find(item => item.id === 'target').status, 'archived');
+  assert.equal(archived.tasks.life.actions.find(item => item.id === 'other').status, 'open');
+});
+
+test('structured social drift records duration and a conscious return', () => {
+  const raw = 'I accidentally opened Instagram for five minutes, saw one reel, closed it, and returned.';
+  const request = makeRequest([{ type: 'inner_command.observe', boundary: 'social', severity: 'drift', duration_minutes: 5, returned: true, note: 'Accidental Instagram opening; closed after one reel and returned.', evidence_quote: raw }], raw);
+  const result = projectRequest(request, baseTasks, baseCareer);
+  const day = result.tasks.life.innerCommand.containmentDays[0];
+  assert.equal(day.status, 'drift');
+  assert.equal(day.boundary, 'social');
+  assert.equal(day.durationMinutes, 5);
+  assert.equal(day.returned, true);
+});
+
 test('intention without a direct evidence excerpt is rejected', () => {
   const request = makeRequest([{ type: 'rhythm.complete', habit_key: 'gita', evidence_quote: 'read Bhagavad Gita' }], 'I should read Bhagavad Gita.');
   assert.throws(() => projectRequest(request, baseTasks, baseCareer), /intention or negation/);

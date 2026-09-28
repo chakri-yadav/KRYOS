@@ -1,7 +1,8 @@
 const HABITS = new Set(['breakfast', 'lunch', 'dinner', 'protein', 'supplements', 'water', 'face-wash', 'moisturizer', 'serum', 'eye-cream', 'sunscreen', 'exercise', 'hair-care', 'groceries', 'nama-japa', 'gita', 'chalisa', 'aditya', 'meditation', 'pranayama']);
 const DOMAINS = new Set(['Career', 'Personal tasks', 'Job applications', 'Skincare', 'Supplements', 'Food', 'Sleep', 'Mood', 'Movement', 'Spiritual practice', 'Relationships', 'Other']);
 const PRIORITIES = new Set(['critical', 'important', 'normal']);
-const TYPES = new Set(['journal.capture', 'rhythm.measure', 'rhythm.complete', 'rhythm.reopen', 'rhythm.count', 'action.create', 'action.complete', 'action.reopen', 'career.progress', 'career.check.complete', 'career.check.reopen', 'inner_command.observe', 'money.statement.import']);
+const TYPES = new Set(['journal.capture', 'rhythm.measure', 'rhythm.complete', 'rhythm.reopen', 'rhythm.count', 'action.create', 'action.complete', 'action.reopen', 'action.archive', 'career.progress', 'career.check.complete', 'career.check.reopen', 'inner_command.observe', 'money.statement.import']);
+const BOUNDARIES = new Set(['astrology', 'social', 'information', 'validation']);
 
 function fail(message) { throw new Error(message); }
 function dateIsValid(value) {
@@ -16,6 +17,14 @@ function completionLooksLikeIntentOrNegation(statement, quote) {
   const clause = statement.slice(Math.max(0, statement.lastIndexOf('.', position) + 1), position + quote.length).toLowerCase();
   return /\b(?:should|need to|have to|plan to|will|want to|hope to|going to|didn['’]t|did not|haven['’]t|have not|never)\b/.test(clause);
 }
+function actionLooksLikeUnfinishedCommitment(statement, quote) {
+  const position = statement.indexOf(quote);
+  const clause = statement.slice(Math.max(0, statement.lastIndexOf('.', position) + 1), position + quote.length).toLowerCase();
+  const commitment = /\b(?:need to|have to|must|should|plan to|will|going to|remember to|follow up|ask|call|pay|complete|finish|buy)\b/.test(clause);
+  const completed = /\b(?:did|finished|completed|paid|bought|called|worked|went|made|recorded|calculated|organized|cleaned|took|drank|ate|read)\b/.test(clause);
+  return commitment && !completed;
+}
+function datedCompletion(localDate) { return `${localDate}T12:00:00.000Z`; }
 
 export function validateRequest(request) {
   if (!request || request.schema_version !== 1) fail('Unsupported request schema.');
@@ -41,13 +50,19 @@ export function validateRequest(request) {
       if (!present(operation.title, 180) || !DOMAINS.has(operation.domain)) fail('An action needs a title and known domain.');
       if (operation.priority && !PRIORITIES.has(operation.priority)) fail('Unknown action priority.');
       if (operation.deadline && !dateIsValid(operation.deadline)) fail('Invalid action deadline.');
+      if (!actionLooksLikeUnfinishedCommitment(request.raw_text, operation.evidence_quote)) fail('Action creation needs explicit unfinished commitment evidence. Record past activity as journal evidence instead.');
     }
-    if (operation.type === 'action.complete' || operation.type === 'action.reopen') {
+    if (operation.type === 'action.complete' || operation.type === 'action.reopen' || operation.type === 'action.archive') {
       if (!present(operation.action_id, 180)) fail('Use the exact action ID.');
     }
     if (operation.type === 'career.progress' && (!present(operation.title, 300) || !Number.isInteger(operation.count) || operation.count < 1 || operation.count > 100)) fail('Career progress needs a title and count from 1 to 100.');
     if (['career.check.complete', 'career.check.reopen'].includes(operation.type) && !present(operation.check_id, 180)) fail('Use the exact career checklist ID.');
-    if (operation.type === 'inner_command.observe' && !present(operation.note, 500)) fail('An observation note is required.');
+    if (operation.type === 'inner_command.observe') {
+      if (!present(operation.note, 500)) fail('An observation note is required.');
+      if (operation.boundary && !BOUNDARIES.has(operation.boundary)) fail('Unknown Inner Command boundary.');
+      if (operation.severity && !['notice', 'drift', 'breach'].includes(operation.severity)) fail('Inner Command severity must be notice, drift, or breach.');
+      if (operation.duration_minutes != null && (!Number.isInteger(operation.duration_minutes) || operation.duration_minutes < 0 || operation.duration_minutes > 1440)) fail('Drift duration must be a whole number from 0 to 1440 minutes.');
+    }
     if (operation.type === 'money.statement.import') {
       if (!dateIsValid(operation.cycle_start) || !dateIsValid(operation.cycle_close)) fail('Statement cycle dates are required.');
       if (operation.payment_due_date && !dateIsValid(operation.payment_due_date)) fail('Invalid payment due date.');
@@ -99,18 +114,19 @@ export function projectRequest(request, taskPayload, careerPayload, now = new Da
         life.actions.push({ id, externalId: id, title: operation.title.trim(), nextAction: String(operation.next_action || '').slice(0, 240), domain: operation.domain, priority: operation.priority || 'normal', deadline: operation.deadline || '', status: 'open', createdAt: now, updatedAt: now, completedAt: null });
         effects.push({ area: 'Actions', result: 'Action created' }); tasksChanged = true; break;
       case 'action.complete':
-      case 'action.reopen': {
+      case 'action.reopen':
+      case 'action.archive': {
         const matching = life.actions.filter(item => item.id === operation.action_id || item.externalId === operation.action_id);
         if (matching.length !== 1) fail('Action ID is missing or ambiguous.');
         const action = matching[0];
-        const nextStatus = operation.type === 'action.complete' ? 'done' : 'open';
+        const nextStatus = operation.type === 'action.complete' ? 'done' : operation.type === 'action.archive' ? 'archived' : 'open';
         if (action.status !== nextStatus) {
           action.status = nextStatus;
-          action.completedAt = nextStatus === 'done' ? now : null;
+          action.completedAt = nextStatus === 'done' ? datedCompletion(date) : null;
           action.updatedAt = now;
           tasksChanged = true;
         }
-        effects.push({ area: 'Actions', result: action.status === 'done' ? 'Action completed' : 'Action reopened' }); break;
+        effects.push({ area: 'Actions', result: action.status === 'done' ? 'Action completed' : action.status === 'archived' ? 'Action removed from vault' : 'Action reopened' }); break;
       }
       case 'career.progress':
         life.records.push({ id, entryId: null, date, title: `${operation.title.trim()} (${operation.count})`, domain: 'Career', kind: 'activity', evidence, minutes: null, completed: true, effort: Math.min(5, operation.count), sourceRef: `journal:${id}` });
@@ -138,6 +154,23 @@ export function projectRequest(request, taskPayload, careerPayload, now = new Da
       }
       case 'inner_command.observe':
         life.records.push({ id, entryId: null, date, title: operation.note.trim(), domain: 'Mood', kind: 'observation', evidence, minutes: null, completed: false, effort: 0, sourceRef: '' });
+        if (operation.boundary) {
+          const records = life.innerCommand ||= { covenant: { startDate: '2026-09-26', endDate: '2026-11-12', days: 48, title: '48-Day Devi Sadhana' }, containmentDays: [] };
+          records.containmentDays ||= [];
+          const existing = records.containmentDays.find(item => item.date === date);
+          const next = {
+            date,
+            status: operation.severity === 'breach' ? 'breach' : 'drift',
+            boundary: operation.boundary,
+            boundaries: [...new Set([...(existing?.boundaries || []), operation.boundary])],
+            note: operation.note.trim(),
+            returned: operation.returned === true,
+            durationMinutes: operation.duration_minutes ?? null,
+            updatedAt: now,
+            source: `assistant:${id}`,
+          };
+          if (existing) Object.assign(existing, next); else records.containmentDays.push(next);
+        }
         effects.push({ area: 'Inner Command', result: 'Observation recorded' }); tasksChanged = true; break;
       case 'money.statement.import': {
         const next = {

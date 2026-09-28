@@ -15,13 +15,17 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.10.1";
-const APP_STAGE = "Money Command";
-const APP_RELEASE_DATE = "2026-09-27";
-const APP_STATUS = "Statement evidence, Sadhana rhythm capture, and reward analytics are active";
-const APP_NEXT_MILESTONE = "Money recovery actions and reward integration";
+const APP_VERSION = "0.11.0";
+const APP_STAGE = "Evidence Integrity";
+const APP_RELEASE_DATE = "2026-09-28";
+const APP_STATUS = "Journal guardrails, dated Actions, structured drift, and focused Rewards are active";
+const APP_NEXT_MILESTONE = "Progress visual refinement";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Stopped completed journal activities from silently becoming new Action Vault commitments.",
+  "Made backdated assistant completions stay on the journal date and added explicit reopen and remove controls.",
+  "Added structured Inner Command drift capture with boundary, duration, severity, and conscious return evidence.",
+  "Reduced redeemable pleasures to four deliberate ADHD-friendly choices with weekly connection gates.",
   "Restored Nama Japa to Rhythm spirit practice tracking.",
   "Made Aditya Hridayam and Hanuman Chalisa count visibly from 0 to 3 before they are treated as complete.",
   "Added assistant ingestion support for exact counted Rhythm practices.",

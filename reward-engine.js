@@ -191,7 +191,10 @@ function rewardEligibility(reward) {
   const lastRedemption = (store.rewardRedemptions || []).filter(item => item.rewardId === reward.id && !['rejected','cancelled'].includes(item.status)).sort((a,b) => b.date.localeCompare(a.date))[0];
   const daysSince = lastRedemption ? Math.floor((getDateFromKey(toDateKey()) - getDateFromKey(lastRedemption.date))/86400000) : Infinity;
   const missingCooldown = Math.max(0,(reward.cooldownDays || 0)-daysSince);
-  return { allowed: !missingDays && !missingSpan && !missingCooldown, missingDays, missingSpan, missingCooldown };
+  const windowStart = rewardDateAdd(toDateKey(), -Math.max(0, Number(reward.windowDays || 1) - 1));
+  const qualifiedInWindow = days.filter(date => date >= windowStart).length;
+  const missingWindowDays = Math.max(0, Number(reward.qualifiedDaysInWindow || 0) - qualifiedInWindow);
+  return { allowed: !missingDays && !missingSpan && !missingCooldown && !missingWindowDays, missingDays, missingSpan, missingCooldown, missingWindowDays, qualifiedInWindow };
 }
 
 let rewardCloudNotice = '';

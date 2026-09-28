@@ -2,6 +2,15 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.11.0 - Evidence integrity and focused rewards
+
+- Prevented past journal activity from being created as a new Action Vault commitment without explicit unfinished-action evidence.
+- Preserved the journal date for assistant-completed actions instead of showing backdated work as completed today.
+- Replaced ambiguous Undo behavior with Reopen and added an explicit Remove from vault control that keeps journal evidence intact.
+- Added structured social, astrology, information, and validation drift capture with severity, duration, and conscious-return evidence.
+- Reduced redemption choices to two extra ADHD relief breaks, casual time, one initiated call, and movie night.
+- Required five qualified days in the current seven-day window for an initiated call.
+
 ## 0.10.1 - Sadhana spirit rhythm patch
 
 - Restored Nama Japa to the Rhythm spirit practice surface.
