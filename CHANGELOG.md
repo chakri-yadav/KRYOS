@@ -2,6 +2,16 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.13.0 - Strict evidence-based rewards
+
+- Initiated call costs 100 credits; movie night remains 90.
+- New earning rules take effect September 29, 2026. Historical earning rules remain intact.
+- Separate daily points, spendable credits, and six-gate qualified days; partial effort still earns bounded credit.
+- Include due Money follow-ups, completed card payments, and payment reconciliation. Prevent repeated Career toggles and parent summaries from inflating rewards.
+- Add serious mock completion without a timer, explicit return evidence after drift, and limited weekly maintenance awards.
+- Calculate confirmed awards from cloud records, enforce catalogue prices and cooldowns in a serialized transaction, and retain correction adjustments.
+- Verify shared rules, historical regression checks, browser navigation, and a live cloud transaction.
+
 ## 0.12.0 - Connected next-step navigation
 
 - Inner Command's dynamic Continue action now opens the right page and lands on the current Career step.

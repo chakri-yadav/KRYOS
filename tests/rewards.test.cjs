@@ -57,7 +57,7 @@ test('modern reviews award one, two, or three bounded credits', () => {
 test('five modern qualifying days earn only the bounded weekly bonus', () => {
   const reviews = Array.from({ length: 7 }, (_, index) => assessment(dateAt(index), 9, { ruleVersion: 2 }));
   const { context } = setup({ life: { dailyAssessments: reviews } });
-  assert.deepEqual({ ...context.journalRewardStats() }, { daily: 21, weekly: 2, earned: 23, spent: 0, balance: 23 });
+  assert.deepEqual({ ...context.journalRewardStats() }, { daily: 21, weekly: 2, earned: 23, spent: 0, balance: 23, adjustmentDue: 0 });
 });
 
 test('launch evidence is capped and requires real exposure', () => {
