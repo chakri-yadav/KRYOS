@@ -114,6 +114,10 @@ function rewardEvidence(date) {
     const points=late?1:e.priority==='critical'?(onTime&&e.deadline?4:3):(onTime&&e.deadline?3:2);
     add('responsibility',`action:${e.externalId||e.id}`,e.title,'Actions',points);
   });
+  (life.records||[]).filter(e=>e.date===date&&e.completed===true&&e.kind==='activity'&&['critical','important'].includes(e.importance)&&String(e.sourceRef||'').startsWith('evidence:')).forEach(e=>{
+    const points=e.importance==='critical'?3:2;
+    add('responsibility',e.sourceRef,e.title,'Journal evidence',points);
+  });
 
   const day=(life.innerCommand?.containmentDays||[]).find(e=>e.date===date);
   const boundarySet=new Set([...(day?.boundaries||[]),day?.boundary].filter(Boolean));

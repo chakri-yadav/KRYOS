@@ -38,6 +38,16 @@ test('past journal activity cannot silently become a new Action Vault commitment
   assert.throws(() => projectRequest(request, baseTasks, baseCareer), /unfinished commitment evidence/);
 });
 
+test('completed past activity becomes dated evidence without entering the Action Vault', () => {
+  const raw = 'I completed the money order for October payroll.';
+  const request = makeRequest([{ type: 'evidence.record', title: 'Completed money order for October payroll', domain: 'Personal tasks', importance: 'important', evidence_quote: raw }], raw);
+  const result = projectRequest(request, baseTasks, baseCareer, '2026-09-28T21:00:00Z');
+  assert.equal(result.tasks.life.actions.length, 0);
+  assert.equal(result.tasks.life.records[0].date, '2026-09-26');
+  assert.equal(result.tasks.life.records[0].importance, 'important');
+  assert.equal(result.tasks.life.records[0].completed, true);
+});
+
 test('assistant completion uses the journal date and archive removes only that exact action', () => {
   const tasks = { life: { entries: [], records: [], actions: [
     { id: 'target', externalId: 'target', title: 'Call him', status: 'open' },

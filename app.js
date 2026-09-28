@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.11.0";
+const APP_VERSION = "0.11.1";
 const APP_STAGE = "Evidence Integrity";
 const APP_RELEASE_DATE = "2026-09-28";
 const APP_STATUS = "Journal guardrails, dated Actions, structured drift, and focused Rewards are active";
 const APP_NEXT_MILESTONE = "Progress visual refinement";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Separated dated journal activity evidence from unfinished Action Vault commitments.",
   "Stopped completed journal activities from silently becoming new Action Vault commitments.",
   "Made backdated assistant completions stay on the journal date and added explicit reopen and remove controls.",
   "Added structured Inner Command drift capture with boundary, duration, severity, and conscious return evidence.",
