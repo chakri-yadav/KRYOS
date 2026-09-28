@@ -27,7 +27,8 @@ function setup(overrides = {}) {
       const index = target.dailyAssessments.findIndex(item => item.date === assessment.date);
       if (index >= 0) target.dailyAssessments[index] = assessment; else target.dailyAssessments.push(assessment);
     },
-    rhythmHabit: id => ({ id, title: id, group: id.startsWith('spirit') ? 'spirit' : 'daily' }),
+    rhythmHabit: id => ({ id, title: id, group: ['\u006e\u0061\u006d\u0061\u002d\u006a\u0061\u0070\u0061','\u0061\u0064\u0069\u0074\u0079\u0061','\u0063\u0068\u0061\u006c\u0069\u0073\u0061','\u0067\u0069\u0074\u0061','meditation','pranayama'].includes(id) ? 'spirit' : 'daily', target: ['\u0061\u0064\u0069\u0074\u0079\u0061','\u0063\u0068\u0061\u006c\u0069\u0073\u0061'].includes(id) ? 3 : 1 }),
+    rhythmTarget: habit => habit.target || 1,
     rhythmValue: (id,date) => Number(taskState.rhythm.events.find(event => event.habitId === id && event.date === date)?.value || 0),
     rhythmDay: date => ({ qualified: overrides.foundationDates?.includes(date) || false }),
     getSupabaseSession: overrides.getSupabaseSession || (async () => null),
@@ -177,7 +178,7 @@ test('48-day Commitment preserves aligned days without a manual final review', (
 
 test('v3 independently awards grouped nourishment, skincare, and spiritual evidence', () => {
   const date='2026-09-26';
-  const events=['breakfast','lunch','protein','supplements','face-wash','moisturizer','\u0067\u0069\u0074\u0061','meditation'].map((habitId,index)=>({id:`e${index}`,date,habitId,value:1}));
+  const events=['breakfast','lunch','protein','supplements','face-wash','moisturizer','\u0067\u0069\u0074\u0061','\u006e\u0061\u006d\u0061\u002d\u006a\u0061\u0070\u0061'].map((habitId,index)=>({id:`e${index}`,date,habitId,value:1}));
   events.push({id:'water',date,habitId:'water',value:3});
   const evidence=setup({tasks:{rhythm:{events}}}).context.rewardEvidence(date);
   assert.equal(evidence.ruleVersion,3);
@@ -185,6 +186,21 @@ test('v3 independently awards grouped nourishment, skincare, and spiritual evide
   assert.equal(evidence.scores.care,6);
   assert.equal(evidence.scores.spiritual,8);
   assert.equal(evidence.total,34);
+});
+
+test('v3 requires full Practice-b and Mentor rounds before spiritual completion', () => {
+  const date='2026-09-26';
+  const partial=setup({tasks:{rhythm:{events:[
+    {id:'practice-b-1',date,habitId:'\u0061\u0064\u0069\u0074\u0079\u0061',value:1},
+    {id:'practice-a-1',date,habitId:'\u0063\u0068\u0061\u006c\u0069\u0073\u0061',value:2},
+  ]}}}).context.rewardEvidence(date);
+  assert.equal(partial.scores.spiritual,0);
+
+  const complete=setup({tasks:{rhythm:{events:[
+    {id:'practice-b-3',date,habitId:'\u0061\u0064\u0069\u0074\u0079\u0061',value:3},
+    {id:'practice-a-3',date,habitId:'\u0063\u0068\u0061\u006c\u0069\u0073\u0061',value:3},
+  ]}}}).context.rewardEvidence(date);
+  assert.equal(complete.scores.spiritual,8);
 });
 
 test('v3 boundary deductions are capped and never create negative daily earnings', () => {
