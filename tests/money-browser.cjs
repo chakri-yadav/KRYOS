@@ -27,6 +27,8 @@ const assert = require('node:assert/strict');
     await page.getByRole('button', { name: 'Save record' }).click();
     assert.equal(await page.evaluate(() => moneySettlement().differenceCents), 0);
     assert.match(await page.locator('.money-reconcile').textContent(), /matches to the cent/);
+    await page.evaluate(() => { moneyStore().settlement.details = [{ label: 'Returned payment', amountCents: 500, note: 'Reversed, with no payment credit.' }]; renderMoneyView(); });
+    assert.match(await page.locator('.money-evidence-panel').textContent(), /Returned payment/);
     await page.getByRole('button', { name: 'Open call brief' }).first().click();
     assert.equal(await page.locator('.money-call-focus').count(), 1);
     assert.match(await page.locator('.money-focus-amount').textContent(), /\$100\.00/);
