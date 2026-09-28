@@ -15,13 +15,16 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.10.0";
+const APP_VERSION = "0.10.1";
 const APP_STAGE = "Money Command";
 const APP_RELEASE_DATE = "2026-09-27";
-const APP_STATUS = "Statement evidence and interest-pressure analytics are active";
-const APP_NEXT_MILESTONE = "Private statement correction and payoff scenarios";
+const APP_STATUS = "Statement evidence, Sadhana rhythm capture, and reward analytics are active";
+const APP_NEXT_MILESTONE = "Money recovery actions and reward integration";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Restored Nama Japa to Rhythm spirit practice tracking.",
+  "Made Aditya Hridayam and Hanuman Chalisa count visibly from 0 to 3 before they are treated as complete.",
+  "Added assistant ingestion support for exact counted Rhythm practices.",
   "Shows founder-confirmed Money reconciliation details from the Personal cloud checkpoint without publishing financial figures in code.",
   "Rebuilt Money around one next action, a focused call brief, and clearly named Amex and direct reimbursement amounts.",
   "Added a dated statement checkpoint that accepts a card split only when the amounts reconcile to the cent.",
