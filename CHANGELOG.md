@@ -2,6 +2,12 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.12.0 - Connected next-step navigation
+
+- Inner Command's dynamic Continue action now opens the right page and lands on the current Career step.
+- Added small contextual page links so core pages lead into the next relevant action or evidence view.
+- Corrected dynamic page buttons across the app and tightened the next-step card's layout and focus treatment.
+
 ## 0.11.1 - Dated journal activity evidence
 
 - Added a dedicated dated-evidence record for completed journal activity that must appear in Progress and Rewards without becoming an unfinished Action Vault commitment.
