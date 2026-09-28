@@ -2,12 +2,17 @@ param(
   [Parameter(Mandatory = $true)]
   [ValidateSet('create', 'hash', 'send')]
   [string] $Action,
-  [string] $RequestFile
+  [string] $RequestFile,
+  [string] $ExistingAccessDirectory
 )
 
 $ErrorActionPreference = 'Stop'
 $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $privateDir = Join-Path $projectRoot '.private'
+if ($ExistingAccessDirectory) {
+  if ($Action -ne 'send') { throw 'Existing access can only be reused for send; it cannot be created or replaced here.' }
+  $privateDir = (Resolve-Path -LiteralPath $ExistingAccessDirectory).Path
+}
 $vaultFile = Join-Path $privateDir 'assistant-token.dpapi'
 
 if ($Action -eq 'create') {

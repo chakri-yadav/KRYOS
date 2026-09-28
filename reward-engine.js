@@ -58,6 +58,7 @@ function legacyRewardEvidence(date) {
 }
 
 function rewardEvidence(date) {
+  if (typeof KryosRewardV4 !== 'undefined' && date >= KryosRewardV4.start) return KryosRewardV4.evaluate(date, taskState, careerState);
   if (date < REWARD_V3_START) return legacyRewardEvidence(date);
   const life=lifeStore(),tasks=typeof taskState==='undefined'?{}:taskState;
   const buckets=Object.fromEntries(Object.keys(REWARD_CATEGORIES).map(key=>[key,[]]));
@@ -130,6 +131,7 @@ function rewardEvidence(date) {
 }
 
 function rewardQualification(evidence) {
+  if(evidence.ruleVersion===4)return {pointsMet:evidence.credits>0,groundedMet:evidence.gates.work,remainingPoints:0,qualified:evidence.qualified};
   if(evidence.ruleVersion===3)return {pointsMet:evidence.total>0,groundedMet:evidence.scores.career+evidence.scores.launch+evidence.scores.responsibility>0,remainingPoints:0,qualified:evidence.total>0};
   const grounded = evidence.scores.launch + evidence.scores.career + evidence.scores.responsibility;
   return {
@@ -155,6 +157,7 @@ function reviewRewardDay(date, note = '') {
 function rewardEvidenceDates() {
   const life=lifeStore(),tasks=typeof taskState==='undefined'?{}:taskState;
   return [...new Set([
+    ...(typeof KryosRewardV4 !== 'undefined' ? KryosRewardV4.dates(tasks, typeof careerState==='undefined'?{}:careerState, toDateKey()) : []),
     ...(tasks.rhythm?.events||[]).map(e=>e.date),
     ...(tasks.launch?.marketEvents||[]).map(e=>e.date),
     ...(tasks.launch?.mockSessions||[]).map(e=>e.date),
@@ -171,7 +174,7 @@ function refreshAutomaticRewardAssessments() {
     const evidence=rewardEvidence(date),existing=store.dailyAssessments.find(e=>e.date===date);
     const evidenceIds=Object.values(evidence.buckets).flat().map(e=>e.id).sort();
     const signature=JSON.stringify({scores:evidence.scores,total:evidence.total,gross:evidence.gross,deduction:evidence.deduction,evidenceIds});
-    if(existing?.ruleVersion===3&&existing.signature===signature)return;
+    if(existing?.ruleVersion===evidence.ruleVersion&&existing.signature===signature&&JSON.stringify(existing.gates)===JSON.stringify(evidence.gates))return;
     const next={...evidence,evidenceIds,signature,note:'Calculated automatically from recorded evidence.',reviewedAt:new Date().toISOString(),revision:(existing?.revision||0)+1};
     delete next.buckets; upsertDailyAssessment(store,next); changed=true;
   });
@@ -180,6 +183,7 @@ function refreshAutomaticRewardAssessments() {
 }
 
 function rewardReviewStale(review) {
+  if(review.ruleVersion===4)return JSON.stringify(review.gates)!==JSON.stringify(rewardEvidence(review.date).gates)||review.total!==rewardEvidence(review.date).total;
   if (review.ruleVersion === 3) return review.signature!==JSON.stringify({scores:rewardEvidence(review.date).scores,total:rewardEvidence(review.date).total,gross:rewardEvidence(review.date).gross,deduction:rewardEvidence(review.date).deduction,evidenceIds:Object.values(rewardEvidence(review.date).buckets).flat().map(e=>e.id).sort()});
   if (review.ruleVersion !== 2) return false;
   const current = rewardEvidence(review.date);
@@ -188,7 +192,8 @@ function rewardReviewStale(review) {
 
 function rewardEligibility(reward) {
   const store = lifeStore();
-  const days = [...new Set(store.dailyAssessments.filter(a => a.qualified && a.date <= toDateKey()).map(a => a.date))].sort();
+  const strict=typeof KryosRewardV4!=='undefined';
+  const days = [...new Set(store.dailyAssessments.filter(a => a.qualified && a.date <= toDateKey()&&(!strict||a.ruleVersion===4)).map(a => a.date))].sort();
   const span = days.length ? Math.floor((new Date(`${days.at(-1)}T12:00:00`) - new Date(`${days[0]}T12:00:00`))/86400000)+1 : 0;
   const missingDays = Math.max(0,(reward.days || 0)-days.length);
   const missingSpan = Math.max(0,(reward.span || 0)-span);
@@ -198,12 +203,14 @@ function rewardEligibility(reward) {
   const windowStart = rewardDateAdd(toDateKey(), -Math.max(0, Number(reward.windowDays || 1) - 1));
   const qualifiedInWindow = days.filter(date => date >= windowStart).length;
   const missingWindowDays = Math.max(0, Number(reward.qualifiedDaysInWindow || 0) - qualifiedInWindow);
-  return { allowed: !missingDays && !missingSpan && !missingCooldown && !missingWindowDays, missingDays, missingSpan, missingCooldown, missingWindowDays, qualifiedInWindow };
+  const missingWork=!!reward.workToday&&!(strict?KryosRewardV4.evaluate(toDateKey(),taskState,careerState).gates.work:rewardQualification(rewardEvidence(toDateKey())).groundedMet);
+  return { allowed: !missingDays && !missingSpan && !missingCooldown && !missingWindowDays&&!missingWork, missingDays, missingSpan, missingCooldown, missingWindowDays, qualifiedInWindow,missingWork };
 }
 
 let rewardCloudNotice = '';
 let rewardCloudBusy = false;
 async function syncRewardLedger() {
+  if(typeof syncRewardV4==='function')return syncRewardV4();
   if (rewardCloudBusy) return;
   if (typeof getSupabaseClient !== 'function') {
     rewardCloudNotice = 'Credits are saved on this device. Cloud tools are unavailable in this build.';
