@@ -2,6 +2,12 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.8.1 - Money checkpoint context
+
+- Shows the founder-confirmed historical reconciliation details saved privately in the Personal profile.
+- Labels the recorded date as a reconciliation checkpoint rather than implying it is the statement close date or a live balance.
+- Preserves those details when the checkpoint form is edited.
+
 ## 0.8.0 - Money Command
 
 - Rebuilt the Money page with a clear next action, a focused call brief, and separate card and direct reimbursement figures.
