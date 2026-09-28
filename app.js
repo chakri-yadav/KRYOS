@@ -15,13 +15,16 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.7.0";
-const APP_STAGE = "Devi Sadhana and Automatic Rewards";
-const APP_RELEASE_DATE = "2026-09-26";
-const APP_STATUS = "48-day Devi Sadhana, rule-versioned rewards, and assistant evidence capture are active";
-const APP_NEXT_MILESTONE = "Premium evidence visuals for Actions, Rhythm, Progress, and Rewards";
+const APP_VERSION = "0.8.0";
+const APP_STAGE = "Money Command";
+const APP_RELEASE_DATE = "2026-09-27";
+const APP_STATUS = "Money command view and reconciled statement checkpoints are active";
+const APP_NEXT_MILESTONE = "Transaction-level Money ledger and statement import";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Rebuilt Money around one next action, a focused call brief, and clearly named Amex and direct reimbursement amounts.",
+  "Added a dated statement checkpoint that accepts a card split only when the amounts reconcile to the cent.",
+  "Preserved existing Money contacts, promises, payments, card snapshots, and friend balance history.",
   "Added cache-free cloud reads and a refresh check on every visible page show.",
   "Extended the Inner Command covenant through November 12, 2026 while preserving prior evidence.",
   "Marked the confirmed Personal reward reviews for Sunday September 21 through Wednesday September 24, 2026.",

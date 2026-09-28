@@ -9,7 +9,7 @@ major.minor.patch
 Canonical current version:
 
 ```text
-0.7.0
+0.8.0
 ```
 
 ## Meaning
@@ -31,6 +31,7 @@ Canonical current version:
 | `0.5.x` | Focused iPhone mobile experience |
 | `0.6.x` | Assistant capture and revision-safe sync |
 | `0.7.x` | Devi Sadhana and automatic reward system |
+| `0.8.x` | Money command and verified statement checkpoints |
 | `1.0.0` | Future public-ready product line |
 
 ## Bump Rules

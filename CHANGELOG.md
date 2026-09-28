@@ -2,6 +2,13 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.8.0 - Money Command
+
+- Rebuilt the Money page with a clear next action, a focused call brief, and separate card and direct reimbursement figures.
+- Added dated statement checkpoints with exact card-split reconciliation and direct reimbursement validation.
+- Preserved prior Money balances, contacts, promises, payments, adjustments, and card snapshots.
+- Kept personal settlement amounts out of the public code; a checkpoint is shown only after it is saved to the Personal profile.
+
 ## 0.7.0 - Devi Sadhana and Automatic Rewards
 
 - Reframed Inner Command as a 48-day Devi Sadhana from September 26 through November 12, 2026.
