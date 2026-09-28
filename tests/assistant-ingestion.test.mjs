@@ -64,3 +64,13 @@ test('water is set to a reported total rather than summed on a retry', () => {
   assert.equal(second.tasks.rhythm.events.length, 1);
   assert.equal(second.tasks.rhythm.events[0].value, 3);
 });
+
+test('statement import stores structured facts once by private document fingerprint', () => {
+  const raw = 'Statement cycle ending January 31 was reviewed.';
+  const operation = { type: 'money.statement.import', cycle_start: '2026-01-01', cycle_close: '2026-01-31', payment_due_date: '2026-02-20', closing_balance_cents: 300000, minimum_due_cents: 10000, purchase_interest_cents: 50, promo_interest_cents: 7000, purchase_apr_basis_points: 2849, promo_apr_basis_points: 2849, balance_subject_to_interest_cents: 305000, source_statement_hash: 'a'.repeat(64), evidence_quote: raw };
+  const first = projectRequest(makeRequest([operation], raw), baseTasks, baseCareer);
+  const second = projectRequest({ ...makeRequest([operation], raw), idempotency_key: 'different-request' }, first.tasks, baseCareer);
+  assert.equal(second.tasks.money.statementCycles.length, 1);
+  assert.equal(second.tasks.money.statementCycles[0].promoInterestCents, 7000);
+  assert.equal(second.effects[0].area, 'Money');
+});
