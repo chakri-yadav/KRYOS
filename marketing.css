@@ -142,6 +142,59 @@ body.marketing-mode #marketing-view {
 .marketing-footer span:first-child { color: #73817a; font-size: 9px; font-weight: 900; letter-spacing: .13em; }
 .marketing-footer i { width: 3px; height: 3px; border-radius: 50%; background: #bac4be; }
 
+/* Imported batches stay visibly separate from Career and Rewards. */
+.marketing-empty-badge.has-batch { border-color: #cae7d7; background: #eff9f3; color: #246448; }
+.marketing-empty-badge.has-batch i { background: #26936a; }
+.marketing-demo-banner { display: flex; align-items: center; gap: 12px; margin: -8px 0 18px; padding: 13px 16px; border: 1px solid #edcf92; border-radius: 13px; background: #fff8e8; color: #654b1e; }
+.marketing-demo-banner strong { flex: 0 0 auto; font-size: 10px; letter-spacing: .08em; }
+.marketing-demo-banner span { flex: 1; font-size: 12px; }
+.marketing-demo-banner button, .marketing-download-sample { border: 0; background: transparent; color: #286b4d; cursor: pointer; font: inherit; font-size: 11px; font-weight: 750; text-decoration: underline; text-underline-offset: 3px; }
+.marketing-import-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 14px 0; }
+.marketing-import-button { display: inline-flex; min-height: 40px; align-items: center; padding: 0 14px; border: 1px solid #b9d8c6; border-radius: 10px; background: #176f56; color: #fff; cursor: pointer; font-size: 12px; font-weight: 750; }
+.marketing-import-button:hover { background: #125a46; }
+.marketing-import-button input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+.marketing-import-controls .secondary-button { min-height: 40px; font-size: 11px; }
+.marketing-download-sample { padding: 8px; }
+.marketing-batch-picker { display: grid; grid-template-columns: auto minmax(0,320px); gap: 12px; align-items: center; margin-top: 14px; color: #5d7165; font-size: 11px; font-weight: 750; }
+.marketing-batch-picker select { min-height: 38px; padding: 0 10px; border: 1px solid #dce7df; border-radius: 9px; background: #fff; color: #30463a; font: inherit; }
+.marketing-status-filters { display: flex; gap: 7px; overflow-x: auto; padding: 12px 0 4px; scrollbar-width: thin; }
+.marketing-status-filters button { flex: 0 0 auto; padding: 7px 10px; border: 1px solid #e0e8e3; border-radius: 999px; background: #fff; color: #63746b; cursor: pointer; font-size: 10px; font-weight: 700; }
+.marketing-status-filters button.is-active { border-color: #6aaf87; background: #eaf6ee; color: #155d40; }
+.marketing-role-row { border-bottom: 1px solid #edf1ef; }
+.marketing-role-summary { display: grid; width: 100%; grid-template-columns: 2fr 1.2fr .9fr .8fr; gap: 18px; align-items: center; padding: 14px 2px; border: 0; background: transparent; color: #52645a; cursor: pointer; text-align: left; font: inherit; font-size: 11px; }
+.marketing-role-summary:hover { background: #f7fbf8; }
+.marketing-role-title { display: grid; min-width: 0; gap: 3px; }
+.marketing-role-title strong { overflow: hidden; color: #294438; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.marketing-role-title small { overflow: hidden; color: #62736a; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.marketing-role-title > span { display: flex; gap: 5px; flex-wrap: wrap; }
+.marketing-role-title i { padding: 3px 6px; border-radius: 999px; background: #f0f5f1; color: #6b7a71; font-size: 9px; font-style: normal; }
+.marketing-status-pill { justify-self: start; padding: 6px 9px; border: 1px solid #e4ebe6; border-radius: 999px; background: #f9fbf9; color: #50675b; font-size: 10px; }
+.marketing-role-details { padding: 16px; border: 1px solid #e4eee7; border-radius: 13px; background: #f8fbf9; }
+.marketing-detail-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; }
+.marketing-detail-grid section { min-width: 0; }
+.marketing-detail-grid h3 { margin: 0 0 8px; color: #315544; font-size: 12px; }
+.marketing-detail-grid h3:not(:first-child) { margin-top: 14px; }
+.marketing-detail-grid p, .marketing-detail-grid li { color: #66766d; font-size: 11px; line-height: 1.55; }
+.marketing-detail-grid p { margin: 0 0 7px; }
+.marketing-detail-grid p b { display: block; color: #354d40; font-size: 10px; }
+.marketing-detail-grid ul { margin: 0; padding-left: 17px; }
+.marketing-detail-grid a { color: #1a704f; font-size: 11px; }
+.marketing-raw-description { padding: 10px; border-radius: 9px; background: #fff; }
+.marketing-application-fields { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-top: 16px; padding-top: 14px; border-top: 1px solid #e3ebe5; }
+.marketing-application-fields label { display: grid; gap: 5px; color: #52675b; font-size: 10px; font-weight: 700; }
+.marketing-application-fields input, .marketing-application-fields select, .marketing-application-fields textarea { width: 100%; min-width: 0; padding: 8px; border: 1px solid #dce7df; border-radius: 8px; background: #fff; color: #30463a; font: inherit; font-size: 11px; }
+.marketing-application-fields .marketing-notes-field { grid-column: span 2; }
+.marketing-resume-field { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 9px; border: 1px dashed #cbded0; border-radius: 9px; background: #fff; color: #52675b; font-size: 10px; }
+.marketing-resume-field strong, .marketing-resume-field small { flex: 1 0 100%; }
+.marketing-resume-field small { color: #89958d; line-height: 1.4; }
+.marketing-resume-field button { padding: 5px 7px; border: 1px solid #dce7df; border-radius: 7px; background: #f7faf8; color: #286b4d; cursor: pointer; font-size: 10px; }
+.marketing-resume-upload { display: inline-flex; padding: 7px 9px; border-radius: 7px; background: #edf6f0; color: #286b4d; cursor: pointer; font-weight: 750; }
+.marketing-resume-upload input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+.marketing-demo-disclaimer { margin: 12px 0 0; color: #8a6421; font-size: 10px; }
+.marketing-role-row[hidden] { display: none; }
+.marketing-toast { position: fixed; z-index: 50; right: 22px; bottom: 22px; max-width: min(420px, calc(100vw - 32px)); padding: 12px 16px; border: 1px solid #cce4d4; border-radius: 12px; background: #183e31; color: #fff; box-shadow: 0 10px 30px rgb(0 0 0 / 16%); font-size: 12px; }
+.marketing-toast[hidden] { display: none; }
+
 .launch-marketing-entry { display: flex; width: 100%; min-height: 78px; align-items: center; gap: 15px; margin: 18px 0; padding: 13px 18px; border: 1px solid #dbe9e1; border-radius: 15px; background: linear-gradient(105deg, #fbfefc, #f0f8f3); color: #263c33; text-align: left; box-shadow: 0 8px 24px rgb(29 77 57 / 4%); transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
 .launch-marketing-entry:hover { transform: translateY(-1px); border-color: #afd5c0; box-shadow: 0 12px 28px rgb(29 77 57 / 8%); }
 .launch-marketing-entry:focus-visible { outline: 3px solid rgb(22 128 93 / 25%); outline-offset: 3px; }
@@ -174,6 +227,16 @@ body.marketing-mode #marketing-view {
   .marketing-list-head { grid-template-columns: 1.6fr 1fr .8fr; gap: 8px; margin-right: -16px; margin-left: -16px; padding-right: 16px; padding-left: 16px; font-size: 8px; }
   .marketing-list-head span:last-child { display: none; }
   .marketing-list-empty { min-height: 185px; }
+  .marketing-demo-banner { align-items: flex-start; flex-direction: column; gap: 7px; }
+  .marketing-role-summary { grid-template-columns: minmax(0,1fr) auto; gap: 8px; }
+  .marketing-role-summary > span:nth-child(2) { grid-column: 1; }
+  .marketing-role-summary > span:nth-child(3) { grid-column: 2; grid-row: 2; }
+  .marketing-role-summary > span:nth-child(4) { grid-column: 2; grid-row: 1; }
+  .marketing-list-head { display: none; }
+  .marketing-detail-grid { grid-template-columns: 1fr; gap: 14px; }
+  .marketing-application-fields { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .marketing-application-fields .marketing-notes-field { grid-column: 1 / -1; }
+  .marketing-batch-picker { grid-template-columns: 1fr; gap: 6px; }
   .marketing-footer { flex-wrap: wrap; font-size: 8px; }
 }
 
