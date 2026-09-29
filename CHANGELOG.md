@@ -2,6 +2,14 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.16.7 - Reliable Marketing role collapse state
+
+- Explicitly hide role-detail panels when their disclosure state is collapsed, even when the premium layout uses CSS Grid.
+- Add regression coverage for the collapsed-state rule.
+- No application data, workflow, sync behavior, or schema changed.
+- QA: Marketing/deployment tests, full test suite, live-page state inspection, and diff validation.
+- Known limitation: Marketing records and attached files remain browser-local and are not cloud-synced or backed up.
+
 ## 0.16.6 - Focused Marketing role detail experience
 
 - Rebuild the expanded role view as a focused briefing: role identity, at-a-glance facts, responsibilities, requirements, unknown/verify items, and a separate application record.
