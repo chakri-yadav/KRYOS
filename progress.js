@@ -156,9 +156,13 @@ function renderProgressDashboard() {
   const periodValues = days.map(day => progressRecords(day).length);
   const periodTotal = periodValues.reduce((sum, value) => sum + value, 0);
   const periodActive = periodValues.filter(Boolean).length;
+  const todayActivityCount = progressRecords(today, 'all').length;
 
   progressView.innerHTML = `<header class="progress-title progress-title-premium"><div><p class="section-kicker">KRYOS / Progress</p><h1>Proof that you are moving.</h1><p>Journal and direct activity, brought together. Corrections update these visuals.</p></div><span>${progressShortDate(today, { weekday: 'long', month: 'short', day: 'numeric' })}</span></header>
-    <section class="life-section evidence-today"><p class="section-kicker">TODAY</p><h2>${progressRecords(today, 'all').length} recorded activities</h2><p>Your saved activity is visible here, including partial Rhythm progress.</p><button class="secondary-button" data-life="day" data-date="${today}">See today's evidence</button></section>
+    <section class="life-section evidence-today ${todayActivityCount ? 'has-activity' : 'is-open'}" aria-labelledby="evidence-today-title">
+      <div class="evidence-today-copy"><p class="section-kicker">TODAY'S SIGNAL</p><h2 id="evidence-today-title">${todayActivityCount ? `${todayActivityCount} ${todayActivityCount === 1 ? 'step' : 'steps'} are on record.` : 'Your first step can start the signal.'}</h2><p>${todayActivityCount ? 'Your effort is visible here, including partial Rhythm progress.' : 'Nothing is missing. This is simply today’s starting point.'}</p><button class="secondary-button" data-life="day" data-date="${today}">See today's evidence</button></div>
+      <div class="evidence-today-stat" aria-label="${todayActivityCount} recorded activities today"><div class="evidence-today-orbit"><strong>${todayActivityCount}</strong></div><span>recorded<br>today</span></div>
+    </section>
     ${progressOverview(today)}
     ${progressJourney(today)}
     <section class="momentum-command">

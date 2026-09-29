@@ -2,6 +2,13 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.15.1 - Cloud visibility and Progress polish
+
+- Restore a direct desktop route to Cloud & versions and keep the settings destination available after refresh.
+- Show the four cross-device data areas with their latest snapshot times and revisions when available; link to the complete release history.
+- Replace the crowded reward cards with a balanced four-choice catalogue, explicit credit progress, and one clear focus state.
+- Rebuild the Progress today card as an encouraging evidence signal without an arbitrary target or shame-oriented zero state.
+
 ## 0.15.0 - Marketing workspace shell
 
 - Add a separate Marketing workspace entry from Career Launch, with a dedicated current-batch and saved-role list shell.
