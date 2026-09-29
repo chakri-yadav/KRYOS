@@ -15,13 +15,17 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.15.0";
-const APP_STAGE = "Marketing workspace shell";
+const APP_VERSION = "0.15.1";
+const APP_STAGE = "Cloud visibility and progress polish";
 const APP_RELEASE_DATE = "2026-09-28";
-const APP_STATUS = "Career Launch opens a separate, focused Marketing workspace";
+const APP_STATUS = "Cloud settings, version history, rewards, and daily evidence are easier to reach and read";
 const APP_NEXT_MILESTONE = "Marketing batch import and saved-role records";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Restored a clear desktop route to Cloud & versions and kept that destination on refresh.",
+  "Added per-area cloud snapshot timestamps and revisions, alongside the full release history.",
+  "Redesigned the four reward choices as a balanced, focused catalogue with clearer costs and next steps.",
+  "Rebuilt Progress's today signal so zero recorded activity feels like an open starting point, not a failure state.",
   "Added a separate Marketing workspace from Career Launch with smooth return and browser Back/Forward support.",
   "Added a current-batch area, searchable saved-role list shell, and live shared KRYOS cloud-state indicator.",
   "Kept job import, saved application records, and résumé uploads out of this shell milestone; no existing Career Launch data is changed.",
@@ -163,7 +167,7 @@ const TASK_TYPES = ["Task", "Checklist", "Goal", "Routine", "Habit"];
 const TASK_PRIORITIES = ["Low", "Medium", "High", "Critical"];
 const TASK_REPEATS = ["none", "daily", "weekdays", "weekly", "selected"];
 const TASK_VIEWS = ["today", "inbox", "upcoming"];
-const APP_PAGES = ["journal", "actions", "career", "launch", "marketing", "rhythm", "money", "progress", "rewards"];
+const APP_PAGES = ["journal", "actions", "career", "launch", "marketing", "rhythm", "money", "progress", "rewards", "settings"];
 const FIELD_TABS = ["today", "add", "habits", "pulse"];
 const HABIT_RANGES = [14, 30, 60, 90];
 const HABIT_PERIODS = ["day", "week", "month"];
@@ -3626,7 +3630,7 @@ function setPage(nextPage, targetId = "") {
       target.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
     });
   }
-  if (["actions", "career", "rhythm", "journal"].includes(nextPage)) refreshCloudData({ automatic: true });
+  if (["actions", "career", "rhythm", "journal", "settings"].includes(nextPage)) refreshCloudData({ automatic: true });
   if (nextPage === "rewards") syncRewardLedger();
 }
 
@@ -3708,7 +3712,7 @@ function render() {
     rewards: ["Reinforcement", "Rewards"],
     project: ["Direction", "Breakthrough Project"],
     review: ["Weekly only", "Review"],
-    settings: ["Privacy", "Settings"],
+    settings: ["Account, sync, version history", "Cloud & versions"],
   };
   const [eyebrow, title] = pageCopy[currentPage] ?? pageCopy.today;
   topbarEyebrow.textContent = eyebrow;
@@ -7389,6 +7393,26 @@ function renderSettingsView() {
   `;
 }
 
+function renderCloudVersionPanel() {
+  const signedIn = syncState.status === "connected" && Boolean(syncState.userId);
+  const areas = [
+    { key: "foundation", title: "Purpose & Foundation", detail: "Your direction and core principles" },
+    { key: "career", title: "Career", detail: "Roadmaps, checks, and completed work" },
+    { key: "tasks", title: "Actions, Rhythm, Launch & Money", detail: "Your daily records and reward evidence" },
+    { key: "journal", title: "Inner Command & Journal", detail: "Dated entries and reflections" },
+  ];
+  return `
+    <section class="sync-version-panel" aria-labelledby="sync-version-title">
+      <div class="sync-version-heading"><div><p class="section-kicker">CLOUD VERSIONS</p><h3 id="sync-version-title">Your KRYOS areas</h3><p>These four areas are checked for fresh updates across your devices.</p></div><span class="sync-version-total">${areas.length}<small>areas</small></span></div>
+      <div class="sync-version-grid">${areas.map(area => {
+        const updatedAt = syncState.remoteBlockVersions?.[area.key];
+        const revision = Number(syncState.remoteBlockRevisions?.[area.key] || 0);
+        const detail = updatedAt ? `Saved ${formatDateTime(updatedAt)}` : signedIn ? "No cloud snapshot found yet" : "Sign in to load cloud version";
+        return `<article class="sync-version-tile ${updatedAt ? "is-synced" : "is-empty"}"><i aria-hidden="true"></i><div><strong>${escapeHtml(area.title)}</strong><small>${escapeHtml(area.detail)}</small><span>${escapeHtml(detail)}</span></div><b>${revision > 0 ? `r${revision}` : updatedAt ? "Saved" : "—"}</b></article>`;
+      }).join("")}</div>
+    </section>`;
+}
+
 function renderSyncSettingsPanel() {
   const readiness = getSyncReadiness();
   const signedIn = syncState.status === "connected" && Boolean(syncState.userId);
@@ -7468,6 +7492,8 @@ function renderSyncSettingsPanel() {
         </div>
       </div>
 
+      ${renderCloudVersionPanel()}
+
       ${isDemoMode() ? "" : `<div class="assistant-access-panel">
         <div><p class="section-kicker">Assistant connection</p><h3>Let your assistant record what you say</h3><p class="meta">Create access once, then add the token to your private Codex environment. Your PIN is separate.</p></div>
         <div class="sync-button-row"><button class="secondary-button" type="button" ${signedIn ? "" : "disabled"} data-sync-action="assistant-token">Create assistant access</button><button class="secondary-button" type="button" ${signedIn ? "" : "disabled"} data-sync-action="assistant-revoke">Revoke assistant access</button></div>
@@ -7518,12 +7544,13 @@ function renderProductIdentityPanel() {
 
       <div class="release-note-panel">
         <div>
-          <p class="section-kicker">Release notes</p>
-          <h3>${escapeHtml(APP_STAGE)}</h3>
+          <p class="section-kicker">Latest release</p>
+          <h3>${escapeHtml(`${APP_VERSION} · ${APP_STAGE}`)}</h3>
         </div>
         <ul class="release-note-list">
-          ${APP_RELEASE_NOTES.map((note) => `<li>${escapeHtml(note)}</li>`).join("")}
+          ${APP_RELEASE_NOTES.slice(0, 4).map((note) => `<li>${escapeHtml(note)}</li>`).join("")}
         </ul>
+        <a class="release-history-link" href="https://github.com/chakri-yadav/KRYOS/blob/master/CHANGELOG.md" target="_blank" rel="noopener noreferrer">View complete version history <span aria-hidden="true">↗</span></a>
       </div>
     </section>
   `;

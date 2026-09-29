@@ -15,7 +15,7 @@ test('cross-device freshness has realtime and fast foreground fallbacks', () => 
   const schema = fs.readFileSync('supabase-schema.sql', 'utf8');
   assert.match(app, /postgres_changes/);
   assert.match(app, /setInterval[\s\S]*?5000/);
-  assert.match(app, /\["actions", "career", "rhythm", "journal"\][\s\S]*?refreshCloudData/);
+  assert.match(app, /\["actions", "career", "rhythm", "journal", "settings"\][\s\S]*?refreshCloudData/);
   assert.match(schema, /alter publication supabase_realtime add table public\.kryos_sync_blocks/);
 });
 
