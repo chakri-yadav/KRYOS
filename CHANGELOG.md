@@ -2,6 +2,12 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.15.0 - Marketing workspace shell
+
+- Add a separate Marketing workspace entry from Career Launch, with a dedicated current-batch and saved-role list shell.
+- Add smooth in-app return and browser Back/Forward routing, and reuse the shared KRYOS cloud state without claiming empty Marketing records are synced.
+- Keep batch import, job records, and résumé storage out of this shell milestone; preserve all existing Career Launch data.
+
 ## 0.14.0 - One reward rule for every recorded date
 
 - Recalculate all past and future reward days from completed source evidence using the same bounded rules.
