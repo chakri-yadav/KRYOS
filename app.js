@@ -15,13 +15,16 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.14.0";
-const APP_STAGE = "Evidence Integrity";
+const APP_VERSION = "0.15.0";
+const APP_STAGE = "Marketing workspace shell";
 const APP_RELEASE_DATE = "2026-09-28";
-const APP_STATUS = "Journal guardrails, dated Actions, structured drift, and focused Rewards are active";
-const APP_NEXT_MILESTONE = "Progress visual refinement";
+const APP_STATUS = "Career Launch opens a separate, focused Marketing workspace";
+const APP_NEXT_MILESTONE = "Marketing batch import and saved-role records";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Added a separate Marketing workspace from Career Launch with smooth return and browser Back/Forward support.",
+  "Added a current-batch area, searchable saved-role list shell, and live shared KRYOS cloud-state indicator.",
+  "Kept job import, saved application records, and résumé uploads out of this shell milestone; no existing Career Launch data is changed.",
   "Separated dated journal activity evidence from unfinished Action Vault commitments.",
   "Stopped completed journal activities from silently becoming new Action Vault commitments.",
   "Made backdated assistant completions stay on the journal date and added explicit reopen and remove controls.",
@@ -160,7 +163,7 @@ const TASK_TYPES = ["Task", "Checklist", "Goal", "Routine", "Habit"];
 const TASK_PRIORITIES = ["Low", "Medium", "High", "Critical"];
 const TASK_REPEATS = ["none", "daily", "weekdays", "weekly", "selected"];
 const TASK_VIEWS = ["today", "inbox", "upcoming"];
-const APP_PAGES = ["journal", "actions", "career", "launch", "rhythm", "money", "progress", "rewards"];
+const APP_PAGES = ["journal", "actions", "career", "launch", "marketing", "rhythm", "money", "progress", "rewards"];
 const FIELD_TABS = ["today", "add", "habits", "pulse"];
 const HABIT_RANGES = [14, 30, 60, 90];
 const HABIT_PERIODS = ["day", "week", "month"];
@@ -1176,7 +1179,9 @@ let securityState = loadSecurity();
 let syncState = loadSyncState();
 const savedUiState = loadUiState();
 let mode = savedUiState.mode === "edit" ? "edit" : "read";
-let currentPage = APP_PAGES.includes(savedUiState.currentPage) ? savedUiState.currentPage : "journal";
+let currentPage = window.location.hash === "#marketing"
+  ? "marketing"
+  : (APP_PAGES.includes(savedUiState.currentPage) ? savedUiState.currentPage : "journal");
 let activeEditSection = savedUiState.activeEditSection || "declaration";
 let returnProtocolOpen = false;
 let returnChecks = {};
@@ -1235,6 +1240,7 @@ const readView = document.querySelector("#read-view");
 const editView = document.querySelector("#edit-view");
 const careerView = document.querySelector("#career-view");
 const launchView = document.querySelector("#launch-view");
+const marketingView = document.querySelector("#marketing-view");
 const rhythmView = document.querySelector("#rhythm-view");
 const moneyView = document.querySelector("#money-view");
 const todayView = document.querySelector("#today-view");
@@ -2322,10 +2328,12 @@ function getGlobalCloudState() {
 function updateGlobalCloudState() {
   if (!globalCloudState) return;
   const cloud = getGlobalCloudState();
-  globalCloudState.className = `global-cloud-state state-${cloud.state}`;
-  globalCloudState.title = cloud.detail;
-  const label = globalCloudState.querySelector("span");
-  if (label) label.textContent = cloud.label;
+  document.querySelectorAll("[data-global-cloud-state]").forEach((indicator) => {
+    indicator.className = `global-cloud-state state-${cloud.state}`;
+    indicator.title = cloud.detail;
+    const label = indicator.querySelector("span");
+    if (label) label.textContent = cloud.label;
+  });
 }
 
 function setMobileRefreshState(stateName = "idle", label = "Refresh cloud data") {
@@ -3622,6 +3630,50 @@ function setPage(nextPage, targetId = "") {
   if (nextPage === "rewards") syncRewardLedger();
 }
 
+function openMarketingWorkspace() {
+  if (currentPage === "marketing") return;
+  const baseUrl = `${window.location.pathname}${window.location.search}`;
+  window.history.pushState({ kryosMarketing: true, from: currentPage }, "", `${baseUrl}#marketing`);
+  setPage("marketing");
+}
+
+function returnFromMarketing() {
+  if (window.history.state?.kryosMarketing) {
+    window.history.back();
+    return;
+  }
+  window.history.replaceState({ kryosPage: "launch" }, "", `${window.location.pathname}${window.location.search}`);
+  animateMarketingReturn();
+  setPage("launch");
+}
+
+function animateMarketingReturn() {
+  if (!launchView) return;
+  launchView.classList.remove("marketing-returning");
+  requestAnimationFrame(() => launchView.classList.add("marketing-returning"));
+  window.setTimeout(() => launchView.classList.remove("marketing-returning"), 320);
+}
+
+function establishMarketingHistory() {
+  if (currentPage !== "marketing" || window.history.state?.kryosMarketing) return;
+  const baseUrl = `${window.location.pathname}${window.location.search}`;
+  if (window.location.hash === "#marketing") {
+    window.history.replaceState({ kryosPage: "launch" }, "", baseUrl);
+  }
+  window.history.pushState({ kryosMarketing: true, from: "launch" }, "", `${baseUrl}#marketing`);
+}
+
+window.addEventListener("popstate", () => {
+  if (window.location.hash === "#marketing") {
+    if (currentPage !== "marketing") setPage("marketing");
+    return;
+  }
+  if (currentPage === "marketing") {
+    animateMarketingReturn();
+    setPage("launch");
+  }
+});
+
 function setFieldTab(nextTab) {
   activeFieldTab = FIELD_TABS.includes(nextTab) ? nextTab : "today";
   fieldButtons.forEach((button) => {
@@ -3634,6 +3686,7 @@ function setFieldTab(nextTab) {
 function render() {
   saveUiState();
   document.body.classList.toggle("demo-mode", isDemoMode());
+  document.body.classList.toggle("marketing-mode", currentPage === "marketing");
   appShell?.classList.toggle("is-demo-mode", isDemoMode());
   if (activeProfileBadge) {
     activeProfileBadge.textContent = getModeLabel();
@@ -3673,6 +3726,7 @@ function render() {
   editView?.classList.add("is-hidden");
   careerView?.classList.add("is-hidden");
   launchView?.classList.add("is-hidden");
+  marketingView?.classList.add("is-hidden");
   rhythmView?.classList.add("is-hidden");
   moneyView?.classList.add("is-hidden");
   habitsView?.classList.add("is-hidden");
@@ -3683,6 +3737,7 @@ function render() {
   actionsView?.classList.toggle("is-hidden", currentPage !== "actions");
   careerView?.classList.toggle("is-hidden", currentPage !== "career");
   launchView?.classList.toggle("is-hidden", currentPage !== "launch");
+  marketingView?.classList.toggle("is-hidden", currentPage !== "marketing");
   rhythmView?.classList.toggle("is-hidden", currentPage !== "rhythm");
   moneyView?.classList.toggle("is-hidden", currentPage !== "money");
   progressView?.classList.toggle("is-hidden", currentPage !== "progress");
@@ -3699,6 +3754,10 @@ function render() {
   if (currentPage === "actions") renderActionVault();
   if (currentPage === "career") renderCareerView();
   if (currentPage === "launch") renderLaunchView();
+  if (currentPage === "marketing") {
+    marketingView.innerHTML = renderMarketingView();
+    updateGlobalCloudState();
+  }
   if (currentPage === "rhythm") renderRhythmView();
   if (currentPage === "money") renderMoneyView();
   if (currentPage === "progress") renderLifeProgress();
@@ -9135,7 +9194,13 @@ document.addEventListener("click", async (event) => {
 
   const inlinePageButton = target.closest("[data-page]");
   if (inlinePageButton) {
-    setPage(inlinePageButton.dataset.page, inlinePageButton.dataset.pageTarget || "");
+    if (inlinePageButton.dataset.page === "marketing") openMarketingWorkspace();
+    else setPage(inlinePageButton.dataset.page, inlinePageButton.dataset.pageTarget || "");
+    return;
+  }
+
+  if (target.closest("[data-marketing-back]")) {
+    returnFromMarketing();
     return;
   }
 
@@ -9781,6 +9846,7 @@ document.addEventListener("input", (event) => {
 });
 
 if (isSecurityUnlocked) touchSecuritySession(true);
+establishMarketingHistory();
 applyConfirmedHistoricalRewardReviews();
 const sadhanaMigrationNeeded = !isDemoMode()
   && (taskState.life?.innerCommand?.covenant?.startDate !== '2026-09-26'
