@@ -52,3 +52,16 @@ test('refresh bypasses stale cloud responses and covenant ends November 12', () 
   assert.match(html, /data-sync-action="safe-refresh"/);
   assert.match(rewards, /start:'2026-09-26', end:'2026-11-12', requiredDays:48/);
 });
+
+test('successful cloud sign-in immediately recovers data and watches for assistant imports', () => {
+  const app = fs.readFileSync('app.js', 'utf8');
+  const signIn = app.slice(app.indexOf('async function signInSupabaseWithPassword'), app.indexOf('async function resendSupabaseConfirmation'));
+  assert.match(signIn, /if \(data\.session\)[\s\S]*?refreshCloudData\(\{ automatic: true \}\)/);
+  assert.match(signIn, /startCloudFreshnessMonitor\(data\.session\)/);
+  assert.match(signIn, /latest Personal cloud data is now loaded/);
+});
+
+test('cloud reconciliation detects a newer database revision even when its timestamp is unchanged', () => {
+  const app = fs.readFileSync('app.js', 'utf8');
+  assert.match(app, /remoteAdvanced = isAfter\(remoteAt, knownRemoteAt\) \|\| remoteRevision > knownRemoteRevision/);
+});
