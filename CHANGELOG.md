@@ -2,6 +2,10 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.16.1 - Active application count correction
+
+- Do not count closed `Not selected` records as active applications.
+
 ## 0.16.0 - Marketing batch import and application tracking
 
 - Add JSON batch import, a searchable Marketing role list, complete source/posting detail, and editable per-role application notes.
