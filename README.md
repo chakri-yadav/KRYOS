@@ -6,8 +6,8 @@ It is not a generic todo app, journal, or habit tracker. KRYOS is designed to he
 
 ## Current Status
 
-- Version: `0.16.6`
-- Stage: Focused Marketing role detail experience over the existing batch and application workspace
+- Version: `0.16.7`
+- Stage: Focused Marketing role detail experience with reliable collapsed and expanded states
 - Audience: private personal daily use
 - App type: local-first browser application
 - Marketing: batches, application records, and per-role attachments are browser-local; attachments are limited to 10 MB each and are not cloud-synced or included in JSON backups yet. The premium role-detail view preserves this behavior and presents each captured role and its application record in clearer, labeled sections.
