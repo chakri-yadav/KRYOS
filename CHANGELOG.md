@@ -2,6 +2,15 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.16.6 - Focused Marketing role detail experience
+
+- Rebuild the expanded role view as a focused briefing: role identity, at-a-glance facts, responsibilities, requirements, unknown/verify items, and a separate application record.
+- Keep the full captured posting available on demand; keep the original source action prominent.
+- Group application progress and contact details with semantic fieldsets, while preserving status, dates, résumé version, contact fields, notes, and all file controls.
+- No Marketing record schema, cloud-sync behavior, or personal data changed.
+- QA: Marketing unit tests, deployment/cache tests, full test suite, and diff validation.
+- Known limitation: Marketing records and attached files remain browser-local and are not cloud-synced or backed up.
+
 ## 0.16.5 - Premium Marketing visual refinement
 
 - Elevate the existing Marketing batch panel, job list, status chips, posting details, application fields, and attachment area with a consistent premium visual hierarchy.
