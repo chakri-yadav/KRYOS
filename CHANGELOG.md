@@ -2,6 +2,14 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.16.2 - Marketing application files
+
+- Add per-role file attachments for résumés, cover letters, portfolios/work samples, certificates, job descriptions, and custom supporting files.
+- Keep binaries in browser IndexedDB and small attachment metadata with each role; preserve résumé version context and support download/removal.
+- Reject empty, unsupported, and over-10-MB files before saving; report browser storage failures and clean up a file when its metadata cannot be saved.
+- Keep file attachments browser-local and explicitly outside cloud sync and JSON backups.
+- Add failure-path coverage for file validation, browser storage errors, and attachment save/download/remove lifecycle.
+
 ## 0.16.1 - Active application count correction
 
 - Do not count closed `Not selected` records as active applications.
