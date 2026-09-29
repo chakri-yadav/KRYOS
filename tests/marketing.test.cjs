@@ -46,7 +46,7 @@ function loadMarketing(options = {}) {
   };
   context.globalThis = context;
   const source = fs.readFileSync('marketing.js', 'utf8');
-  vm.runInNewContext(`${source}\nglobalThis.__test = { MARKETING_SAMPLE_ROLES, marketingImport, marketingRead, marketingSafeUrl, renderMarketingView, marketingValidateAttachment, marketingSaveAttachment, marketingGetFile, marketingRemoveAttachment, marketingFileId };`, context);
+  vm.runInNewContext(`${source}\nglobalThis.__test = { MARKETING_SAMPLE_ROLES, marketingImport, marketingCreateRole, marketingRead, marketingSafeUrl, renderMarketingView, marketingValidateAttachment, marketingSaveAttachment, marketingGetFile, marketingRemoveAttachment, marketingFileId };`, context);
   return { api: context.__test, storage, listeners, blobs, failStorageWrite: value => context.__setStorageFailure(value) };
 }
 
@@ -151,6 +151,55 @@ test('Marketing workspace exposes the full posting record and application tracki
   const app = fs.readFileSync('app.js', 'utf8');
   assert.match(app, /removeModeStorageValue\("kryos-marketing-batches-v1", modeName\)/);
   assert.match(app, /marketingClearFiles\(modeName\)/);
+});
+
+test('manual role entry creates a complete editable posting in a real batch', () => {
+  const { api } = loadMarketing();
+  const role = api.marketingCreateRole({
+    company: '  Sample Employer  ', title: 'Analyst', source_url: 'https://example.com/jobs/analyst', location: 'Chicago',
+    salary: '$80k–$95k', work_mode: 'Hybrid', sponsorship: 'Unknown / verify', posted_at: '2026-09-28', status: 'Saved',
+    responsibilities: 'Build reports\nPartner with operations', requirements: 'SQL\nClear writing', raw_description: 'Captured description', unknown_information: 'Confirm location\nAsk about sponsorship',
+  });
+  const data = api.marketingRead();
+  assert.equal(role.company, 'Sample Employer');
+  assert.equal(role.responsibilities.length, 2);
+  assert.deepEqual(Array.from(role.requirements), ['SQL', 'Clear writing']);
+  assert.deepEqual(Array.from(role.unknown_information), ['Confirm location', 'Ask about sponsorship']);
+  assert.equal(role.raw_description, 'Captured description');
+  assert.equal(role.application.status, 'Saved');
+  assert.equal(role.manually_added, true);
+  assert.equal(data.batches.length, 1);
+  assert.equal(data.batches[0].name, 'Manually added roles');
+  assert.equal(data.batches[0].demo, false);
+});
+
+test('manual roles append to selected real batches, never to fictional demo data', () => {
+  const { api } = loadMarketing();
+  api.marketingImport({ format: 'kryos-marketing-batch', version: 1, name: 'Filtered batch', roles: [{ id: 'real-role', company: 'Real Co', title: 'Analyst' }] });
+  api.marketingCreateRole({ company: 'Another Co', title: 'Coordinator' });
+  assert.equal(api.marketingRead().batches[0].roles.length, 2);
+
+  const demo = loadMarketing();
+  demo.api.renderMarketingView();
+  const manual = demo.api.marketingCreateRole({ company: 'Owner entry', title: 'Coordinator' });
+  const batches = demo.api.marketingRead().batches;
+  assert.equal(batches.length, 2);
+  assert.equal(batches.find(batch => batch.demo).roles.length, 10);
+  assert.equal(batches.find(batch => batch.roles.some(role => role.id === manual.id)).demo, false);
+});
+
+test('manual role validation fails safely and the form exposes the complete posting fields', () => {
+  const { api, storage, listeners } = loadMarketing();
+  assert.throws(() => api.marketingCreateRole({ title: 'Analyst' }), /company and job title/);
+  assert.throws(() => api.marketingCreateRole({ company: 'Example', title: 'Analyst', source_url: 'javascript:alert(1)' }), /http or https/);
+  assert.equal(storage.size, 0);
+  listeners.click({ target: { closest: selector => selector === '[data-marketing-add-role]' ? {} : null } });
+  const html = api.renderMarketingView();
+  for (const field of ['company', 'title', 'source_url', 'location', 'salary', 'work_mode', 'sponsorship', 'posted_at', 'responsibilities', 'requirements', 'raw_description', 'unknown_information']) {
+    assert.match(html, new RegExp(`name="${field}"`));
+  }
+  assert.match(html, /data-marketing-role-form/);
+  assert.match(html, /Save role/);
 });
 
 test('Marketing premium visuals preserve every stage and make browser-local storage explicit', () => {
