@@ -60,9 +60,9 @@ test('successful cloud sign-in immediately recovers data and watches for assista
   assert.match(signIn, /if \(data\.session\)[\s\S]*?refreshCloudData\(\{ automatic: true \}\)/);
   assert.match(signIn, /startCloudFreshnessMonitor\(data\.session\)/);
   assert.match(signIn, /latest Personal cloud data is now loaded/);
-  assert.match(html, /app\.js\?v=0\.16\.5-marketing-visuals/);
-  assert.match(html, /marketing\.css\?v=0\.16\.5-marketing-visuals/);
-  assert.match(html, /marketing\.js\?v=0\.16\.5-marketing-visuals/);
+  assert.match(html, /app\.js\?v=0\.16\.6-marketing-role-detail/);
+  assert.match(html, /marketing\.css\?v=0\.16\.6-marketing-role-detail/);
+  assert.match(html, /marketing\.js\?v=0\.16\.6-marketing-role-detail/);
 });
 
 test('cloud reconciliation detects a newer database revision even when its timestamp is unchanged', () => {
