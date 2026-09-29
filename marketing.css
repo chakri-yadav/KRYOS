@@ -190,6 +190,18 @@ body.marketing-mode #marketing-view {
 .marketing-resume-field button { padding: 5px 7px; border: 1px solid #dce7df; border-radius: 7px; background: #f7faf8; color: #286b4d; cursor: pointer; font-size: 10px; }
 .marketing-resume-upload { display: inline-flex; padding: 7px 9px; border-radius: 7px; background: #edf6f0; color: #286b4d; cursor: pointer; font-weight: 750; }
 .marketing-resume-upload input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+.marketing-attachments > p { flex: 1 0 100%; margin: -4px 0 2px; color: #78877e; line-height: 1.45; }
+.marketing-attachment-item { display: grid; grid-template-columns: auto minmax(110px,1fr) auto auto; align-items: center; gap: 5px 8px; width: 100%; padding: 8px; border: 1px solid #e6eee8; border-radius: 8px; background: #fbfdfb; }
+.marketing-attachment-type { padding: 4px 6px; border-radius: 99px; background: #edf6f0; color: #286b4d; font-size: 9px; font-weight: 750; }
+.marketing-attachment-name { overflow: hidden; color: #30483a; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.marketing-attachment-item small { grid-column: 2 / 5; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.marketing-attachment-item button { grid-row: 1; }
+.marketing-attachments-empty { flex: 1 0 100%; color: #89958d; }
+.marketing-attachment-add { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; width: 100%; padding: 9px; border-radius: 8px; background: #f6faf7; }
+.marketing-attachment-add > label:not(.marketing-resume-upload) { display: grid; gap: 4px; color: #66766d; font-size: 9px; font-weight: 700; }
+.marketing-attachment-add select, .marketing-attachment-add input[type="text"] { min-height: 30px; padding: 5px 7px; border: 1px solid #dce7df; border-radius: 6px; background: #fff; color: #30483a; font: inherit; }
+.marketing-attachment-add label > span { color: #8a968f; font-weight: 400; }
+@media (max-width: 640px) { .marketing-attachment-item { grid-template-columns: minmax(0,1fr) auto auto; } .marketing-attachment-type { grid-column: 1 / -1; justify-self: start; } .marketing-attachment-name { grid-column: 1; } .marketing-attachment-item small { grid-column: 1 / -1; grid-row: 3; } .marketing-attachment-add { align-items: stretch; } .marketing-attachment-add > label:not(.marketing-resume-upload) { flex: 1 1 130px; } }
 .marketing-demo-disclaimer { margin: 12px 0 0; color: #8a6421; font-size: 10px; }
 .marketing-role-row[hidden] { display: none; }
 .marketing-toast { position: fixed; z-index: 50; right: 22px; bottom: 22px; max-width: min(420px, calc(100vw - 32px)); padding: 12px 16px; border: 1px solid #cce4d4; border-radius: 12px; background: #183e31; color: #fff; box-shadow: 0 10px 30px rgb(0 0 0 / 16%); font-size: 12px; }
