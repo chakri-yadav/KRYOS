@@ -2,6 +2,15 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.16.5 - Premium Marketing visual refinement
+
+- Elevate the existing Marketing batch panel, job list, status chips, posting details, application fields, and attachment area with a consistent premium visual hierarchy.
+- Improve text contrast, focus visibility, touch target sizing, and responsive spacing without removing job data or changing application behavior.
+- Distinguish KRYOS account sync state from browser-local Marketing batch and file storage; clarify demo and local-storage notices.
+- No Marketing record schema, cloud-sync behavior, or personal data changed.
+- QA: Marketing unit tests, deployment/cache tests, full test suite, and diff validation.
+- Known limitation: Marketing records and attached files remain browser-local and are not cloud-synced or backed up.
+
 ## 0.16.4 - Visible Sadhana drift evidence
 
 - Render assistant-recorded `drift` statuses as visible Day 1–48 drift markers instead of grey, unreviewed-looking days.
