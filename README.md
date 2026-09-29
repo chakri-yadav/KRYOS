@@ -6,11 +6,11 @@ It is not a generic todo app, journal, or habit tracker. KRYOS is designed to he
 
 ## Current Status
 
-- Version: `0.16.7`
-- Stage: Focused Marketing role detail experience with reliable collapsed and expanded states
+- Version: `0.17.0`
+- Stage: Focused Marketing job tracking with manual role capture and reliable collapsed/expanded details
 - Audience: private personal daily use
 - App type: local-first browser application
-- Marketing: batches, application records, and per-role attachments are browser-local; attachments are limited to 10 MB each and are not cloud-synced or included in JSON backups yet. The premium role-detail view preserves this behavior and presents each captured role and its application record in clearer, labeled sections.
+- Marketing: imported batches, manually added roles, application records, and per-role attachments are browser-local; attachments are limited to 10 MB each and are not cloud-synced or included in JSON backups yet. Manually added roles can be captured directly in the workspace and tracked alongside imported roles.
 - Sync status: local-first with Supabase task, career, and reward paths configured; successful sign-in immediately pulls fresh Personal data, starts realtime/poll refresh, and shows assistant-recorded Sadhana drift
 - Backend status: Personal assistant ingestion and revision-checked task/career writes use Supabase; a private assistant token is required for direct capture
 

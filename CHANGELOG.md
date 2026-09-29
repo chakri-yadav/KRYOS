@@ -2,6 +2,16 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.17.0 - Manual Marketing role capture
+
+- Add a low-friction manual job entry form for company, title, original link, location, salary, work arrangement, sponsorship, posted date, posting text, responsibilities, requirements, and unknowns to verify.
+- Let the user choose the initial tracking status; saved roles open in the existing detail view to continue with application contacts, notes, résumé version, and attachments.
+- Add manual roles to the selected non-demo batch; when the demo batch is selected, create a separate real "Manually added roles" batch rather than mixing real entries into fictional fixtures.
+- Validate required fields and source URL protocol; retain imported-batch workflow and preserve disclosures about browser-local storage.
+- No cloud schema or personal KRYOS data changed.
+- QA: Marketing/deployment tests, full test suite, diff validation, and live-page verification.
+- Known limitation: Marketing records and files remain browser-local and are not cloud-synced or included in KRYOS backups.
+
 ## 0.16.7 - Reliable Marketing role collapse state
 
 - Explicitly hide role-detail panels when their disclosure state is collapsed, even when the premium layout uses CSS Grid.
