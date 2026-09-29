@@ -2,6 +2,13 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.16.3 - Immediate Personal cloud recovery
+
+- After a successful Cloud sign-in, immediately reconcile the open page from the Personal Supabase profile and start its realtime and five-second freshness monitor.
+- Treat an increased sync-block revision as new data even if the block timestamp did not change.
+- Preserve local work on detected conflicts; sign-in recovery never pushes local data over the cloud.
+- Add regression checks for sign-in recovery and revision-based freshness.
+
 ## 0.16.2 - Marketing application files
 
 - Add per-role file attachments for résumés, cover letters, portfolios/work samples, certificates, job descriptions, and custom supporting files.

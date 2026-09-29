@@ -15,7 +15,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.16.2";
+const APP_VERSION = "0.16.3";
 const APP_STAGE = "Marketing batch and application workspace";
 const APP_RELEASE_DATE = "2026-09-29";
 const APP_STATUS = "Marketing keeps per-role application notes and browser-local résumé and supporting-file attachments separate from Career and Rewards";
@@ -6912,6 +6912,20 @@ async function signInSupabaseWithPassword() {
   }
   saveSyncState();
   render();
+  if (data.session) {
+    // Signing in is the start of cloud recovery: don't leave an already-open
+    // page showing only its browser copy until the user navigates or reloads.
+    const recovery = await refreshCloudData({ automatic: true });
+    await startCloudFreshnessMonitor(data.session).catch((monitorError) => {
+      console.warn("KRYOS live freshness monitor unavailable.", monitorError);
+    });
+    if (!recovery.error && !recovery.conflicts) {
+      syncNotice = recovery.updated
+        ? "Signed in. The latest Personal cloud data is now loaded."
+        : "Signed in. KRYOS is up to date.";
+      render();
+    }
+  }
 }
 
 async function resendSupabaseConfirmation() {
@@ -7084,7 +7098,9 @@ async function refreshCloudData({ automatic = false } = {}) {
       const localEvidence = getSyncEvidenceScore(row.block_key, localBlock?.value);
       const remoteEvidence = getSyncEvidenceScore(row.block_key, row.payload);
       const recoveryFromStaleLocal = !knownRemoteAt && remoteEvidence > localEvidence;
-      const remoteAdvanced = isAfter(remoteAt, knownRemoteAt);
+      const knownRemoteRevision = Number(syncState.remoteBlockRevisions?.[row.block_key] || 0);
+      const remoteRevision = Number(row.revision || 0);
+      const remoteAdvanced = isAfter(remoteAt, knownRemoteAt) || remoteRevision > knownRemoteRevision;
       if (!remoteAdvanced && knownRemoteAt === remoteAt) nextRemoteBlockRevisions[row.block_key] = Number(row.revision || 0);
       if (!recoveryFromStaleLocal && !remoteAdvanced) continue;
       const localChangedSinceRemote = knownRemoteAt
