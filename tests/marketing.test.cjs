@@ -162,7 +162,12 @@ test('Marketing premium visuals preserve every stage and make browser-local stor
   }
   assert.match(html, /KRYOS ACCOUNT/);
   assert.match(html, /Marketing batches and files stay in this browser/);
-  assert.match(html, /Original posting text/);
+  assert.match(html, /Read full captured posting/);
+  assert.match(html, /marketing-detail-overview/);
+  assert.match(html, /What you’ll do/);
+  assert.match(html, /Unknown or verify/);
+  assert.match(html, /<fieldset class="marketing-form-group"><legend>Progress<\/legend>/);
+  assert.match(html, /<fieldset class="marketing-form-group"><legend>Contact details used<\/legend>/);
   assert.match(html, /marketing-attachments/);
   const css = fs.readFileSync('marketing.css', 'utf8');
   assert.match(css, /\.marketing-batch-card[\s\S]*?linear-gradient\(118deg/);
