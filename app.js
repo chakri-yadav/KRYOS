@@ -15,13 +15,15 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.16.3";
-const APP_STAGE = "Marketing batch and application workspace";
+const APP_VERSION = "0.16.4";
+const APP_STAGE = "Marketing workspace and reliable Sadhana evidence";
 const APP_RELEASE_DATE = "2026-09-29";
 const APP_STATUS = "Marketing keeps per-role application notes and browser-local résumé and supporting-file attachments separate from Career and Rewards";
 const APP_NEXT_MILESTONE = "Marketing cloud synchronization and cross-device file storage";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Show assistant-recorded Inner Command drift as a visible, counted Sadhana day instead of leaving it looking unreviewed.",
+  "Use a distinct calm amber marker for drift while preserving the fixed 48-day calendar and aligned-day history.",
   "After signing in, immediately load the latest Personal cloud data and begin live freshness monitoring so assistant journal imports appear without manual navigation or reload.",
   "Treat a higher Supabase sync-block revision as a fresh update even when the payload timestamp is unchanged.",
   "Keep local edits safe during cloud reconciliation; sign-in recovery never uploads stale browser data over the Personal profile.",
