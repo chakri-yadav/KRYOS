@@ -9,15 +9,14 @@ major.minor.patch
 Canonical current version:
 
 ```text
-0.16.1
+0.16.3
 ```
 
 ## Meaning
 
 - `0`: private product built for the founder's personal ADHD support.
-- `14`: one consistent reward calculation across all recorded dates.
-- Patch: a compatible correction with no new user workflow or data migration.
 - Minor: a complete compatible user capability or milestone.
+- Patch: a compatible correction with no new user workflow or data migration.
 - Major: an incompatible product or data foundation change.
 
 ## Version Bands
