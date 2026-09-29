@@ -121,7 +121,7 @@ function renderMarketingView() {
   const batch = data.batches.find(item => item.id === marketingActiveBatchId) || data.batches[0] || null;
   const roles = batch?.roles || [];
   const demo = Boolean(batch?.demo);
-  const applied = roles.filter(role => ["Applied","Interview","Follow-up","Offer","Not selected"].includes(role.application?.status)).length;
+  const applied = roles.filter(role => ["Applied","Interview","Follow-up","Offer"].includes(role.application?.status)).length;
   const lastUpdated = batch ? marketingFormatDate(batch.importedAt.slice(0,10)) : "—";
   return `
     <div class="marketing-workspace">
