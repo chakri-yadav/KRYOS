@@ -2,6 +2,13 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.16.4 - Visible Sadhana drift evidence
+
+- Render assistant-recorded `drift` statuses as visible Day 1–48 drift markers instead of grey, unreviewed-looking days.
+- Count saved drift statuses in the Inner Command summary and today state while retaining compatibility with existing `breach` entries.
+- Add a calm amber drift visual and cache-bust the Inner Command styles and app script.
+- Add regression coverage for assistant-recorded drift visibility and counting.
+
 ## 0.16.3 - Immediate Personal cloud recovery
 
 - After a successful Cloud sign-in, immediately reconcile the open page from the Personal Supabase profile and start its realtime and five-second freshness monitor.
