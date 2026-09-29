@@ -9,7 +9,7 @@ major.minor.patch
 Canonical current version:
 
 ```text
-0.15.0
+0.15.1
 ```
 
 ## Meaning
@@ -38,7 +38,7 @@ Canonical current version:
 | `0.12.x` | Connected-page flow and direct next-step navigation |
 | `0.13.x` | Evidence-based reward credits and strict qualification |
 | `0.14.x` | Historical reward recalculation and private adjustment audit |
-| `0.15.x` | Career Launch → Marketing workspace shell |
+| `0.15.x` | Marketing workspace shell, cloud/version visibility, and Progress/reward visual polish |
 | `1.0.0` | Future public-ready product line |
 
 ## Bump Rules
