@@ -2,12 +2,18 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.16.0 - Marketing batch import and application tracking
+
+- Add JSON batch import, a searchable Marketing role list, complete source/posting detail, and editable per-role application notes.
+- Auto-import ten varied fictional job records on the first Marketing visit. All source links use the reserved `.invalid` domain; the demo can be removed and will stay removed.
+- Keep Marketing data separate from Career and Rewards, provide active-space reset cleanup and an explicit remove-demo action.
+- Keep this experiment browser-local; cloud synchronization for Marketing batches is not claimed by this release.
+
 ## 0.15.1 - Cloud visibility and Progress polish
 
-- Restore a direct desktop route to Cloud & versions and keep the settings destination available after refresh.
-- Show the four cross-device data areas with their latest snapshot times and revisions when available; link to the complete release history.
-- Replace the crowded reward cards with a balanced four-choice catalogue, explicit credit progress, and one clear focus state.
-- Rebuild the Progress today card as an encouraging evidence signal without an arbitrary target or shame-oriented zero state.
+- Restore the direct desktop route to Cloud & versions and keep that destination on refresh.
+- Show snapshot times and revisions for four cross-device data areas alongside the complete release history.
+- Redesign the four optional reward choices and Progress's today evidence card for clearer, calmer visuals.
 
 ## 0.15.0 - Marketing workspace shell
 
