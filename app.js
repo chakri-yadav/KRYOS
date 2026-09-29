@@ -15,13 +15,16 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.16.1";
-const APP_STAGE = "Marketing batch import experiment";
+const APP_VERSION = "0.16.2";
+const APP_STAGE = "Marketing batch and application workspace";
 const APP_RELEASE_DATE = "2026-09-29";
-const APP_STATUS = "Marketing accepts complete job batches and keeps application notes separate from Career and Rewards on this browser";
+const APP_STATUS = "Marketing keeps per-role application notes and browser-local résumé and supporting-file attachments separate from Career and Rewards";
 const APP_NEXT_MILESTONE = "Marketing cloud synchronization and cross-device file storage";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Add per-job attachments for résumés, cover letters, portfolio samples, certificates, job descriptions, and other supporting files.",
+  "Validate empty, unsupported, and over-10-MB files; show clear browser-storage failure feedback and clean up incomplete saves.",
+  "Keep application files in browser IndexedDB, with searchable labels, résumé-version context, download, and removal controls; files remain local and are not cloud-synced or backed up.",
   "Corrected the active-application summary so closed applications are not counted as still in process.",
   "Added a Marketing batch importer, searchable role list, full posting details, and editable application tracking fields.",
   "Import ten clearly labeled fictional roles on the first Marketing visit; reserved invalid links and browser-only storage keep them out of live records.",

@@ -3,9 +3,23 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 
-function loadMarketing() {
+function loadMarketing(options = {}) {
   const storage = new Map();
   const listeners = {};
+  let failStorageWrite = false;
+  const blobs = new Map();
+  const database = {
+    createObjectStore: () => ({}),
+    transaction: () => {
+      const tx = { error: null, objectStore: () => ({
+        put: record => { if (options.failIdbWrite) { tx.error = Object.assign(new Error('Quota exceeded'), { name: 'QuotaExceededError' }); setTimeout(() => tx.onerror?.(), 0); } else { blobs.set(record.id, record); setTimeout(() => tx.oncomplete?.(), 0); } },
+        get: id => { const request = {}; setTimeout(() => { request.result = blobs.get(id); request.onsuccess?.(); }, 0); return request; },
+        delete: id => { blobs.delete(id); setTimeout(() => tx.oncomplete?.(), 0); },
+      }) };
+      return tx;
+    },
+  };
+  const indexedDB = options.noIndexedDb ? undefined : { open: () => { const request = {}; setTimeout(() => { if (options.failOpen) { request.error = new Error('IndexedDB unavailable'); request.onerror?.(); } else { request.result = database; request.onupgradeneeded?.(); request.onsuccess?.(); } }, 0); return request; } };
   const context = {
     console,
     Date,
@@ -23,14 +37,17 @@ function loadMarketing() {
       querySelectorAll: () => [],
     },
     getModeStorageValue: key => storage.get(key) || null,
-    setModeStorageValue: (key, value) => storage.set(key, value),
+    getModeStorageKey: key => key,
+    setModeStorageValue: (key, value) => { if (failStorageWrite) throw Object.assign(new Error('Storage full'), { name: 'QuotaExceededError' }); storage.set(key, value); },
     removeModeStorageValue: key => storage.delete(key),
     globalThis: null,
+    indexedDB,
+    __setStorageFailure: value => { failStorageWrite = value; },
   };
   context.globalThis = context;
   const source = fs.readFileSync('marketing.js', 'utf8');
-  vm.runInNewContext(`${source}\nglobalThis.__test = { MARKETING_SAMPLE_ROLES, marketingImport, marketingRead, marketingSafeUrl, renderMarketingView };`, context);
-  return { api: context.__test, storage, listeners };
+  vm.runInNewContext(`${source}\nglobalThis.__test = { MARKETING_SAMPLE_ROLES, marketingImport, marketingRead, marketingSafeUrl, renderMarketingView, marketingValidateAttachment, marketingSaveAttachment, marketingGetFile, marketingRemoveAttachment, marketingFileId };`, context);
+  return { api: context.__test, storage, listeners, blobs, failStorageWrite: value => context.__setStorageFailure(value) };
 }
 
 test('Marketing demo import covers ten fictional posting variations without creating real applications', () => {
@@ -49,9 +66,55 @@ test('Marketing demo import covers ten fictional posting variations without crea
   assert.match(api.renderMarketingView(), /DEMO BATCH · FICTIONAL DATA/);
   assert.match(api.renderMarketingView(), /Import 10 demo roles/);
   assert.match(api.renderMarketingView(), /<strong>4<\/strong><span>In application process<\/span>/);
-  assert.match(api.renderMarketingView(), /Attach résumé/);
+  assert.match(api.renderMarketingView(), /Files for this application/);
+  assert.match(api.renderMarketingView(), /Portfolio \/ work sample/);
   assert.match(api.renderMarketingView(), /Download sample JSON/);
   assert.equal([...storage.keys()].length, 1, 'Marketing import writes only its own local record');
+});
+
+test('Marketing upload rejects absent, empty, oversized, and unsupported files before storage', () => {
+  const { api } = loadMarketing();
+  assert.throws(() => api.marketingValidateAttachment(null), /Choose a file/);
+  assert.throws(() => api.marketingValidateAttachment({ name: 'empty.pdf', size: 0 }), /empty/);
+  assert.throws(() => api.marketingValidateAttachment({ name: 'large.pdf', size: 10 * 1024 * 1024 + 1 }), /10 MB/);
+  assert.throws(() => api.marketingValidateAttachment({ name: 'payload.exe', size: 10 }), /not supported/);
+  assert.throws(() => api.marketingValidateAttachment({ name: 'missing-extension', size: 10 }), /not supported/);
+  assert.equal(api.marketingValidateAttachment({ name: 'Résumé.PDF', type: 'application/pdf', size: 10 }), true);
+});
+
+test('Marketing attachment saves per-job metadata and binary separately, then downloads/removes cleanly', async () => {
+  const { api, blobs } = loadMarketing();
+  api.marketingImport({ format: 'kryos-marketing-batch', version: 1, name: 'Upload test', roles: [{ id: 'upload-role', company: 'Example', title: 'Analyst', application: { resume_version: 'Analyst-v4' } }] });
+  const file = { name: 'analyst-v4.pdf', type: 'application/pdf', size: 42 };
+  await api.marketingSaveAttachment('upload-role', file, 'Résumé', 'Analyst résumé');
+  const metadata = api.marketingRead().batches[0].roles[0].application.attachments[0];
+  assert.equal(metadata.title, 'Analyst résumé');
+  assert.equal(metadata.resumeVersion, 'Analyst-v4');
+  assert.equal(metadata.name, file.name);
+  assert.equal(JSON.stringify(api.marketingRead()).includes('analyst-v4.pdf'), true, 'only attachment metadata is in Marketing storage');
+  assert.equal(blobs.size, 1);
+  assert.equal((await api.marketingGetFile(api.marketingFileId('upload-role', metadata.id))).blob, file);
+  await api.marketingRemoveAttachment('upload-role', metadata.id);
+  assert.equal(api.marketingRead().batches[0].roles[0].application.attachments.length, 0);
+  assert.equal(blobs.size, 0);
+});
+
+test('Marketing upload failures do not create a false attachment record or leave its binary behind', async () => {
+  const openFailure = loadMarketing({ failOpen: true });
+  openFailure.api.marketingImport({ format: 'kryos-marketing-batch', version: 1, roles: [{ id: 'role', company: 'Example', title: 'Analyst' }] });
+  await assert.rejects(openFailure.api.marketingSaveAttachment('role', { name: 'cv.pdf', size: 42 }, 'Résumé'), /IndexedDB unavailable/);
+  assert.equal(openFailure.api.marketingRead().batches[0].roles[0].application.attachments, undefined);
+
+  const quotaFailure = loadMarketing({ failIdbWrite: true });
+  quotaFailure.api.marketingImport({ format: 'kryos-marketing-batch', version: 1, roles: [{ id: 'role', company: 'Example', title: 'Analyst' }] });
+  await assert.rejects(quotaFailure.api.marketingSaveAttachment('role', { name: 'cv.pdf', size: 42 }, 'Résumé'), /10 MB|storage|saved/i);
+  assert.equal(quotaFailure.api.marketingRead().batches[0].roles[0].application.attachments, undefined);
+
+  const storageFailure = loadMarketing();
+  storageFailure.api.marketingImport({ format: 'kryos-marketing-batch', version: 1, roles: [{ id: 'role', company: 'Example', title: 'Analyst' }] });
+  storageFailure.failStorageWrite(true);
+  await assert.rejects(storageFailure.api.marketingSaveAttachment('role', { name: 'cv.pdf', size: 42 }, 'Résumé'), /Browser storage|not recorded/i);
+  assert.equal(storageFailure.blobs.size, 0, 'a failed metadata write cleans up the saved binary');
 });
 
 test('Marketing batch importer rejects malformed and duplicate records without saving them', () => {

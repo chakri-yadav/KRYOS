@@ -2,6 +2,9 @@ const MARKETING_STORAGE_KEY = "kryos-marketing-batches-v1";
 const MARKETING_DEMO_DISMISSED_KEY = "kryos-marketing-demo-dismissed-v1";
 const MARKETING_FILES_DB = "kryos-marketing-resume-files-v1";
 const MARKETING_STATUSES = ["To review", "Saved", "Applied", "Interview", "Follow-up", "Offer", "Not selected", "Keep for later", "Archived", "Verify details"];
+const MARKETING_ATTACHMENT_CATEGORIES = ["Résumé", "Cover letter", "Portfolio / work sample", "Certificate", "Job description", "Other"];
+const MARKETING_ATTACHMENT_MAX_BYTES = 10 * 1024 * 1024;
+const MARKETING_ATTACHMENT_EXTENSIONS = new Set(["pdf", "doc", "docx", "rtf", "txt", "odt", "xls", "xlsx", "csv", "ppt", "pptx", "png", "jpg", "jpeg"]);
 
 // Entirely synthetic fixture data. Every link uses the reserved .invalid domain.
 const MARKETING_SAMPLE_ROLES = [
@@ -67,23 +70,72 @@ function marketingOpenFileDb() {
     request.onupgradeneeded = () => request.result.createObjectStore("resumes", { keyPath: "id" });
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
+    request.onblocked = () => reject(new Error("Marketing file storage is busy in another tab. Close the other KRYOS tab and retry."));
   });
 }
-function marketingFileId(roleId) { return `${getModeStorageKey(MARKETING_STORAGE_KEY)}::${roleId}`; }
-async function marketingSaveResume(roleId, file) {
-  if (!file || file.size > 10 * 1024 * 1024) throw new Error("Choose a resume smaller than 10 MB.");
+function marketingFileId(roleId, attachmentId = "") { return `${getModeStorageKey(MARKETING_STORAGE_KEY)}::${roleId}${attachmentId ? `::${attachmentId}` : ""}`; }
+function marketingValidateAttachment(file) {
+  if (!file) throw new Error("Choose a file to attach.");
+  if (!Number.isFinite(file.size) || file.size <= 0) throw new Error("That file is empty. Choose a file with content.");
+  if (file.size > MARKETING_ATTACHMENT_MAX_BYTES) throw new Error("That file is over the 10 MB limit. Choose a smaller file.");
+  const extension = String(file.name || "").split(".").pop().toLowerCase();
+  if (!file.name || !file.name.includes(".") || !MARKETING_ATTACHMENT_EXTENSIONS.has(extension)) throw new Error("File type not supported. Use PDF, Office documents, text, CSV, or an image.");
+  return true;
+}
+function marketingRoleById(roleId) { return marketingRead().batches.flatMap(batch => batch.roles).find(role => role.id === roleId) || null; }
+function marketingAttachmentLabel(category, title, name) { return String(title || "").trim() || String(name || "").trim() || category || "Attachment"; }
+async function marketingPutFile(record) {
   const db = await marketingOpenFileDb();
-  await new Promise((resolve, reject) => { const tx=db.transaction("resumes","readwrite");tx.objectStore("resumes").put({id:marketingFileId(roleId),roleId,name:file.name,type:file.type,size:file.size,blob:file});tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error); });
-  marketingUpdateRole(roleId,"resume_attachment",{id:roleId,name:file.name,type:file.type,size:file.size,savedAt:new Date().toISOString()});
+  await new Promise((resolve, reject) => { let tx; try { tx=db.transaction("resumes","readwrite"); tx.objectStore("resumes").put(record); tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error || new Error("The file could not be saved in this browser.")); tx.onabort=()=>reject(tx.error || new Error("The browser canceled saving the file. Check available storage and retry.")); } catch(error) { reject(error); } });
 }
-async function marketingGetResume(roleId) {
-  const db=await marketingOpenFileDb();
-  return new Promise((resolve,reject)=>{const request=db.transaction("resumes","readonly").objectStore("resumes").get(marketingFileId(roleId));request.onsuccess=()=>resolve(request.result||null);request.onerror=()=>reject(request.error);});
+async function marketingDeleteFile(id) {
+  const db = await marketingOpenFileDb();
+  await new Promise((resolve, reject) => { let tx; try { tx=db.transaction("resumes","readwrite"); tx.objectStore("resumes").delete(id); tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error || new Error("The file could not be removed.")); tx.onabort=()=>reject(tx.error || new Error("The browser canceled removing the file.")); } catch(error) { reject(error); } });
 }
-async function marketingRemoveResume(roleId) {
+async function marketingGetFile(id) {
   const db=await marketingOpenFileDb();
-  await new Promise((resolve,reject)=>{const tx=db.transaction("resumes","readwrite");tx.objectStore("resumes").delete(marketingFileId(roleId));tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});
-  marketingUpdateRole(roleId,"resume_attachment",null);
+  return new Promise((resolve,reject)=>{let request;try{request=db.transaction("resumes","readonly").objectStore("resumes").get(id);request.onsuccess=()=>resolve(request.result||null);request.onerror=()=>reject(request.error||new Error("The file could not be read from this browser."));}catch(error){reject(error);}});
+}
+async function marketingSaveAttachment(roleId, file, category, title = "") {
+  marketingValidateAttachment(file);
+  if (!MARKETING_ATTACHMENT_CATEGORIES.includes(category)) throw new Error("Choose one of the listed attachment types.");
+  const role = marketingRoleById(roleId);
+  if (!role) throw new Error("This job record is no longer available. Refresh Marketing and try again.");
+  const app = role.application || {};
+  const id = globalThis.crypto?.randomUUID?.() || `file-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const fileId = marketingFileId(roleId, id);
+  const metadata = { id, category, title: marketingAttachmentLabel(category, title, file.name), name: file.name, type: file.type || "application/octet-stream", size: file.size, savedAt: new Date().toISOString(), resumeVersion: category === "Résumé" ? String(app.resume_version || "").trim() : "" };
+  try { await marketingPutFile({ id:fileId, roleId, attachmentId:id, name:file.name, type:file.type, size:file.size, blob:file }); }
+  catch(error) { if (error?.name === "QuotaExceededError") throw new Error("Browser storage is full. Remove an old attachment or use a smaller file."); throw new Error(`File storage could not save this attachment: ${error?.message || "unavailable"}.`); }
+  try {
+    role.application ||= {};
+    role.application.attachments = [...(Array.isArray(role.application.attachments) ? role.application.attachments : []), metadata];
+    marketingWrite(marketingReadWithRole(roleId, role));
+  } catch(error) {
+    try { await marketingDeleteFile(fileId); } catch(cleanupError) { console.warn("KRYOS Marketing could not clean up an unsaved file.", cleanupError); }
+    throw new Error(error?.name === "QuotaExceededError" ? "Browser storage is full. Remove an old attachment or use a smaller file." : "The attachment was not recorded. Check browser storage and retry.");
+  }
+  renderMarketingView();
+}
+function marketingReadWithRole(roleId, updatedRole) {
+  const data = marketingRead();
+  const role = data.batches.flatMap(batch => batch.roles).find(item => item.id === roleId);
+  if (!role) throw new Error("This job record is no longer available.");
+  role.application = updatedRole.application;
+  return data;
+}
+async function marketingRemoveAttachment(roleId, attachmentId) {
+  const role = marketingRoleById(roleId);
+  if (!role) throw new Error("This job record is no longer available. Refresh Marketing and try again.");
+  const attachment = (role.application?.attachments || []).find(item => item.id === attachmentId);
+  if (!attachment) throw new Error("That attachment is no longer listed. Refresh Marketing and try again.");
+  const fileId = marketingFileId(roleId, attachmentId);
+  await marketingDeleteFile(fileId);
+  const data = marketingRead();
+  const current = data.batches.flatMap(batch => batch.roles).find(item => item.id === roleId);
+  if (current?.application) current.application.attachments = (current.application.attachments || []).filter(item => item.id !== attachmentId);
+  marketingWrite(data);
+  renderMarketingView();
 }
 async function marketingClearFiles(modeName) {
   try {
@@ -96,6 +148,11 @@ function marketingFormatDate(value) {
   const date = new Date(`${value}T12:00:00`);
   return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString(undefined, {month:"short", day:"numeric", year:"numeric"});
 }
+function marketingFormatBytes(value) {
+  const size = Number(value);
+  if (!Number.isFinite(size) || size <= 0) return "size unavailable";
+  return size < 1024 * 1024 ? `${Math.max(1, Math.round(size / 1024))} KB` : `${(size / (1024 * 1024)).toFixed(1)} MB`;
+}
 const marketingExpandedRoles = new Set();
 function marketingRoleCard(role) {
   const app = role.application || {};
@@ -107,7 +164,7 @@ function marketingRoleCard(role) {
     <button class="marketing-role-summary" type="button" aria-expanded="${expanded}" data-marketing-expand="${marketingEscape(role.id)}"><span class="marketing-role-title"><strong>${marketingEscape(role.company)}</strong><small>${marketingEscape(role.title)}</small><span>${chips.map(chip=>`<i>${marketingEscape(chip)}</i>`).join("")}</span></span><span>${marketingEscape(role.location || "Location unknown")}</span><span>${marketingEscape(marketingFormatDate(role.posted_at))}</span><span class="marketing-status-pill">${marketingEscape(app.status || "To review")}</span></button>
     <div class="marketing-role-details" ${expanded?"":"hidden"}>
       <div class="marketing-detail-grid"><section><h3>Posting details</h3><p><b>Salary</b>${marketingEscape(role.salary || "Not provided")}</p><p><b>Sponsorship</b>${marketingEscape(role.sponsorship || "Unknown")}</p><p><b>Work arrangement</b>${marketingEscape(role.work_mode || "Unknown")}</p><p><b>Captured</b>${marketingEscape(role.captured_at || "Not recorded")}</p><a href="${marketingEscape(marketingSafeUrl(role.source_url))}" target="_blank" rel="noopener noreferrer">Open source posting ↗</a></section><section><h3>Responsibilities</h3><ul>${(role.responsibilities || []).map(x=>`<li>${marketingEscape(x)}</li>`).join("")}</ul><h3>Requirements</h3><ul>${(role.requirements || []).map(x=>`<li>${marketingEscape(x)}</li>`).join("")}</ul></section><section><h3>Original posting text</h3><p class="marketing-raw-description">${marketingEscape(role.raw_description || "No description captured")}</p><h3>Unknown / verify</h3><ul>${(role.unknown_information || []).map(x=>`<li>${marketingEscape(x)}</li>`).join("") || "<li>None noted</li>"}</ul></section></div>
-      <div class="marketing-application-fields"><label>Status<select data-marketing-field="status" data-role="${marketingEscape(role.id)}">${MARKETING_STATUSES.map(status=>`<option ${app.status===status?"selected":""}>${marketingEscape(status)}</option>`).join("")}</select></label><label>Applied date<input type="date" data-marketing-field="applied_date" data-role="${marketingEscape(role.id)}" value="${marketingEscape(app.applied_date)}"></label><label>Résumé version<input data-marketing-field="resume_version" data-role="${marketingEscape(role.id)}" value="${marketingEscape(app.resume_version)}" placeholder="e.g. Analyst-v3"></label><label>Email used<input type="email" data-marketing-field="contact_email" data-role="${marketingEscape(role.id)}" value="${marketingEscape(app.contact_email)}"></label><label>Phone used<input type="tel" data-marketing-field="contact_phone" data-role="${marketingEscape(role.id)}" value="${marketingEscape(app.contact_phone)}"></label><label>LinkedIn URL<input type="url" data-marketing-field="linkedin_url" data-role="${marketingEscape(role.id)}" value="${marketingEscape(app.linkedin_url)}"></label><label class="marketing-notes-field">Notes<textarea data-marketing-field="notes" data-role="${marketingEscape(role.id)}" rows="2">${marketingEscape(app.notes)}</textarea></label><div class="marketing-resume-field"><strong>Résumé file</strong>${app.resume_attachment?`<span>${marketingEscape(app.resume_attachment.name)}</span><button type="button" data-marketing-resume-download="${marketingEscape(role.id)}">Download</button><button type="button" data-marketing-resume-remove="${marketingEscape(role.id)}">Remove file</button>`:`<label class="marketing-resume-upload">Attach résumé<input type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" data-marketing-resume="${marketingEscape(role.id)}"></label>`}<small>Private to this browser in this experiment; not cloud-synced.</small></div></div>
+      <div class="marketing-application-fields"><label>Status<select data-marketing-field="status" data-role="${marketingEscape(role.id)}">${MARKETING_STATUSES.map(status=>`<option ${app.status===status?"selected":""}>${marketingEscape(status)}</option>`).join("")}</select></label><label>Applied date<input type="date" data-marketing-field="applied_date" data-role="${marketingEscape(role.id)}" value="${marketingEscape(app.applied_date)}"></label><label>Résumé version<input data-marketing-field="resume_version" data-role="${marketingEscape(role.id)}" value="${marketingEscape(app.resume_version)}" placeholder="e.g. Analyst-v3"></label><label>Email used<input type="email" data-marketing-field="contact_email" data-role="${marketingEscape(role.id)}" value="${marketingEscape(app.contact_email)}"></label><label>Phone used<input type="tel" data-marketing-field="contact_phone" data-role="${marketingEscape(role.id)}" value="${marketingEscape(app.contact_phone)}"></label><label>LinkedIn URL<input type="url" data-marketing-field="linkedin_url" data-role="${marketingEscape(role.id)}" value="${marketingEscape(app.linkedin_url)}"></label><label class="marketing-notes-field">Notes<textarea data-marketing-field="notes" data-role="${marketingEscape(role.id)}" rows="2">${marketingEscape(app.notes)}</textarea></label><div class="marketing-resume-field marketing-attachments"><strong>Files for this application</strong><p>Keep the exact résumé, cover letter, portfolio sample, or other file you used with this role.</p>${[...(app.resume_attachment?[{id:"legacy",category:"Résumé",title:app.resume_attachment.name,name:app.resume_attachment.name,size:app.resume_attachment.size,legacy:true}]:[]),...(Array.isArray(app.attachments)?app.attachments:[])].map(item=>`<div class="marketing-attachment-item"><span class="marketing-attachment-type">${marketingEscape(item.category || "Résumé")}</span><span class="marketing-attachment-name" title="${marketingEscape(item.name)}">${marketingEscape(item.title || item.name)}</span><small>${marketingEscape(item.name)} · ${marketingEscape(marketingFormatBytes(item.size))}${item.resumeVersion?` · ${marketingEscape(item.resumeVersion)}`:""}</small><button type="button" data-marketing-file-download="${marketingEscape(role.id)}" data-attachment-id="${marketingEscape(item.id)}" ${item.legacy?`data-legacy="true"`:""}>Download</button><button type="button" data-marketing-file-remove="${marketingEscape(role.id)}" data-attachment-id="${marketingEscape(item.id)}" ${item.legacy?`data-legacy="true"`:""}>Remove</button></div>`).join("")||`<span class="marketing-attachments-empty">No files saved for this role yet.</span>`}<div class="marketing-attachment-add"><label>File type<select data-marketing-file-category="${marketingEscape(role.id)}">${MARKETING_ATTACHMENT_CATEGORIES.map(category=>`<option>${marketingEscape(category)}</option>`).join("")}</select></label><label>Short label <span>(optional)</span><input type="text" maxlength="80" placeholder="e.g. tailored résumé v4" data-marketing-file-title="${marketingEscape(role.id)}"></label><label class="marketing-resume-upload">Choose file<input type="file" accept=".pdf,.doc,.docx,.rtf,.txt,.odt,.xls,.xlsx,.csv,.ppt,.pptx,.png,.jpg,.jpeg,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,image/png,image/jpeg" data-marketing-attachment="${marketingEscape(role.id)}"></label></div><small>Up to 10 MB each · saved only in this browser (not cloud-synced or backed up).</small></div></div>
       <p class="marketing-demo-disclaimer">${role.demo || false ? "Fictional test posting. No real application was submitted." : "Marketing records are separate from Career and Rewards."} Browser-local only; not cloud-synced or in KRYOS JSON backups.</p>
     </div></article>`;
 }
@@ -145,11 +202,11 @@ document.addEventListener("click", async event => {
   const demoButton=event.target.closest("[data-marketing-demo-import]");
   if(demoButton){try{marketingImport({format:"kryos-marketing-batch",version:1,name:"10-role feature test batch",demo:true,roles:MARKETING_SAMPLE_ROLES.map(role=>({...role,demo:true}))});marketingActiveFilter="all";marketingSearchQuery="";renderMarketingView();marketingToast("10 fictional roles imported on this browser.");}catch(error){marketingToast(error.message);}return;}
   const removeButton=event.target.closest("[data-marketing-remove-demo]");
-  if(removeButton){const data=marketingRead();const removed=data.batches.filter(batch=>batch.demo);data.batches=data.batches.filter(batch=>!batch.demo);marketingWrite(data);if(!data.batches.length)setModeStorageValue(MARKETING_DEMO_DISMISSED_KEY,"true");if(removed.some(batch=>batch.id===marketingActiveBatchId))marketingActiveBatchId=data.batches[0]?.id||"";for(const role of removed.flatMap(batch=>batch.roles))if(role.application?.resume_attachment)await marketingRemoveResume(role.id);renderMarketingView();marketingToast("Fictional demo data removed. Other Marketing batches were kept.");return;}
-  const resumeDownload=event.target.closest("[data-marketing-resume-download]");
-  if(resumeDownload){try{const item=await marketingGetResume(resumeDownload.dataset.marketingResumeDownload);if(!item)throw new Error("Resume file not found in this browser.");const url=URL.createObjectURL(item.blob);const anchor=document.createElement("a");anchor.href=url;anchor.download=item.name;anchor.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}catch(error){marketingToast(error.message);}return;}
-  const resumeRemove=event.target.closest("[data-marketing-resume-remove]");
-  if(resumeRemove){try{await marketingRemoveResume(resumeRemove.dataset.marketingResumeRemove);marketingToast("Résumé file removed from this browser.");}catch(error){marketingToast(error.message);}return;}
+  if(removeButton){const data=marketingRead();const removed=data.batches.filter(batch=>batch.demo);data.batches=data.batches.filter(batch=>!batch.demo);marketingWrite(data);if(!data.batches.length)setModeStorageValue(MARKETING_DEMO_DISMISSED_KEY,"true");if(removed.some(batch=>batch.id===marketingActiveBatchId))marketingActiveBatchId=data.batches[0]?.id||"";for(const role of removed.flatMap(batch=>batch.roles)){for(const item of role.application?.attachments||[])try{await marketingDeleteFile(marketingFileId(role.id,item.id));}catch(error){console.warn("Demo attachment cleanup could not complete.",error);}if(role.application?.resume_attachment)try{await marketingDeleteFile(marketingFileId(role.id));}catch(error){console.warn("Legacy demo résumé cleanup could not complete.",error);}}renderMarketingView();marketingToast("Fictional demo data removed. Other Marketing batches were kept.");return;}
+  const fileDownload=event.target.closest("[data-marketing-file-download]");
+  if(fileDownload){try{const roleId=fileDownload.dataset.marketingFileDownload,attachmentId=fileDownload.dataset.attachmentId;const item=await marketingGetFile(marketingFileId(roleId,fileDownload.dataset.legacy?"":attachmentId));if(!item)throw new Error("File not found in this browser. The browser may have cleared its local storage.");const url=URL.createObjectURL(item.blob);const anchor=document.createElement("a");anchor.href=url;anchor.download=item.name;anchor.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}catch(error){marketingToast(error.message||"This file could not be downloaded.");}return;}
+  const fileRemove=event.target.closest("[data-marketing-file-remove]");
+  if(fileRemove){try{const roleId=fileRemove.dataset.marketingFileRemove,attachmentId=fileRemove.dataset.attachmentId;if(fileRemove.dataset.legacy){await marketingDeleteFile(marketingFileId(roleId));marketingUpdateRole(roleId,"resume_attachment",null);}else await marketingRemoveAttachment(roleId,attachmentId);marketingToast("File removed from this browser.");}catch(error){marketingToast(error.message||"This file could not be removed.");}return;}
   const filter=event.target.closest("[data-marketing-filter]");
   if(filter){marketingActiveFilter=filter.dataset.marketingFilter;document.querySelectorAll("[data-marketing-filter]").forEach(button=>button.classList.toggle("is-active",button===filter));marketingApplyFilters();return;}
   const expand=event.target.closest("[data-marketing-expand]");
@@ -162,8 +219,8 @@ document.addEventListener("change", async event => {
   if(fileInput?.files?.[0]){try{const batch=JSON.parse(await fileInput.files[0].text());marketingImport(batch);marketingActiveFilter="all";marketingSearchQuery="";renderMarketingView();marketingToast(`${batch.roles.length} roles imported.`);}catch(error){marketingToast(error.message || "That file could not be imported.");}finally{fileInput.value="";}return;}
   const field=event.target.closest("[data-marketing-field]");
   if(field){marketingUpdateRole(field.dataset.role,field.dataset.marketingField,field.value);marketingToast("Application detail saved on this browser.");}
-  const resume=event.target.closest("[data-marketing-resume]");
-  if(resume?.files?.[0]){try{await marketingSaveResume(resume.dataset.marketingResume,resume.files[0]);marketingToast("Résumé file saved with this role in this browser.");}catch(error){marketingToast(error.message);}}
+  const attachment=event.target.closest("[data-marketing-attachment]");
+  if(attachment){const file=attachment.files?.[0];if(!file)return;const roleId=attachment.dataset.marketingAttachment;try{const category=document.querySelector(`[data-marketing-file-category="${CSS.escape(roleId)}"]`)?.value||"Other";const title=document.querySelector(`[data-marketing-file-title="${CSS.escape(roleId)}"]`)?.value||"";await marketingSaveAttachment(roleId,file,category,title);marketingToast(`${category} saved with this role in this browser.`);}catch(error){marketingToast(error.message||"That file could not be saved.");}finally{attachment.value="";}}
 });
 document.addEventListener("input", event => { if(event.target?.id==="marketing-role-search")marketingApplyFilters(); });
 function marketingApplyFilters(){
