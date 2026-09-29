@@ -172,5 +172,6 @@ test('Marketing premium visuals preserve every stage and make browser-local stor
   const css = fs.readFileSync('marketing.css', 'utf8');
   assert.match(css, /\.marketing-batch-card[\s\S]*?linear-gradient\(118deg/);
   assert.match(css, /\.marketing-role-summary:focus-visible/);
+  assert.match(css, /\.marketing-role-details\[hidden\]\s*\{\s*display:\s*none;/);
   assert.match(css, /\.marketing-application-fields input[\s\S]*?min-height: 44px/);
 });
