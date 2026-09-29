@@ -22,6 +22,9 @@ const APP_STATUS = "Marketing keeps per-role application notes and browser-local
 const APP_NEXT_MILESTONE = "Marketing cloud synchronization and cross-device file storage";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "After signing in, immediately load the latest Personal cloud data and begin live freshness monitoring so assistant journal imports appear without manual navigation or reload.",
+  "Treat a higher Supabase sync-block revision as a fresh update even when the payload timestamp is unchanged.",
+  "Keep local edits safe during cloud reconciliation; sign-in recovery never uploads stale browser data over the Personal profile.",
   "Add per-job attachments for résumés, cover letters, portfolio samples, certificates, job descriptions, and other supporting files.",
   "Validate empty, unsupported, and over-10-MB files; show clear browser-storage failure feedback and clean up incomplete saves.",
   "Keep application files in browser IndexedDB, with searchable labels, résumé-version context, download, and removal controls; files remain local and are not cloud-synced or backed up.",
