@@ -15,13 +15,16 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.15.1";
-const APP_STAGE = "Cloud visibility and progress polish";
-const APP_RELEASE_DATE = "2026-09-28";
-const APP_STATUS = "Cloud settings, version history, rewards, and daily evidence are easier to reach and read";
-const APP_NEXT_MILESTONE = "Marketing batch import and saved-role records";
+const APP_VERSION = "0.16.0";
+const APP_STAGE = "Marketing batch import experiment";
+const APP_RELEASE_DATE = "2026-09-29";
+const APP_STATUS = "Marketing accepts complete job batches and keeps application notes separate from Career and Rewards on this browser";
+const APP_NEXT_MILESTONE = "Marketing cloud synchronization and cross-device file storage";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Added a Marketing batch importer, searchable role list, full posting details, and editable application tracking fields.",
+  "Import ten clearly labeled fictional roles on the first Marketing visit; reserved invalid links and browser-only storage keep them out of live records.",
+  "Added import validation, duplicate-ID isolation, and a one-click removal path for the demo batch.",
   "Restored a clear desktop route to Cloud & versions and kept that destination on refresh.",
   "Added per-area cloud snapshot timestamps and revisions, alongside the full release history.",
   "Redesigned the four reward choices as a balanced, focused catalogue with clearer costs and next steps.",
@@ -1310,6 +1313,9 @@ function clearModeData(modeName = accountMode) {
   [...DATA_STORAGE_KEYS, UI_STATE_STORAGE_KEY, SECURITY_SESSION_KEY].forEach((key) => {
     removeModeStorageValue(key, modeName);
   });
+  removeModeStorageValue("kryos-marketing-batches-v1", modeName);
+  setModeStorageValue("kryos-marketing-demo-dismissed-v1", "true", modeName);
+  if (typeof marketingClearFiles === "function") marketingClearFiles(modeName);
 }
 
 function saveAccountMode(nextMode) {
