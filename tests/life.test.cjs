@@ -2,9 +2,9 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
-function setup() {
+function setup(today='2026-09-17') {
   let count=0;
-  const context = vm.createContext({taskState:{},document:{addEventListener(){}},toDateKey:()=> '2026-09-17',createId:()=>String(++count),saveTasks(){},getBehavior:()=>({sessions:[],dailyPlans:{}})});
+  const context = vm.createContext({taskState:{},document:{addEventListener(){}},toDateKey:date=>date?date.toISOString().slice(0,10):today,getDateFromKey:key=>new Date(`${key}T12:00:00`),addDays:(date,days)=>{const next=new Date(date);next.setDate(next.getDate()+days);return next;},createId:()=>String(++count),saveTasks(){},getBehavior:()=>({sessions:[],dailyPlans:{}})});
   vm.runInContext(fs.readFileSync('life.js','utf8'),context);
   return context;
 }
@@ -16,6 +16,7 @@ test('journal duration is not merged with timer duration',()=>{const c=setup();c
 test('import adds persistent actions and preserves effort scoring',()=>{const c=setup();const p=c.validateLifeImport(pkg());c.lifeCommit(p);assert.equal(c.lifeStore().actions.length,1);assert.equal(c.lifeStore().actions[0].priority,'important');assert.equal(c.lifeStore().records[0].effort,3);});
 test('backdated assistant import updates Rhythm and closes an action on the journal day',()=>{const c=setup();const data=pkg();data.rhythm=[{habitId:'water',value:2,evidence:'Walked 20 minutes.'},{habitId:'breakfast',value:1,evidence:'Walked 20 minutes.'}];data.actionUpdates=[{id:'renew-id',status:'done',priority:'important',deadline:'2026-09-17'}];const validated=c.validateLifeImport(data);c.lifeCommit(validated);assert.equal(c.taskState.rhythm.events.length,2);assert.equal(c.taskState.rhythm.events.find(event=>event.habitId==='water').value,2);assert.equal(c.lifeStore().actions[0].completedAt,'2026-09-17T12:00:00.000Z');assert.equal(c.lifeStore().actions[0].deadline,'2026-09-17');});
 test('backdated assistant import preserves containment truth',()=>{const c=setup();const data=pkg();data.containment={status:'breach',boundary:'astrology',boundaries:['astrology','social'],note:'Watched astrology and Snapchat.'};const validated=c.validateLifeImport(data);c.lifeCommit(validated);assert.equal(c.lifeStore().innerCommand.containmentDays[0].status,'breach');assert.deepEqual([...c.lifeStore().innerCommand.containmentDays[0].boundaries],['astrology','social']);});
+test('assistant-recorded drift appears as a drift day rather than unreviewed',()=>{const c=setup('2026-09-26');c.lifeStore().innerCommand.containmentDays.push({date:'2026-09-26',status:'drift',boundary:'social'});assert.equal(c.innerCommandStatus('2026-09-26'),'drift');const stats=c.innerCommandStats();assert.equal(stats.elapsed,1);assert.equal(stats.kept,0);assert.equal(stats.drifts,1);assert.equal(stats.current,0);});
 test('reviewed assessment is capped at ten and stored once per day',()=>{const c=setup();const data=pkg();data.assessment={scores:{priority:3,resistance:2,foundation:2,spiritual:1,closure:1,containment:1},note:'Strong execution.'};c.lifeCommit(c.validateLifeImport(data));assert.equal(c.lifeStore().dailyAssessments.length,1);assert.equal(c.lifeStore().dailyAssessments[0].total,10);assert.equal(c.lifeStore().dailyAssessments[0].qualified,true);});
 test('assessment requires meaningful priority work to qualify',()=>{const c=setup();const data=pkg();data.assessment={scores:{priority:0,resistance:2,foundation:2,spiritual:1,closure:1,containment:1}};c.lifeCommit(c.validateLifeImport(data));assert.equal(c.lifeStore().dailyAssessments[0].total,7);assert.equal(c.lifeStore().dailyAssessments[0].qualified,false);});
 test('assessment rejects score inflation',()=>{const c=setup();const data=pkg();data.assessment={scores:{priority:4,resistance:2,foundation:2,spiritual:1,closure:1,containment:1}};assert.throws(()=>c.validateLifeImport(data),/priority score/);});
