@@ -152,3 +152,20 @@ test('Marketing workspace exposes the full posting record and application tracki
   assert.match(app, /removeModeStorageValue\("kryos-marketing-batches-v1", modeName\)/);
   assert.match(app, /marketingClearFiles\(modeName\)/);
 });
+
+test('Marketing premium visuals preserve every stage and make browser-local storage explicit', () => {
+  const { api } = loadMarketing();
+  api.marketingImport({ format: 'kryos-marketing-batch', version: 1, name: 'Visual check', demo: false, roles: api.MARKETING_SAMPLE_ROLES.map(role => ({ ...role, demo: false })) });
+  const html = api.renderMarketingView();
+  for (const status of ['to-review', 'saved', 'applied', 'interview', 'follow-up', 'offer', 'not-selected', 'keep-for-later', 'archived', 'verify-details']) {
+    assert.match(html, new RegExp(`marketing-status-pill status-${status}`));
+  }
+  assert.match(html, /KRYOS ACCOUNT/);
+  assert.match(html, /Marketing batches and files stay in this browser/);
+  assert.match(html, /Original posting text/);
+  assert.match(html, /marketing-attachments/);
+  const css = fs.readFileSync('marketing.css', 'utf8');
+  assert.match(css, /\.marketing-batch-card[\s\S]*?linear-gradient\(118deg/);
+  assert.match(css, /\.marketing-role-summary:focus-visible/);
+  assert.match(css, /\.marketing-application-fields input[\s\S]*?min-height: 44px/);
+});

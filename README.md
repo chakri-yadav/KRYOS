@@ -6,11 +6,11 @@ It is not a generic todo app, journal, or habit tracker. KRYOS is designed to he
 
 ## Current Status
 
-- Version: `0.16.4`
-- Stage: Marketing batch and application workspace
+- Version: `0.16.5`
+- Stage: Marketing visual refinement over the existing batch and application workspace
 - Audience: private personal daily use
 - App type: local-first browser application
-- Marketing: batches, application records, and per-role attachments are browser-local; attachments are limited to 10 MB each and are not cloud-synced or included in JSON backups yet
+- Marketing: batches, application records, and per-role attachments are browser-local; attachments are limited to 10 MB each and are not cloud-synced or included in JSON backups yet. The Marketing visual refinement preserves this behavior and makes the separate KRYOS account-sync indicator clearer.
 - Sync status: local-first with Supabase task, career, and reward paths configured; successful sign-in immediately pulls fresh Personal data, starts realtime/poll refresh, and shows assistant-recorded Sadhana drift
 - Backend status: Personal assistant ingestion and revision-checked task/career writes use Supabase; a private assistant token is required for direct capture
 
