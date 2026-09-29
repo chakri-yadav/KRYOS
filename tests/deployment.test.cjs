@@ -64,4 +64,5 @@ test('successful cloud sign-in immediately recovers data and watches for assista
 test('cloud reconciliation detects a newer database revision even when its timestamp is unchanged', () => {
   const app = fs.readFileSync('app.js', 'utf8');
   assert.match(app, /remoteAdvanced = isAfter\(remoteAt, knownRemoteAt\) \|\| remoteRevision > knownRemoteRevision/);
+  assert.match(app, /After signing in, immediately load the latest Personal cloud data/);
 });
