@@ -48,6 +48,7 @@ test('Marketing demo import covers ten fictional posting variations without crea
   assert.ok(data.batches[0].roles.every(role => role.demo && role.application.status));
   assert.match(api.renderMarketingView(), /DEMO BATCH · FICTIONAL DATA/);
   assert.match(api.renderMarketingView(), /Import 10 demo roles/);
+  assert.match(api.renderMarketingView(), /<strong>4<\/strong><span>In application process<\/span>/);
   assert.match(api.renderMarketingView(), /Attach résumé/);
   assert.match(api.renderMarketingView(), /Download sample JSON/);
   assert.equal([...storage.keys()].length, 1, 'Marketing import writes only its own local record');

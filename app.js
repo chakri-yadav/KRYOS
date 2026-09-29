@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.16.0";
+const APP_VERSION = "0.16.1";
 const APP_STAGE = "Marketing batch import experiment";
 const APP_RELEASE_DATE = "2026-09-29";
 const APP_STATUS = "Marketing accepts complete job batches and keeps application notes separate from Career and Rewards on this browser";
 const APP_NEXT_MILESTONE = "Marketing cloud synchronization and cross-device file storage";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Corrected the active-application summary so closed applications are not counted as still in process.",
   "Added a Marketing batch importer, searchable role list, full posting details, and editable application tracking fields.",
   "Import ten clearly labeled fictional roles on the first Marketing visit; reserved invalid links and browser-only storage keep them out of live records.",
   "Added import validation, duplicate-ID isolation, and a one-click removal path for the demo batch.",
