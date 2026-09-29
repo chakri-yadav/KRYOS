@@ -34,6 +34,7 @@ function marketingSafeUrl(value) {
 }
 let marketingActiveBatchId = "";
 let marketingSearchQuery = "";
+let marketingShowRoleForm = false;
 function marketingImport(batch) {
   if (!batch || batch.format !== "kryos-marketing-batch" || batch.version !== 1 || !Array.isArray(batch.roles)) throw new Error("Choose a KRYOS Marketing batch JSON file (format version 1).");
   if (!batch.roles.length || batch.roles.length > 500) throw new Error("A batch must contain between 1 and 500 roles.");
@@ -54,6 +55,49 @@ function marketingImport(batch) {
   marketingWrite(data);
   removeModeStorageValue(MARKETING_DEMO_DISMISSED_KEY);
   marketingActiveBatchId = batchId;
+}
+function marketingCreateRole(details) {
+  const company = String(details.company || "").trim();
+  const title = String(details.title || "").trim();
+  if (!company || !title) throw new Error("Add the company and job title to save this role.");
+  const sourceUrl = String(details.source_url || "").trim();
+  if (sourceUrl && marketingSafeUrl(sourceUrl) === "#") throw new Error("Use a complete http or https link for the original posting.");
+  const data = marketingRead();
+  const activeBatch = data.batches.find(item => item.id === marketingActiveBatchId) || data.batches[0] || null;
+  const now = new Date().toISOString();
+  const roleId = `manual-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const lines = value => String(value || "").split(/\r?\n/).map(item => item.trim()).filter(Boolean);
+  const role = {
+    id: roleId,
+    company,
+    title,
+    source_url: sourceUrl,
+    location: String(details.location || "").trim(),
+    salary: String(details.salary || "").trim(),
+    work_mode: String(details.work_mode || "Not stated").trim() || "Not stated",
+    sponsorship: String(details.sponsorship || "Not stated").trim() || "Not stated",
+    posted_at: String(details.posted_at || "").trim(),
+    captured_at: now,
+    responsibilities: lines(details.responsibilities),
+    requirements: lines(details.requirements),
+    raw_description: String(details.raw_description || "").trim(),
+    unknown_information: lines(details.unknown_information),
+    application: { status: details.status || "To review", applied_date: "", resume_version: "", contact_email: "", contact_phone: "", linkedin_url: "", notes: "" },
+    manually_added: true,
+  };
+  let batch = activeBatch && !activeBatch.demo ? activeBatch : null;
+  if (!batch) {
+    batch = { id: `manual-batch-${Date.now()}`, name: "Manually added roles", importedAt: now, demo: false, roles: [] };
+    data.batches.unshift(batch);
+  }
+  batch.roles.unshift(role);
+  marketingWrite(data);
+  removeModeStorageValue(MARKETING_DEMO_DISMISSED_KEY);
+  marketingActiveBatchId = batch.id;
+  marketingActiveFilter = "all";
+  marketingSearchQuery = "";
+  marketingExpandedRoles.add(roleId);
+  return role;
 }
 function marketingUpdateRole(roleId, field, value) {
   const data = marketingRead();
@@ -182,6 +226,17 @@ function marketingRoleCard(role) {
     </div></article>`;
 }
 
+function marketingManualRoleForm() {
+  if (!marketingShowRoleForm) return "";
+  return `<form class="marketing-manual-role-form" data-marketing-role-form novalidate>
+    <div class="marketing-manual-form-heading"><div><p class="marketing-detail-section-kicker">ADD A ROLE</p><h3>Capture one job posting</h3><p>Save the details you have now. You can fill in unknowns or attach your résumé after saving.</p></div><button type="button" class="marketing-form-close" aria-label="Close add role form" data-marketing-cancel-role>×</button></div>
+    <p class="marketing-form-error" data-marketing-form-error role="alert" hidden></p>
+    <fieldset class="marketing-form-group"><legend>Role basics</legend><div class="marketing-manual-grid"><label>Company <span>Required</span><input name="company" required maxlength="160" autocomplete="organization" placeholder="Company name"></label><label>Job title <span>Required</span><input name="title" required maxlength="180" placeholder="Role title"></label><label class="marketing-manual-wide">Original posting link<input name="source_url" type="url" inputmode="url" placeholder="https://company.com/careers/job"></label><label>Location<input name="location" maxlength="180" placeholder="City, state, or remote"></label><label>Salary, if listed<input name="salary" maxlength="120" placeholder="As shown in the posting"></label><label>Work arrangement<select name="work_mode"><option>Not stated</option><option>Remote</option><option>Hybrid</option><option>On-site</option><option>Contract</option><option>Other / verify</option></select></label><label>Sponsorship<select name="sponsorship"><option>Not stated</option><option>Yes — explicitly stated</option><option>No — explicitly stated</option><option>Unknown / verify</option></select></label><label>Posted date<input name="posted_at" type="date"></label><label>Tracking status<select name="status">${MARKETING_STATUSES.map(status => `<option>${marketingEscape(status)}</option>`).join("")}</select></label></div></fieldset>
+    <fieldset class="marketing-form-group"><legend>Posting notes <span class="marketing-optional-label">Add what you have; unknowns can stay blank.</span></legend><div class="marketing-manual-grid"><label>Responsibilities <span>One item per line</span><textarea name="responsibilities" rows="3" placeholder="What the role asks you to do"></textarea></label><label>Requirements <span>One item per line</span><textarea name="requirements" rows="3" placeholder="Skills, experience, or qualifications"></textarea></label><label>Full captured posting<textarea class="marketing-manual-raw" name="raw_description" rows="5" placeholder="Paste the job-post text here so you can verify it later"></textarea></label><label>Unknown or verify <span>One question per line</span><textarea name="unknown_information" rows="3" placeholder="e.g. Sponsorship policy not stated"></textarea></label></div></fieldset>
+    <div class="marketing-manual-form-actions"><span>Saved in this browser only · not cloud-synced</span><button type="button" class="secondary-button" data-marketing-cancel-role>Cancel</button><button type="submit" class="marketing-import-button">Save role</button></div>
+  </form>`;
+}
+
 function renderMarketingView() {
   let data = marketingRead();
   if (!data.batches.length && getModeStorageValue(MARKETING_DEMO_DISMISSED_KEY) !== "true") {
@@ -200,7 +255,7 @@ function renderMarketingView() {
         <section class="marketing-intro"><div><p class="marketing-eyebrow"><span></span> CAREER LAUNCH / WORKSPACE</p><h1>Your search, held in one place.</h1><p class="marketing-intro-copy">Keep the roles you choose to track, application details, and the résumé version you used together—without turning every search into more admin.</p></div><div class="marketing-intro-note"><span aria-hidden="true">✦</span><p><strong>Built around your workflow</strong><br />Search and apply manually. Save only what you want to keep.</p></div></section>
         ${demo ? `<div class="marketing-demo-banner" role="status"><strong>DEMO BATCH · FICTIONAL DATA</strong><span>Saved on this browser only. It does not affect Career, Rewards, or the cloud.</span><button type="button" data-marketing-remove-demo>Remove demo batch</button></div>` : ""}
         <section class="marketing-batch-card" aria-labelledby="marketing-batch-title"><div class="marketing-batch-topline"><p class="marketing-section-label">CURRENT BATCH</p><span class="marketing-empty-badge ${batch?"has-batch":""}"><i></i>${batch ? `${demo?"Demo · ":""}${roles.length} roles imported` : "No active batch"}</span></div><div class="marketing-batch-main"><div class="marketing-batch-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v10a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5zM8 5V3m8 2V3M4 10h16M8 14h3m-3 3h7" /></svg></div><div><h2 id="marketing-batch-title">${marketingEscape(batch?.name || "Ready for your next batch")}</h2><p>${batch ? "Review complete posting details, mark real application progress, and keep the résumé version alongside each role." : "Import a complete filtered batch. Raw posting detail and unknown information stay available for your review."}</p></div></div><div class="marketing-batch-metrics"><div><strong>${batch?roles.length:"—"}</strong><span>Roles in batch</span></div><div><strong>${batch?applied:"—"}</strong><span>In application process</span></div><div><strong>${batch?lastUpdated:"—"}</strong><span>Imported</span></div></div><div class="marketing-import-controls"><label class="marketing-import-button">Import batch JSON<input type="file" accept="application/json,.json" data-marketing-import-file></label><button type="button" class="secondary-button" data-marketing-demo-import>Import 10 demo roles</button><button type="button" class="marketing-download-sample" data-marketing-download-sample>Download sample JSON</button></div><p class="marketing-batch-footnote"><span aria-hidden="true">↗</span> ${demo ? "Fictional test data stays in this browser and never changes Career, Rewards, or the cloud." : "Marketing batches and files stay in this browser; they are not cloud-synced or included in KRYOS backups."}</p></section>
-        <section class="marketing-roles-card" aria-labelledby="marketing-roles-title"><div class="marketing-roles-heading"><div><p class="marketing-section-label">YOUR RECORDS</p><h2 id="marketing-roles-title">${demo?"Sample postings":"Batch roles"}</h2><p>${demo?"Ten fictional examples spanning the captured job and application fields.":"The imported batch remains intact while you review and track applications."}</p></div><span class="marketing-count">${roles.length} <span>${roles.length===1?"role":"roles"}</span></span></div>${data.batches.length>1?`<label class="marketing-batch-picker">Current batch<select data-marketing-batch-select>${data.batches.map(item=>`<option value="${marketingEscape(item.id)}" ${item.id===batch.id?"selected":""}>${marketingEscape(item.name)} · ${item.roles.length} roles${item.demo?" · demo":""}</option>`).join("")}</select></label>`:""}<label class="marketing-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg><input id="marketing-role-search" type="search" autocomplete="off" placeholder="Search company, role, skills, or status" aria-label="Search roles" value="${marketingEscape(marketingSearchQuery)}" ${roles.length?"":"disabled"}/><kbd>⌕</kbd></label><div class="marketing-status-filters"><button type="button" class="${marketingActiveFilter==="all"?"is-active":""}" data-marketing-filter="all">All <span>${roles.length}</span></button>${MARKETING_STATUSES.map(status=>`<button type="button" class="${marketingActiveFilter===status?"is-active":""}" data-marketing-filter="${marketingEscape(status)}">${marketingEscape(status)}</button>`).join("")}</div><div class="marketing-list-head" aria-hidden="true"><span>COMPANY / ROLE</span><span>LOCATION</span><span>POSTED</span><span>STATUS</span></div><div class="marketing-role-list" id="marketing-role-list">${roles.map(marketingRoleCard).join("") || `<div class="marketing-list-empty"><span class="marketing-empty-illustration" aria-hidden="true">✦</span><strong>No roles in this batch yet</strong><span>Import a batch when you want to review it.</span></div>`}</div><div class="marketing-search-hint" id="marketing-search-hint">${roles.length?"Select a role to see source details and application fields.":"Search activates after your first import."}</div></section>
+        <section class="marketing-roles-card" aria-labelledby="marketing-roles-title"><div class="marketing-roles-heading"><div><p class="marketing-section-label">YOUR RECORDS</p><h2 id="marketing-roles-title">${demo?"Sample postings":"Batch roles"}</h2><p>${demo?"Ten fictional examples spanning the captured job and application fields.":"The imported batch remains intact while you review and track applications."}</p></div><div class="marketing-roles-heading-actions"><span class="marketing-count">${roles.length} <span>${roles.length===1?"role":"roles"}</span></span><button type="button" class="marketing-add-role-button" data-marketing-add-role aria-expanded="${marketingShowRoleForm}">${marketingShowRoleForm?"Close":"＋ Add a role"}</button></div></div>${marketingManualRoleForm()}${data.batches.length>1?`<label class="marketing-batch-picker">Current batch<select data-marketing-batch-select>${data.batches.map(item=>`<option value="${marketingEscape(item.id)}" ${item.id===batch.id?"selected":""}>${marketingEscape(item.name)} · ${item.roles.length} roles${item.demo?" · demo":""}</option>`).join("")}</select></label>`:""}<label class="marketing-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg><input id="marketing-role-search" type="search" autocomplete="off" placeholder="Search company, role, skills, or status" aria-label="Search roles" value="${marketingEscape(marketingSearchQuery)}" ${roles.length?"":"disabled"}/><kbd>⌕</kbd></label><div class="marketing-status-filters"><button type="button" class="${marketingActiveFilter==="all"?"is-active":""}" data-marketing-filter="all">All <span>${roles.length}</span></button>${MARKETING_STATUSES.map(status=>`<button type="button" class="${marketingActiveFilter===status?"is-active":""}" data-marketing-filter="${marketingEscape(status)}">${marketingEscape(status)}</button>`).join("")}</div><div class="marketing-list-head" aria-hidden="true"><span>COMPANY / ROLE</span><span>LOCATION</span><span>POSTED</span><span>STATUS</span></div><div class="marketing-role-list" id="marketing-role-list">${roles.map(marketingRoleCard).join("") || `<div class="marketing-list-empty"><span class="marketing-empty-illustration" aria-hidden="true">✦</span><strong>No roles in this batch yet</strong><span>Add one manually or import a complete batch.</span></div>`}</div><div class="marketing-search-hint" id="marketing-search-hint">${roles.length?"Select a role to see source details and application fields.":"Add a role or import a batch to get started."}</div></section>
         <footer class="marketing-footer"><span>MARKETING</span><i></i><span>Separate workspace · browser-local records · not cloud or backup-synced</span></footer>
       </main>
       <div class="marketing-toast" role="status" aria-live="polite" hidden></div>
@@ -209,7 +264,17 @@ function renderMarketingView() {
 
 let marketingActiveFilter = "all";
 function marketingToast(message) { const toast=document.querySelector(".marketing-toast"); if(!toast)return;toast.textContent=message;toast.hidden=false;clearTimeout(marketingToast.timer);marketingToast.timer=setTimeout(()=>toast.hidden=true,3500); }
+function marketingRefreshWorkspace(focusCompany = false) {
+  const root = document.querySelector("#marketing-view");
+  if (!root) return;
+  root.innerHTML = renderMarketingView();
+  if (typeof updateGlobalCloudState === "function") updateGlobalCloudState();
+  if (focusCompany) root.querySelector('[data-marketing-role-form] [name="company"]')?.focus();
+}
 document.addEventListener("click", async event => {
+  const addRole=event.target.closest("[data-marketing-add-role]");
+  if(addRole){marketingShowRoleForm=!marketingShowRoleForm;marketingRefreshWorkspace(marketingShowRoleForm);return;}
+  if(event.target.closest("[data-marketing-cancel-role]")){marketingShowRoleForm=false;marketingRefreshWorkspace();return;}
   const downloadButton=event.target.closest("[data-marketing-download-sample]");
   if(downloadButton){const blob=new Blob([JSON.stringify({format:"kryos-marketing-batch",version:1,name:"Sample job batch",demo:true,roles:MARKETING_SAMPLE_ROLES.map(role=>({...role,demo:true}))},null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const anchor=document.createElement("a");anchor.href=url;anchor.download="kryos-marketing-sample-batch.json";anchor.click();URL.revokeObjectURL(url);return;}
   const demoButton=event.target.closest("[data-marketing-demo-import]");
@@ -234,6 +299,26 @@ document.addEventListener("change", async event => {
   if(field){marketingUpdateRole(field.dataset.role,field.dataset.marketingField,field.value);marketingToast("Application detail saved on this browser.");}
   const attachment=event.target.closest("[data-marketing-attachment]");
   if(attachment){const file=attachment.files?.[0];if(!file)return;const roleId=attachment.dataset.marketingAttachment;try{const category=document.querySelector(`[data-marketing-file-category="${CSS.escape(roleId)}"]`)?.value||"Other";const title=document.querySelector(`[data-marketing-file-title="${CSS.escape(roleId)}"]`)?.value||"";await marketingSaveAttachment(roleId,file,category,title);marketingToast(`${category} saved with this role in this browser.`);}catch(error){marketingToast(error.message||"That file could not be saved.");}finally{attachment.value="";}}
+});
+document.addEventListener("submit", event => {
+  const form = event.target.closest("[data-marketing-role-form]");
+  if (!form) return;
+  event.preventDefault();
+  const value = name => form.elements.namedItem(name)?.value || "";
+  try {
+    const role = marketingCreateRole({
+      company:value("company"), title:value("title"), source_url:value("source_url"), location:value("location"), salary:value("salary"),
+      work_mode:value("work_mode"), sponsorship:value("sponsorship"), posted_at:value("posted_at"), status:value("status"),
+      responsibilities:value("responsibilities"), requirements:value("requirements"), raw_description:value("raw_description"), unknown_information:value("unknown_information"),
+    });
+    marketingShowRoleForm = false;
+    marketingRefreshWorkspace();
+    marketingToast("Role saved. You can now add application details and attach the résumé you used.");
+    document.querySelector(`[data-marketing-expand="${CSS.escape(role.id)}"]`)?.focus();
+  } catch(error) {
+    const message = form.querySelector("[data-marketing-form-error]");
+    if(message){message.textContent=error.message || "The role could not be saved. Please try again.";message.hidden=false;}
+  }
 });
 document.addEventListener("input", event => { if(event.target?.id==="marketing-role-search")marketingApplyFilters(); });
 function marketingApplyFilters(){
