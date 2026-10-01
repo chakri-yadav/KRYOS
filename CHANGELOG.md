@@ -2,6 +2,16 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.18.0 - Book-based SDE system design roadmap
+
+- Import a 17-module, general SDE roadmap aligned to System Design Interview Chapters 1–15, followed by reliability/operations and final synthesis.
+- Each design moves from concepts and book study into an explicit practice artifact; crawler, video, and file-sync designs are marked optional stretch.
+- No Amazon-specific scope, arbitrary deadline, or pre-completed checklist items.
+- Add a one-time Career migration that preserves existing roadmaps and activity history, avoids same-title collisions, and retains checklist completion on reconciliation.
+- Migration is applied to local Career data and after a fresh cloud Career pull; existing revision-checked Career sync writes the migrated state back to Personal cloud.
+- QA: dedicated roadmap content/migration tests and full test suite.
+- Known limitation: the Personal assistant-ingestion API does not expose roadmap creation; import occurs through the signed-in app's normal Career sync after this release is opened.
+
 ## 0.17.0 - Manual Marketing role capture
 
 - Add a low-friction manual job entry form for company, title, original link, location, salary, work arrangement, sponsorship, posted date, posting text, responsibilities, requirements, and unknowns to verify.

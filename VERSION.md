@@ -9,7 +9,7 @@ major.minor.patch
 Canonical current version:
 
 ```text
-0.17.0
+0.18.0
 ```
 
 ## Meaning
@@ -39,6 +39,8 @@ Canonical current version:
 | `0.14.x` | Historical reward recalculation and private adjustment audit |
 | `0.15.x` | Marketing workspace shell and visual refinement |
 | `0.16.x` | Marketing batch import, posting review, and application tracking |
+| `0.17.x` | Marketing manual role capture and role-detail reliability |
+| `0.18.x` | Book-based general SDE system design roadmap |
 | `1.0.0` | Future public-ready product line |
 
 ## Bump Rules
