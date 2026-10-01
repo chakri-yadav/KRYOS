@@ -2,6 +2,15 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.21.0 - Resume interview speaking roadmap
+
+- Add a five-module Career roadmap focused on explaining and defending resume claims aloud: truth/ownership, concise story construction, claim-relevant technical explanation, follow-ups, and mock speaking practice.
+- Keep the private resume audit as a personal reference; no resume text, employer names, or company-specific history is embedded in public code.
+- Emphasize evidence boundaries, honest uncertainty, and flexible spoken answer lengths; do not create a broad technical curriculum or guarantee an interview-ready date.
+- Add an idempotent Career migration preserving other roadmaps, activity history, and completed checks.
+- QA: dedicated content/scope/migration tests and full test suite.
+- No schema change; a signed-in app applies normal revision-checked Career sync after deployment.
+
 ## 0.20.0 - SDE-2 Interview Debugging roadmap
 
 - Add a focused five-module Career roadmap: trace state, reproduce/minimize failures, select boundary tests and verify fixes, explain debugging in interviews, and repeat the process during regular DSA practice.

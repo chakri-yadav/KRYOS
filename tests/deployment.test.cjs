@@ -33,6 +33,8 @@ test('Career startup reconciles cloud before migration autosave', () => {
   const app = fs.readFileSync('app.js', 'utf8');
   assert.match(app, /migrateSde2DebuggingRoadmap\(careerState\)/);
   assert.match(app, /remoteSde2DebuggingMigrated = migrateSde2DebuggingRoadmap\(careerState\)/);
+  assert.match(app, /const resumeInterviewRoadmapMigrated = migrateResumeInterviewRoadmap\(careerState\)/);
+  assert.match(app, /remoteResumeInterviewMigrated = migrateResumeInterviewRoadmap\(careerState\)/);
   assert.doesNotMatch(app, /if \(dsaRoadmapMigrated \|\| apiDesignRoadmapMigrated\)[\s\S]{0,180}setTimeout\(scheduleCareerCloudSync/);
   assert.match(app, /const recovery = await refreshCloudData\(\{ automatic: true \}\)/);
   assert.match(app, /pendingCareerMigrationSync && !recovery\.conflicts && !recovery\.error/);
@@ -62,9 +64,9 @@ test('successful cloud sign-in immediately recovers data and watches for assista
   assert.match(signIn, /if \(data\.session\)[\s\S]*?refreshCloudData\(\{ automatic: true \}\)/);
   assert.match(signIn, /startCloudFreshnessMonitor\(data\.session\)/);
   assert.match(signIn, /latest Personal cloud data is now loaded/);
-  assert.match(html, /app\.js\?v=0\.20\.0-sde2-debugging-roadmap/);
-  assert.match(html, /marketing\.css\?v=0\.20\.0-sde2-debugging-roadmap/);
-  assert.match(html, /marketing\.js\?v=0\.20\.0-sde2-debugging-roadmap/);
+  assert.match(html, /app\.js\?v=0\.21\.0-resume-interview-roadmap/);
+  assert.match(html, /marketing\.css\?v=0\.21\.0-resume-interview-roadmap/);
+  assert.match(html, /marketing\.js\?v=0\.21\.0-resume-interview-roadmap/);
 });
 
 test('cloud reconciliation detects a newer database revision even when its timestamp is unchanged', () => {
