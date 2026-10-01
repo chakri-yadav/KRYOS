@@ -2,6 +2,14 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.22.1 - Resume mastery curriculum fidelity
+
+- Complete the supplied Resume Interview Mastery System import with the explicit 11-bullet-to-shared-module map, exact five-pass study cadence, four claim-led depth tiers, and the interruption/challenge/change-scenario mastery standard.
+- Add private Role A/Role B prompts for chronology and coherent system pictures without publishing employer names, dates, or personal work-history details in shared code.
+- Upgrade the existing Career roadmap in place; retain its stable ID, matching completed checks, unrelated roadmaps, and activity history.
+- No schema change; a signed-in app writes the updated Career block using normal revision-checked sync when opened.
+- QA: dedicated curriculum/migration and deployment tests plus the full automated suite. Cloud persistence requires opening the signed-in release and confirming Career sync.
+
 ## 0.22.0 - Resume Interview Mastery System
 
 - Upgrade the existing resume interview roadmap in place to a five-layer, 20-module curriculum: claim control, shared technical foundations, bullet-specific mastery, interview speaking, and mock/retrieval practice.

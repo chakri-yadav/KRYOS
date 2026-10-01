@@ -9,7 +9,7 @@ major.minor.patch
 Canonical current version:
 
 ```text
-0.22.0
+0.22.1
 ```
 
 ## Meaning
@@ -45,6 +45,7 @@ Canonical current version:
 | `0.20.x` | General SDE-2 interview debugging roadmap |
 | `0.21.x` | Resume interview speaking and claim defense roadmap |
 | `0.22.x` | Resume interview mastery system |
+| `0.22.1` | Complete supplied resume interview curriculum crosswalk and mastery rules |
 | `1.0.0` | Future public-ready product line |
 
 ## Bump Rules
