@@ -2,6 +2,14 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.19.0 - Canonical System Design roadmap cleanup
+
+- Keep the book-based SDE system-design roadmap and display its title as `System Design Roadmap`.
+- Remove duplicate roadmaps named `System Design Roadmap` or `System Design Roadmap (Book-Based)` while preserving unrelated roadmaps, the retained checklist progress, and historical Career activity.
+- Apply the idempotent cleanup to local Career data and after cloud refresh, then persist using normal revision-checked Career sync.
+- QA: duplicate cleanup tests, migration/idempotency/progress-preservation checks, and full test suite.
+- No schema change; signed-in release needs to open and finish Career sync for the Personal cloud copy to reflect the cleanup.
+
 ## 0.18.0 - Book-based SDE system design roadmap
 
 - Import a 17-module, general SDE roadmap aligned to System Design Interview Chapters 1–15, followed by reliability/operations and final synthesis.
