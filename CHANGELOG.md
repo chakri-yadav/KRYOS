@@ -2,6 +2,15 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.20.0 - SDE-2 Interview Debugging roadmap
+
+- Add a focused five-module Career roadmap: trace state, reproduce/minimize failures, select boundary tests and verify fixes, explain debugging in interviews, and repeat the process during regular DSA practice.
+- Use flexible evidence-based readiness checks rather than a guaranteed 6–8 week outcome or a strict 15-minute pass/fail threshold.
+- Keep the scope general SDE-2 coding interviews; exclude Amazon-specific material and production/on-call debugging topics.
+- Add an idempotent Career migration that preserves existing roadmaps, activity history, and completed checks on reconciliation.
+- QA: roadmap-content/migration tests, cloud migration wiring, and full test suite.
+- No schema change; first cloud persistence occurs through normal Career sync after opening the signed-in release.
+
 ## 0.19.0 - Canonical System Design roadmap cleanup
 
 - Keep the book-based SDE system-design roadmap and display its title as `System Design Roadmap`.
