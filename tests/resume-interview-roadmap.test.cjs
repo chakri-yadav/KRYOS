@@ -22,7 +22,7 @@ test('roadmap implements the five-layer resume interview mastery curriculum', ()
   const modules = buildResumeInterviewRoadmapModules();
   const checks = modules.flatMap(module => module.topics.flatMap(topic => topic.checklist));
   const content = JSON.stringify(RESUME_INTERVIEW_MODULES);
-  assert.equal(RESUME_INTERVIEW_ROADMAP_VERSION, 2);
+  assert.equal(RESUME_INTERVIEW_ROADMAP_VERSION, 3);
   assert.equal(modules.length, 20);
   assert.equal(new Set(modules.map(module => module.pattern)).size, 5);
   assert.match(modules[0].pattern, /Layer 1/);
@@ -34,7 +34,7 @@ test('roadmap implements the five-layer resume interview mastery curriculum', ()
   assert.ok(checks.length >= 150);
   assert.equal(new Set(checks.map(check => check.id)).size, checks.length);
   assert.match(content, /private resume/i);
-  for (const expected of ['Must Speak', 'Must Understand', 'Awareness Only', 'Do Not Study', '12-field bullet card', '10-second', '30-second', '90-second', 'five highest-probability', 'outbox', 'BOLA', 'p95', 'Docker']) {
+  for (const expected of ['Must Speak', 'Must Understand', 'Awareness Only', 'Do Not Study', '12-field bullet card', '10-second', '30-second', '90-second', 'five highest-probability', 'Role A bullet 1', 'Role B bullet 5', 'Pass 5:', 'interrupted', 'BOLA', 'p95', 'Docker']) {
     assert.match(content, new RegExp(expected.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), `missing ${expected}`);
   }
   assert.doesNotMatch(content, /Amazon|Leadership Principles|on-call rotation|production RCA/i);

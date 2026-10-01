@@ -15,14 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.22.0";
-const APP_STAGE = "Resume interview mastery system";
+const APP_VERSION = "0.22.1";
+const APP_STAGE = "Resume mastery curriculum fidelity";
 const APP_RELEASE_DATE = "2026-10-01";
 const APP_STATUS = "Marketing keeps per-role application notes and browser-local résumé and supporting-file attachments separate from Career and Rewards";
 const APP_NEXT_MILESTONE = "Marketing cloud synchronization and cross-device file storage";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
-  "Replace the initial resume-speaking draft with the approved five-layer interview mastery curriculum, including shared technical modules, per-claim deep dives, speaking ladders, follow-up families, behavioral practice, and mock retrieval.",
+  "Complete the supplied Resume Interview Mastery System import with the exact 11-bullet-to-module study crosswalk, five-pass cadence, four depth tiers, and interruption-ready mastery standard; preserve the existing roadmap and progress in place.",
   "Add a Career roadmap for speaking clearly and truthfully about resume claims in interviews, with ownership boundaries, story structure, technical explanation, follow-up defense, and mock practice.",
   "Add a focused SDE-2 interview debugging roadmap for tracing, reproducing, minimizing, fixing, and verifying coding failures without an Amazon-specific or production-operations track.",
   "Keep one canonical System Design roadmap: preserve the book-based curriculum and its progress, remove same-purpose duplicates, and retain unrelated Career history.",
@@ -1241,7 +1241,7 @@ function migrateSde2DebuggingRoadmap(nextCareerState) {
   return true;
 }
 
-const RESUME_INTERVIEW_ROADMAP_VERSION = 2;
+const RESUME_INTERVIEW_ROADMAP_VERSION = 3;
 const RESUME_INTERVIEW_MODULES = [
   { id: "resume-mastery-00", layer: "Layer 1 · Resume claim control", title: "Module 0 — Resume command center", goal: "Build one accurate mental map of the career story and the distinct systems represented by resume claims.", topics: [
     ["Career timeline", ["Arrange roles, education, and transitions in the correct chronology", "Prepare a natural explanation of career progression", "Keep dates and transition reasons factual; mark anything uncertain for private review"]],
@@ -1309,8 +1309,8 @@ const RESUME_INTERVIEW_MODULES = [
   ] },
   { id: "resume-mastery-13", layer: "Layer 3 · Bullet-specific deep dives", title: "Module 13 — Build one mastery card per resume bullet", goal: "Compress each bullet into a compact, evidence-backed interview card rather than rereading long audit sections.", topics: [
     ["The 12-field bullet card", ["Capture the exact resume claim", "State its one-line meaning", "Summarize the problem in at most three sentences", "Draw a small architecture diagram", "List at most three mechanisms you personally changed", "Explain the causal chain for why the change worked", "Define the metric, unit, baseline, and limits", "State personal ownership versus team ownership", "Name the important trade-off or trade-offs", "Name an important failure mode or edge case", "Keep unknowns visible", "Choose the five highest-probability follow-up questions"]],
-    ["Map shared knowledge to each claim", ["Link each claim only to technical modules it actually depends on", "Reuse concepts without repeating their entire study plan", "Keep different projects and systems separate unless the evidence connects them"]],
-    ["Practice gate", ["Explain the card without reading the audit", "Check every specific statement against known facts or a clearly labeled learning model"]],
+    ["Map shared knowledge to each claim", ["Role A bullet 1 (API contracts) → Modules 1, 2, 3", "Role A bullet 2 (database performance) → Module 4", "Role A bullet 3 (asynchronous reliability) → Module 7 plus idempotency from Module 6", "Role A bullet 4 (service hardening) → Modules 9, 10", "Role A bullet 5 (JWT/RBAC) → Modules 2, 8", "Role A bullet 6 (reporting database) → Modules 4, 11", "Role B bullet 1 (approval workflow) → Modules 2, 6", "Role B bullet 2 (Redis performance) → Modules 4, 5", "Role B bullet 3 (observability) → Module 9", "Role B bullet 4 (defect resolution) → Modules 6, 9, 10", "Role B bullet 5 (Jenkins/Docker) → Modules 3, 12", "Link each claim only to relevant technical modules; keep different projects separate unless evidence connects them"]],
+    ["Practice gate", ["Explain the card without reading the audit", "Check every specific statement against known facts or a clearly labeled learning model", "Do not mark a card mastered because the answer merely looks familiar"]],
   ] },
   { id: "resume-mastery-14", layer: "Layer 4 · Interview speaking system", title: "Module 14 — Speaking ladder", goal: "Start concise and let interviewer interest determine how deep the answer goes.", topics: [
     ["Four answer depths", ["Give a 10-second headline", "Give a 30-second problem-change-result answer", "Give a 90-second context-problem-diagnosis-change-reason-metric answer", "Expand to a 5-minute technical discussion only when invited"]],
@@ -1333,9 +1333,11 @@ const RESUME_INTERVIEW_MODULES = [
     ["Ground the account", ["Use a truthful context, your action, and the outcome", "Name what you learned and what you would do differently", "Do not manufacture an incident, leadership role, or result to fill a category"]],
   ] },
   { id: "resume-mastery-19", layer: "Layer 5 · Mock interview and retrieval practice", title: "Module 19 — Mock interview and spaced retrieval", goal: "Convert understanding into flexible spoken recall through short repeated practice.", topics: [
-    ["Five-pass study loop", ["Understand one concept or claim", "Close notes and explain it aloud", "Answer five selected follow-up questions", "Deliver a 90-second bullet answer", "Take random follow-ups, then reopen notes only to repair a specific gap"]],
+    ["Five-pass study loop", ["Pass 1: understand the concept", "Pass 2: close the notes and explain without looking", "Pass 3: answer five attack questions", "Pass 4: explain one linked bullet in 90 seconds", "Pass 5: take random interviewer follow-ups, then reopen notes only to repair a specific gap", "Revisit later through spaced recall; do not reread the full audit repeatedly"]],
     ["Spaced recall", ["Revisit important answers after a delay instead of rereading them in one sitting", "Mix previously learned topics only after basic understanding", "Track unclear answers, evidence gaps, and improved responses"]],
-    ["Mock review", ["Run a mock conversation with interruptions and follow-ups", "Record one strong answer and one specific repair target", "Repeat until reasoning remains clear when assumptions or scenarios change"]],
+    ["Mock review and mastery standard", ["Run a mock conversation with interruptions and follow-ups", "Record one strong answer and one specific repair target", "Repeat until you can explain naturally when interrupted, an assumption is challenged, or the scenario changes", "The goal is 12 reusable mental models, 11 coherent stories, and repeated speaking practice—not memorizing 80–100 pages"]],
+    ["Resume-specific depth tiers", ["Tier A — Must Speak: explain immediately and conversationally", "Tier B — Must Understand: handle a deeper interviewer probe", "Tier C — Awareness Only: know the concept exists without studying internals", "Tier D — Do Not Study for this Resume: exclude topics unrelated to supported claims", "Assign each concept's tier using the source audit and its linked bullet; do not give every technology equal study time"]],
+    ["Private role and architecture map", ["Use Role A and Role B as private placeholders for the two employer groups in the resume audit", "Keep each employer's chronology and system picture in private Career notes; public curriculum code does not contain employer names, dates, or specific work history", "Treat diagrams as a coherent environment only when the audit supports that relationship; never combine unrelated bullets or present a learning model as production fact"]],
   ] },
 ];
 
@@ -1374,7 +1376,7 @@ function migrateResumeInterviewRoadmap(nextCareerState) {
       .filter((check) => check.done)
       .map((check) => String(check.text || "").trim().toLowerCase()))));
   roadmap.title = "Resume Interview Mastery System";
-  roadmap.purpose = "A five-layer interview curriculum: resume claim control, reusable technical foundations, bullet-specific deep dives, interview speaking, and mock/retrieval practice. Use the private resume audit as the source of claim-level detail. Keep actual experience, reference architecture, assumptions, and unknowns distinct; do not put personal resume text into this shared app code.";
+  roadmap.purpose = "The supplied Resume Interview Mastery System imported as a five-layer curriculum: resume claim control, shared technical foundations, bullet-specific deep dives, interview speaking, and mock/retrieval practice. The claim-to-module crosswalk and four depth tiers keep study focused. Use the private resume audit for exact employer details, chronology, architectures, and claim evidence; keep those private facts out of shared application code.";
   roadmap.targetDate = roadmap.targetDate || "";
   roadmap.modules = buildResumeInterviewRoadmapModules().map((module) => ({
     ...module,
