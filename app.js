@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.19.0";
-const APP_STAGE = "Single canonical book-based System Design roadmap";
+const APP_VERSION = "0.20.0";
+const APP_STAGE = "SDE-2 interview debugging roadmap";
 const APP_RELEASE_DATE = "2026-10-01";
 const APP_STATUS = "Marketing keeps per-role application notes and browser-local résumé and supporting-file attachments separate from Career and Rewards";
 const APP_NEXT_MILESTONE = "Marketing cloud synchronization and cross-device file storage";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Add a focused SDE-2 interview debugging roadmap for tracing, reproducing, minimizing, fixing, and verifying coding failures without an Amazon-specific or production-operations track.",
   "Keep one canonical System Design roadmap: preserve the book-based curriculum and its progress, remove same-purpose duplicates, and retain unrelated Career history.",
   "Add a manual Marketing role flow for capturing a job posting, source, facts, requirements, unknowns, and initial application status without a batch import.",
   "Keep closed Marketing job details truly collapsed while preserving the new role briefing when opened.",
@@ -1134,6 +1135,110 @@ function migrateSystemDesignRoadmapCleanup(nextCareerState) {
   return true;
 }
 
+const SDE2_DEBUGGING_ROADMAP_VERSION = 1;
+const SDE2_DEBUGGING_PHASES = [
+  {
+    id: "sde2-debug-phase-1",
+    title: "Phase 1 — Trace code and locate the first wrong state",
+    goal: "Build a precise mental trace of behavior before changing code.",
+    topics: [
+      ["Clarify behavior and constraints", ["Restate expected input and output", "Identify relevant constraints and assumptions", "Choose a small example and predict the result before running"]],
+      ["Trace state deliberately", ["Track relevant variables, indices, pointers, and data-structure contents", "Trace loop boundaries, updates, recursion state, and return values", "Compare expected and actual state at each meaningful step"]],
+      ["Recognize common logic bugs", ["Check off-by-one and wrong-index errors", "Check stale or incorrectly reset state", "Check wrong conditions and mutation during iteration", "Check duplicates, empty inputs, and boundaries"]],
+      ["Phase 1 practice gate", ["Given a failing snippet, identify the first divergent state", "Explain the cause using the trace rather than guessing a fix"]],
+    ],
+  },
+  {
+    id: "sde2-debug-phase-2",
+    title: "Phase 2 — Reproduce and minimize the failure",
+    goal: "Turn a confusing failure into a small, explainable counterexample.",
+    topics: [
+      ["Reproduce predictably", ["Restate what should happen for the failing input", "Run the code and compare actual output with the prediction", "Keep the original failing input and observed output"]],
+      ["Shrink the failing case", ["Remove irrelevant elements while preserving the failure", "Reduce values and simplify conditions where possible", "Use section isolation or bisection only when it narrows the likely cause"]],
+      ["Find and correct the cause", ["Locate the earliest incorrect operation or state transition", "Make the smallest correction justified by expected behavior", "Avoid unrelated rewrites that obscure the cause"]],
+      ["Phase 2 practice gate", ["Produce a minimal failing example", "Explain why the first incorrect operation causes the observed failure", "Rerun the original and minimized cases after the fix"]],
+    ],
+  },
+  {
+    id: "sde2-debug-phase-3",
+    title: "Phase 3 — Test boundaries and verify the fix",
+    goal: "Select tests from the problem constraints and prevent regressions.",
+    topics: [
+      ["Boundary-case selection", ["Consider empty and single-element inputs when valid", "Check first/last positions and boundary indices", "Consider duplicates and sorted/reverse-sorted inputs when relevant", "Consider zero, negative, and repeated values when allowed", "Check stated minimum/maximum constraints and no/one/multiple-solution cases"]],
+      ["Test with a purpose", ["For each test, state which assumption or boundary it checks", "Do not mechanically apply irrelevant cases to every problem", "Keep the minimized failure as a regression case"]],
+      ["Verify the correction", ["Rerun the failing case and nearby relevant cases", "Confirm the fix did not break a previously correct path", "Remove temporary debug prints before submission"]],
+      ["Phase 3 practice gate", ["Explain why each selected test is relevant", "Show the fix passes the original failure and applicable boundaries"]],
+    ],
+  },
+  {
+    id: "sde2-debug-phase-4",
+    title: "Phase 4 — Interview-style debugging and explanation",
+    goal: "Communicate a calm, evidence-led debugging process during coding interviews.",
+    topics: [
+      ["Interview environment", ["Practice in a plain editor or interview-like coding environment", "Keep normal run/debug tools available until deliberately simulating constraints", "Clarify behavior and constraints before changing the solution"]],
+      ["Explain the reasoning", ["Narrate expected versus actual state briefly", "Name the next check and why it narrows the cause", "Explain the correction and verification without narrating every keystroke"]],
+      ["Correctness and trade-offs", ["State time and space complexity after correctness is established", "Discuss an optimization when it materially helps or is requested", "Explain its benefit and trade-off instead of memorizing a fixed optimization list"]],
+      ["Phase 4 practice gate", ["Debug one problem in an interview-style session", "Explain first wrong state, minimal fix, verification, and complexity clearly", "Use a reasonable practice time target, not a pass/fail hiring rule"]],
+    ],
+  },
+  {
+    id: "sde2-debug-integrated",
+    title: "Integrated practice — Repeat the debugging loop",
+    goal: "Build dependable debugging habits inside ordinary DSA practice.",
+    topics: [
+      ["One-problem session", ["Choose one problem or short snippet", "Predict behavior and note applicable edge cases", "Run, compare, shrink failures, trace, fix minimally, and rerun"]],
+      ["Evidence note", ["Record the bug pattern", "Record the first incorrect state", "Record the minimal fix and one regression test"]],
+      ["Readiness evidence", ["Independently locate the first incorrect state", "Justify and verify a minimal correction with targeted tests", "Explain reasoning and complexity clearly across repeated practice"]],
+    ],
+  },
+];
+
+function buildSde2DebuggingRoadmapModules() {
+  return SDE2_DEBUGGING_PHASES.map((phase) => ({
+    id: phase.id,
+    title: phase.title,
+    goal: phase.goal,
+    pattern: "SDE-2 interview practice",
+    topics: phase.topics.map(([title, items], topicIndex) => {
+      const topicId = `${phase.id}-topic-${topicIndex + 1}`;
+      return {
+        id: topicId,
+        title,
+        confidence: "Low",
+        checklist: items.map((text, index) => ({ id: `${topicId}-item-${index + 1}`, text, done: false })),
+      };
+    }),
+  }));
+}
+
+function migrateSde2DebuggingRoadmap(nextCareerState) {
+  if (!nextCareerState || typeof nextCareerState !== "object") return false;
+  nextCareerState.meta = nextCareerState.meta && typeof nextCareerState.meta === "object" ? nextCareerState.meta : {};
+  if (Number(nextCareerState.meta.sde2DebuggingRoadmapVersion || 0) >= SDE2_DEBUGGING_ROADMAP_VERSION) return false;
+  nextCareerState.roadmaps = Array.isArray(nextCareerState.roadmaps) ? nextCareerState.roadmaps : [];
+
+  const roadmapId = "roadmap-sde2-debugging-interview";
+  let roadmap = nextCareerState.roadmaps.find((item) => item?.id === roadmapId);
+  if (!roadmap) {
+    roadmap = { id: roadmapId, title: "SDE-2 Interview Debugging Roadmap" };
+    nextCareerState.roadmaps.push(roadmap);
+  }
+  const priorChecks = new Map((roadmap.modules || []).flatMap((module) =>
+    (module.topics || []).flatMap((topic) => (topic.checklist || []).map((check) => [check.id, check]))));
+  roadmap.purpose = "Practice tracing, reproducing, minimizing, fixing, and verifying coding failures for general SDE-2 interviews. Interview-only scope; no Amazon-specific or production/on-call curriculum, fixed deadline, or guaranteed readiness date.";
+  roadmap.targetDate = roadmap.targetDate || "";
+  roadmap.modules = buildSde2DebuggingRoadmapModules().map((module) => ({
+    ...module,
+    topics: module.topics.map((topic) => ({
+      ...topic,
+      checklist: topic.checklist.map((check) => ({ ...check, done: Boolean(priorChecks.get(check.id)?.done) })),
+    })),
+  }));
+  nextCareerState.meta.sde2DebuggingRoadmapVersion = SDE2_DEBUGGING_ROADMAP_VERSION;
+  nextCareerState.meta.updatedAt = new Date().toISOString();
+  return true;
+}
+
 const defaultCareer = {
   roadmaps: [
     {
@@ -1386,10 +1491,12 @@ const dsaRoadmapMigrated = migrateDsaRoadmap(careerState);
 const apiDesignRoadmapMigrated = migrateApiDesignRoadmap(careerState);
 const systemDesignRoadmapMigrated = migrateSystemDesignRoadmap(careerState);
 const systemDesignRoadmapCleanupMigrated = migrateSystemDesignRoadmapCleanup(careerState);
+const sde2DebuggingRoadmapMigrated = migrateSde2DebuggingRoadmap(careerState);
+if (sde2DebuggingRoadmapMigrated && !savedUiState.selectedRoadmapId) selectedRoadmapId = "roadmap-sde2-debugging-interview";
 if ((systemDesignRoadmapMigrated && !savedUiState.selectedRoadmapId)
   || !careerState.roadmaps.some((roadmap) => roadmap.id === selectedRoadmapId)) selectedRoadmapId = "roadmap-system-design-book";
-let pendingCareerMigrationSync = dsaRoadmapMigrated || apiDesignRoadmapMigrated || systemDesignRoadmapMigrated || systemDesignRoadmapCleanupMigrated;
-if (dsaRoadmapMigrated || apiDesignRoadmapMigrated || systemDesignRoadmapMigrated || systemDesignRoadmapCleanupMigrated) {
+let pendingCareerMigrationSync = dsaRoadmapMigrated || apiDesignRoadmapMigrated || systemDesignRoadmapMigrated || systemDesignRoadmapCleanupMigrated || sde2DebuggingRoadmapMigrated;
+if (dsaRoadmapMigrated || apiDesignRoadmapMigrated || systemDesignRoadmapMigrated || systemDesignRoadmapCleanupMigrated || sde2DebuggingRoadmapMigrated) {
   setModeStorageValue(CAREER_STORAGE_KEY, JSON.stringify(careerState));
 }
 
@@ -7324,8 +7431,9 @@ async function refreshCloudData({ automatic = false } = {}) {
         const remoteApiMigrated = migrateApiDesignRoadmap(careerState);
         const remoteSystemDesignMigrated = migrateSystemDesignRoadmap(careerState);
         const remoteSystemDesignCleanupMigrated = migrateSystemDesignRoadmapCleanup(careerState);
+        const remoteSde2DebuggingMigrated = migrateSde2DebuggingRoadmap(careerState);
         if (!careerState.roadmaps.some((roadmap) => roadmap.id === selectedRoadmapId)) selectedRoadmapId = "roadmap-system-design-book";
-        const remoteCareerMigrated = remoteDsaMigrated || remoteApiMigrated || remoteSystemDesignMigrated || remoteSystemDesignCleanupMigrated;
+        const remoteCareerMigrated = remoteDsaMigrated || remoteApiMigrated || remoteSystemDesignMigrated || remoteSystemDesignCleanupMigrated || remoteSde2DebuggingMigrated;
         if (remoteCareerMigrated) {
           setModeStorageValue(CAREER_STORAGE_KEY, JSON.stringify(careerState));
           pendingCareerMigrationSync = true;
