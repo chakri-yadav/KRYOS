@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.21.0";
-const APP_STAGE = "Resume interview speaking and claim defense";
+const APP_VERSION = "0.22.0";
+const APP_STAGE = "Resume interview mastery system";
 const APP_RELEASE_DATE = "2026-10-01";
 const APP_STATUS = "Marketing keeps per-role application notes and browser-local résumé and supporting-file attachments separate from Career and Rewards";
 const APP_NEXT_MILESTONE = "Marketing cloud synchronization and cross-device file storage";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Replace the initial resume-speaking draft with the approved five-layer interview mastery curriculum, including shared technical modules, per-claim deep dives, speaking ladders, follow-up families, behavioral practice, and mock retrieval.",
   "Add a Career roadmap for speaking clearly and truthfully about resume claims in interviews, with ownership boundaries, story structure, technical explanation, follow-up defense, and mock practice.",
   "Add a focused SDE-2 interview debugging roadmap for tracing, reproducing, minimizing, fixing, and verifying coding failures without an Amazon-specific or production-operations track.",
   "Keep one canonical System Design roadmap: preserve the book-based curriculum and its progress, remove same-purpose duplicates, and retain unrelated Career history.",
@@ -1240,63 +1241,102 @@ function migrateSde2DebuggingRoadmap(nextCareerState) {
   return true;
 }
 
-const RESUME_INTERVIEW_ROADMAP_VERSION = 1;
+const RESUME_INTERVIEW_ROADMAP_VERSION = 2;
 const RESUME_INTERVIEW_MODULES = [
-  {
-    id: "resume-interview-01",
-    title: "Claim truth and ownership boundaries",
-    goal: "Know what each resume statement says, what you personally did, and what evidence supports it.",
-    topics: [
-      ["Decompose each resume claim", ["Read the exact claim from the private resume/audit", "Separate your own work from team or organization work", "Identify the problem, action, and result the claim communicates"]],
-      ["Classify evidence and certainty", ["Mark facts you personally remember and can support", "Label estimates and define how each metric was calculated", "Keep learning-model examples, assumptions, and unknown history separate from remembered facts", "List details you must not claim as personal or company-specific experience"]],
-      ["Set a defensible ownership statement", ["State what you owned, implemented, influenced, or only observed", "Prepare a direct answer for what teammates or other groups owned", "Avoid inflated ownership and avoid underselling your contribution"]],
-      ["Completion checkpoint", ["For each resume claim, explain what you did and what evidence supports it", "Identify a boundary you will not overstate"]],
-    ],
-  },
-  {
-    id: "resume-interview-02",
-    title: "Build a clear spoken story for each claim",
-    goal: "Turn resume shorthand into a concise, natural story rather than a memorized script.",
-    topics: [
-      ["Story spine", ["Explain the situation and why the problem mattered", "Describe your specific responsibility and constraints", "Walk through the actions and decisions you personally made", "State the result and evidence or qualification behind it"]],
-      ["Prepare three answer lengths", ["Give a clear 30-second summary", "Expand naturally to about 60 seconds when invited", "Prepare a deeper 2–3 minute walkthrough for follow-up"]],
-      ["Connect claims without mixing them", ["Map shared systems or concepts across related claims", "Keep distinct projects and outcomes distinct", "Connect claims only when their relationship is factual"]],
-      ["Completion checkpoint", ["Deliver one claim as a concise story without reading notes", "Expand it only when a follow-up calls for detail"]],
-    ],
-  },
-  {
-    id: "resume-interview-03",
-    title: "Explain the technical work behind the claim",
-    goal: "Explain the design and terminology named on the resume at the depth needed to defend your own work.",
-    topics: [
-      ["Draw and narrate the real system", ["Sketch the main request or data flow using only supported components", "Explain each component's role in plain language", "Mark uncertain architecture details instead of filling gaps with plausible guesses"]],
-      ["Explain choices and trade-offs", ["Explain why the stated approach fit the problem", "Name a reasonable alternative and its trade-off", "Describe a limitation or failure mode you considered or encountered, if known"]],
-      ["Study only claim-relevant gaps", ["Use the audit as a reference to find the concept needed for a specific claim", "Learn enough to explain the concept and its role in that claim", "Stop expanding into unrelated technical study once the claim is defensible"]],
-      ["Completion checkpoint", ["Explain one claim's flow, your contribution, and one trade-off without inventing system details"]],
-    ],
-  },
-  {
-    id: "resume-interview-04",
-    title: "Handle interviewer follow-ups",
-    goal: "Answer probing questions with specifics, evidence, and honest limits.",
-    topics: [
-      ["Ownership and collaboration", ["Answer what you personally implemented or decided", "Explain how you worked with teammates or dependent teams", "Describe a disagreement or adjustment only when grounded in real experience"]],
-      ["Metrics and impact", ["Define the baseline, measurement window, and metric meaning", "Distinguish measured results from estimates or resume approximations", "Explain other factors that could have affected the result"]],
-      ["Alternatives, failures, and learning", ["Explain an alternative and why it was not selected", "Describe a real failure, limitation, or uncertainty without inventing an incident", "Say what you would investigate next when an exact detail is unknown"]],
-      ["Follow-up drill", ["Practice why, how, ownership, evidence, trade-off, and what-would-you-change questions", "Answer the question first, then give supporting detail", "Ask for clarification when the question is ambiguous"]],
-    ],
-  },
-  {
-    id: "resume-interview-05",
-    title: "Mock speaking practice and refinement",
-    goal: "Build interview fluency through short, closed-notes retrieval and useful feedback.",
-    topics: [
-      ["One-claim practice session", ["Choose one resume claim for the session", "Give the short version with notes closed", "Answer a small set of probing questions aloud", "Review notes only to repair a specific gap"]],
-      ["Improve delivery", ["Lead with the answer before adding context", "Use clear transitions between problem, action, and result", "Pause to organize a difficult answer rather than rushing", "Replace memorized paragraphs with a few factual anchors"]],
-      ["Record useful feedback", ["Capture one answer that was clear", "Capture one unsupported, vague, or overlong part to repair", "Write one next practice question or improvement"]],
-      ["Readiness evidence", ["Discuss each relevant resume claim clearly without reading a script", "Defend ownership, technical choices, and results with evidence", "Separate known facts from uncertainty under follow-up"]],
-    ],
-  },
+  { id: "resume-mastery-00", layer: "Layer 1 · Resume claim control", title: "Module 0 — Resume command center", goal: "Build one accurate mental map of the career story and the distinct systems represented by resume claims.", topics: [
+    ["Career timeline", ["Arrange roles, education, and transitions in the correct chronology", "Prepare a natural explanation of career progression", "Keep dates and transition reasons factual; mark anything uncertain for private review"]],
+    ["System pictures", ["Draw a separate high-level picture for each genuinely related system or project", "Use only components supported by remembered evidence or clearly labeled learning models", "Do not merge separate projects just because their technologies overlap"]],
+    ["Opening interview answers", ["Practice a concise tell-me-about-yourself answer", "Explain each role at a high level without reciting every resume bullet", "Prepare truthful examples for proudest project and hardest technical problem"]],
+  ] },
+  { id: "resume-mastery-01", layer: "Layer 1 · Resume claim control", title: "Module 1 — Claim safety and ownership", goal: "Keep evidence, learning models, uncertainty, and personal ownership distinct for every resume claim.", topics: [
+    ["Four evidence buckets", ["Record the exact claim from the private resume", "Separate remembered facts from technically plausible learning models", "Keep unknowns visible and never improvise them as facts", "Identify details that must not be claimed as personal or company-wide ownership"]],
+    ["Ownership and impact", ["Separate personal contribution, team contribution, and pre-existing systems", "Define each metric, baseline, unit, and measurement window", "Identify what changed, what already existed, and what another team owned"]],
+    ["Study depth control", ["Mark each audit topic as Must Speak, Must Understand, Awareness Only, or Do Not Study for this resume", "Spend deeper practice on high-risk claims and their linked concepts", "Do not give every technology equal study time"]],
+    ["Safe uncertainty language", ["Practice distinguishing the design principle you understand from an exact production detail you do not recall", "State uncertainty directly, then explain what you can support", "Do not use a plausible architecture as proof of historical implementation"]],
+  ] },
+  { id: "resume-mastery-02", layer: "Layer 2 · Shared technical foundations", title: "Module 2 — HTTP REST and API engineering", goal: "Learn API concepts once and reuse them when defending relevant resume claims.", topics: [
+    ["HTTP and resource basics · Tier A where claimed", ["Explain request/response flow, methods, headers, status classes, and idempotency", "Distinguish authentication errors such as 401 from authorization denial such as 403", "Explain path/query parameters, pagination, and error contracts"]],
+    ["Schemas and API contracts", ["Explain required versus optional fields, types, enums, and validation", "Explain what OpenAPI describes and what it does not prove about consumer compatibility", "Distinguish provider implementation from consumer expectations"]],
+    ["Compatibility and evolution", ["Classify additive and breaking changes", "Explain versioning, deprecation, and expand-migrate-contract", "Answer when a breaking change is unavoidable and why a new major version is not automatic for every change"]],
+  ] },
+  { id: "resume-mastery-03", layer: "Layer 2 · Shared technical foundations", title: "Module 3 — Testing and CI/CD", goal: "Explain which checks catch which defects and how automated verification supports the resume claim.", topics: [
+    ["Testing boundaries · Tier A when claimed", ["Distinguish unit, integration, contract, smoke, and end-to-end tests", "Explain one defect each test level can catch and a limitation it has", "Use a bug-to-regression-test example from confirmed experience"]],
+    ["CI flow and quality gates", ["Explain commit, build, tests, validation, artifact, deployment, and production verification", "Describe CI gates and rollback at interview-appropriate depth", "Do not imply a test guarantees behavior it does not cover"]],
+    ["Reliable test environments", ["Explain deterministic versus flaky tests and test-data isolation", "Explain how dependency pinning and containers reduce environment drift", "State why Docker does not eliminate flakiness or guarantee perfect reproducibility"]],
+  ] },
+  { id: "resume-mastery-04", layer: "Layer 2 · Shared technical foundations", title: "Module 4 — SQL and PostgreSQL performance", goal: "Explain query behavior, measurement, and the specific optimization mechanism behind supported claims.", topics: [
+    ["Query execution · Tier A when claimed", ["Recognize sequential, index, and bitmap scan concepts", "Explain joins, sorting, filters, and how a plan relates to a query", "Read estimated versus actual rows in EXPLAIN ANALYZE at a conceptual level"]],
+    ["Indexes and query patterns", ["Explain B-tree and composite index column order/selectivity", "Recognize partial and index-only concepts at the depth required by the claim", "Explain read benefit versus write/storage cost", "Identify N+1, repeated lookups, over-fetching, and bulk-fetch opportunities"]],
+    ["Performance evidence", ["Distinguish p50, p95, and p99", "Explain latency versus throughput", "Explain why a low average request volume can still have a slow tail", "Define baseline, before/after window, and what a daily request count does not imply"]],
+  ] },
+  { id: "resume-mastery-05", layer: "Layer 2 · Shared technical foundations", title: "Module 5 — Caching and Redis", goal: "Defend when caching helps, how it interacts with the source of truth, and what can go wrong.", topics: [
+    ["Cache-aside flow · Tier A when claimed", ["Explain request, authorization scope, cache hit/miss, database lookup, and cache fill", "Explain cache key design, TTL, invalidation, stale values, and stampede basics", "Keep PostgreSQL or the authoritative store as the source of truth"]],
+    ["Failure and trade-offs", ["Explain fallback behavior if the cache is unavailable", "Explain why cache keys must respect authorization boundaries", "Compare caching with fixing an inefficient query or adding a suitable index", "State that caching should not hide a poor database access pattern"]],
+  ] },
+  { id: "resume-mastery-06", layer: "Layer 2 · Shared technical foundations", title: "Module 6 — Transactions workflows and concurrency", goal: "Explain state transitions and correctness when requests overlap or retry.", topics: [
+    ["Workflow state machines · Tier A when claimed", ["Draw allowed states and transitions for a representative workflow", "Distinguish role authorization from whether a transition is valid in the current state", "Explain commands versus arbitrary status updates"]],
+    ["Transactions and invariants", ["Explain atomicity, isolation, commit, rollback, and short transaction boundaries", "State what the framework transaction boundary does and does not guarantee", "Distinguish current state from durable history and data invariants"]],
+    ["Concurrency and idempotency", ["Explain race conditions, stale reads, and lost updates", "Compare row locking such as SELECT FOR UPDATE with optimistic versioning", "Explain duplicate clicks/retries, idempotency keys, and database constraints", "Walk through two approvers acting at nearly the same time"]],
+  ] },
+  { id: "resume-mastery-07", layer: "Layer 2 · Shared technical foundations", title: "Module 7 — Async processing and distributed reliability", goal: "Explain component responsibilities and reason through partial failures without conflating queues and event streams.", topics: [
+    ["Component responsibilities · Tier A when claimed", ["Explain scheduler, task executor, broker, worker, producer, and consumer roles", "Distinguish task-execution infrastructure from durable event distribution", "Draw the actual or explicitly labeled reference flow"]],
+    ["Failure classification and retry", ["Classify transient, permanent/data, and systemic failures", "Explain bounded retries, exponential backoff, jitter, and retry storms", "Explain per-record isolation, quarantine, and dead-letter concepts"]],
+    ["Delivery correctness", ["Explain worker crash, redelivery, duplicate execution, and idempotency", "Explain why exactly-once claims need careful qualification", "Explain DB-plus-message dual-write risk and transactional outbox concept", "Define run identity, task exception, retry, and manual rerun precisely"]],
+  ] },
+  { id: "resume-mastery-08", layer: "Layer 2 · Shared technical foundations", title: "Module 8 — Authentication authorization and API security", goal: "Explain the path from token verification to permitted business action, including object-level checks.", topics: [
+    ["Identity and JWT · Tier A when claimed", ["Distinguish authentication from authorization", "Explain JWT header, payload, signature, and why signing is not encryption", "Explain iss, aud, exp, nbf, sub, key IDs, rotation, and revocation challenges at appropriate depth"]],
+    ["Permission enforcement", ["Explain RBAC, least privilege, and deny-by-default", "Distinguish function permission from object/business authorization", "Explain BOLA and why role membership alone may not protect a resource", "Trace token to trusted identity to authorization to business action"]],
+    ["Security evidence", ["Describe positive and negative authorization tests", "Explain audit fields such as actor, action, target, outcome, and time", "Identify sensitive data that should not be logged", "Keep exact algorithms, roles, or company configuration unknown unless confirmed"]],
+  ] },
+  { id: "resume-mastery-09", layer: "Layer 2 · Shared technical foundations", title: "Module 9 — Observability and production debugging", goal: "Explain how evidence helps detect, isolate, and verify an issue.", topics: [
+    ["Signals and context · Tier A when claimed", ["Distinguish logs, errors, metrics, traces, and alerts", "Explain structured logs, severity, request/correlation context, and exception context", "Explain error rate, latency, traffic, and saturation at a conceptual level"]],
+    ["Detection and response measures", ["Distinguish detection, diagnosis, and resolution", "Explain MTTD versus MTTR", "Define the exact start and end events for any incident-related metric", "Distinguish time to first actionable alert from time to fix"]],
+    ["Debugging evidence flow", ["Trace symptom to logs/errors, reproduction, invariant, fix, regression test, and post-change observation", "Explain actionable versus noisy alerts and false positives", "Describe only tools and operational events actually known from the resume evidence"]],
+  ] },
+  { id: "resume-mastery-10", layer: "Layer 2 · Shared technical foundations", title: "Module 10 — Reliability and service hardening", goal: "Defend how a service handles errors and how checks detect regressions without overstating guarantees.", topics: [
+    ["Error handling and resilience", ["Distinguish handled from unhandled errors and use appropriate HTTP semantics", "Explain exception categories, graceful failure, and health-check purpose", "Explain why broad try/except alone is not service hardening"]],
+    ["Smoke tests and deployment safety", ["Identify a critical path for a smoke check", "Explain what a smoke test can and cannot prove", "Connect deployment validation, error monitoring, and rollback carefully"]],
+    ["Interview defense", ["Answer what happens when a dependency or critical path fails", "Separate implemented protection from a recommended future improvement", "Tie every hardening claim to a test, metric, or observed outcome"]],
+  ] },
+  { id: "resume-mastery-11", layer: "Layer 2 · Shared technical foundations", title: "Module 11 — PostgreSQL partitioning and reporting", goal: "Explain partitioning, reporting access, and schema evolution without confusing query organization with correctness.", topics: [
+    ["Partitioning and indexing · Tier A only when claimed", ["Compare range, list, and hash partitioning", "Explain partition key, granularity, pruning, maintenance, and indexes within partitions", "Compare partitioning with indexing and identify uniqueness limitations"]],
+    ["Reporting data and access", ["Distinguish OLTP and analytical/reporting workload needs", "Explain views versus materialized views and relevant access permissions", "Explain snapshot consistency and why partitioning does not prevent missing or duplicate data"]],
+    ["Schema change lifecycle", ["Explain migrations, backfills, validation, and rollout/rollback", "Recognize DDL lock and production-change risk", "Use RLS/security concepts only to the depth relevant to the claim"]],
+  ] },
+  { id: "resume-mastery-12", layer: "Layer 2 · Shared technical foundations", title: "Module 12 — Docker Jenkins and reproducible environments", goal: "Explain automation and environment boundaries without mislabeling the tools.", topics: [
+    ["Tool responsibility · Tier A when claimed", ["Explain Jenkins as automation/orchestration and Docker as an execution environment", "Distinguish image, container, Dockerfile, stages, artifacts, and test results", "Avoid saying Docker itself is CI/CD"]],
+    ["Reproducibility and limits", ["Explain pinned dependencies and runtime versions", "Explain how containerized tests reduce environment drift", "Explain why containers do not guarantee determinism or eliminate flaky tests", "Describe only the pipeline responsibilities you personally owned"]],
+  ] },
+  { id: "resume-mastery-13", layer: "Layer 3 · Bullet-specific deep dives", title: "Module 13 — Build one mastery card per resume bullet", goal: "Compress each bullet into a compact, evidence-backed interview card rather than rereading long audit sections.", topics: [
+    ["The 12-field bullet card", ["Capture the exact resume claim", "State its one-line meaning", "Summarize the problem in at most three sentences", "Draw a small architecture diagram", "List at most three mechanisms you personally changed", "Explain the causal chain for why the change worked", "Define the metric, unit, baseline, and limits", "State personal ownership versus team ownership", "Name the important trade-off or trade-offs", "Name an important failure mode or edge case", "Keep unknowns visible", "Choose the five highest-probability follow-up questions"]],
+    ["Map shared knowledge to each claim", ["Link each claim only to technical modules it actually depends on", "Reuse concepts without repeating their entire study plan", "Keep different projects and systems separate unless the evidence connects them"]],
+    ["Practice gate", ["Explain the card without reading the audit", "Check every specific statement against known facts or a clearly labeled learning model"]],
+  ] },
+  { id: "resume-mastery-14", layer: "Layer 4 · Interview speaking system", title: "Module 14 — Speaking ladder", goal: "Start concise and let interviewer interest determine how deep the answer goes.", topics: [
+    ["Four answer depths", ["Give a 10-second headline", "Give a 30-second problem-change-result answer", "Give a 90-second context-problem-diagnosis-change-reason-metric answer", "Expand to a 5-minute technical discussion only when invited"]],
+    ["Control depth", ["Do not start a simple resume answer at the deepest design level", "Pause after the requested answer and let the interviewer choose a follow-up", "Expand architecture, alternatives, failures, scale, and measurement when prompted"]],
+  ] },
+  { id: "resume-mastery-15", layer: "Layer 4 · Interview speaking system", title: "Module 15 — Interview answer grammar", goal: "Use a flexible reasoning sequence instead of memorizing paragraphs.", topics: [
+    ["Natural technical story", ["State the problem", "Name the important constraint", "Explain what you investigated", "Describe the change you made", "Explain why it worked and what evidence measured it", "State one meaningful trade-off"]],
+    ["Speak to the question", ["Answer the direct question first", "Use factual anchors rather than memorized scripts", "Separate your actual system from a hypothetical design or later reflection"]],
+  ] },
+  { id: "resume-mastery-16", layer: "Layer 4 · Interview speaking system", title: "Module 16 — Follow-up question families", goal: "Prepare for recurring interviewer challenges without memorizing hundreds of separate questions.", topics: [
+    ["Eight attack families", ["Why did you choose this?", "How did the implementation work?", "How was the result measured?", "What did the scale actually mean?", "What failed or could fail?", "What alternative did you consider?", "What trade-off did you accept?", "What exactly did you own?"]],
+    ["Build a small question set", ["Choose five strongest questions per bullet", "Answer each using supported details and the relevant shared module", "Mark which question needs more learning and which needs only clearer wording"]],
+  ] },
+  { id: "resume-mastery-17", layer: "Layer 4 · Interview speaking system", title: "Module 17 — System design bridge", goal: "Move from the system you actually worked on to a clearly labeled hypothetical scale-up discussion.", topics: [
+    ["Bridge sequence", ["Describe the actual system and its evidenced constraints", "Identify a current bottleneck or limit without inventing one", "Apply the interviewer's changed scale or constraint", "Explain which architecture choices would change and why"]],
+    ["Keep actual and hypothetical separate", ["Say when the actual system did not need the proposed scale-up", "Present future architecture as a design proposal rather than past implementation", "Discuss trade-offs and new failure modes introduced by scaling"]],
+  ] },
+  { id: "resume-mastery-18", layer: "Layer 4 · Interview speaking system", title: "Module 18 — Behavioral story layer", goal: "Reuse real technical experiences for behavioral questions without inventing unrelated stories or importing employer-specific interview doctrine.", topics: [
+    ["Four experience lenses", ["Prepare a real conflict or disagreement example", "Prepare a real mistake or unexpected result example", "Prepare an ambiguity or unclear-ownership example", "Prepare a learning or changed-approach example"]],
+    ["Ground the account", ["Use a truthful context, your action, and the outcome", "Name what you learned and what you would do differently", "Do not manufacture an incident, leadership role, or result to fill a category"]],
+  ] },
+  { id: "resume-mastery-19", layer: "Layer 5 · Mock interview and retrieval practice", title: "Module 19 — Mock interview and spaced retrieval", goal: "Convert understanding into flexible spoken recall through short repeated practice.", topics: [
+    ["Five-pass study loop", ["Understand one concept or claim", "Close notes and explain it aloud", "Answer five selected follow-up questions", "Deliver a 90-second bullet answer", "Take random follow-ups, then reopen notes only to repair a specific gap"]],
+    ["Spaced recall", ["Revisit important answers after a delay instead of rereading them in one sitting", "Mix previously learned topics only after basic understanding", "Track unclear answers, evidence gaps, and improved responses"]],
+    ["Mock review", ["Run a mock conversation with interruptions and follow-ups", "Record one strong answer and one specific repair target", "Repeat until reasoning remains clear when assumptions or scenarios change"]],
+  ] },
 ];
 
 function buildResumeInterviewRoadmapModules() {
@@ -1304,7 +1344,7 @@ function buildResumeInterviewRoadmapModules() {
     id: module.id,
     title: module.title,
     goal: module.goal,
-    pattern: "Interview communication and resume defense",
+    pattern: module.layer,
     topics: module.topics.map(([title, items], topicIndex) => {
       const topicId = `${module.id}-topic-${topicIndex + 1}`;
       return {
@@ -1326,18 +1366,21 @@ function migrateResumeInterviewRoadmap(nextCareerState) {
   const roadmapId = "roadmap-resume-interview-speaking";
   let roadmap = nextCareerState.roadmaps.find((item) => item?.id === roadmapId);
   if (!roadmap) {
-    roadmap = { id: roadmapId, title: "Resume Interview Speaking Roadmap" };
+    roadmap = { id: roadmapId, title: "Resume Interview Mastery System" };
     nextCareerState.roadmaps.push(roadmap);
   }
-  const previousChecks = new Map((roadmap.modules || []).flatMap((module) =>
-    (module.topics || []).flatMap((topic) => (topic.checklist || []).map((check) => [check.id, check]))));
-  roadmap.purpose = "Prepare to speak clearly and truthfully about each resume claim in interviews. This practices story delivery and claim defense, not broad technical study. Use the private resume audit as reference material; do not turn its learning examples into claimed work history.";
+  const priorDoneTexts = new Set((roadmap.modules || []).flatMap((module) =>
+    (module.topics || []).flatMap((topic) => (topic.checklist || [])
+      .filter((check) => check.done)
+      .map((check) => String(check.text || "").trim().toLowerCase()))));
+  roadmap.title = "Resume Interview Mastery System";
+  roadmap.purpose = "A five-layer interview curriculum: resume claim control, reusable technical foundations, bullet-specific deep dives, interview speaking, and mock/retrieval practice. Use the private resume audit as the source of claim-level detail. Keep actual experience, reference architecture, assumptions, and unknowns distinct; do not put personal resume text into this shared app code.";
   roadmap.targetDate = roadmap.targetDate || "";
   roadmap.modules = buildResumeInterviewRoadmapModules().map((module) => ({
     ...module,
     topics: module.topics.map((topic) => ({
       ...topic,
-      checklist: topic.checklist.map((check) => ({ ...check, done: Boolean(previousChecks.get(check.id)?.done) })),
+      checklist: topic.checklist.map((check) => ({ ...check, done: priorDoneTexts.has(check.text.trim().toLowerCase()) })),
     })),
   }));
   nextCareerState.meta.resumeInterviewRoadmapVersion = RESUME_INTERVIEW_ROADMAP_VERSION;
