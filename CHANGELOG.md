@@ -2,6 +2,17 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.22.0 - Resume Interview Mastery System
+
+- Upgrade the existing resume interview roadmap in place to a five-layer, 20-module curriculum: claim control, shared technical foundations, bullet-specific mastery, interview speaking, and mock/retrieval practice.
+- Cover the shared SDE foundations from the supplied plan, including APIs, testing/CI, SQL/PostgreSQL, caching, workflows/concurrency, distributed reliability, security, observability, hardening, partitioning/reporting, and Docker/Jenkins.
+- Add a reusable 12-field claim card, four spoken answer lengths, answer grammar, eight follow-up families, actual-to-hypothetical system-design bridging, behavioral story practice, and a five-pass retrieval loop.
+- Preserve the stable roadmap ID, unrelated Career roadmaps, activity history, and completed checks where the checklist text still matches. Do not put private resume or employer details in shared code.
+- No schema change; signed-in app applies migration through normal revision-checked Career sync. Existing Career content remains visible.
+- QA: dedicated content/migration checks and full automated suite; Pages availability checked after merge/deploy. Personal cloud migration is confirmed only after opening the signed-in release and successful Career sync.
+
+## 0.21.0 - Resume interview speaking roadmap
+
 ## 0.21.0 - Resume interview speaking roadmap
 
 - Add a five-module Career roadmap focused on explaining and defending resume claims aloud: truth/ownership, concise story construction, claim-relevant technical explanation, follow-ups, and mock speaking practice.
