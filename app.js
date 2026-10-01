@@ -15,7 +15,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.17.0";
+const APP_VERSION = "0.18.0";
 const APP_STAGE = "Focused Marketing role detail experience";
 const APP_RELEASE_DATE = "2026-09-29";
 const APP_STATUS = "Marketing keeps per-role application notes and browser-local résumé and supporting-file attachments separate from Career and Rewards";
@@ -969,6 +969,147 @@ function migrateApiDesignRoadmap(nextCareerState) {
   return true;
 }
 
+const SYSTEM_DESIGN_ROADMAP_VERSION = 1;
+
+// Book-aligned path for general SDE interviews. Learn the concept first, then
+// produce a design artifact; the final topic consolidates the book's method.
+const SYSTEM_DESIGN_MODULES = [
+  ["sd-01", "Scale from one server to many", "Chapter 1 · Learn the pressure points behind growth.", [
+    ["Concepts", ["Single-server request flow: DNS, load balancer, app, database, cache", "Vertical vs. horizontal scaling and their limits", "Stateless application servers and shared state", "Read/write paths, replication, and availability trade-offs"]],
+    ["Book study", ["Read Chapter 1 and redraw the single-server architecture", "Mark each bottleneck and the scaling change that addresses it"]],
+    ["Practice", ["Explain how a small web app evolves to multiple app servers", "Sketch the request path and identify one failure mode per component"]],
+  ]],
+  ["sd-02", "Back-of-the-envelope estimation", "Chapter 2 · Turn vague scale into useful numbers.", [
+    ["Concepts", ["Users, DAU/MAU, requests per second, and peak-to-average ratio", "Storage growth, retention, and object-size estimates", "Bandwidth, read/write ratios, and cache implications", "Powers of two, units, assumptions, and sanity checks"]],
+    ["Book study", ["Read Chapter 2; build a reusable assumptions and units worksheet", "Recalculate the book's examples and check order of magnitude"]],
+    ["Practice", ["Estimate traffic, storage, and bandwidth for a small photo-sharing app", "State assumptions, show arithmetic, and identify the dominant constraint"]],
+  ]],
+  ["sd-03", "System-design interview framework", "Chapter 3 · A repeatable discussion before drawing boxes.", [
+    ["Concepts", ["Clarify users, use cases, and out-of-scope behavior", "Define functional and non-functional requirements", "Estimate scale and identify the critical read/write paths", "Sketch APIs, data model, high-level architecture, and bottlenecks", "Discuss failures, trade-offs, and an iterative design"]],
+    ["Book study", ["Read Chapter 3 and turn its process into a one-page prompt card", "Separate requirements, design, deep dives, and wrap-up"]],
+    ["Practice", ["Run the framework on URL shortening without solving implementation details", "Review whether every design choice traces to a requirement or estimate"]],
+  ]],
+  ["sd-04", "Rate limiter", "Chapter 4 · Protect services while keeping limits predictable.", [
+    ["Concepts", ["Why limits exist; identity, scope, and quota policy", "Fixed window, sliding window log/counter, and token/leaky bucket", "Distributed counters, atomicity, race conditions, and hot keys", "Redis placement, failure policy, headers, and observability"]],
+    ["Book study", ["Read Chapter 4 and compare the algorithms by accuracy and cost", "Trace a request through policy lookup, counter update, and response"]],
+    ["Practice", ["Design per-user and per-IP API limits across multiple servers", "Explain boundary bursts, storage failure behavior, and a 429 response"]],
+  ]],
+  ["sd-05", "Consistent hashing", "Chapter 5 · Distribute keys while limiting remapping.", [
+    ["Concepts", ["Hash ring, partition ownership, and uneven distribution", "Virtual nodes and balancing", "Node addition/removal and remapping", "Replication, quorum intuition, and hot partition risks"]],
+    ["Book study", ["Read Chapter 5 and manually place keys and nodes on a ring", "Compare remapping with modulo hashing after a node is added"]],
+    ["Practice", ["Design a partition map for a growing key-value cluster", "Describe rebalance behavior and how replicas preserve availability"]],
+  ]],
+  ["sd-06", "Distributed key-value store", "Chapter 6 · Data partitioning, replication, and consistency.", [
+    ["Concepts", ["Requirements, APIs, and data partitioning", "Replication, consistency models, and quorum reads/writes", "Versioning/conflict resolution and hinted handoff", "Failure detection, repair, and the CAP trade-off in context"]],
+    ["Book study", ["Read Chapter 6; map each mechanism to a failure it handles", "Trace write and read paths with one node unavailable"]],
+    ["Practice", ["Design a key-value service for durable profile/preferences data", "Choose consistency and availability behavior for reads and writes"]],
+  ]],
+  ["sd-07", "Distributed unique ID generator", "Chapter 7 · Unique, ordered-enough IDs at scale.", [
+    ["Concepts", ["Requirements: uniqueness, ordering, throughput, and size", "UUID, database sequence, and timestamp-based approaches", "Worker IDs, clock drift, and coordination risks", "Collision probability and operational safeguards"]],
+    ["Book study", ["Read Chapter 7 and compare candidate ID layouts", "Identify what happens during clock rollback or worker-ID collision"]],
+    ["Practice", ["Design an ID service for distributed write-heavy applications", "Explain uniqueness guarantees and what ordering is—and is not—promised"]],
+  ]],
+  ["sd-08", "URL shortener", "Chapter 8 · A compact end-to-end service design.", [
+    ["Concepts", ["Create/redirect APIs and product requirements", "Key generation, encoding, and collision handling", "Storage schema, cache, and redirect read path", "Expiration, analytics, abuse prevention, and availability"]],
+    ["Book study", ["Read Chapter 8; reproduce its estimates and architecture", "Trace create and redirect flows including cache miss"]],
+    ["Practice", ["Present a URL shortener design using the Chapter 3 framework", "Deep-dive one trade-off: IDs, cache, or analytics pipeline"]],
+  ]],
+  ["sd-09", "Web crawler", "Chapter 9 · Stretch · Queueing, politeness, and deduplication.", [
+    ["Concepts", ["URL frontier, fetcher, parser, and storage pipeline", "Politeness, robots rules, host throttling, and crawl budgets", "URL/content deduplication and canonicalization", "Retries, traps, freshness, and distributed queue partitioning"]],
+    ["Book study", ["Read Chapter 9 and annotate the crawl pipeline and bottlenecks", "Follow one URL from discovery through storage"]],
+    ["Practice", ["Design a crawler for a bounded domain set with politeness limits", "Explain duplicate handling, retries, and how work survives worker failure"]],
+  ]],
+  ["sd-10", "Notification system", "Chapter 10 · Reliable multi-channel delivery.", [
+    ["Concepts", ["Notification types, preferences, and delivery guarantees", "API, event ingestion, queues, and worker responsibilities", "Templates, provider adapters, retries, and dead-letter handling", "Rate limits, ordering, deduplication, and delivery tracking"]],
+    ["Book study", ["Read Chapter 10; draw event-to-provider delivery flow", "Separate acceptance from eventual delivery status"]],
+    ["Practice", ["Design email, push, and SMS notifications for a consumer app", "Handle provider outage, duplicate events, and user opt-out"]],
+  ]],
+  ["sd-11", "News feed", "Chapter 11 · Fanout, ranking inputs, and freshness.", [
+    ["Concepts", ["Feed requirements, APIs, and data model", "Fanout-on-write, fanout-on-read, and hybrid approaches", "Celebrity/hot-key handling, caches, and ranking boundary", "Pagination, freshness, and feed repair"]],
+    ["Book study", ["Read Chapter 11 and trace publish and feed-read paths", "Compare fanout choices for ordinary and high-follower accounts"]],
+    ["Practice", ["Design a home feed for a mixed small/large follower population", "Defend the fanout strategy and explain freshness trade-offs"]],
+  ]],
+  ["sd-12", "Chat system", "Chapter 12 · Persistent messaging and real-time delivery.", [
+    ["Concepts", ["One-to-one/group requirements and message lifecycle", "WebSocket connection service and presence", "Message IDs, ordering, persistence, and delivery/read state", "Fanout, offline delivery, push, and media boundaries"]],
+    ["Book study", ["Read Chapter 12; trace online and offline recipient paths", "Mark which state is durable versus ephemeral"]],
+    ["Practice", ["Design a chat service for direct and group conversations", "Handle reconnect, duplicate sends, ordering, and a connection-server failure"]],
+  ]],
+  ["sd-13", "Search autocomplete", "Chapter 13 · Low-latency prefix suggestions.", [
+    ["Concepts", ["Query collection, normalization, and suggestion ranking", "Trie and alternative prefix-index representations", "Top-K precomputation, sharding, and update pipeline", "Latency budget, cache, privacy, and stale suggestions"]],
+    ["Book study", ["Read Chapter 13 and compare index choices", "Trace a keystroke through cache/index to ranked response"]],
+    ["Practice", ["Design autocomplete for a large search query corpus", "Explain update freshness, top-K retrieval, and hot prefixes"]],
+  ]],
+  ["sd-14", "YouTube-like video service", "Chapter 14 · Stretch · Upload, process, and stream media.", [
+    ["Concepts", ["Upload APIs, metadata, object storage, and CDN delivery", "Transcoding pipeline, queues, and processing status", "Adaptive bitrate streaming and manifests", "Playback analytics, privacy, and cost/availability trade-offs"]],
+    ["Book study", ["Read Chapter 14; separate control plane from media data plane", "Trace upload, processing, and playback paths"]],
+    ["Practice", ["Design video upload and playback for multiple device/network qualities", "Handle processing retries and regional/CDN delivery failure"]],
+  ]],
+  ["sd-15", "Google Drive-like file storage and sync", "Chapter 15 · Stretch · Metadata, blocks, and conflict-aware sync.", [
+    ["Concepts", ["File/folder metadata, permissions, and block storage", "Upload/download APIs and large-file chunking", "Sync client, change detection, and notification flow", "Version history, concurrent edits, conflicts, and recovery"]],
+    ["Book study", ["Read Chapter 15; trace a file update across devices", "Identify metadata versus blob responsibilities"]],
+    ["Practice", ["Design file backup and sync across desktop and mobile clients", "Resolve concurrent changes and explain resumable upload behavior"]],
+  ]],
+  ["sd-16", "Reliability and operations review", "Cross-cutting HLD · Apply operational judgment; no extra book chapter required.", [
+    ["Concepts", ["Availability, durability, latency, and error budgets", "Timeouts, bounded retries, idempotency, and graceful degradation", "Replication, backup/restore, disaster recovery, and data loss", "Metrics, logs, traces, alerts, and capacity planning"]],
+    ["Book study", ["Revisit relevant chapters and attach each operation concern to a design", "Distinguish a stated guarantee from an assumed one"]],
+    ["Practice", ["For one core design, walk through dependency outage and recovery", "State what to measure and how to detect user-visible failure"]],
+  ]],
+  ["sd-17", "Final interview practice and synthesis", "Consolidation · Core designs first; stretch designs are optional.", [
+    ["Core review", ["Redesign URL shortener from requirements to failure handling", "Redesign rate limiter and key-value store with explicit trade-offs", "Redesign notification, news feed, chat, and autocomplete"]],
+    ["Stretch review", ["Attempt crawler, video, and file sync only after core review", "Use the same requirements → estimates → design → deep-dive sequence"]],
+    ["Practice", ["Complete one timed or untimed mock and capture feedback", "Write a short post-mock review: strengths, gaps, next topic", "Use Chapter 16 only as optional further reading; do not block completion"]],
+  ]],
+];
+
+function buildSystemDesignRoadmapModules() {
+  return SYSTEM_DESIGN_MODULES.map(([id, title, goal, topicGroups], moduleIndex) => ({
+    id,
+    title,
+    goal,
+    pattern: moduleIndex === 8 || moduleIndex === 13 || moduleIndex === 14 ? "Optional stretch" : "Core SDE system design",
+    difficulty: Math.min(90, 25 + moduleIndex * 4),
+    topics: topicGroups.map(([topicTitle, items], topicIndex) => {
+      const topicId = `${id}-topic-${topicIndex + 1}`;
+      return {
+        id: topicId,
+        title: topicTitle,
+        confidence: "Low",
+        checklist: items.map((text, index) => ({ id: `${topicId}-item-${index + 1}`, text, done: false })),
+      };
+    }),
+  }));
+}
+
+function migrateSystemDesignRoadmap(nextCareerState) {
+  if (!nextCareerState || typeof nextCareerState !== "object") return false;
+  nextCareerState.meta = nextCareerState.meta && typeof nextCareerState.meta === "object" ? nextCareerState.meta : {};
+  if (Number(nextCareerState.meta.systemDesignRoadmapVersion || 0) >= SYSTEM_DESIGN_ROADMAP_VERSION) return false;
+  nextCareerState.roadmaps = Array.isArray(nextCareerState.roadmaps) ? nextCareerState.roadmaps : [];
+
+  const roadmapId = "roadmap-system-design-book";
+  let roadmap = nextCareerState.roadmaps.find((item) => item?.id === roadmapId);
+  if (!roadmap) {
+    const titleTaken = nextCareerState.roadmaps.some((item) => String(item?.title || "").trim().toLowerCase() === "system design roadmap");
+    roadmap = { id: roadmapId, title: titleTaken ? "System Design Roadmap (Book-Based)" : "System Design Roadmap" };
+    nextCareerState.roadmaps.push(roadmap);
+  }
+
+  const previousChecks = new Map((roadmap.modules || []).flatMap((module) =>
+    (module.topics || []).flatMap((topic) => (topic.checklist || []).map((check) => [check.id, check]))));
+  roadmap.purpose = "Learn the System Design Interview book concepts in order, then practice general SDE-level designs. Core topics come first; crawler, video, and file sync are optional stretch work. No Amazon-specific scope or deadlines.";
+  roadmap.targetDate = roadmap.targetDate || "";
+  roadmap.modules = buildSystemDesignRoadmapModules().map((module) => ({
+    ...module,
+    topics: module.topics.map((topic) => ({
+      ...topic,
+      checklist: topic.checklist.map((check) => ({ ...check, done: Boolean(previousChecks.get(check.id)?.done) })),
+    })),
+  }));
+  nextCareerState.meta.systemDesignRoadmapVersion = SYSTEM_DESIGN_ROADMAP_VERSION;
+  nextCareerState.meta.updatedAt = new Date().toISOString();
+  return true;
+}
+
 const defaultCareer = {
   roadmaps: [
     {
@@ -1219,8 +1360,10 @@ let careerSyncDirty = false;
 let careerSyncState = "local";
 const dsaRoadmapMigrated = migrateDsaRoadmap(careerState);
 const apiDesignRoadmapMigrated = migrateApiDesignRoadmap(careerState);
-let pendingCareerMigrationSync = dsaRoadmapMigrated || apiDesignRoadmapMigrated;
-if (dsaRoadmapMigrated || apiDesignRoadmapMigrated) {
+const systemDesignRoadmapMigrated = migrateSystemDesignRoadmap(careerState);
+if (systemDesignRoadmapMigrated && !savedUiState.selectedRoadmapId) selectedRoadmapId = "roadmap-system-design-book";
+let pendingCareerMigrationSync = dsaRoadmapMigrated || apiDesignRoadmapMigrated || systemDesignRoadmapMigrated;
+if (dsaRoadmapMigrated || apiDesignRoadmapMigrated || systemDesignRoadmapMigrated) {
   setModeStorageValue(CAREER_STORAGE_KEY, JSON.stringify(careerState));
 }
 
@@ -7153,7 +7296,8 @@ async function refreshCloudData({ automatic = false } = {}) {
         careerState = loadCareer();
         const remoteDsaMigrated = migrateDsaRoadmap(careerState);
         const remoteApiMigrated = migrateApiDesignRoadmap(careerState);
-        const remoteCareerMigrated = remoteDsaMigrated || remoteApiMigrated;
+        const remoteSystemDesignMigrated = migrateSystemDesignRoadmap(careerState);
+        const remoteCareerMigrated = remoteDsaMigrated || remoteApiMigrated || remoteSystemDesignMigrated;
         if (remoteCareerMigrated) {
           setModeStorageValue(CAREER_STORAGE_KEY, JSON.stringify(careerState));
           pendingCareerMigrationSync = true;
