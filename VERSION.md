@@ -9,7 +9,7 @@ major.minor.patch
 Canonical current version:
 
 ```text
-0.19.0
+0.20.0
 ```
 
 ## Meaning
@@ -42,6 +42,8 @@ Canonical current version:
 | `0.17.x` | Marketing manual role capture and role-detail reliability |
 | `0.18.x` | Book-based general SDE system design roadmap |
 | `0.19.x` | Single canonical system-design roadmap and duplicate cleanup |
+| `0.20.x` | General SDE-2 interview debugging roadmap |
+| `0.20.x` | General SDE-2 interview debugging roadmap |
 | `1.0.0` | Future public-ready product line |
 
 ## Bump Rules
