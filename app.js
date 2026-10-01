@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.20.0";
-const APP_STAGE = "SDE-2 interview debugging roadmap";
+const APP_VERSION = "0.21.0";
+const APP_STAGE = "Resume interview speaking and claim defense";
 const APP_RELEASE_DATE = "2026-10-01";
 const APP_STATUS = "Marketing keeps per-role application notes and browser-local résumé and supporting-file attachments separate from Career and Rewards";
 const APP_NEXT_MILESTONE = "Marketing cloud synchronization and cross-device file storage";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Add a Career roadmap for speaking clearly and truthfully about resume claims in interviews, with ownership boundaries, story structure, technical explanation, follow-up defense, and mock practice.",
   "Add a focused SDE-2 interview debugging roadmap for tracing, reproducing, minimizing, fixing, and verifying coding failures without an Amazon-specific or production-operations track.",
   "Keep one canonical System Design roadmap: preserve the book-based curriculum and its progress, remove same-purpose duplicates, and retain unrelated Career history.",
   "Add a manual Marketing role flow for capturing a job posting, source, facts, requirements, unknowns, and initial application status without a batch import.",
@@ -1239,6 +1240,111 @@ function migrateSde2DebuggingRoadmap(nextCareerState) {
   return true;
 }
 
+const RESUME_INTERVIEW_ROADMAP_VERSION = 1;
+const RESUME_INTERVIEW_MODULES = [
+  {
+    id: "resume-interview-01",
+    title: "Claim truth and ownership boundaries",
+    goal: "Know what each resume statement says, what you personally did, and what evidence supports it.",
+    topics: [
+      ["Decompose each resume claim", ["Read the exact claim from the private resume/audit", "Separate your own work from team or organization work", "Identify the problem, action, and result the claim communicates"]],
+      ["Classify evidence and certainty", ["Mark facts you personally remember and can support", "Label estimates and define how each metric was calculated", "Keep learning-model examples, assumptions, and unknown history separate from remembered facts", "List details you must not claim as personal or company-specific experience"]],
+      ["Set a defensible ownership statement", ["State what you owned, implemented, influenced, or only observed", "Prepare a direct answer for what teammates or other groups owned", "Avoid inflated ownership and avoid underselling your contribution"]],
+      ["Completion checkpoint", ["For each resume claim, explain what you did and what evidence supports it", "Identify a boundary you will not overstate"]],
+    ],
+  },
+  {
+    id: "resume-interview-02",
+    title: "Build a clear spoken story for each claim",
+    goal: "Turn resume shorthand into a concise, natural story rather than a memorized script.",
+    topics: [
+      ["Story spine", ["Explain the situation and why the problem mattered", "Describe your specific responsibility and constraints", "Walk through the actions and decisions you personally made", "State the result and evidence or qualification behind it"]],
+      ["Prepare three answer lengths", ["Give a clear 30-second summary", "Expand naturally to about 60 seconds when invited", "Prepare a deeper 2–3 minute walkthrough for follow-up"]],
+      ["Connect claims without mixing them", ["Map shared systems or concepts across related claims", "Keep distinct projects and outcomes distinct", "Connect claims only when their relationship is factual"]],
+      ["Completion checkpoint", ["Deliver one claim as a concise story without reading notes", "Expand it only when a follow-up calls for detail"]],
+    ],
+  },
+  {
+    id: "resume-interview-03",
+    title: "Explain the technical work behind the claim",
+    goal: "Explain the design and terminology named on the resume at the depth needed to defend your own work.",
+    topics: [
+      ["Draw and narrate the real system", ["Sketch the main request or data flow using only supported components", "Explain each component's role in plain language", "Mark uncertain architecture details instead of filling gaps with plausible guesses"]],
+      ["Explain choices and trade-offs", ["Explain why the stated approach fit the problem", "Name a reasonable alternative and its trade-off", "Describe a limitation or failure mode you considered or encountered, if known"]],
+      ["Study only claim-relevant gaps", ["Use the audit as a reference to find the concept needed for a specific claim", "Learn enough to explain the concept and its role in that claim", "Stop expanding into unrelated technical study once the claim is defensible"]],
+      ["Completion checkpoint", ["Explain one claim's flow, your contribution, and one trade-off without inventing system details"]],
+    ],
+  },
+  {
+    id: "resume-interview-04",
+    title: "Handle interviewer follow-ups",
+    goal: "Answer probing questions with specifics, evidence, and honest limits.",
+    topics: [
+      ["Ownership and collaboration", ["Answer what you personally implemented or decided", "Explain how you worked with teammates or dependent teams", "Describe a disagreement or adjustment only when grounded in real experience"]],
+      ["Metrics and impact", ["Define the baseline, measurement window, and metric meaning", "Distinguish measured results from estimates or resume approximations", "Explain other factors that could have affected the result"]],
+      ["Alternatives, failures, and learning", ["Explain an alternative and why it was not selected", "Describe a real failure, limitation, or uncertainty without inventing an incident", "Say what you would investigate next when an exact detail is unknown"]],
+      ["Follow-up drill", ["Practice why, how, ownership, evidence, trade-off, and what-would-you-change questions", "Answer the question first, then give supporting detail", "Ask for clarification when the question is ambiguous"]],
+    ],
+  },
+  {
+    id: "resume-interview-05",
+    title: "Mock speaking practice and refinement",
+    goal: "Build interview fluency through short, closed-notes retrieval and useful feedback.",
+    topics: [
+      ["One-claim practice session", ["Choose one resume claim for the session", "Give the short version with notes closed", "Answer a small set of probing questions aloud", "Review notes only to repair a specific gap"]],
+      ["Improve delivery", ["Lead with the answer before adding context", "Use clear transitions between problem, action, and result", "Pause to organize a difficult answer rather than rushing", "Replace memorized paragraphs with a few factual anchors"]],
+      ["Record useful feedback", ["Capture one answer that was clear", "Capture one unsupported, vague, or overlong part to repair", "Write one next practice question or improvement"]],
+      ["Readiness evidence", ["Discuss each relevant resume claim clearly without reading a script", "Defend ownership, technical choices, and results with evidence", "Separate known facts from uncertainty under follow-up"]],
+    ],
+  },
+];
+
+function buildResumeInterviewRoadmapModules() {
+  return RESUME_INTERVIEW_MODULES.map((module) => ({
+    id: module.id,
+    title: module.title,
+    goal: module.goal,
+    pattern: "Interview communication and resume defense",
+    topics: module.topics.map(([title, items], topicIndex) => {
+      const topicId = `${module.id}-topic-${topicIndex + 1}`;
+      return {
+        id: topicId,
+        title,
+        confidence: "Low",
+        checklist: items.map((text, index) => ({ id: `${topicId}-item-${index + 1}`, text, done: false })),
+      };
+    }),
+  }));
+}
+
+function migrateResumeInterviewRoadmap(nextCareerState) {
+  if (!nextCareerState || typeof nextCareerState !== "object") return false;
+  nextCareerState.meta = nextCareerState.meta && typeof nextCareerState.meta === "object" ? nextCareerState.meta : {};
+  if (Number(nextCareerState.meta.resumeInterviewRoadmapVersion || 0) >= RESUME_INTERVIEW_ROADMAP_VERSION) return false;
+  nextCareerState.roadmaps = Array.isArray(nextCareerState.roadmaps) ? nextCareerState.roadmaps : [];
+
+  const roadmapId = "roadmap-resume-interview-speaking";
+  let roadmap = nextCareerState.roadmaps.find((item) => item?.id === roadmapId);
+  if (!roadmap) {
+    roadmap = { id: roadmapId, title: "Resume Interview Speaking Roadmap" };
+    nextCareerState.roadmaps.push(roadmap);
+  }
+  const previousChecks = new Map((roadmap.modules || []).flatMap((module) =>
+    (module.topics || []).flatMap((topic) => (topic.checklist || []).map((check) => [check.id, check]))));
+  roadmap.purpose = "Prepare to speak clearly and truthfully about each resume claim in interviews. This practices story delivery and claim defense, not broad technical study. Use the private resume audit as reference material; do not turn its learning examples into claimed work history.";
+  roadmap.targetDate = roadmap.targetDate || "";
+  roadmap.modules = buildResumeInterviewRoadmapModules().map((module) => ({
+    ...module,
+    topics: module.topics.map((topic) => ({
+      ...topic,
+      checklist: topic.checklist.map((check) => ({ ...check, done: Boolean(previousChecks.get(check.id)?.done) })),
+    })),
+  }));
+  nextCareerState.meta.resumeInterviewRoadmapVersion = RESUME_INTERVIEW_ROADMAP_VERSION;
+  nextCareerState.meta.updatedAt = new Date().toISOString();
+  return true;
+}
+
 const defaultCareer = {
   roadmaps: [
     {
@@ -1493,10 +1599,12 @@ const systemDesignRoadmapMigrated = migrateSystemDesignRoadmap(careerState);
 const systemDesignRoadmapCleanupMigrated = migrateSystemDesignRoadmapCleanup(careerState);
 const sde2DebuggingRoadmapMigrated = migrateSde2DebuggingRoadmap(careerState);
 if (sde2DebuggingRoadmapMigrated && !savedUiState.selectedRoadmapId) selectedRoadmapId = "roadmap-sde2-debugging-interview";
+const resumeInterviewRoadmapMigrated = migrateResumeInterviewRoadmap(careerState);
 if ((systemDesignRoadmapMigrated && !savedUiState.selectedRoadmapId)
   || !careerState.roadmaps.some((roadmap) => roadmap.id === selectedRoadmapId)) selectedRoadmapId = "roadmap-system-design-book";
-let pendingCareerMigrationSync = dsaRoadmapMigrated || apiDesignRoadmapMigrated || systemDesignRoadmapMigrated || systemDesignRoadmapCleanupMigrated || sde2DebuggingRoadmapMigrated;
-if (dsaRoadmapMigrated || apiDesignRoadmapMigrated || systemDesignRoadmapMigrated || systemDesignRoadmapCleanupMigrated || sde2DebuggingRoadmapMigrated) {
+if (resumeInterviewRoadmapMigrated && !savedUiState.selectedRoadmapId) selectedRoadmapId = "roadmap-resume-interview-speaking";
+let pendingCareerMigrationSync = dsaRoadmapMigrated || apiDesignRoadmapMigrated || systemDesignRoadmapMigrated || systemDesignRoadmapCleanupMigrated || sde2DebuggingRoadmapMigrated || resumeInterviewRoadmapMigrated;
+if (pendingCareerMigrationSync) {
   setModeStorageValue(CAREER_STORAGE_KEY, JSON.stringify(careerState));
 }
 
@@ -7432,8 +7540,9 @@ async function refreshCloudData({ automatic = false } = {}) {
         const remoteSystemDesignMigrated = migrateSystemDesignRoadmap(careerState);
         const remoteSystemDesignCleanupMigrated = migrateSystemDesignRoadmapCleanup(careerState);
         const remoteSde2DebuggingMigrated = migrateSde2DebuggingRoadmap(careerState);
+        const remoteResumeInterviewMigrated = migrateResumeInterviewRoadmap(careerState);
         if (!careerState.roadmaps.some((roadmap) => roadmap.id === selectedRoadmapId)) selectedRoadmapId = "roadmap-system-design-book";
-        const remoteCareerMigrated = remoteDsaMigrated || remoteApiMigrated || remoteSystemDesignMigrated || remoteSystemDesignCleanupMigrated || remoteSde2DebuggingMigrated;
+        const remoteCareerMigrated = remoteDsaMigrated || remoteApiMigrated || remoteSystemDesignMigrated || remoteSystemDesignCleanupMigrated || remoteSde2DebuggingMigrated || remoteResumeInterviewMigrated;
         if (remoteCareerMigrated) {
           setModeStorageValue(CAREER_STORAGE_KEY, JSON.stringify(careerState));
           pendingCareerMigrationSync = true;
