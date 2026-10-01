@@ -11,7 +11,7 @@ function loadRoadmapApi() {
   const context = { structuredClone, Date };
   vm.createContext(context);
   vm.runInContext(
-    `${source.slice(start, end)}\nthis.api = { SYSTEM_DESIGN_ROADMAP_VERSION, SYSTEM_DESIGN_MODULES, buildSystemDesignRoadmapModules, migrateSystemDesignRoadmap };`,
+    `${source.slice(start, end)}\nthis.api = { SYSTEM_DESIGN_ROADMAP_VERSION, SYSTEM_DESIGN_MODULES, buildSystemDesignRoadmapModules, migrateSystemDesignRoadmap, migrateSystemDesignRoadmapCleanup };`,
     context,
   );
   return context.api;
@@ -54,7 +54,48 @@ test('migration adds roadmap once and preserves existing career history and same
   assert.equal(state.roadmaps.length, 2);
 });
 
-test('migration retains completed checklist evidence when reconciling its own roadmap', () => {
+test('cleanup keeps the book roadmap, removes only same-purpose duplicates, and retains progress/history', () => {
+  const { migrateSystemDesignRoadmap, migrateSystemDesignRoadmapCleanup } = loadRoadmapApi();
+  const state = {
+    roadmaps: [
+      { id: 'legacy-system-design', title: 'System Design Roadmap', modules: [{ id: 'legacy' }] },
+      { id: 'roadmap-system-design-book', title: 'System Design Roadmap (Book-Based)', modules: [] },
+      { id: 'other-path', title: 'Distributed Systems Reading', modules: [{ id: 'keep-other' }] },
+    ],
+    activityLog: [{ id: 'historical-completion', roadmapId: 'legacy-system-design' }],
+    meta: { systemDesignRoadmapVersion: 1 },
+  };
+
+  assert.equal(migrateSystemDesignRoadmap(state), false);
+  const keeper = state.roadmaps.find(item => item.id === 'roadmap-system-design-book');
+  keeper.modules = buildSystemDesignRoadmapModulesForTest();
+  const first = keeper.modules[0].topics[0].checklist[0];
+  first.done = true;
+  assert.equal(migrateSystemDesignRoadmapCleanup(state), true);
+  assert.equal(state.roadmaps.length, 2);
+  assert.equal(state.roadmaps[0].id, 'roadmap-system-design-book');
+  assert.equal(state.roadmaps[0].title, 'System Design Roadmap');
+  assert.equal(state.roadmaps[0].modules[0].topics[0].checklist[0].done, true);
+  assert.equal(state.roadmaps[1].id, 'other-path');
+  assert.equal(state.activityLog[0].id, 'historical-completion');
+  assert.equal(migrateSystemDesignRoadmapCleanup(state), false);
+});
+
+function buildSystemDesignRoadmapModulesForTest() {
+  return loadRoadmapApi().buildSystemDesignRoadmapModules();
+}
+
+test('cleanup imports first when the prior roadmap migration has not run yet', () => {
+  const { migrateSystemDesignRoadmapCleanup } = loadRoadmapApi();
+  const state = { roadmaps: [], activityLog: [], meta: {} };
+  assert.equal(migrateSystemDesignRoadmapCleanup(state), true);
+  assert.equal(state.roadmaps.length, 1);
+  assert.equal(state.roadmaps[0].title, 'System Design Roadmap');
+  assert.equal(state.roadmaps[0].modules.length, 17);
+  assert.equal(state.meta.systemDesignRoadmapVersion, 2);
+});
+
+test('cleanup retains completed checklist evidence when reconciling the book roadmap', () => {
   const { migrateSystemDesignRoadmap } = loadRoadmapApi();
   const state = { roadmaps: [{ id: 'roadmap-system-design-book', title: 'System Design Roadmap', modules: [] }], meta: {} };
   assert.equal(migrateSystemDesignRoadmap(state), true);

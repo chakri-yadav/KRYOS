@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.18.0";
-const APP_STAGE = "Focused Marketing role detail experience";
-const APP_RELEASE_DATE = "2026-09-29";
+const APP_VERSION = "0.19.0";
+const APP_STAGE = "Single canonical book-based System Design roadmap";
+const APP_RELEASE_DATE = "2026-10-01";
 const APP_STATUS = "Marketing keeps per-role application notes and browser-local résumé and supporting-file attachments separate from Career and Rewards";
 const APP_NEXT_MILESTONE = "Marketing cloud synchronization and cross-device file storage";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Keep one canonical System Design roadmap: preserve the book-based curriculum and its progress, remove same-purpose duplicates, and retain unrelated Career history.",
   "Add a manual Marketing role flow for capturing a job posting, source, facts, requirements, unknowns, and initial application status without a batch import.",
   "Keep closed Marketing job details truly collapsed while preserving the new role briefing when opened.",
   "Reshape the expanded Marketing role view into a clear role briefing, at-a-glance facts, responsibilities, requirements, verify items, and a separate application record.",
@@ -1110,6 +1111,29 @@ function migrateSystemDesignRoadmap(nextCareerState) {
   return true;
 }
 
+const SYSTEM_DESIGN_ROADMAP_CLEANUP_VERSION = 2;
+
+function migrateSystemDesignRoadmapCleanup(nextCareerState) {
+  if (!nextCareerState || typeof nextCareerState !== "object") return false;
+  nextCareerState.meta = nextCareerState.meta && typeof nextCareerState.meta === "object" ? nextCareerState.meta : {};
+  if (Number(nextCareerState.meta.systemDesignRoadmapVersion || 0) >= SYSTEM_DESIGN_ROADMAP_CLEANUP_VERSION) return false;
+  nextCareerState.roadmaps = Array.isArray(nextCareerState.roadmaps) ? nextCareerState.roadmaps : [];
+
+  // Ensure the imported, stable-ID book syllabus exists before removing a
+  // same-title legacy/manual duplicate. Progress and activity live on the keeper.
+  migrateSystemDesignRoadmap(nextCareerState);
+  let keeper = nextCareerState.roadmaps.find((item) => item?.id === "roadmap-system-design-book");
+  if (!keeper) return false;
+  const duplicateTitles = new Set(["system design roadmap", "system design roadmap (book-based)"]);
+  nextCareerState.roadmaps = nextCareerState.roadmaps.filter((item) =>
+    item === keeper || !duplicateTitles.has(String(item?.title || "").trim().toLowerCase()));
+  keeper.title = "System Design Roadmap";
+  keeper.purpose = "Learn the System Design Interview book concepts in order, then practice general SDE-level designs. Core topics come first; crawler, video, and file sync are optional stretch work. No Amazon-specific scope or deadlines.";
+  nextCareerState.meta.systemDesignRoadmapVersion = SYSTEM_DESIGN_ROADMAP_CLEANUP_VERSION;
+  nextCareerState.meta.updatedAt = new Date().toISOString();
+  return true;
+}
+
 const defaultCareer = {
   roadmaps: [
     {
@@ -1361,9 +1385,11 @@ let careerSyncState = "local";
 const dsaRoadmapMigrated = migrateDsaRoadmap(careerState);
 const apiDesignRoadmapMigrated = migrateApiDesignRoadmap(careerState);
 const systemDesignRoadmapMigrated = migrateSystemDesignRoadmap(careerState);
-if (systemDesignRoadmapMigrated && !savedUiState.selectedRoadmapId) selectedRoadmapId = "roadmap-system-design-book";
-let pendingCareerMigrationSync = dsaRoadmapMigrated || apiDesignRoadmapMigrated || systemDesignRoadmapMigrated;
-if (dsaRoadmapMigrated || apiDesignRoadmapMigrated || systemDesignRoadmapMigrated) {
+const systemDesignRoadmapCleanupMigrated = migrateSystemDesignRoadmapCleanup(careerState);
+if ((systemDesignRoadmapMigrated && !savedUiState.selectedRoadmapId)
+  || !careerState.roadmaps.some((roadmap) => roadmap.id === selectedRoadmapId)) selectedRoadmapId = "roadmap-system-design-book";
+let pendingCareerMigrationSync = dsaRoadmapMigrated || apiDesignRoadmapMigrated || systemDesignRoadmapMigrated || systemDesignRoadmapCleanupMigrated;
+if (dsaRoadmapMigrated || apiDesignRoadmapMigrated || systemDesignRoadmapMigrated || systemDesignRoadmapCleanupMigrated) {
   setModeStorageValue(CAREER_STORAGE_KEY, JSON.stringify(careerState));
 }
 
@@ -7297,7 +7323,9 @@ async function refreshCloudData({ automatic = false } = {}) {
         const remoteDsaMigrated = migrateDsaRoadmap(careerState);
         const remoteApiMigrated = migrateApiDesignRoadmap(careerState);
         const remoteSystemDesignMigrated = migrateSystemDesignRoadmap(careerState);
-        const remoteCareerMigrated = remoteDsaMigrated || remoteApiMigrated || remoteSystemDesignMigrated;
+        const remoteSystemDesignCleanupMigrated = migrateSystemDesignRoadmapCleanup(careerState);
+        if (!careerState.roadmaps.some((roadmap) => roadmap.id === selectedRoadmapId)) selectedRoadmapId = "roadmap-system-design-book";
+        const remoteCareerMigrated = remoteDsaMigrated || remoteApiMigrated || remoteSystemDesignMigrated || remoteSystemDesignCleanupMigrated;
         if (remoteCareerMigrated) {
           setModeStorageValue(CAREER_STORAGE_KEY, JSON.stringify(careerState));
           pendingCareerMigrationSync = true;
