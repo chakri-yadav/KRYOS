@@ -6,8 +6,8 @@ It is not a generic todo app, journal, or habit tracker. KRYOS is designed to he
 
 ## Current Status
 
-- Version: `0.22.1`
-- Stage: Focused Marketing job tracking with the complete resume interview mastery curriculum
+- Version: `0.23.0`
+- Stage: Focused Marketing job tracking with the imported SDE-2 HLD system-design roadmap
 - Audience: private personal daily use
 - App type: local-first browser application
 - Marketing: imported batches, manually added roles, application records, and per-role attachments are browser-local; attachments are limited to 10 MB each and are not cloud-synced or included in JSON backups yet. Manually added roles can be captured directly in the workspace and tracked alongside imported roles.

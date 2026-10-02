@@ -64,7 +64,7 @@ test('successful cloud sign-in immediately recovers data and watches for assista
   assert.match(signIn, /if \(data\.session\)[\s\S]*?refreshCloudData\(\{ automatic: true \}\)/);
   assert.match(signIn, /startCloudFreshnessMonitor\(data\.session\)/);
   assert.match(signIn, /latest Personal cloud data is now loaded/);
-  assert.match(html, /app\.js\?v=0\.22\.1-resume-mastery-fidelity/);
+  assert.match(html, /system-design-sde2-roadmap-data\.js\?v=0\.23\.0-sde2-hld[\s\S]*?app\.js\?v=0\.23\.0-sde2-hld/);
   assert.match(html, /marketing\.css\?v=0\.22\.1-resume-mastery-fidelity/);
   assert.match(html, /marketing\.js\?v=0\.22\.1-resume-mastery-fidelity/);
 });
