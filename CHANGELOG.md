@@ -2,6 +2,13 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.23.1 - Remove standalone System Design depth section
+
+- Remove the separate DEPTH LEVELS roadmap module and its redundant standalone guide data.
+- Keep the supplied L4-L0 labels attached to individual topics, along with all 14 modules, practice, and final design groups.
+- Reconcile the existing System Design roadmap in place, preserving matching completed checklist entries and historical activity.
+- QA: full automated suite and deployment asset checks; cloud persistence requires opening the signed-in hosted app and confirming sync.
+
 ## 0.23.0 - SDE-2 HLD system-design roadmap
 
 - Replace the existing canonical System Design Roadmap in place with the supplied `HLD / SYSTEM DESIGN — SDE-2` structure.
