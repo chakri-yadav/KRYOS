@@ -6,7 +6,7 @@ It is not a generic todo app, journal, or habit tracker. KRYOS is designed to he
 
 ## Current Status
 
-- Version: `0.23.0`
+- Version: `0.23.1`
 - Stage: Focused Marketing job tracking with the imported SDE-2 HLD system-design roadmap
 - Audience: private personal daily use
 - App type: local-first browser application

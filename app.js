@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.23.0";
+const APP_VERSION = "0.23.1";
 const APP_STAGE = "SDE-2 HLD and system design roadmap";
 const APP_RELEASE_DATE = "2026-10-01";
 const APP_STATUS = "Marketing keeps per-role application notes and browser-local résumé and supporting-file attachments separate from Career and Rewards";
 const APP_NEXT_MILESTONE = "Marketing cloud synchronization and cross-device file storage";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Remove the standalone DEPTH LEVELS section from the System Design roadmap while keeping the supplied L4-L0 labels on individual topics.",
   "Replace the previous book-based System Design roadmap with the supplied HLD / SYSTEM DESIGN — SDE-2 structure, preserving all 14 modules, exact L0-L4 topic tiers, module practice, production follow-ups, and final closed-book designs.",
   "Complete the supplied Resume Interview Mastery System import with the exact 11-bullet-to-module study crosswalk, five-pass cadence, four depth tiers, and interruption-ready mastery standard; preserve the existing roadmap and progress in place.",
   "Add a Career roadmap for speaking clearly and truthfully about resume claims in interviews, with ownership boundaries, story structure, technical explanation, follow-up defense, and mock practice.",
@@ -974,7 +975,7 @@ function migrateApiDesignRoadmap(nextCareerState) {
   return true;
 }
 
-const SYSTEM_DESIGN_ROADMAP_VERSION = 3;
+const SYSTEM_DESIGN_ROADMAP_VERSION = 5;
 
 const SYSTEM_DESIGN_MODULES = typeof window !== "undefined" && window.KRYOS_SYSTEM_DESIGN_ROADMAP_DATA
   ? window.KRYOS_SYSTEM_DESIGN_ROADMAP_DATA.modules
@@ -1031,7 +1032,7 @@ function migrateSystemDesignRoadmap(nextCareerState) {
   return true;
 }
 
-const SYSTEM_DESIGN_ROADMAP_CLEANUP_VERSION = 4;
+const SYSTEM_DESIGN_ROADMAP_CLEANUP_VERSION = 6;
 
 function migrateSystemDesignRoadmapCleanup(nextCareerState) {
   if (!nextCareerState || typeof nextCareerState !== "object") return false;
