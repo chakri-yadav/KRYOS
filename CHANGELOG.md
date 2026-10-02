@@ -2,6 +2,14 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.23.0 - SDE-2 HLD system-design roadmap
+
+- Replace the existing canonical System Design Roadmap in place with the supplied `HLD / SYSTEM DESIGN — SDE-2` structure.
+- Import the unnumbered L4-to-L0 depth guide, all 14 numbered modules and their 392 exact topic/level rows, practice material, optional/stretch labels, production follow-ups, and final closed-book designs.
+- Preserve matching completed checklist items, the stable roadmap ID, unrelated Career roadmaps, and historical activity. No duplicate roadmap is added.
+- No schema change; a signed-in app applies the roadmap migration through normal revision-checked Career sync after opening the release.
+- QA: source-count/import tests, migration/progress tests, and full automated suite. Personal cloud persistence is confirmed only by successful signed-in Career sync.
+
 ## 0.22.1 - Resume mastery curriculum fidelity
 
 - Complete the supplied Resume Interview Mastery System import with the explicit 11-bullet-to-shared-module map, exact five-pass study cadence, four claim-led depth tiers, and the interruption/challenge/change-scenario mastery standard.

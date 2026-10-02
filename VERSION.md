@@ -9,7 +9,7 @@ major.minor.patch
 Canonical current version:
 
 ```text
-0.22.1
+0.23.0
 ```
 
 ## Meaning
@@ -46,6 +46,7 @@ Canonical current version:
 | `0.21.x` | Resume interview speaking and claim defense roadmap |
 | `0.22.x` | Resume interview mastery system |
 | `0.22.1` | Complete supplied resume interview curriculum crosswalk and mastery rules |
+| `0.23.x` | SDE-2 HLD system-design roadmap imported from the supplied structure |
 | `1.0.0` | Future public-ready product line |
 
 ## Bump Rules
