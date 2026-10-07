@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.23.1";
-const APP_STAGE = "SDE-2 HLD and system design roadmap";
-const APP_RELEASE_DATE = "2026-10-01";
-const APP_STATUS = "Marketing keeps per-role application notes and browser-local résumé and supporting-file attachments separate from Career and Rewards";
-const APP_NEXT_MILESTONE = "Marketing cloud synchronization and cross-device file storage";
+const APP_VERSION = "0.24.0";
+const APP_STAGE = "Marketing cloud sync and assistant batch import";
+const APP_RELEASE_DATE = "2026-10-07";
+const APP_STATUS = "Marketing job batches and application records sync through the Personal cloud profile; uploaded file bytes remain browser-local";
+const APP_NEXT_MILESTONE = "Marketing cloud file storage and cross-device attachment access";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Sync Marketing batches and application records through the revision-checked Personal Supabase block, and let the assistant import complete validated job batches with an idempotent receipt.",
   "Remove the standalone DEPTH LEVELS section from the System Design roadmap while keeping the supplied L4-L0 labels on individual topics.",
   "Replace the previous book-based System Design roadmap with the supplied HLD / SYSTEM DESIGN — SDE-2 structure, preserving all 14 modules, exact L0-L4 topic tiers, module practice, production follow-ups, and final closed-book designs.",
   "Complete the supplied Resume Interview Mastery System import with the exact 11-bullet-to-module study crosswalk, five-pass cadence, four depth tiers, and interruption-ready mastery standard; preserve the existing roadmap and progress in place.",
@@ -153,6 +154,7 @@ const DATA_STORAGE_KEYS = [
   CAREER_STORAGE_KEY,
   TASKS_STORAGE_KEY,
   JOURNAL_STORAGE_KEY,
+  "kryos-marketing-batches-v1",
   SECURITY_STORAGE_KEY,
   SYNC_STATE_STORAGE_KEY,
 ];
@@ -161,6 +163,7 @@ const SYNC_SAFE_BLOCKS = [
   CAREER_STORAGE_KEY,
   TASKS_STORAGE_KEY,
   JOURNAL_STORAGE_KEY,
+  "kryos-marketing-batches-v1",
   SECURITY_STORAGE_KEY,
   UI_STATE_STORAGE_KEY,
 ];
@@ -173,6 +176,7 @@ const SYNC_BLOCKS = [
   { key: "career", storageKey: CAREER_STORAGE_KEY },
   { key: "tasks", storageKey: TASKS_STORAGE_KEY },
   { key: "journal", storageKey: JOURNAL_STORAGE_KEY },
+  { key: "marketing", storageKey: "kryos-marketing-batches-v1" },
   { key: "security", storageKey: SECURITY_STORAGE_KEY },
   { key: "ui_state", payloadKey: "uiState", storageKey: UI_STATE_STORAGE_KEY },
 ];
@@ -1556,6 +1560,10 @@ let careerSyncTimer = null;
 let careerSyncRunning = false;
 let careerSyncDirty = false;
 let careerSyncState = "local";
+let marketingSyncTimer = null;
+let marketingSyncRunning = false;
+let marketingSyncDirty = false;
+let marketingSyncState = "local";
 const dsaRoadmapMigrated = migrateDsaRoadmap(careerState);
 const apiDesignRoadmapMigrated = migrateApiDesignRoadmap(careerState);
 const systemDesignRoadmapMigrated = migrateSystemDesignRoadmap(careerState);
@@ -2685,10 +2693,10 @@ function mergeDefaults(saved, defaults) {
 
 function getGlobalCloudState() {
   if (isDemoMode()) return { state: "local", label: "Demo saved", detail: "Demo data stays in this browser." };
-  if (careerSyncState === "error" || (typeof actionSyncState !== "undefined" && actionSyncState === "error")) {
+  if (careerSyncState === "error" || marketingSyncState === "error" || (typeof actionSyncState !== "undefined" && actionSyncState === "error")) {
     return { state: "error", label: "Cloud unavailable", detail: "Changes are safe in KRYOS and will retry after the next edit." };
   }
-  if (careerSyncState === "saving" || (typeof actionSyncState !== "undefined" && actionSyncState === "saving")) {
+  if (careerSyncState === "saving" || marketingSyncState === "saving" || (typeof actionSyncState !== "undefined" && actionSyncState === "saving")) {
     return { state: "saving", label: "Saving", detail: "Sending the latest KRYOS changes to Supabase." };
   }
   if (syncState.status === "connected" && syncState.userId) {
@@ -2748,6 +2756,55 @@ function scheduleCareerCloudSync() {
   updateCareerSyncIndicator();
   window.clearTimeout(careerSyncTimer);
   careerSyncTimer = window.setTimeout(flushCareerCloudSync, 400);
+}
+
+function scheduleMarketingCloudSync() {
+  if (isDemoMode()) return;
+  marketingSyncDirty = true;
+  marketingSyncState = "saving";
+  updateGlobalCloudState();
+  window.clearTimeout(marketingSyncTimer);
+  marketingSyncTimer = window.setTimeout(flushMarketingCloudSync, 400);
+}
+
+async function flushMarketingCloudSync() {
+  if (marketingSyncRunning || !marketingSyncDirty) return;
+  marketingSyncRunning = true;
+  marketingSyncDirty = false;
+  try {
+    const session = await refreshSyncAuthState({ silent: true });
+    if (!session) {
+      marketingSyncState = "local";
+      return;
+    }
+    const client = getSupabaseClient();
+    const profileId = await ensureSupabaseProfile(session);
+    const marketingBlock = getSyncBlockPayloads().find((block) => block.block_key === "marketing");
+    const revision = await writeVersionedBlock(client, profileId, marketingBlock);
+    syncState = {
+      ...syncState,
+      enabled: true,
+      endpointConfigured: true,
+      status: "connected",
+      lastSyncAt: new Date().toISOString(),
+      lastAttemptAt: new Date().toISOString(),
+      remoteBlockVersions: { ...syncState.remoteBlockVersions, marketing: marketingBlock.payload_updated_at },
+      remoteBlockRevisions: { ...syncState.remoteBlockRevisions, marketing: revision },
+      remoteProfileId: profileId,
+      userEmail: session.user.email || syncState.userEmail,
+      userId: session.user.id,
+    };
+    saveSyncState();
+    marketingSyncState = "synced";
+  } catch (error) {
+    console.warn("KRYOS Marketing auto-sync failed.", error);
+    marketingSyncState = "error";
+    if (!String(error?.message || "").includes("KRYOS_CONFLICT")) marketingSyncDirty = true;
+  } finally {
+    marketingSyncRunning = false;
+    updateGlobalCloudState();
+    if (marketingSyncDirty && marketingSyncState !== "error") scheduleMarketingCloudSync();
+  }
 }
 
 async function flushCareerCloudSync() {
@@ -7047,6 +7104,7 @@ async function refreshSyncAuthState({ silent = true } = {}) {
 }
 
 function createSyncPayloadPreview() {
+  const marketingData = typeof marketingRead === "function" ? marketingRead() : { batches: [] };
   return {
     app: "KRYOS",
     appVersion: APP_VERSION,
@@ -7075,6 +7133,11 @@ function createSyncPayloadPreview() {
         storageKey: JOURNAL_STORAGE_KEY,
         updatedAt: journalState?.meta?.updatedAt || null,
         value: journalState,
+      },
+      marketing: {
+        storageKey: "kryos-marketing-batches-v1",
+        updatedAt: marketingData?.meta?.updatedAt || null,
+        value: marketingData,
       },
       security: {
         storageKey: SECURITY_STORAGE_KEY,
@@ -7347,8 +7410,8 @@ async function pushToSupabase() {
       updated_at: new Date().toISOString(),
     }));
     const revisions = { ...syncState.remoteBlockRevisions };
-    for (const row of [...rows].sort((a, b) => Number(["tasks", "career"].includes(b.block_key)) - Number(["tasks", "career"].includes(a.block_key)))) {
-      if (row.block_key === "tasks" || row.block_key === "career") {
+    for (const row of [...rows].sort((a, b) => Number(["tasks", "career", "marketing"].includes(b.block_key)) - Number(["tasks", "career", "marketing"].includes(a.block_key)))) {
+      if (row.block_key === "tasks" || row.block_key === "career" || row.block_key === "marketing") {
         revisions[row.block_key] = await writeVersionedBlock(client, profileId, row);
         syncState.remoteBlockRevisions = { ...syncState.remoteBlockRevisions, [row.block_key]: revisions[row.block_key] };
         syncState.remoteBlockVersions = { ...syncState.remoteBlockVersions, [row.block_key]: row.payload_updated_at };
@@ -7417,6 +7480,7 @@ function getSyncEvidenceScore(blockKey, payload) {
     return (actions.length * 100) + completedActions;
   }
   if (blockKey === "journal") return Object.keys(payload.entries || {}).length;
+  if (blockKey === "marketing") return (payload.batches || []).reduce((total, batch) => total + 1000 + (batch.roles || []).length, 0);
   return 0;
 }
 
@@ -7438,7 +7502,7 @@ async function refreshCloudData({ automatic = false } = {}) {
       .select("block_key,payload,payload_updated_at,updated_at,schema_version,revision")
       .eq("profile_id", profileId);
     if (error) throw error;
-    const safeKeys = new Set(["foundation", "career", "tasks", "journal"]);
+    const safeKeys = new Set(["foundation", "career", "tasks", "journal", "marketing"]);
     const localPreview = createSyncPayloadPreview();
     const nextRemoteBlockVersions = { ...syncState.remoteBlockVersions };
     const nextRemoteBlockRevisions = { ...syncState.remoteBlockRevisions };
@@ -7541,12 +7605,19 @@ async function refreshCloudData({ automatic = false } = {}) {
 function retryPendingCloudWrites() {
   const tasksLocalAt = getLocalSyncBlockUpdatedAt("tasks");
   const careerLocalAt = getLocalSyncBlockUpdatedAt("career");
+  const marketingLocalAt = getLocalSyncBlockUpdatedAt("marketing");
   if ((typeof actionSyncDirty !== "undefined" && actionSyncDirty)
       || (syncState.remoteBlockVersions?.tasks && isAfter(tasksLocalAt, syncState.remoteBlockVersions.tasks))) {
     scheduleTaskCloudSync();
   }
   if (careerSyncDirty || (syncState.remoteBlockVersions?.career && isAfter(careerLocalAt, syncState.remoteBlockVersions.career))) {
     scheduleCareerCloudSync();
+  }
+  const localMarketing = typeof marketingRead === "function" ? marketingRead() : null;
+  const hasLocalMarketing = Array.isArray(localMarketing?.batches) && localMarketing.batches.length > 0;
+  if (marketingSyncDirty || (hasLocalMarketing && !syncState.remoteBlockVersions?.marketing)
+      || (syncState.remoteBlockVersions?.marketing && isAfter(marketingLocalAt, syncState.remoteBlockVersions.marketing))) {
+    scheduleMarketingCloudSync();
   }
 }
 

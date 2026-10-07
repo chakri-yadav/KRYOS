@@ -9,6 +9,42 @@ const makeRequest = (operations, raw_text = 'I drank four litres of water and re
 const baseTasks = { meta: { updatedAt: '2026-09-25T00:00:00Z' }, life: { entries: [], records: [], actions: [] }, rhythm: { events: [], settings: {} } };
 const baseCareer = { meta: { updatedAt: '2026-09-25T00:00:00Z' }, roadmaps: [], activityLog: [] };
 
+const marketingBatch = {
+  format: 'kryos-marketing-batch', version: 1, id: 'batch-cloud-import-test', name: 'Three fictional test postings', demo: true,
+  roles: [
+    { id: 'fictional-analyst-a', company: 'Northstar Demo', title: 'Data Analyst', source_url: 'https://jobs.example.invalid/analyst', salary: '$80,000-$100,000', sponsorship: 'Unknown', responsibilities: ['Build reports'], unknown_information: ['Deadline not stated'], raw_description: 'FICTIONAL TEST POSTING A.' },
+    { id: 'fictional-analyst-b', company: 'Cedar Demo', title: 'Reporting Analyst', work_mode: 'Remote', requirements: ['SQL'], raw_description: 'FICTIONAL TEST POSTING B.' },
+    { id: 'fictional-analyst-c', company: 'Lakeview Demo', title: 'Product Analyst', posted_at: 'Unknown', raw_description: 'FICTIONAL TEST POSTING C.' },
+  ],
+};
+
+test('assistant imports a complete Marketing batch while preserving posting facts and local-only application defaults', () => {
+  const quote = 'Import three fictional job postings into KRYOS Marketing.';
+  const request = makeRequest([{ type: 'marketing.batch.import', batch: marketingBatch, evidence_quote: quote }], quote);
+  const result = projectRequest(request, baseTasks, baseCareer, '2026-10-07T15:00:00Z', { batches: [] });
+  assert.equal(result.marketingChanged, true);
+  assert.equal(result.marketing.batches.length, 1);
+  assert.equal(result.marketing.batches[0].id, marketingBatch.id);
+  assert.equal(result.marketing.batches[0].roles.length, 3);
+  assert.equal(result.marketing.batches[0].roles[0].salary, '$80,000-$100,000');
+  assert.deepEqual(result.marketing.batches[0].roles[0].unknown_information, ['Deadline not stated']);
+  assert.equal(result.marketing.batches[0].roles[0].application.status, 'To review');
+  assert.equal(result.marketing.batches[0].roles[0].application.contact_email, '');
+  assert.equal(result.tasksChanged, false);
+  assert.equal(result.careerChanged, false);
+  assert.equal(baseTasks.life.entries.length, 0);
+  assert.equal(baseCareer.activityLog.length, 0);
+});
+
+test('Marketing assistant import rejects reused batch IDs and invalid application states', () => {
+  const quote = 'Import three fictional job postings into KRYOS Marketing.';
+  const request = makeRequest([{ type: 'marketing.batch.import', batch: marketingBatch, evidence_quote: quote }], quote);
+  assert.throws(() => projectRequest(request, baseTasks, baseCareer, '2026-10-07T15:00:00Z', { batches: [{ id: marketingBatch.id, roles: [] }] }), /batch ID already exists/);
+  const invalid = structuredClone(marketingBatch);
+  invalid.roles[0].application = { status: 'Submitted automatically' };
+  assert.throws(() => projectRequest(makeRequest([{ type: 'marketing.batch.import', batch: invalid, evidence_quote: quote }], quote), baseTasks, baseCareer), /Unknown Marketing application status/);
+});
+
 test('one statement projects water, Gita, and a journal without mutating source blocks', () => {
   const request = makeRequest([
     { type: 'rhythm.measure', habit_key: 'water', value: 4, unit: 'L', evidence_quote: 'I drank four litres of water' },

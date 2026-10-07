@@ -58,20 +58,49 @@ Deno.serve(async request => {
       .select('request_hash,receipt').eq('profile_id', credential.profile_id)
       .eq('idempotency_key', input.idempotency_key).maybeSingle();
     if (priorError) throw priorError;
+    const marketingOnly = input.operations.length === 1 && input.operations[0].type === 'marketing.batch.import';
     if (prior) return prior.request_hash === requestHash
-      ? reply(200, { ...prior.receipt, duplicate: true, rewardsSynced: await updateRewards(token) })
+      ? reply(200, {
+        ...prior.receipt,
+        duplicate: true,
+        ...(marketingOnly ? { marketingSynced: true } : { rewardsSynced: await updateRewards(token) }),
+      })
       : reply(409, { error: 'IDEMPOTENCY_MISMATCH' });
     for (let attempt = 0; attempt < 3; attempt++) {
+      const requiredBlocks = marketingOnly ? ['marketing'] : ['tasks', 'career'];
       const { data: blocks, error: blockError } = await admin.from('kryos_sync_blocks')
         .select('block_key,payload,revision').eq('profile_id', credential.profile_id)
-        .in('block_key', ['tasks', 'career']);
+        .in('block_key', requiredBlocks);
       if (blockError) throw blockError;
       const tasks = blocks?.find(block => block.block_key === 'tasks');
       const career = blocks?.find(block => block.block_key === 'career');
-      if (!tasks || !career) return reply(409, { error: 'Sync the personal profile from KRYOS before assistant ingestion.' });
+      const marketing = blocks?.find(block => block.block_key === 'marketing');
+      if (!marketingOnly && (!tasks || !career)) return reply(409, { error: 'Sync the personal profile from KRYOS before assistant ingestion.' });
       let projection;
-      try { projection = projectRequest(input, tasks.payload, career.payload); }
+      try { projection = projectRequest(input, tasks?.payload || {}, career?.payload || {}, new Date().toISOString(), marketing?.payload || { batches: [] }); }
       catch (error) { return reply(422, { error: error.message || 'Statement needs review.' }); }
+      if (marketingOnly) {
+        const { data: receipt, error: applyError } = await admin.rpc('kryos_import_marketing_batch', {
+          p_profile: credential.profile_id,
+          p_idempotency_key: input.idempotency_key,
+          p_request_hash: requestHash,
+          p_local_date: input.local_date,
+          p_timezone: input.timezone,
+          p_raw_text: input.raw_text,
+          p_event: projection.events[0],
+          p_effects: projection.effects,
+          p_marketing: projection.marketing,
+          p_expected_revision: Number(marketing?.revision || 0),
+          p_imported_count: projection.effects.length ? input.operations[0].batch.roles.length : 0,
+        });
+        if (!applyError) {
+          await admin.from('kryos_assistant_credentials').update({ last_used_at: new Date().toISOString() }).eq('id', credential.id);
+          return reply(200, { ...receipt, marketingSynced: true });
+        }
+        if (String(applyError.message).includes('IDEMPOTENCY_MISMATCH')) return reply(409, { error: 'IDEMPOTENCY_MISMATCH' });
+        if (!String(applyError.message).includes('KRYOS_CONFLICT')) throw applyError;
+        continue;
+      }
       const { data: receipt, error: applyError } = await admin.rpc('kryos_apply_assistant_request', {
         p_profile: credential.profile_id,
         p_idempotency_key: input.idempotency_key,
