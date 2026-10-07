@@ -27,7 +27,11 @@ function marketingRead() {
   try { return JSON.parse(getModeStorageValue(MARKETING_STORAGE_KEY) || "null") || { batches: [] }; }
   catch { return { batches: [] }; }
 }
-function marketingWrite(data) { setModeStorageValue(MARKETING_STORAGE_KEY, JSON.stringify(data)); }
+function marketingWrite(data) {
+  data.meta = { ...(data.meta || {}), updatedAt: new Date().toISOString() };
+  setModeStorageValue(MARKETING_STORAGE_KEY, JSON.stringify(data));
+  if (typeof scheduleMarketingCloudSync === "function") scheduleMarketingCloudSync();
+}
 function marketingSafeUrl(value) {
   try { const url = new URL(value); return ["https:", "http:"].includes(url.protocol) ? url.href : "#"; }
   catch { return "#"; }
@@ -45,9 +49,10 @@ function marketingImport(batch) {
   }
   const data = marketingRead();
   const now = new Date().toISOString();
-  const batchId = `batch-${Date.now()}`;
+  const batchId = String(batch.id || `batch-${Date.now()}`).trim();
+  if (data.batches.some(item => item.id === batchId)) throw new Error("That batch is already in Marketing.");
   const knownIds = new Set(data.batches.flatMap(item => item.roles.map(role => role.id)));
-  data.batches.unshift({ id: batchId, name: batch.name || "Imported job batch", importedAt: now, demo: Boolean(batch.demo), roles: batch.roles.map(role => {
+  data.batches.unshift({ id: batchId, name: batch.name || "Imported job batch", importedAt: batch.importedAt || now, demo: Boolean(batch.demo), roles: batch.roles.map(role => {
     const id = knownIds.has(role.id) ? `${batchId}-${role.id}` : role.id;
     knownIds.add(id);
     return { ...role, id, application: { status: "To review", applied_date: "", resume_version: "", contact_email: "", contact_phone: "", linkedin_url: "", notes: "", ...(role.application || {}) } };

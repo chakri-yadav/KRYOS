@@ -13,7 +13,7 @@ create table if not exists public.kryos_profiles (
 create table if not exists public.kryos_sync_blocks (
   id uuid primary key default gen_random_uuid(),
   profile_id uuid not null references public.kryos_profiles(id) on delete cascade,
-  block_key text not null check (block_key in ('foundation', 'career', 'tasks', 'journal', 'security', 'ui_state')),
+  block_key text not null check (block_key in ('foundation', 'career', 'tasks', 'journal', 'marketing', 'security', 'ui_state')),
   schema_version integer not null default 1,
   payload jsonb not null,
   payload_updated_at timestamptz,
