@@ -72,7 +72,7 @@ begin
     or jsonb_array_length(p_marketing->'batches') < 1
     or jsonb_typeof(p_marketing->'batches'->0->'roles') <> 'array'
     or jsonb_array_length(p_marketing->'batches'->0->'roles') <> p_imported_count
-    or p_marketing->'batches'->0->>'id' is distinct from p_event->'payload'->'batch'->>'id' then
+    or (p_marketing->'batches'->0->>'id') is distinct from (p_event->'payload'->'batch'->>'id') then
     raise exception 'invalid Marketing batch projection';
   end if;
 
