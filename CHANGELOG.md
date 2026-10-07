@@ -9,6 +9,7 @@ All notable KRYOS changes should be recorded here.
 - Select the newly received cloud batch when the current selection is not part of that cloud snapshot; rerender the Marketing workspace through the normal app render cycle.
 - Add Marketing to Cloud Versions and correct outdated copy about batch sync; uploaded file bytes remain browser-local.
 - No database or Edge Function change; the existing live Marketing cloud import remains intact.
+- Follow-up correction: render imported posting dates from either `posted_at` or `posted_date` in the role list and detail view.
 - QA: sync merge unit coverage, conflict-preservation coverage, cloud integration checks, deployment URL checks, and full test suite.
 
 ## 0.24.0 - Marketing cloud sync and assistant batch import
