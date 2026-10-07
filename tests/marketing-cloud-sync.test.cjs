@@ -9,8 +9,14 @@ test('Marketing batch data is part of the app sync and backup contracts', () => 
   assert.match(app, /marketing:\s*\{[\s\S]*?value: marketingData/);
   assert.match(app, /const safeKeys = new Set\(\["foundation", "career", "tasks", "journal", "marketing"\]\)/);
   assert.match(app, /row\.block_key === "marketing"/);
+  assert.match(app, /mergeMarketingSyncPayload\(localBlock\?\.value, row\.payload\)/);
+  assert.match(app, /remoteBatchIds\.has\(String\(marketingActiveBatchId\)\)/);
+  assert.match(app, /updatedKeys\.includes\("marketing"\)/);
+  assert.match(app, /key: "marketing", title: "Marketing"/);
   assert.match(app, /function scheduleMarketingCloudSync\(\)/);
   assert.match(marketing, /function marketingWrite\(data\)[\s\S]*?scheduleMarketingCloudSync\(\)/);
+  assert.match(marketing, /mergeMarketingSyncPayload/);
+  assert.doesNotMatch(marketing, /browser-local records · not cloud or backup-synced/);
 });
 
 test('Supabase allows Marketing block writes only through the revision-checked writer', () => {

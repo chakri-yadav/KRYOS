@@ -46,9 +46,30 @@ function loadMarketing(options = {}) {
   };
   context.globalThis = context;
   const source = fs.readFileSync('marketing.js', 'utf8');
-  vm.runInNewContext(`${source}\nglobalThis.__test = { MARKETING_SAMPLE_ROLES, marketingImport, marketingCreateRole, marketingRead, marketingSafeUrl, renderMarketingView, marketingValidateAttachment, marketingSaveAttachment, marketingGetFile, marketingRemoveAttachment, marketingFileId };`, context);
+  vm.runInNewContext(`${source}\nglobalThis.__test = { MARKETING_SAMPLE_ROLES, marketingImport, marketingCreateRole, marketingRead, marketingSafeUrl, renderMarketingView, mergeMarketingSyncPayload, marketingValidateAttachment, marketingSaveAttachment, marketingGetFile, marketingRemoveAttachment, marketingFileId };`, context);
   return { api: context.__test, storage, listeners, blobs, failStorageWrite: value => context.__setStorageFailure(value) };
 }
+
+test('Marketing sync merges separate local and cloud batches without hiding either', () => {
+  const { api } = loadMarketing();
+  const local = { meta: { updatedAt: '2026-10-07T10:00:00Z' }, batches: [{ id: 'local-demo', name: 'Local demo', roles: [{ id: 'local-role' }] }] };
+  const remote = { meta: { updatedAt: '2026-10-07T11:00:00Z' }, batches: [{ id: 'cloud-import', name: 'Assistant import', roles: [{ id: 'cloud-role' }] }] };
+  const merged = api.mergeMarketingSyncPayload(local, remote, '2026-10-07T12:00:00Z');
+  assert.deepEqual(Array.from(merged.payload.batches, batch => batch.id), ['cloud-import', 'local-demo']);
+  assert.equal(merged.conflicts, 0);
+  assert.equal(merged.needsPush, true);
+  assert.equal(merged.payload.meta.updatedAt, '2026-10-07T12:00:00Z');
+});
+
+test('Marketing sync preserves a changed same-ID local batch and reports a conflict', () => {
+  const { api } = loadMarketing();
+  const local = { batches: [{ id: 'same', name: 'Local edit', roles: [{ id: 'local-role' }] }] };
+  const remote = { batches: [{ id: 'same', name: 'Cloud edit', roles: [{ id: 'remote-role' }] }] };
+  const merged = api.mergeMarketingSyncPayload(local, remote);
+  assert.equal(merged.payload.batches[0].name, 'Local edit');
+  assert.equal(merged.conflicts, 1);
+  assert.equal(merged.needsPush, false);
+});
 
 test('Marketing demo import covers ten fictional posting variations without creating real applications', () => {
   const { api, storage } = loadMarketing();
@@ -202,7 +223,7 @@ test('manual role validation fails safely and the form exposes the complete post
   assert.match(html, /Save role/);
 });
 
-test('Marketing premium visuals preserve every stage and make browser-local storage explicit', () => {
+test('Marketing premium visuals preserve every stage and explain cloud batches versus local files', () => {
   const { api } = loadMarketing();
   api.marketingImport({ format: 'kryos-marketing-batch', version: 1, name: 'Visual check', demo: false, roles: api.MARKETING_SAMPLE_ROLES.map(role => ({ ...role, demo: false })) });
   const html = api.renderMarketingView();
@@ -210,7 +231,8 @@ test('Marketing premium visuals preserve every stage and make browser-local stor
     assert.match(html, new RegExp(`marketing-status-pill status-${status}`));
   }
   assert.match(html, /KRYOS ACCOUNT/);
-  assert.match(html, /Marketing batches and files stay in this browser/);
+  assert.match(html, /Job batches and application details sync through Cloud settings/);
+  assert.match(html, /Uploaded files stay in this browser/);
   assert.match(html, /Read full captured posting/);
   assert.match(html, /marketing-detail-overview/);
   assert.match(html, /What you’ll do/);

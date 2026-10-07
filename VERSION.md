@@ -9,7 +9,7 @@ major.minor.patch
 Canonical current version:
 
 ```text
-0.24.0
+0.24.1
 ```
 
 ## Meaning
@@ -48,7 +48,7 @@ Canonical current version:
 | `0.22.1` | Complete supplied resume interview curriculum crosswalk and mastery rules |
 | `0.23.x` | SDE-2 HLD system-design roadmap imported from the supplied structure |
 | `0.23.1` | Remove the standalone System Design depth guide while retaining per-topic levels |
-| `0.24.x` | Marketing records in Personal cloud sync and assistant batch import |
+| `0.24.x` | Marketing records in Personal cloud sync, assistant batch import, and safe batch reconciliation |
 | `1.0.0` | Future public-ready product line |
 
 ## Bump Rules
