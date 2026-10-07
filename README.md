@@ -6,8 +6,8 @@ It is not a generic todo app, journal, or habit tracker. KRYOS is designed to he
 
 ## Current Status
 
-- Version: `0.24.0`
-- Stage: Marketing cloud sync and assistant batch import
+- Version: `0.24.1`
+- Stage: Marketing cloud sync reconciliation and assistant batch import
 - Audience: private personal daily use
 - App type: local-first browser application
 - Marketing: batches and application records sync to the Personal Supabase profile; attached file bytes remain in the browser's local file store and are not yet cross-device or cloud-backed.
