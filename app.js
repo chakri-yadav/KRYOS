@@ -15,7 +15,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.24.0";
+const APP_VERSION = "0.24.1";
 const APP_STAGE = "Marketing cloud sync and assistant batch import";
 const APP_RELEASE_DATE = "2026-10-07";
 const APP_STATUS = "Marketing job batches and application records sync through the Personal cloud profile; uploaded file bytes remain browser-local";
@@ -7525,6 +7525,20 @@ async function refreshCloudData({ automatic = false } = {}) {
       const remoteAdvanced = isAfter(remoteAt, knownRemoteAt) || remoteRevision > knownRemoteRevision;
       if (!remoteAdvanced && knownRemoteAt === remoteAt) nextRemoteBlockRevisions[row.block_key] = Number(row.revision || 0);
       if (!recoveryFromStaleLocal && !remoteAdvanced) continue;
+      if (row.block_key === "marketing") {
+        const merged = mergeMarketingSyncPayload(localBlock?.value, row.payload);
+        conflicts += merged.conflicts;
+        applyRemoteBlock("marketing", merged.payload);
+        const remoteBatchIds = new Set((row.payload?.batches || []).map(batch => String(batch.id)));
+        if (!remoteBatchIds.has(String(marketingActiveBatchId))) {
+          marketingActiveBatchId = String(row.payload?.batches?.[0]?.id || "");
+        }
+        nextRemoteBlockVersions.marketing = remoteAt;
+        nextRemoteBlockRevisions.marketing = remoteRevision;
+        updated += 1;
+        updatedKeys.push("marketing");
+        continue;
+      }
       const localChangedSinceRemote = knownRemoteAt
         ? isAfter(localAt, knownRemoteAt)
         : localEvidence > 0;
@@ -7583,6 +7597,10 @@ async function refreshCloudData({ automatic = false } = {}) {
         if (typeof actionSyncState !== "undefined") actionSyncState = "synced";
       }
       if (updatedKeys.includes("journal")) journalState = loadJournal();
+      if (updatedKeys.includes("marketing")) {
+        marketingSyncState = "synced";
+        updateGlobalCloudState();
+      }
       render();
     } else if (!automatic && currentPage === "settings") {
       render();
@@ -7860,10 +7878,11 @@ function renderCloudVersionPanel() {
     { key: "career", title: "Career", detail: "Roadmaps, checks, and completed work" },
     { key: "tasks", title: "Actions, Rhythm, Launch & Money", detail: "Your daily records and reward evidence" },
     { key: "journal", title: "Inner Command & Journal", detail: "Dated entries and reflections" },
+    { key: "marketing", title: "Marketing", detail: "Job batches and application details; files stay on this browser" },
   ];
   return `
     <section class="sync-version-panel" aria-labelledby="sync-version-title">
-      <div class="sync-version-heading"><div><p class="section-kicker">CLOUD VERSIONS</p><h3 id="sync-version-title">Your KRYOS areas</h3><p>These four areas are checked for fresh updates across your devices.</p></div><span class="sync-version-total">${areas.length}<small>areas</small></span></div>
+      <div class="sync-version-heading"><div><p class="section-kicker">CLOUD VERSIONS</p><h3 id="sync-version-title">Your KRYOS areas</h3><p>These five areas are checked for fresh updates across your devices.</p></div><span class="sync-version-total">${areas.length}<small>areas</small></span></div>
       <div class="sync-version-grid">${areas.map(area => {
         const updatedAt = syncState.remoteBlockVersions?.[area.key];
         const revision = Number(syncState.remoteBlockRevisions?.[area.key] || 0);
