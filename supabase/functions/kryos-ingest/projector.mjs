@@ -1,8 +1,9 @@
 const HABITS = new Set(['breakfast', 'lunch', 'dinner', 'protein', 'supplements', 'water', 'face-wash', 'moisturizer', 'serum', 'eye-cream', 'sunscreen', 'exercise', 'hair-care', 'groceries', 'nama-japa', 'gita', 'chalisa', 'aditya', 'meditation', 'pranayama']);
 const DOMAINS = new Set(['Career', 'Personal tasks', 'Job applications', 'Skincare', 'Supplements', 'Food', 'Sleep', 'Mood', 'Movement', 'Spiritual practice', 'Relationships', 'Other']);
 const PRIORITIES = new Set(['critical', 'important', 'normal']);
-const TYPES = new Set(['journal.capture', 'evidence.record', 'rhythm.measure', 'rhythm.complete', 'rhythm.reopen', 'rhythm.count', 'action.create', 'action.complete', 'action.reopen', 'action.archive', 'career.progress', 'career.check.complete', 'career.check.reopen', 'inner_command.observe', 'money.statement.import']);
+const TYPES = new Set(['journal.capture', 'evidence.record', 'rhythm.measure', 'rhythm.complete', 'rhythm.reopen', 'rhythm.count', 'action.create', 'action.complete', 'action.reopen', 'action.archive', 'career.progress', 'career.check.complete', 'career.check.reopen', 'inner_command.observe', 'money.statement.import', 'marketing.batch.import']);
 const BOUNDARIES = new Set(['astrology', 'social', 'information', 'validation']);
+const MARKETING_STATUSES = new Set(['To review', 'Saved', 'Applied', 'Interview', 'Follow-up', 'Offer', 'Not selected', 'Keep for later', 'Archived', 'Verify details']);
 
 function fail(message) { throw new Error(message); }
 function dateIsValid(value) {
@@ -26,6 +27,33 @@ function actionLooksLikeUnfinishedCommitment(statement, quote) {
 }
 function datedCompletion(localDate) { return `${localDate}T12:00:00.000Z`; }
 
+function validateMarketingBatch(batch) {
+  if (!batch || batch.format !== 'kryos-marketing-batch' || batch.version !== 1) fail('Marketing import must use KRYOS Marketing batch format version 1.');
+  if (!present(batch.id, 120) || !/^[a-zA-Z0-9:_-]+$/.test(batch.id)) fail('Marketing batch needs a stable ID.');
+  if (batch.name != null && !present(batch.name, 160)) fail('Marketing batch name must be 1 to 160 characters.');
+  if (!Array.isArray(batch.roles) || batch.roles.length < 1 || batch.roles.length > 500) fail('Marketing batch must contain 1 to 500 job postings.');
+  const ids = new Set();
+  for (const role of batch.roles) {
+    if (!role || !present(role.id, 180) || !present(role.company, 240) || !present(role.title, 240)) fail('Every Marketing posting needs a unique ID, company, and job title.');
+    if (ids.has(role.id)) fail('Marketing posting IDs must be unique within the batch.');
+    ids.add(role.id);
+    if (role.source_url != null && role.source_url !== '') {
+      if (!present(role.source_url, 2048)) fail('A job source URL is too long.');
+      let url;
+      try { url = new URL(role.source_url); } catch { fail('Job source URLs must be complete web links.'); }
+      if (!['http:', 'https:'].includes(url.protocol)) fail('Job source URLs must use HTTP or HTTPS.');
+    }
+    if (role.application != null && (!role.application || typeof role.application !== 'object' || Array.isArray(role.application))) fail('Application details must be an object.');
+    if (role.application?.status && !MARKETING_STATUSES.has(role.application.status)) fail('Unknown Marketing application status.');
+    for (const field of ['responsibilities', 'requirements', 'unknown_information']) {
+      if (role[field] != null && (!Array.isArray(role[field]) || role[field].length > 100 || !role[field].every(item => typeof item === 'string' && item.length <= 3000))) fail(`Marketing ${field} must be a list of up to 100 text items.`);
+    }
+    if (role.raw_description != null && (typeof role.raw_description !== 'string' || role.raw_description.length > 50000)) fail('A captured job description is too large.');
+    if (JSON.stringify(role).length > 60000) fail('A single Marketing posting is too large.');
+  }
+  if (JSON.stringify(batch).length > 105000) fail('Marketing batch is too large to import in one request.');
+}
+
 export function validateRequest(request) {
   if (!request || request.schema_version !== 1) fail('Unsupported request schema.');
   if (!present(request.idempotency_key, 160) || !/^[a-zA-Z0-9:_-]+$/.test(request.idempotency_key)) fail('A stable idempotency key is required.');
@@ -34,11 +62,14 @@ export function validateRequest(request) {
   try { new Intl.DateTimeFormat('en', { timeZone: request.timezone }); } catch { fail('Unknown timezone.'); }
   if (!present(request.raw_text, 100000)) fail('The original statement is required.');
   if (!Array.isArray(request.operations) || !request.operations.length || request.operations.length > 20) fail('Submit one to twenty operations.');
+  const marketingOperations = request.operations.filter(operation => operation?.type === 'marketing.batch.import');
+  if (marketingOperations.length && (request.operations.length !== 1 || marketingOperations.length !== 1)) fail('Import a Marketing batch as its own request.');
   for (const operation of request.operations) {
     if (!operation || !TYPES.has(operation.type)) fail('Unsupported operation.');
     if (!present(operation.evidence_quote, 1000) || !sameText(request.raw_text, operation.evidence_quote)) fail('Each operation needs an exact excerpt from the original statement.');
     if (['evidence.record', 'rhythm.complete', 'rhythm.count', 'action.complete', 'career.progress', 'career.check.complete'].includes(operation.type) && completionLooksLikeIntentOrNegation(request.raw_text, operation.evidence_quote)) fail('This sounds like an intention or negation. Review before recording completion.');
     if (operation.type === 'journal.capture' && !present(operation.text, 100000)) fail('Journal text is required.');
+    if (operation.type === 'marketing.batch.import') validateMarketingBatch(operation.batch);
     if (operation.recovery_note && (operation.type !== 'inner_command.observe' || !present(operation.recovery_note, 400) || !sameText(request.raw_text, operation.recovery_note) || completionLooksLikeIntentOrNegation(request.raw_text, operation.recovery_note))) fail('Return evidence needs an exact completed-action excerpt.');
     if (operation.type === 'evidence.record') {
       if (!present(operation.title, 300) || !DOMAINS.has(operation.domain)) fail('Dated activity evidence needs a title and known domain.');
@@ -82,10 +113,12 @@ export function validateRequest(request) {
   return request;
 }
 
-export function projectRequest(request, taskPayload, careerPayload, now = new Date().toISOString()) {
+export function projectRequest(request, taskPayload, careerPayload, now = new Date().toISOString(), marketingPayload = {}) {
   validateRequest(request);
   const tasks = clone(taskPayload);
   const career = clone(careerPayload);
+  const marketing = clone(marketingPayload);
+  marketing.batches ||= [];
   const life = tasks.life ||= { version: 1, entries: [], records: [], actions: [] };
   life.entries ||= []; life.records ||= []; life.actions ||= [];
   const rhythm = tasks.rhythm ||= { version: 1, events: [], settings: {} };
@@ -97,6 +130,7 @@ export function projectRequest(request, taskPayload, careerPayload, now = new Da
   const events = [];
   let tasksChanged = false;
   let careerChanged = false;
+  let marketingChanged = false;
   request.operations.forEach((operation, index) => {
     const id = eventId(request.idempotency_key, index);
     const date = request.local_date;
@@ -194,10 +228,41 @@ export function projectRequest(request, taskPayload, careerPayload, now = new Da
         if (existing) Object.assign(existing, next, { id: existing.id }); else money.statementCycles.push(next);
         effects.push({ area: 'Money', result: `Statement cycle ${operation.cycle_close} imported` }); tasksChanged = true; break;
       }
+      case 'marketing.batch.import': {
+        const batch = operation.batch;
+        if (marketing.batches.some(item => item.id === batch.id)) fail('That Marketing batch ID already exists. Retry the original request or use a new batch ID.');
+        const knownIds = new Set(marketing.batches.flatMap(item => (item.roles || []).map(role => role.id)));
+        const importedRoles = batch.roles.map(role => {
+          let roleId = role.id;
+          if (knownIds.has(roleId)) roleId = `${batch.id}-${role.id}`;
+          let suffix = 2;
+          while (knownIds.has(roleId)) roleId = `${batch.id}-${role.id}-${suffix++}`;
+          knownIds.add(roleId);
+          return {
+            ...role,
+            id: roleId,
+            application: {
+              status: 'To review', applied_date: '', resume_version: '', contact_email: '',
+              contact_phone: '', linkedin_url: '', notes: '', ...(role.application || {}),
+            },
+          };
+        });
+        marketing.batches.unshift({
+          id: batch.id,
+          name: batch.name || 'Imported job batch',
+          importedAt: now,
+          demo: Boolean(batch.demo),
+          roles: importedRoles,
+        });
+        marketing.meta = { ...(marketing.meta || {}), updatedAt: now };
+        effects.push({ area: 'Marketing', result: `${importedRoles.length} job postings imported` });
+        marketingChanged = true;
+        break;
+      }
     }
     events.push({ id, type: operation.type, date, evidence_quote: evidence, payload: operation });
   });
   if (tasksChanged) tasks.meta = { ...(tasks.meta || {}), updatedAt: now };
   if (careerChanged) career.meta = { ...(career.meta || {}), updatedAt: now };
-  return { tasks, career, events, effects, tasksChanged, careerChanged };
+  return { tasks, career, marketing, events, effects, tasksChanged, careerChanged, marketingChanged };
 }

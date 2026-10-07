@@ -2,6 +2,14 @@
 
 All notable KRYOS changes should be recorded here.
 
+## 0.24.0 - Marketing cloud sync and assistant batch import
+
+- Add Marketing job batches and application records to the revision-checked Personal Supabase sync block.
+- Automatically sync Marketing record changes and reconcile remote Marketing changes through existing refresh, conflict, and Realtime paths.
+- Add a validated `marketing.batch.import` assistant operation for full batches, with stable IDs, duplicate protection, audit events, and accepted receipts.
+- Keep uploaded file bytes browser-local for now; this release does not claim cross-device attachment storage.
+- QA: assistant projector, Marketing sync, SQL/RPC contract, and full automated suite. Cloud import requires applying the database migration and deploying the Edge Function before the browser release.
+
 ## 0.23.1 - Remove standalone System Design depth section
 
 - Remove the separate DEPTH LEVELS roadmap module and its redundant standalone guide data.
