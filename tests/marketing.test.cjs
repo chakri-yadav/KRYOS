@@ -61,6 +61,15 @@ test('Marketing sync merges separate local and cloud batches without hiding eith
   assert.equal(merged.payload.meta.updatedAt, '2026-10-07T12:00:00Z');
 });
 
+test('Marketing renders imported posted_date as the job posting date', () => {
+  const { api } = loadMarketing();
+  api.marketingImport({
+    format: 'kryos-marketing-batch', version: 1, name: 'August 15 imports',
+    roles: [{ id: 'aug-15-role', company: 'Fictional Co', title: 'Analyst', posted_date: '2026-08-15' }],
+  });
+  assert.match(api.renderMarketingView(), /Aug 15, 2026/);
+});
+
 test('Marketing sync preserves a changed same-ID local batch and reports a conflict', () => {
   const { api } = loadMarketing();
   const local = { batches: [{ id: 'same', name: 'Local edit', roles: [{ id: 'local-role' }] }] };
