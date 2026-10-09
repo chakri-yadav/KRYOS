@@ -49,6 +49,22 @@ function careerReplaceRoadmaps(state,incoming,requestId) {
   state.meta={...(state.meta||{}),roadmapPackage:requestId};return true;
 }
 if(typeof document!=="undefined"){
+  const originalCareerRenderer=renderCareerView;
+  renderCareerView=function(){originalCareerRenderer();document.querySelector('#career-view')?.insertAdjacentHTML('afterbegin','<details class="career-workflow-guidance"><summary>Roadmap updates</summary><label>Import roadmap package<input type="file" accept=".json,application/json" data-career-package></label><p data-career-package-status role="status">Personal roadmap files are saved through Career, not published to GitHub.</p></details>');};
+  document.addEventListener('change',async event=>{
+    const input=event.target.closest('[data-career-package]');if(!input?.files?.[0])return;
+    const status=document.querySelector('[data-career-package-status]');
+    try {
+      const session=await getSupabaseClient().auth.getSession();if(!session.data.session)throw Error('Sign in through Cloud & versions on this GitHub app first.');
+      const payload=JSON.parse(await input.files[0].text());
+      if(!payload.requestId||!Array.isArray(payload.sources)||payload.sources.length!==3)throw Error('Select the complete three-roadmap package.');
+      const parsed=payload.sources.map(s=>careerParseRoadmap(s.text,s.title,s.id));
+      if(careerReplaceRoadmaps(careerState,parsed,payload.requestId))saveCareer();
+      await flushCareerCloudSync();
+      if(careerSyncState!=='synced')throw Error('Roadmaps are saved on this browser; cloud confirmation is still pending.');
+      render();
+    }catch(error){if(status)status.textContent=error.message;}
+  });
   const originalModuleStats=getModuleStats;
   getModuleStats=function(module){return originalModuleStats({...module,topics:module.topics.filter(t=>!t.optional)});};
   const originalModuleRenderer=renderModuleBlock;
