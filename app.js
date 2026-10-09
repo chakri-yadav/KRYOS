@@ -15,7 +15,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.24.1";
+const APP_VERSION = "0.25.0";
 const APP_STAGE = "Marketing cloud sync and assistant batch import";
 const APP_RELEASE_DATE = "2026-10-07";
 const APP_STATUS = "Marketing job batches and application records sync through the Personal cloud profile; uploaded file bytes remain browser-local";
@@ -960,6 +960,7 @@ function buildApiDesignRoadmapModules() {
 }
 
 function migrateApiDesignRoadmap(nextCareerState) {
+  if (nextCareerState.meta?.roadmapPackage) return false;
   if (!nextCareerState || typeof nextCareerState !== "object") return false;
   nextCareerState.meta = nextCareerState.meta && typeof nextCareerState.meta === "object" ? nextCareerState.meta : {};
   if (Number(nextCareerState.meta.apiDesignRoadmapVersion || 0) >= API_DESIGN_ROADMAP_VERSION) return false;
@@ -1004,6 +1005,7 @@ function buildSystemDesignRoadmapModules() {
 }
 
 function migrateSystemDesignRoadmap(nextCareerState) {
+  if (nextCareerState.meta?.roadmapPackage) return false;
   if (!nextCareerState || typeof nextCareerState !== "object") return false;
   nextCareerState.meta = nextCareerState.meta && typeof nextCareerState.meta === "object" ? nextCareerState.meta : {};
   if (Number(nextCareerState.meta.systemDesignRoadmapVersion || 0) >= SYSTEM_DESIGN_ROADMAP_VERSION) return false;
@@ -1039,6 +1041,7 @@ function migrateSystemDesignRoadmap(nextCareerState) {
 const SYSTEM_DESIGN_ROADMAP_CLEANUP_VERSION = 6;
 
 function migrateSystemDesignRoadmapCleanup(nextCareerState) {
+  if (nextCareerState.meta?.roadmapPackage) return false;
   if (!nextCareerState || typeof nextCareerState !== "object") return false;
   nextCareerState.meta = nextCareerState.meta && typeof nextCareerState.meta === "object" ? nextCareerState.meta : {};
   if (Number(nextCareerState.meta.systemDesignRoadmapVersion || 0) >= SYSTEM_DESIGN_ROADMAP_CLEANUP_VERSION) return false;
@@ -1282,6 +1285,7 @@ function buildResumeInterviewRoadmapModules() {
 }
 
 function migrateResumeInterviewRoadmap(nextCareerState) {
+  if (nextCareerState.meta?.roadmapPackage) return false;
   if (!nextCareerState || typeof nextCareerState !== "object") return false;
   nextCareerState.meta = nextCareerState.meta && typeof nextCareerState.meta === "object" ? nextCareerState.meta : {};
   if (Number(nextCareerState.meta.resumeInterviewRoadmapVersion || 0) >= RESUME_INTERVIEW_ROADMAP_VERSION) return false;
@@ -7337,6 +7341,7 @@ async function signInSupabaseWithPassword() {
     // Signing in is the start of cloud recovery: don't leave an already-open
     // page showing only its browser copy until the user navigates or reloads.
     const recovery = await refreshCloudData({ automatic: true });
+    if (!recovery.error && !recovery.conflicts && typeof installPendingCareerRoadmaps === "function") await installPendingCareerRoadmaps();
     await startCloudFreshnessMonitor(data.session).catch((monitorError) => {
       console.warn("KRYOS live freshness monitor unavailable.", monitorError);
     });
@@ -10367,6 +10372,7 @@ resetLockTimer();
 refreshSyncAuthState({ silent: true }).then(async (session) => {
   if (currentPage === "settings") render();
   const recovery = await refreshCloudData({ automatic: true });
+  if (!recovery.error && !recovery.conflicts && typeof installPendingCareerRoadmaps === "function") await installPendingCareerRoadmaps();
   if (session && pendingCareerMigrationSync && !recovery.conflicts && !recovery.error) scheduleCareerCloudSync();
   startCloudFreshnessMonitor(session).catch((error) => console.warn("KRYOS live freshness monitor unavailable.", error));
 });
