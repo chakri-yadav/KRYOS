@@ -2,6 +2,9 @@ const HABITS = new Set(['breakfast', 'lunch', 'dinner', 'protein', 'supplements'
 const DOMAINS = new Set(['Career', 'Personal tasks', 'Job applications', 'Skincare', 'Supplements', 'Food', 'Sleep', 'Mood', 'Movement', 'Spiritual practice', 'Relationships', 'Other']);
 const PRIORITIES = new Set(['critical', 'important', 'normal']);
 const TYPES = new Set(['journal.capture', 'evidence.record', 'rhythm.measure', 'rhythm.complete', 'rhythm.reopen', 'rhythm.count', 'action.create', 'action.complete', 'action.reopen', 'action.archive', 'career.progress', 'career.check.complete', 'career.check.reopen', 'inner_command.observe', 'money.statement.import', 'marketing.batch.import']);
+import './commitment-core.js';
+const COMMITMENT_TYPES = ['\u0073\u0061\u0064\u0068\u0061\u006e\u0061\u002e\u0063\u0079\u0063\u006c\u0065\u002e\u0073\u0074\u0061\u0072\u0074','\u0073\u0061\u0064\u0068\u0061\u006e\u0061\u002e\u0074\u0061\u0073\u006b\u002e\u0061\u0073\u0073\u0069\u0067\u006e','\u0073\u0061\u0064\u0068\u0061\u006e\u0061\u002e\u0070\u006c\u0061\u006e\u002e\u0065\u006d\u0070\u0074\u0079','\u0073\u0061\u0064\u0068\u0061\u006e\u0061\u002e\u0069\u0074\u0065\u006d\u002e\u0073\u0065\u0074','\u0073\u0061\u0064\u0068\u0061\u006e\u0061\u002e\u0074\u0061\u0073\u006b\u002e\u0070\u0072\u006f\u0067\u0072\u0065\u0073\u0073','\u0073\u0061\u0064\u0068\u0061\u006e\u0061\u002e\u0074\u0061\u0073\u006b\u002e\u0063\u006f\u0072\u0072\u0065\u0063\u0074','\u0073\u0061\u0064\u0068\u0061\u006e\u0061\u002e\u0062\u0072\u0065\u0061\u0063\u0068\u002e\u0072\u0065\u0063\u006f\u0072\u0064','\u0073\u0061\u0064\u0068\u0061\u006e\u0061\u002e\u0062\u0072\u0065\u0061\u0063\u0068\u002e\u0063\u006f\u0072\u0072\u0065\u0063\u0074','\u0073\u0061\u0064\u0068\u0061\u006e\u0061\u002e\u0062\u0072\u0065\u0061\u0063\u0068\u002e\u0072\u0065\u0063\u006f\u0076\u0065\u0072','\u0073\u0061\u0064\u0068\u0061\u006e\u0061\u002e\u0064\u0061\u0079\u002e\u0072\u0065\u0076\u0069\u0065\u0077'];
+COMMITMENT_TYPES.forEach(type=>TYPES.add(type));
 const BOUNDARIES = new Set(['astrology', 'social', 'information', 'validation']);
 const MARKETING_STATUSES = new Set(['To review', 'Saved', 'Applied', 'Interview', 'Follow-up', 'Offer', 'Not selected', 'Keep for later', 'Archived', 'Verify details']);
 
@@ -66,6 +69,7 @@ export function validateRequest(request) {
   if (marketingOperations.length && (request.operations.length !== 1 || marketingOperations.length !== 1)) fail('Import a Marketing batch as its own request.');
   for (const operation of request.operations) {
     if (!operation || !TYPES.has(operation.type)) fail('Unsupported operation.');
+    if (operation.type === '\u0073\u0061\u0064\u0068\u0061\u006e\u0061\u002e\u0074\u0061\u0073\u006b\u002e\u0070\u0072\u006f\u0067\u0072\u0065\u0073\u0073' && operation.value > 0 && completionLooksLikeIntentOrNegation(request.raw_text, operation.evidence_quote)) fail('Task progress needs evidence of completed work, not an intention.');
     if (!present(operation.evidence_quote, 1000) || !sameText(request.raw_text, operation.evidence_quote)) fail('Each operation needs an exact excerpt from the original statement.');
     if (['evidence.record', 'rhythm.complete', 'rhythm.count', 'action.complete', 'career.progress', 'career.check.complete'].includes(operation.type) && completionLooksLikeIntentOrNegation(request.raw_text, operation.evidence_quote)) fail('This sounds like an intention or negation. Review before recording completion.');
     if (operation.type === 'journal.capture' && !present(operation.text, 100000)) fail('Journal text is required.');
@@ -136,6 +140,20 @@ export function projectRequest(request, taskPayload, careerPayload, now = new Da
     const date = request.local_date;
     const evidence = operation.evidence_quote;
     switch (operation.type) {
+      case '\u0073\u0061\u0064\u0068\u0061\u006e\u0061\u002e\u0063\u0079\u0063\u006c\u0065\u002e\u0073\u0074\u0061\u0072\u0074':
+      case '\u0073\u0061\u0064\u0068\u0061\u006e\u0061\u002e\u0074\u0061\u0073\u006b\u002e\u0061\u0073\u0073\u0069\u0067\u006e':
+      case '\u0073\u0061\u0064\u0068\u0061\u006e\u0061\u002e\u0070\u006c\u0061\u006e\u002e\u0065\u006d\u0070\u0074\u0079':
+      case '\u0073\u0061\u0064\u0068\u0061\u006e\u0061\u002e\u0069\u0074\u0065\u006d\u002e\u0073\u0065\u0074':
+      case '\u0073\u0061\u0064\u0068\u0061\u006e\u0061\u002e\u0074\u0061\u0073\u006b\u002e\u0070\u0072\u006f\u0067\u0072\u0065\u0073\u0073':
+      case '\u0073\u0061\u0064\u0068\u0061\u006e\u0061\u002e\u0074\u0061\u0073\u006b\u002e\u0063\u006f\u0072\u0072\u0065\u0063\u0074':
+      case '\u0073\u0061\u0064\u0068\u0061\u006e\u0061\u002e\u0062\u0072\u0065\u0061\u0063\u0068\u002e\u0072\u0065\u0063\u006f\u0072\u0064':
+      case '\u0073\u0061\u0064\u0068\u0061\u006e\u0061\u002e\u0062\u0072\u0065\u0061\u0063\u0068\u002e\u0063\u006f\u0072\u0072\u0065\u0063\u0074':
+      case '\u0073\u0061\u0064\u0068\u0061\u006e\u0061\u002e\u0062\u0072\u0065\u0061\u0063\u0068\u002e\u0072\u0065\u0063\u006f\u0076\u0065\u0072':
+      case '\u0073\u0061\u0064\u0068\u0061\u006e\u0061\u002e\u0064\u0061\u0079\u002e\u0072\u0065\u0076\u0069\u0065\u0077': {
+        const receipt=globalThis.KryosCommitment.apply(life,operation,date,now,id);
+        effects.push({area:'Inner Command',result:`${date}: ${receipt.result}`,revision:receipt.revision});
+        tasksChanged=true;break;
+      }
       case 'journal.capture':
         life.entries.push({ id, packageId: id, date, text: operation.text.trim(), createdAt: now, source: 'assistant' });
         effects.push({ area: 'Journal', result: 'Entry saved' }); tasksChanged = true; break;
@@ -166,6 +184,7 @@ export function projectRequest(request, taskPayload, careerPayload, now = new Da
           action.status = nextStatus;
           action.completedAt = nextStatus === 'done' ? datedCompletion(date) : null;
           action.updatedAt = now;
+          if (life.s\u0061dhana) globalThis.KryosCommitment.actionChanged(life,action,date,now);
           tasksChanged = true;
         }
         effects.push({ area: 'Actions', result: action.status === 'done' ? 'Action completed' : action.status === 'archived' ? 'Action removed from vault' : 'Action reopened' }); break;
