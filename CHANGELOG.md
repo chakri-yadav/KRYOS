@@ -1,4 +1,8 @@
 # Changelog
+\n+## 0.28.2 — 48-day journey map
+\n+- Always-visible day map above commitments, with distinct reviewed outcomes, unknown days, current day and upcoming days.
+- Days won is separate from elapsed time; recovery markers preserve the battle result.
+- Viewing the map does not create or change daily records.
 
 ## 0.28.1 — Daily Command visual refinement
 
