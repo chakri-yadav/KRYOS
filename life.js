@@ -18,7 +18,7 @@ function lifeStore() {
   };
   taskState.life.innerCommand.containmentDays ||= [];
   taskState.life.innerCommand.covenant ||= { startDate: '2026-09-26', endDate: '2026-11-12', days: 48, title: '48-Day Devi Sadhana' };
-  if (taskState.life.innerCommand.covenant.startDate !== '2026-09-26' || Number(taskState.life.innerCommand.covenant.days || 0) !== 48) {
+  if (!taskState.life.sadhana && (taskState.life.innerCommand.covenant.startDate !== '2026-09-26' || Number(taskState.life.innerCommand.covenant.days || 0) !== 48)) {
     taskState.life.innerCommand.previousCovenant ||= { ...taskState.life.innerCommand.covenant };
     taskState.life.innerCommand.covenant = { startDate: '2026-09-26', endDate: '2026-11-12', days: 48, title: '48-Day Devi Sadhana' };
   }
