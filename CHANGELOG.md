@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.26.0 — Workplace learning studio
+
+- Phased workplace curriculum, numbered topic checks, wrapped practice, seven scenario sections, language references and explicit readiness gates.
+- Blue workplace visual identity and simulation evidence notes; existing Career records unchanged.
+- Curriculum supplied privately and stored only in the owner's respective local/cloud Career records. No curriculum in this release's public code.
+
 ## 0.25.1 — Career visual studio
 
 - Focused next action, distinct roadmap styles, readable module cards, and secondary analytics.
