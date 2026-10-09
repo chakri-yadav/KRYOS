@@ -1,5 +1,7 @@
 # KRYOS
 
+Career visual release 0.25.1: a focused learning studio with one next action, roadmap-specific visual lanes, collapsible modules, and retained progress/editing. No data migration.
+
 KRYOS is a private directed-attention operating system. It converts intention, distraction, urges, and setbacks into small physical actions that produce visible evidence.
 
 It is not a generic todo app, journal, or habit tracker. KRYOS is designed to help one person choose one outcome, enter focus quickly, redirect impulses, recover from slips, and advance one breakthrough project without turning self-improvement into more reading.

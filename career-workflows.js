@@ -48,9 +48,50 @@ function careerReplaceRoadmaps(state,incoming,requestId) {
   }
   state.meta={...(state.meta||{}),roadmapPackage:requestId};return true;
 }
+function careerVisualIdentity(roadmap){
+  const title=roadmap?.title||"Career";
+  if(title==="System Design")return {tone:"indigo",symbol:"◇",label:"Architecture studio",hint:"Learn the concept. Draw the design. Explain the tradeoff."};
+  if(title==="API DESIGN")return {tone:"teal",symbol:"⌘",label:"Engineering studio",hint:"Understand the behavior. Build it. Test the failure."};
+  if(title==="INTERVIEW PREP")return {tone:"amber",symbol:"◉",label:"Speaking studio",hint:"Recall real evidence. Shape your answer. Practice aloud."};
+  return {tone:"indigo",symbol:"◎",label:"Skill studio",hint:"One clear step. Real evidence. Steady progress."};
+}
+function careerCoreProgress(roadmap){
+  const checks=(roadmap?.modules||[]).flatMap(m=>(m.topics||[]).filter(t=>!t.optional&&t.lane!=="extra").flatMap(t=>t.checklist||[]));
+  const done=checks.filter(c=>c.done).length;
+  return {done,total:checks.length,percent:checks.length?Math.round(done/checks.length*100):0};
+}
 if(typeof document!=="undefined"){
+  const originalNextCareerItem=getNextCareerItem;
+  getNextCareerItem=function(roadmap){
+    if(!roadmap?.workflowVersion)return originalNextCareerItem(roadmap);
+    for(const module of roadmap.modules)for(const topic of module.topics.filter(t=>!t.optional)){
+      const item=topic.checklist.find(c=>!c.done);if(item)return {module,topic,item};
+    }
+    return null;
+  };
+  renderCareerView=function(){
+    if(!findRoadmap(selectedRoadmapId))selectedRoadmapId=careerState.roadmaps[0]?.id;
+    const roadmap=findRoadmap(selectedRoadmapId),identity=careerVisualIdentity(roadmap),next=getNextCareerItem(roadmap),progress=careerCoreProgress(roadmap),stats=getCareerStats();
+    careerView.innerHTML=`<div class="career-studio tone-${identity.tone}">
+      <header class="studio-top"><div><p class="section-kicker">KRYOS / CAREER</p><h1>Your learning studio</h1><p>Choose a path. Take one useful step.</p></div><span id="career-sync-state" class="career-sync-state state-${careerSyncState}"><i></i>${escapeHtml(careerSyncLabel())}</span></header>
+      <nav id="career-portfolio" class="studio-paths" aria-label="Choose a roadmap">${careerState.roadmaps.map(r=>{const s=careerCoreProgress(r),v=careerVisualIdentity(r);return `<button type="button" class="studio-path tone-${v.tone} ${r.id===selectedRoadmapId?"is-selected":""}" aria-pressed="${r.id===selectedRoadmapId}" data-career-select-roadmap="${escapeHtml(r.id)}"><span class="studio-path-icon" aria-hidden="true">${v.symbol}</span><strong>${escapeHtml(r.title)}</strong><span>${s.done} / ${s.total} core steps</span><span class="studio-track"><i style="width:${s.percent}%"></i></span></button>`;}).join("")}</nav>
+      ${roadmap?`<section class="studio-hero"><div><p class="section-kicker">${identity.label}</p><h2>${escapeHtml(roadmap.title)}</h2><p>${identity.hint}</p><a class="studio-plan-link" href="#career-roadmap-detail" data-studio-plan>Explore the full roadmap ↓</a></div><div class="studio-ring" style="--studio-progress:${progress.percent*3.6}deg"><div><strong>${progress.percent}<small>%</small></strong><span>core coverage</span></div></div></section>
+      <section id="career-current-focus" class="studio-next"><div class="studio-next-head"><span class="studio-live-dot"></span><p class="section-kicker">Your next action</p><span>${next?escapeHtml(next.topic.workflowLane||"practice"):"review"}</span></div>${next?`<p class="studio-breadcrumb">${escapeHtml(next.module.title)} · ${escapeHtml(next.topic.title)}</p><h3>${escapeHtml(next.item.text)}</h3><div class="studio-next-footer"><label class="career-next-check"><input type="checkbox" data-career-check="${escapeHtml(next.item.id)}" data-roadmap-id="${escapeHtml(roadmap.id)}" data-module-id="${escapeHtml(next.module.id)}" data-topic-id="${escapeHtml(next.topic.id)}"><span>Mark complete</span></label><button type="button" class="studio-context" data-studio-module="${escapeHtml(next.module.id)}">Open module context →</button></div>`:`<h3>${progress.total?"Core steps complete. Make your understanding durable.":"Your roadmap is ready for its first module."}</h3><p>Review your notes or choose another path. Completion is coverage, not a mastery claim.</p>`}</section>
+      <div id="career-roadmap-detail">${renderRoadmapDetail(roadmap)}</div>`:emptyState("Add a roadmap to start learning.")}
+      <details class="studio-insights"><summary><span>Progress & planning</span><small>${stats.weekActions} completed steps this week</small></summary><section class="career-section"><div class="career-section-head"><h2>Weekly evidence</h2><span>Current rhythm: ${stats.currentStreak} days · best ${stats.bestStreak}</span></div><div class="career-week-pulse">${getCareerWeekPulse().map(renderCareerPulseDay).join("")}</div></section><div class="career-dashboard-grid"><section class="career-section">${renderCareerTruthBars(stats.progress,getCareerConfidence())}<p>Coverage and confidence stay separate.</p></section><section class="career-section">${renderCareerHeatmap()}</section></div><div id="career-deadlines">${renderCareerDeadlinePanel(getCareerDeadlineStats())}</div><div class="quick-add"><input id="new-roadmap-title" placeholder="New skill roadmap" aria-label="New skill roadmap"><button class="primary-button" data-career-add="roadmap" type="button">Add roadmap</button></div></details>
+    </div>`;
+  };
+  document.addEventListener("click",event=>{
+    const button=event.target.closest("[data-studio-module], [data-studio-plan]");if(!button)return;
+    event.preventDefault();const moduleId=button.dataset.studioModule;
+    const target=moduleId?(document.getElementById(`workflow-${moduleId}`)||document.querySelector(`[data-studio-legacy-module="${CSS.escape(moduleId)}"]`)):document.getElementById("career-roadmap-detail");
+    if(!target)return;if(target.tagName==="DETAILS")target.open=true;
+    target.scrollIntoView({block:"start",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
+    const focus=target.querySelector("summary, input, button");focus?.focus({preventScroll:true});
+  });
+
   const originalCareerRenderer=renderCareerView;
-  renderCareerView=function(){originalCareerRenderer();document.querySelector('#career-view')?.insertAdjacentHTML('afterbegin','<details class="career-workflow-guidance"><summary>Roadmap updates</summary><label>Import roadmap package<input type="file" accept=".json,application/json" data-career-package></label><p data-career-package-status role="status">Personal roadmap files are saved through Career, not published to GitHub.</p></details>');};
+  renderCareerView=function(){originalCareerRenderer();document.querySelector('#career-view .studio-insights')?.insertAdjacentHTML('beforeend','<details class="career-workflow-guidance"><summary>Roadmap updates</summary><label>Import roadmap package<input type="file" accept=".json,application/json" data-career-package></label><p data-career-package-status role="status">Personal roadmap files are saved through Career, not published to GitHub.</p></details>');};
   document.addEventListener('change',async event=>{
     const input=event.target.closest('[data-career-package]');if(!input?.files?.[0])return;
     const status=document.querySelector('[data-career-package-status]');
@@ -69,14 +110,20 @@ if(typeof document!=="undefined"){
   getModuleStats=function(module){return originalModuleStats({...module,topics:module.topics.filter(t=>!t.optional)});};
   const originalModuleRenderer=renderModuleBlock;
   renderModuleBlock=function(roadmap,module,isEditing){
-    if(!roadmap.workflowVersion||isEditing)return originalModuleRenderer(roadmap,module,isEditing);
+    if(isEditing)return originalModuleRenderer(roadmap,module,isEditing);
+    if(!roadmap.workflowVersion){
+      const active=getNextCareerItem(roadmap)?.module===module,stats=getModuleStats(module);
+      return `<details class="career-workflow-module" data-studio-legacy-module="${escapeHtml(module.id)}" ${active?"open":""}><summary><span class="studio-module-number">${String(roadmap.modules.indexOf(module)+1).padStart(2,"0")}</span><span class="studio-module-title"><small>${active?"CONTINUE HERE":"LEARNING MODULE"}</small><strong>${escapeHtml(module.title)}</strong></span><span class="studio-module-meter"><small>${stats.done}/${stats.total} steps</small></span></summary>${originalModuleRenderer(roadmap,module,false)}</details>`;
+    }
     const topics=module.topics||[],core=topics.filter(t=>!t.optional&&t.workflowLane!=="guidance");
     const checks=core.flatMap(t=>t.checklist||[]);const done=checks.filter(c=>c.done).length;
     const next=core.find(t=>t.checklist.some(c=>!c.done));
-    const renderTopic=t=>t.workflowLane==="guidance"?`<aside class="career-workflow-guidance"><strong>${escapeHtml(t.title)}</strong><p>${escapeHtml(t.sourceLines.join("\n"))}</p>${t.ownerReference?careerOwnerLinks(t.ownerReference):""}</aside>`:`${renderTopicBlock(roadmap,module,t,false)}${t.sourceLines.some(l=>!l.startsWith("- "))?`<details class="career-workflow-guidance"><summary>Original instructions</summary><p>${escapeHtml(t.sourceLines.join("\n"))}</p></details>`:""}`;
+    const renderTopic=t=>t.workflowLane==="guidance"?`<aside class="career-workflow-guidance"><strong>${escapeHtml(t.title)}</strong><p>${escapeHtml(t.sourceLines.join("\n"))}</p>${t.ownerReference?careerOwnerLinks(t.ownerReference):""}</aside>`:`<section class="studio-lane lane-${escapeHtml(t.workflowLane)}"><span class="studio-lane-label">${escapeHtml(({learn:"01 / LEARN",build:"02 / BUILD",practice:"PRACTICE",mock:"SPEAK & REHEARSE",awareness:"CONTEXT",extra:"OPTIONAL"})[t.workflowLane]||"PRACTICE")}</span>${renderTopicBlock(roadmap,module,t,false)}${t.sourceLines.some(l=>!l.startsWith("- "))?`<details class="career-workflow-guidance"><summary>Original instructions</summary><p>${escapeHtml(t.sourceLines.join("\n"))}</p></details>`:""}</section>`;
     const evidenceFields=roadmap.title==="INTERVIEW PREP"?[["verifiedEvidence","Real evidence / details not remembered"],["shortExplanation","Short spoken explanation"],["ownership","My contribution, baseline and observed impact"]]:roadmap.title==="API DESIGN"?[["artifact","Implementation / test evidence"],["failureCase","Failure tested and result"]]:[["designNotes","Design sketch / reasoning"],["tradeoffs","Tradeoffs and failure behavior"]];
     const evidence=`<details class="career-workflow-extra"><summary>${roadmap.title==="INTERVIEW PREP"?"My verified experience — never invent missing details":"My practice evidence"}</summary>${evidenceFields.map(([field,label])=>`<label class="career-workflow-note">${escapeHtml(label)}<textarea maxlength="4000" rows="3" data-workflow-field="${field}" data-workflow-roadmap="${escapeHtml(roadmap.id)}" data-workflow-module="${escapeHtml(module.id)}">${escapeHtml(module.workflowEvidence?.[field]||"")}</textarea></label>`).join("")}<small>Optional notes. These do not automatically mark any step complete.</small></details>`;
-    return `<details class="career-workflow-module" id="workflow-${escapeHtml(module.id)}" ${next&&module===roadmap.modules.find(m=>m.topics.some(t=>!t.optional&&t.checklist.some(c=>!c.done)))?"open":""}><summary><span>${escapeHtml(module.title)}</span><small>${done}/${checks.length} core steps</small></summary>${module.goal?`<p>${escapeHtml(module.goal)}</p>`:""}<p class="career-workflow-next">${next?`Next: ${escapeHtml(next.title)}`:"Core steps complete. Extra practice is optional."}</p>${evidence}${topics.filter(t=>!t.optional).map(renderTopic).join("")}<details class="career-workflow-extra"><summary>Extra practice · optional</summary>${topics.filter(t=>t.optional).map(renderTopic).join("")||"No extra practice assigned."}</details></details>`;
+    const index=roadmap.modules.indexOf(module)+1,percent=checks.length?Math.round(done/checks.length*100):0;
+    const active=next&&module===roadmap.modules.find(m=>m.topics.some(t=>!t.optional&&t.checklist.some(c=>!c.done)));
+    return `<details class="career-workflow-module ${active?"is-current":""}" id="workflow-${escapeHtml(module.id)}" ${active?"open":""}><summary><span class="studio-module-number">${String(index).padStart(2,"0")}</span><span class="studio-module-title"><small>${active?"CONTINUE HERE":percent===100?"CORE COMPLETE":"LEARNING MODULE"}</small><strong>${escapeHtml(module.title)}</strong></span><span class="studio-module-meter"><small>${done}/${checks.length} core steps</small><span class="studio-track"><i style="width:${percent}%"></i></span></span></summary><div class="studio-module-body">${module.goal?`<p>${escapeHtml(module.goal)}</p>`:""}<p class="career-workflow-next">${next?`Next: ${escapeHtml(next.checklist.find(c=>!c.done).text)}`:"Core steps complete. Extra practice is optional."}</p>${topics.filter(t=>!t.optional).map(renderTopic).join("")}${evidence}${topics.some(t=>t.optional)?`<details class="career-workflow-extra"><summary>Extra practice · optional</summary>${topics.filter(t=>t.optional).map(renderTopic).join("")}</details>`:""}</div></details>`;
   };
   function careerOwnerLinks(reference){const buttons=[];for(const line of reference.split("\n")){const title=line.startsWith("HLD")?"System Design":"API DESIGN";const nums=line.match(/\d+/g)||[];for(const num of nums)buttons.push(`<button type="button" data-career-owner-title="${title}" data-career-owner-module="${Number(num)}">${title} · Module ${Number(num)}</button>`);}return buttons.join("");}
   document.addEventListener("click",event=>{const b=event.target.closest("[data-career-owner-title]");if(!b)return;const r=careerState.roadmaps.find(r=>r.title===b.dataset.careerOwnerTitle);const m=r?.modules.find(m=>m.title.startsWith(`MODULE ${String(b.dataset.careerOwnerModule).padStart(2,"0")} —`));if(!r||!m)return;selectedRoadmapId=r.id;render();const panel=document.getElementById(`workflow-${m.id}`);if(panel){panel.open=true;panel.scrollIntoView({block:"start",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});}});

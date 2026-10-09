@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.25.1 — Career visual studio
+
+- Focused next action, distinct roadmap styles, readable module cards, and secondary analytics.
+- Original curriculum, checklist IDs, editing, notes, and persistence retained. Optional practice does not interrupt the core next step.
+- Verified renderer/data invariants and local browser navigation. No database migration or reward change.
+
 All notable KRYOS changes should be recorded here.
 
 ## 0.24.1 - Marketing cloud reconciliation
