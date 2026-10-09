@@ -1,5 +1,22 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const vm=require('node:vm');
 function load(){const c=vm.createContext({Date,Map,String});vm.runInContext(fs.readFileSync('career-workflows.js','utf8'),c);return c;}
+test('workplace parser preserves phases, numbered topics, wrapped practice, language and final gate',()=>{
+ const c=load();let source='SOFTWARE ENGINEERING WORKPLACE MASTERY\nPurpose: safe learning\n';
+ for(let i=1;i<=26;i++)source+=(i===1?'PHASE A — PEOPLE\n':i===25?'PHASE F — SIMULATIONS\n':'')+'MODULE '+String(i).padStart(2,'0')+' — EXAMPLE\nTOPICS\n01. Understand roles\nPRACTICE\n- Explain the flow\n  without inventing experience.\nLANGUAGE\n"Who owns this?"\nDONE WHEN\nYou can explain the process.\n';
+ source+='FINAL SDE-2 WORKPLACE READINESS GATE\nYou should be able to:\n01. Navigate safely.\nNo employer-specific history is assumed from practice.\n';
+ const r=c.careerParseRoadmap(source,'SOFTWARE ENGINEERING WORKPLACE MASTERY','work');assert.equal(r.sourceText,source);assert.equal(r.workflowKind,'workplace');assert.equal(r.modules.length,27);
+ assert.equal(r.modules[0].phase,'PHASE A — PEOPLE');assert.equal(r.modules[24].phase,'PHASE F — SIMULATIONS');
+ assert.equal(r.modules[0].topics[0].checklist[0].text,'01. Understand roles');
+ assert.equal(r.modules[0].topics[1].checklist[0].text,'- Explain the flow\n  without inventing experience.');
+ assert.equal(r.modules[0].topics[2].workflowLane,'language');assert.equal(r.modules[0].topics[2].checklist.length,0);
+ assert.equal(r.modules[26].topics[0].checklist.length,1);assert.equal(c.careerVisualIdentity(r).tone,'blue');
+ const ui=uiLoad();ui.careerState={roadmaps:[r]};ui.selectedRoadmapId='work';ui.renderCareerView();
+ assert.match(ui.careerView.innerHTML,/Workplace studio/);assert.match(ui.careerView.innerHTML,/studio-language/);
+ assert.match(ui.careerView.innerHTML,/Simulation \/ artifact evidence/);assert.match(ui.careerView.innerHTML,/READINESS CHECK/);
+});
+test('incomplete workplace source fails rather than silently dropping modules',()=>{
+ const c=load();assert.throws(()=>c.careerParseRoadmap('SOFTWARE ENGINEERING WORKPLACE MASTERY\nMODULE 01 — EXAMPLE\nTOPICS\n01. Example','Work','work'),/26 modules/);
+});
 test('studio uses distinct roadmap identities and excludes optional work from core coverage',()=>{
  const c=load();assert.equal(c.careerVisualIdentity({title:'System Design'}).tone,'indigo');
  assert.equal(c.careerVisualIdentity({title:'API DESIGN'}).tone,'teal');assert.equal(c.careerVisualIdentity({title:'INTERVIEW PREP'}).tone,'amber');

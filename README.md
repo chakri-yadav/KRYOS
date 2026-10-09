@@ -1,5 +1,7 @@
 # KRYOS
 
+Career 0.26.0 supports phased workplace-learning roadmaps, workplace-language reference cards, safe simulation checklists, readiness gates and private practice evidence.
+
 Career visual release 0.25.1: a focused learning studio with one next action, roadmap-specific visual lanes, collapsible modules, and retained progress/editing. No data migration.
 
 KRYOS is a private directed-attention operating system. It converts intention, distraction, urges, and setbacks into small physical actions that produce visible evidence.
