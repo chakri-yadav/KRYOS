@@ -16,9 +16,11 @@
 #journal-view .section-kicker{color:var(--command-accent);letter-spacing:.12em;font-size:11px;font-weight:650}
 #journal-view .command-date-picker{display:grid;gap:7px;font-size:12px;color:var(--command-muted)}
 #journal-view .command-date-picker input{font:inherit;min-height:44px;padding:10px 14px;border:1px solid var(--command-line);background:var(--command-paper);color:var(--command-ink);border-radius:10px}
-#journal-view .command-premium-purpose{padding:24px 28px;background:var(--command-soft);border-radius:16px;margin-bottom:26px}
-#journal-view .command-premium-purpose>p:not(.section-kicker){max-width:780px;font-size:16px;line-height:1.75;margin:12px 0;color:var(--command-ink)}
-#journal-view .command-premium-purpose small{display:block;color:var(--command-muted);font-size:13px;line-height:1.6}
+#journal-view .command-premium-purpose{position:relative;padding:32px 36px;background:linear-gradient(115deg,#123e32 0%,#173d35 65%,#244738 100%);border:1px solid #466251;border-radius:20px;margin-bottom:28px;box-shadow:0 12px 30px rgba(17,46,41,.12);overflow:hidden;color:#f6f4e8}
+#journal-view .command-premium-purpose::before{content:'';position:absolute;left:0;top:28px;bottom:28px;width:4px;background:#d7bc79;border-radius:0 4px 4px 0}
+#journal-view .command-premium-purpose .section-kicker{color:#e5d09a;font-size:13px;letter-spacing:.13em;line-height:1.6;margin:0 0 18px;font-weight:650}
+#journal-view .command-premium-purpose>p:not(.section-kicker){max-width:900px;font-size:clamp(18px,1.7vw,22px);font-weight:500;line-height:1.75;letter-spacing:-.01em;margin:0 0 24px;color:#f6f4e8;text-wrap:pretty}
+#journal-view .command-premium-purpose small{display:block;max-width:900px;padding-top:18px;border-top:1px solid #527062;color:#dde7df;font-size:14px;line-height:1.75;text-wrap:pretty}
 #journal-view .command-premium-grid{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);gap:22px;align-items:start}
 #journal-view .command-paper{background:var(--command-paper);border:1px solid var(--command-line);border-radius:16px;padding:24px;min-width:0;box-shadow:0 3px 12px rgba(28,52,39,.025)}
 #journal-view .command-paper>header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:17px;flex-wrap:wrap}
