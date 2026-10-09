@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.28.0 — Daily Sadhana commitments
+
+- Day 0 preparation and a separate 48-day cycle preserve earlier records.
+- Daily must-do tasks share identity and completion with Actions; quantity targets, late occurrence dates, corrections and multiple boundaries feed one battle engine.
+- Browser and assistant ingestion share the same engine; unknown facts remain open and review follows the day deadline.
+
 ## 0.27.0 — Debugging studio
 
 - Eight-module debugging curriculum support, four mixed-session cards and separate practice/bug-pattern/completion references.

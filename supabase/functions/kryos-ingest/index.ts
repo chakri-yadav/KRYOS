@@ -50,7 +50,7 @@ Deno.serve(async request => {
       validateRequest(input);
       const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: input.timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date()).map(part => [part.type, part.value]));
       const today = `${parts.year}-${parts.month}-${parts.day}`;
-      if (input.local_date > today) return reply(422, { error: 'Future dates need review.' });
+      if (input.local_date > today && !input.operations.every(op=>['sadhana.task.assign','sadhana.cycle.start'].includes(op.type))) return reply(422, { error: 'Future dates may be planned, not completed.' });
     }
     catch (error) { return reply(400, { error: error.message || 'Invalid request.' }); }
     const requestHash = await sha256(JSON.stringify(input));

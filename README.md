@@ -1,5 +1,7 @@
 # KRYOS
 
+Inner Command 0.28.0 adds a 48-day Sadhana cycle, dated must-do commitments shared with Actions, quantity targets, multi-boundary records, and audited daily battle review.
+
 Career 0.27.0 supports the updated Debugging studio: numbered exercises, mixed sessions, optional reinforcement, read-only field guides and diagnostic evidence notes.
 
 Career 0.26.0 supports phased workplace-learning roadmaps, workplace-language reference cards, safe simulation checklists, readiness gates and private practice evidence.

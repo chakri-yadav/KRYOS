@@ -15,7 +15,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.27.0";
+const APP_VERSION = "0.28.0";
 const APP_STAGE = "Marketing cloud sync and assistant batch import";
 const APP_RELEASE_DATE = "2026-10-07";
 const APP_STATUS = "Marketing job batches and application records sync through the Personal cloud profile; uploaded file bytes remain browser-local";
@@ -10359,11 +10359,9 @@ document.addEventListener("input", (event) => {
 if (isSecurityUnlocked) touchSecuritySession(true);
 establishMarketingHistory();
 applyConfirmedHistoricalRewardReviews();
-const sadhanaMigrationNeeded = !isDemoMode()
-  && (taskState.life?.innerCommand?.covenant?.startDate !== '2026-09-26'
-    || Number(taskState.life?.innerCommand?.covenant?.days || 0) !== 48);
+const sadhanaMigrationNeeded = !taskState.life?.sadhana;
 if (sadhanaMigrationNeeded) {
-  lifeStore();
+  KryosSadhana.ensure(lifeStore());
   saveTasks();
 }
 render();
