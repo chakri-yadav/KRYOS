@@ -1,4 +1,7 @@
 # Changelog
+\n+## 0.28.4 — Must-do focus cards
+\n+- Highlight the next chosen commitment; presentation-only focus choice never changes task or battle evidence.
+- Add commitment completion progress and expandable finished tasks with reopening controls.
 \n+## 0.28.3 — Promise visual emphasis
 \n+- Highlight the unchanged promise with a deep-green panel, warm-gold accents, larger typography and improved contrast.
 \n+## 0.28.2 — 48-day journey map
