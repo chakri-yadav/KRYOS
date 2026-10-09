@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.27.0 — Debugging studio
+
+- Eight-module debugging curriculum support, four mixed-session cards and separate practice/bug-pattern/completion references.
+- Violet studio identity and failing-input, root-cause, focused-fix and regression notes.
+- Prior roadmap archived privately; matching completion evidence retained. No reward, Marketing or schema changes.
+
 ## 0.26.0 — Workplace learning studio
 
 - Phased workplace curriculum, numbered topic checks, wrapped practice, seven scenario sections, language references and explicit readiness gates.
