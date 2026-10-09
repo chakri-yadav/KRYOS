@@ -1,4 +1,5 @@
 # KRYOS
+\n+0.28.4 adds premium must-do focus cards and clearer completion feedback.
 \n+0.28.3 gives the promise to Devi Mother stronger visual prominence and readable premium styling.
 \n+0.28.2 adds the always-visible 48-day Sadhana journey map, keeping days won separate from elapsed time.
 
