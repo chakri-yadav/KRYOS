@@ -35,6 +35,26 @@ test('quantity step uses an absolute total and never creates another task',()=>{
   handlers.filter(h=>h.type==='click').forEach(h=>h.handler(event));
   assert.equal(writes.length,1);assert.equal(writes[0].value,25);assert.equal(writes[0].taskId,task.id);assert.equal(life.actions.length,1);
 });
+test('focus changes presentation only and completed tasks remain available to reopen',()=>{
+ const {context,life,handlers,writes}=setup('2026-10-10');
+ C.apply(life,{type:'task.assign',title:'First fixture'},'2026-10-10','2026-10-09T18:00:00Z','focus-a');
+ C.apply(life,{type:'task.assign',title:'Second fixture'},'2026-10-10','2026-10-09T18:00:00Z','focus-b');
+ const [first,second]=life.sadhana.days['2026-10-10'].tasks;
+ context.document.querySelector=()=>null;
+ context.renderLifeJournal=()=>{};
+ const button={dataset:{commandFocus:second.id},hasAttribute:()=>false};
+ const event={target:{closest:selector=>selector==='[data-command-focus]'?button:null}};
+ const before=JSON.stringify(life);
+ handlers.filter(h=>h.type==='click').forEach(h=>h.handler(event));
+ assert.equal(writes.length,0);assert.equal(JSON.stringify(life),before);
+ let html=context.renderContainmentCovenant();
+ assert.ok(html.indexOf('Second fixture')<html.indexOf('First fixture'));
+ C.apply(life,{type:'task.progress',taskId:second.id,value:1},'2026-10-10','2026-10-10T18:00:00Z','focus-done');
+ html=context.renderContainmentCovenant();
+ assert.match(html,/command-completed-tasks/);
+ assert.ok(html.includes(`data-sadhana-task="${second.id}" checked`));
+ assert.ok(html.includes(`data-command-focus="${first.id}"`)===false);
+});
 test('journey separates unknown past days, current day and future without mutating records',()=>{
   const {context,life}=setup('2026-10-10');
   const before=JSON.stringify(life);
