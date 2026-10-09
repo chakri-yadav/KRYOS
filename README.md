@@ -1,5 +1,7 @@
 # KRYOS
 
+0.28.1 adds the premium Daily Command interface with readable promises, shared must-do cards and stable editing controls.
+
 Inner Command 0.28.0 adds a 48-day Sadhana cycle, dated must-do commitments shared with Actions, quantity targets, multi-boundary records, and audited daily battle review.
 
 Career 0.27.0 supports the updated Debugging studio: numbered exercises, mixed sessions, optional reinforcement, read-only field guides and diagnostic evidence notes.

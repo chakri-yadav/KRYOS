@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.28.1 — Daily Command visual refinement
+
+- Selected two-column daily workspace, readable purpose, direct quantity controls and quieter secondary actions.
+- Preserves open panels, drafts and reading position; adds focused correction dialogs and a clear preparation label.
+
 ## 0.28.0 — Daily Sadhana commitments
 
 - Day 0 preparation and a separate 48-day cycle preserve earlier records.
