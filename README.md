@@ -1,5 +1,7 @@
 # KRYOS
 
+Career 0.27.0 supports the updated Debugging studio: numbered exercises, mixed sessions, optional reinforcement, read-only field guides and diagnostic evidence notes.
+
 Career 0.26.0 supports phased workplace-learning roadmaps, workplace-language reference cards, safe simulation checklists, readiness gates and private practice evidence.
 
 Career visual release 0.25.1: a focused learning studio with one next action, roadmap-specific visual lanes, collapsible modules, and retained progress/editing. No data migration.

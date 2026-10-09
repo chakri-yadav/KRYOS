@@ -1,5 +1,18 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const vm=require('node:vm');
 function load(){const c=vm.createContext({Date,Map,String});vm.runInContext(fs.readFileSync('career-workflows.js','utf8'),c);return c;}
+test('Debugging preserves eight modules, numbered exercises and nested fault hints without scoring references',()=>{
+ const c=load();let source='SDE-2 INTERVIEW DEBUGGING ROADMAP\nPURPOSE\nLearn from faulty code.\n';
+ for(let i=1;i<=8;i++)source+='MODULE '+i+' — EXAMPLE\nTOPICS\n1. Observe state\nPRACTICE\n'+(i===8?'SESSION 1 — EASY\nChoose one buggy:\n- array\n- string\n':'1. Debug an example\n   - inspect the update\n')+'EXTRA PRACTICE\nRepeat with another input.\n';
+ source+='FINAL DEBUGGING PRACTICE ROUTINE\n1. Save failure.\nBUG PATTERN REFERENCE\n- Stale state\nCOMPLETION RULE\nVerify the fix.\n';
+ const r=c.careerParseRoadmap(source,'Debugging','debug');assert.equal(r.title,'Debugging');assert.equal(r.sourceText,source);assert.equal(r.modules.length,8);assert.equal(r.referenceSections.length,3);
+ assert.equal(r.modules[0].topics[1].checklist[0].text,'1. Debug an example\n   - inspect the update');
+ assert.equal(r.modules[7].topics.find(t=>t.workflowLane==='mock').checklist.length,1);
+ assert.equal(r.modules[0].topics.find(t=>t.optional).checklist.length,1);
+ const ui=uiLoad();ui.careerState={roadmaps:[r]};ui.selectedRoadmapId='debug';ui.renderCareerView();
+ assert.match(ui.careerView.innerHTML,/Debugging field guide/);assert.match(ui.careerView.innerHTML,/Root cause \/ first incorrect state/);
+ assert.equal(ui.getNextCareerItem(r).item.text,'1. Observe state');assert.equal(c.careerVisualIdentity(r).tone,'violet');
+ assert.throws(()=>c.careerParseRoadmap('SDE-2 INTERVIEW DEBUGGING ROADMAP\nMODULE 1 — ONLY','Debugging','debug'),/eight modules/);
+});
 test('workplace parser preserves phases, numbered topics, wrapped practice, language and final gate',()=>{
  const c=load();let source='SOFTWARE ENGINEERING WORKPLACE MASTERY\nPurpose: safe learning\n';
  for(let i=1;i<=26;i++)source+=(i===1?'PHASE A — PEOPLE\n':i===25?'PHASE F — SIMULATIONS\n':'')+'MODULE '+String(i).padStart(2,'0')+' — EXAMPLE\nTOPICS\n01. Understand roles\nPRACTICE\n- Explain the flow\n  without inventing experience.\nLANGUAGE\n"Who owns this?"\nDONE WHEN\nYou can explain the process.\n';

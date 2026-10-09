@@ -1,5 +1,6 @@
 /* Shared roadmap renderer. Personal source text is supplied privately, not shipped here. */
 function careerParseRoadmap(source, title, id) {
+  if(String(source).includes('SDE-2 INTERVIEW DEBUGGING ROADMAP'))return careerParseDebuggingRoadmap(source,title,id);
   if(String(source).includes('SOFTWARE ENGINEERING WORKPLACE MASTERY'))return careerParseWorkplaceRoadmap(source,title,id);
   const raw=String(source).replace(/\r\n/g,"\n");
   const matches=[...raw.matchAll(/^MODULE (\d+) — (.+)$/gm)];
@@ -49,6 +50,31 @@ function careerReplaceRoadmaps(state,incoming,requestId) {
   }
   state.meta={...(state.meta||{}),roadmapPackage:requestId};return true;
 }
+function careerParseDebuggingRoadmap(source,title,id){
+  const raw=String(source).replace(/\r\n/g,'\n'),matches=[...raw.matchAll(/^MODULE (\d+) — (.+)$/gm)];
+  if(matches.length!==8)throw Error('Debugging source needs all eight modules.');
+  const referenceStart=raw.indexOf('FINAL DEBUGGING PRACTICE ROUTINE');
+  if(referenceStart<0)throw Error('Debugging practice routine is missing.');
+  const modules=matches.map((match,index)=>{
+    const moduleId=`${id}-module-${match[1]}`,body=raw.slice(match.index+match[0].length,matches[index+1]?.index??referenceStart);
+    const sections=[];let section=null;
+    for(const original of body.split('\n')){const line=original.trim();if(!line||/^=+$/.test(line))continue;
+      if(/^(TOPICS|PRACTICE|EXTRA PRACTICE|SESSION \d+ — .+)$/.test(line)){section={title:line,lines:[]};sections.push(section);continue;}
+      if(!section){section={title:'Guidance',lines:[]};sections.push(section);}section.lines.push(original.trimEnd());
+    }
+    const topics=sections.filter(s=>s.lines.length).map((s,i)=>{
+      const topicId=`${moduleId}-section-${i+1}`,lane=s.title==='TOPICS'?'learn':s.title==='EXTRA PRACTICE'?'extra':s.title.startsWith('SESSION')?'mock':s.title==='PRACTICE'?'practice':'guidance';
+      const items=[];
+      if(['learn','practice'].includes(lane)){
+        for(const line of s.lines){if(/^\d+\. /.test(line))items.push(line);else if(/^\s+/.test(line)&&items.length)items[items.length-1]+='\n'+line;}
+      }else if(['mock','extra'].includes(lane))items.push(s.lines.join('\n'));
+      return {id:topicId,title:s.title,confidence:'Low',workflowLane:lane,optional:lane==='extra',sourceLines:s.lines,checklist:items.map((text,j)=>({id:`${topicId}-check-${j+1}`,text,done:false}))};
+    });return {id:moduleId,title:match[0],targetDate:'',topics};
+  });
+  const referenceText=raw.slice(referenceStart),referenceSections=[];let current=null;
+  for(const line of referenceText.split('\n')){if(/^(FINAL DEBUGGING PRACTICE ROUTINE|BUG PATTERN REFERENCE|COMPLETION RULE)$/.test(line)){current={title:line,lines:[]};referenceSections.push(current);}else if(current&&!/^=+$/.test(line))current.lines.push(line);}
+  return {id,title,workflowVersion:1,workflowKind:'debugging',sourceText:raw,purpose:raw.slice(0,matches[0].index).replace(/^=+$/gm,'').trim(),referenceSections,targetDate:'',modules};
+}
 function careerParseWorkplaceRoadmap(source,title,id){
   const raw=String(source).replace(/\r\n/g,'\n'),lines=raw.split('\n');
   const modules=[];let phase='',module=null,section=null;
@@ -78,6 +104,7 @@ function careerParseWorkplaceRoadmap(source,title,id){
 }
 function careerVisualIdentity(roadmap){
   const title=roadmap?.title||"Career";
+  if(roadmap?.workflowKind==='debugging'||title==='Debugging')return {tone:'violet',symbol:'⌕',label:'Debugging studio',hint:'Reproduce the failure. Understand the cause. Fix it. Verify the regression.'};
   if(roadmap?.workflowKind==='workplace')return {tone:'blue',symbol:'▦',label:'Workplace studio',hint:'Understand the workflow. Rehearse the conversation. Prove it in a safe simulation.'};
   if(title==="System Design")return {tone:"indigo",symbol:"◇",label:"Architecture studio",hint:"Learn the concept. Draw the design. Explain the tradeoff."};
   if(title==="API DESIGN")return {tone:"teal",symbol:"⌘",label:"Engineering studio",hint:"Understand the behavior. Build it. Test the failure."};
@@ -107,6 +134,7 @@ if(typeof document!=="undefined"){
       ${roadmap?`<section class="studio-hero"><div><p class="section-kicker">${identity.label}</p><h2>${escapeHtml(roadmap.title)}</h2><p>${identity.hint}</p><a class="studio-plan-link" href="#career-roadmap-detail" data-studio-plan>Explore the full roadmap ↓</a></div><div class="studio-ring" style="--studio-progress:${progress.percent*3.6}deg"><div><strong>${progress.percent}<small>%</small></strong><span>core coverage</span></div></div></section>
       <section id="career-current-focus" class="studio-next"><div class="studio-next-head"><span class="studio-live-dot"></span><p class="section-kicker">Your next action</p><span>${next?escapeHtml(next.topic.workflowLane||"practice"):"review"}</span></div>${next?`<p class="studio-breadcrumb">${escapeHtml(next.module.title)} · ${escapeHtml(next.topic.title)}</p><h3>${escapeHtml(next.item.text)}</h3><div class="studio-next-footer"><label class="career-next-check"><input type="checkbox" data-career-check="${escapeHtml(next.item.id)}" data-roadmap-id="${escapeHtml(roadmap.id)}" data-module-id="${escapeHtml(next.module.id)}" data-topic-id="${escapeHtml(next.topic.id)}"><span>Mark complete</span></label><button type="button" class="studio-context" data-studio-module="${escapeHtml(next.module.id)}">Open module context →</button></div>`:`<h3>${progress.total?"Core steps complete. Make your understanding durable.":"Your roadmap is ready for its first module."}</h3><p>Review your notes or choose another path. Completion is coverage, not a mastery claim.</p>`}</section>
       <div id="career-roadmap-detail">${renderRoadmapDetail(roadmap)}</div>`:emptyState("Add a roadmap to start learning.")}
+      ${roadmap?.referenceSections?.length?`<section class="studio-reference"><h2>Debugging field guide</h2><p>Use faulty code. Diagnose, fix and verify—do not restart by solving the original problem.</p>${roadmap.referenceSections.map(s=>`<details class="career-workflow-guidance"><summary>${escapeHtml(s.title)}</summary><p>${escapeHtml(s.lines.join("\n"))}</p></details>`).join("")}</section>`:""}
       <details class="studio-insights"><summary><span>Progress & planning</span><small>${stats.weekActions} completed steps this week</small></summary><section class="career-section"><div class="career-section-head"><h2>Weekly evidence</h2><span>Current rhythm: ${stats.currentStreak} days · best ${stats.bestStreak}</span></div><div class="career-week-pulse">${getCareerWeekPulse().map(renderCareerPulseDay).join("")}</div></section><div class="career-dashboard-grid"><section class="career-section">${renderCareerTruthBars(stats.progress,getCareerConfidence())}<p>Coverage and confidence stay separate.</p></section><section class="career-section">${renderCareerHeatmap()}</section></div><div id="career-deadlines">${renderCareerDeadlinePanel(getCareerDeadlineStats())}</div><div class="quick-add"><input id="new-roadmap-title" placeholder="New skill roadmap" aria-label="New skill roadmap"><button class="primary-button" data-career-add="roadmap" type="button">Add roadmap</button></div></details>
     </div>`;
   };
@@ -147,8 +175,8 @@ if(typeof document!=="undefined"){
     const topics=module.topics||[],core=topics.filter(t=>!t.optional&&t.workflowLane!=="guidance");
     const checks=core.flatMap(t=>t.checklist||[]);const done=checks.filter(c=>c.done).length;
     const next=core.find(t=>t.checklist.some(c=>!c.done));
-    const renderTopic=t=>["guidance","language"].includes(t.workflowLane)?`<aside class="career-workflow-guidance ${t.workflowLane==="language"?"studio-language":""}"><strong>${escapeHtml(t.title)}</strong><p>${escapeHtml(t.sourceLines.join("\n"))}</p>${t.ownerReference?careerOwnerLinks(t.ownerReference):""}</aside>`:`<section class="studio-lane lane-${escapeHtml(t.workflowLane)}"><span class="studio-lane-label">${escapeHtml(({learn:"01 / LEARN",build:"02 / BUILD",practice:"PRACTICE",mock:"SPEAK & REHEARSE",awareness:"CONTEXT",extra:"OPTIONAL",scenario:"SAFE SIMULATION",readiness:"READINESS CHECK"})[t.workflowLane]||"PRACTICE")}</span>${renderTopicBlock(roadmap,module,t,false)}${t.sourceLines.some(l=>!l.startsWith("- "))?`<details class="career-workflow-guidance"><summary>Original instructions</summary><p>${escapeHtml(t.sourceLines.join("\n"))}</p></details>`:""}</section>`;
-    const evidenceFields=roadmap.workflowKind==="workplace"?[["simulationEvidence","Simulation / artifact evidence"],["communicationPractice","My practiced response / handoff"],["remainingGap","What still needs practice"]]:roadmap.title==="INTERVIEW PREP"?[["verifiedEvidence","Real evidence / details not remembered"],["shortExplanation","Short spoken explanation"],["ownership","My contribution, baseline and observed impact"]]:roadmap.title==="API DESIGN"?[["artifact","Implementation / test evidence"],["failureCase","Failure tested and result"]]:[["designNotes","Design sketch / reasoning"],["tradeoffs","Tradeoffs and failure behavior"]];
+    const renderTopic=t=>["guidance","language"].includes(t.workflowLane)?`<aside class="career-workflow-guidance ${t.workflowLane==="language"?"studio-language":""}"><strong>${escapeHtml(t.title)}</strong><p>${escapeHtml(t.sourceLines.join("\n"))}</p>${t.ownerReference?careerOwnerLinks(t.ownerReference):""}</aside>`:`<section class="studio-lane lane-${escapeHtml(t.workflowLane)}"><span class="studio-lane-label">${escapeHtml(({learn:"01 / LEARN",build:"02 / BUILD",practice:"PRACTICE",mock:roadmap.workflowKind==="debugging"?"DEBUGGING SESSION":"SPEAK & REHEARSE",awareness:"CONTEXT",extra:"OPTIONAL",scenario:"SAFE SIMULATION",readiness:"READINESS CHECK"})[t.workflowLane]||"PRACTICE")}</span>${renderTopicBlock(roadmap,module,t,false)}${t.sourceLines.some(l=>!l.startsWith("- "))?`<details class="career-workflow-guidance"><summary>Original instructions</summary><p>${escapeHtml(t.sourceLines.join("\n"))}</p></details>`:""}</section>`;
+    const evidenceFields=roadmap.workflowKind==="debugging"?[["failingInput","Failing input · expected vs actual"],["rootCause","Root cause / first incorrect state"],["focusedFix","Focused fix and why it works"],["regressionEvidence","Regression cases / verification results"]]:roadmap.workflowKind==="workplace"?[["simulationEvidence","Simulation / artifact evidence"],["communicationPractice","My practiced response / handoff"],["remainingGap","What still needs practice"]]:roadmap.title==="INTERVIEW PREP"?[["verifiedEvidence","Real evidence / details not remembered"],["shortExplanation","Short spoken explanation"],["ownership","My contribution, baseline and observed impact"]]:roadmap.title==="API DESIGN"?[["artifact","Implementation / test evidence"],["failureCase","Failure tested and result"]]:[["designNotes","Design sketch / reasoning"],["tradeoffs","Tradeoffs and failure behavior"]];
     const evidence=`<details class="career-workflow-extra"><summary>${roadmap.title==="INTERVIEW PREP"?"My verified experience — never invent missing details":"My practice evidence"}</summary>${evidenceFields.map(([field,label])=>`<label class="career-workflow-note">${escapeHtml(label)}<textarea maxlength="4000" rows="3" data-workflow-field="${field}" data-workflow-roadmap="${escapeHtml(roadmap.id)}" data-workflow-module="${escapeHtml(module.id)}">${escapeHtml(module.workflowEvidence?.[field]||"")}</textarea></label>`).join("")}<small>Optional notes. These do not automatically mark any step complete.</small></details>`;
     const index=roadmap.modules.indexOf(module)+1,percent=checks.length?Math.round(done/checks.length*100):0;
     const active=next&&module===roadmap.modules.find(m=>m.topics.some(t=>!t.optional&&t.checklist.some(c=>!c.done)));
