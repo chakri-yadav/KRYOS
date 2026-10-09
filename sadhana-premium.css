@@ -1,4 +1,14 @@
 /* Scoped to Inner Command; daily evidence and other workspaces keep their layouts. */
+ #journal-view .command-journey-map{margin-bottom:24px;background:linear-gradient(120deg,#fff,#f5f9f4)}
+ #journal-view .command-journey-map header>div .section-kicker{margin:0 0 7px}
+ #journal-view .command-journey-summary{display:flex;align-items:baseline;gap:14px 24px;flex-wrap:wrap;color:var(--command-muted);font-size:13px;line-height:1.6}
+ #journal-view .command-journey-summary strong{font-size:28px;color:var(--command-ink);font-variant-numeric:tabular-nums}
+ #journal-view .command-journey-summary strong small{font-size:13px;font-weight:400;color:var(--command-muted)}
+ #journal-view .command-journey-track{height:5px;background:#e7eee7;border-radius:8px;overflow:hidden;margin:16px 0 20px}
+ #journal-view .command-journey-track>span{display:block;height:100%;background:var(--command-accent)}
+ #journal-view .sadhana-calendar .awaiting-review{background:#f8eddc;color:#765326}
+ #journal-view .sadhana-calendar .in-progress{background:#dcebe5;color:#184f3d;font-weight:650}
+ #journal-view .sadhana-calendar .upcoming{background:#f0f2ef;color:#637269}
 #journal-view{--command-ink:#263a34;--command-muted:#5b6d65;--command-accent:#226a52;--command-soft:#edf5ef;--command-line:#dfe7df;--command-paper:#fff;color:var(--command-ink)}
 #journal-view .command-premium-title{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;margin:12px 0 24px}
 #journal-view .command-premium-title h1{font-size:clamp(28px,3vw,38px);font-weight:650;line-height:1.15;letter-spacing:-.035em;margin:8px 0 12px;color:var(--command-ink)}
