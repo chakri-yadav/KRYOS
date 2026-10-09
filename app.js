@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.28.1";
+const APP_VERSION = "0.28.2";
 const APP_STAGE = "Daily Command premium interface";
 const APP_RELEASE_DATE = "2026-10-09";
 const APP_STATUS = "Readable daily promises and must-do tasks shared with Actions";
 const APP_NEXT_MILESTONE = "Refine daily workflows through actual use";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "48-day journey map: real battle outcomes, separate elapsed time and days won, direct day navigation and recovery markers.",
   "Daily Command: purpose, must-do tasks and daily outline in a calm layout; direct quantity controls, preserved reading position and correction dialogs.",
   "Sync Marketing batches and application records through the revision-checked Personal Supabase block, and let the assistant import complete validated job batches with an idempotent receipt.",
   "Remove the standalone DEPTH LEVELS section from the System Design roadmap while keeping the supplied L4-L0 labels on individual topics.",
