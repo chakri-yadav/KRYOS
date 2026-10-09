@@ -1,4 +1,6 @@
 # Changelog
+\n+## 0.28.3 — Promise visual emphasis
+\n+- Highlight the unchanged promise with a deep-green panel, warm-gold accents, larger typography and improved contrast.
 \n+## 0.28.2 — 48-day journey map
 \n+- Always-visible day map above commitments, with distinct reviewed outcomes, unknown days, current day and upcoming days.
 - Days won is separate from elapsed time; recovery markers preserve the battle result.
