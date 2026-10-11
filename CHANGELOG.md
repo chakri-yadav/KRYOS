@@ -1,4 +1,8 @@
 # Changelog
+\n+## 0.30.0 — Actions and Rhythm
+\n+- Emphasise smallest next actions and activation while retaining the three-active limit and shared Sadhana identities.
+- Keep daily routines visible with explicit record states; use reversible water and repetition totals without wrap-to-zero.
+- Weekly additions use the selected date; existing targets, scoring, reward rules and storage are unchanged.
 \n+## 0.29.0 — Visual and status foundation
 \n+- Shared typography, spacing tokens, controls, focus visibility and reduced-motion support.
 - Distinguish laptop-service confirmation, browser-held records, cloud connection and completed cloud sync.
