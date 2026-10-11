@@ -1,0 +1,49 @@
+/* Scoped premium Actions and Rhythm; no scoring or target changes. */
+#actions-view .action-title h1{font-size:clamp(28px,3vw,38px);letter-spacing:-.03em}
+#actions-view .action-command{background:#173d32;border:1px solid #31584a;border-radius:18px;box-shadow:none}
+#actions-view .action-list{display:grid;gap:14px}
+#actions-view .action-card{padding:20px;gap:18px;border:1px solid #dce5dd;border-radius:14px;box-shadow:0 3px 14px rgba(25,53,38,.035);background:#fff}
+#actions-view .action-card.status-active{background:#f0f7f1;border-color:#8fb49d}
+#actions-view .action-card h3{font-size:18px;font-weight:600;line-height:1.5;letter-spacing:-.01em;margin:8px 0}
+#actions-view .action-check{width:44px;height:44px;min-width:44px;border-radius:12px}
+#actions-view .activity-next-step{padding:12px 14px;margin-top:12px;background:#eef5ef;border-radius:10px}
+#actions-view .activity-next-step>span{font-size:10px;letter-spacing:.08em;color:#35644e;font-weight:650}
+#actions-view .activity-next-step>p{margin:5px 0 0;font-size:15px;line-height:1.65;color:#263c30}
+#actions-view .activity-add-next{border:0;background:none;color:#226a52;padding:8px 0;font-size:13px;min-height:44px;text-align:left}
+#actions-view .activity-start{min-height:44px;padding:10px 14px;border:0;border-radius:10px;background:#226a52;color:#fff;font-size:13px;font-weight:550}
+#actions-view .action-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+#actions-view .action-controls select{min-height:44px;border-radius:10px}
+#rhythm-view .rhythm-command{background:#173d32;border:1px solid #31584a;border-radius:18px;box-shadow:none}
+#rhythm-view .rhythm-command h1{font-size:clamp(28px,3vw,38px);line-height:1.25;letter-spacing:-.03em}
+#rhythm-view .rhythm-surface{border-radius:16px;border-color:#dce5dd;box-shadow:0 3px 14px rgba(25,53,38,.035)}
+#rhythm-view .rhythm-group-head>div>span{font-size:19px;font-weight:600;color:#263c30}
+#rhythm-view .rhythm-group-head p{font-size:13px;line-height:1.7;color:#586b5e}
+#rhythm-view .rhythm-item-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#rhythm-view .rhythm-item{min-width:0;padding:16px;border-radius:12px;border:1px solid #dce5dd;background:#fff;box-shadow:none;text-align:left}
+#rhythm-view .rhythm-item.is-done{background:#edf5ef;border-color:#9ebeaa}
+#rhythm-view .rhythm-item strong{font-size:15px;line-height:1.5;color:#263c30}
+#rhythm-view .rhythm-item small{font-size:12px;line-height:1.6;color:#576c5e}
+#rhythm-view .activity-check-tile{display:flex;align-items:center;gap:12px;min-height:90px}
+#rhythm-view .activity-check-tile>span:nth-child(2){flex:1;min-width:0}
+#rhythm-view .activity-check-tile b{font-size:12px;color:#226a52;white-space:nowrap}
+#rhythm-view .activity-count-tile{display:grid;grid-template-columns:1fr;gap:14px;align-content:start}
+#rhythm-view .activity-count-tile:has([data-activity-total="water"]){grid-column:1/-1}
+#rhythm-view .activity-habit-title{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#rhythm-view .activity-habit-title>div{display:grid;flex:1}
+#rhythm-view .activity-record-state{font-size:11px;color:#35644e}
+#rhythm-view .activity-count-controls{display:flex;gap:8px;align-items:center}
+#rhythm-view .activity-count-controls button{width:44px;height:44px;border:0;border-radius:9px;background:#e3eee5;color:#226a52;font-size:20px}
+#rhythm-view .activity-count-controls input{width:78px;min-height:44px;border:1px solid #b8cbbc;border-radius:9px;text-align:center;background:#fff;font-variant-numeric:tabular-nums}
+#rhythm-view .activity-count-controls>span{font-size:13px;color:#576c5e}
+#rhythm-view .activity-habit-segments{display:flex;gap:5px;height:7px}
+#rhythm-view .activity-habit-segments i{flex:1;background:#e1e8e0;border-radius:4px}
+#rhythm-view .activity-habit-segments i.filled{background:#226a52}
+#rhythm-view .rhythm-group-note{font-size:12px;color:#576c5e;margin:12px 0 0}
+#rhythm-view .activity-date{display:grid;gap:5px;font-size:12px;color:#576c5e}
+#rhythm-view .rhythm-overview{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+#rhythm-view .activity-date{flex:1;min-width:180px;max-width:280px}
+#rhythm-view .activity-date input{min-height:44px;padding:9px 12px;border:1px solid #dce5dd;border-radius:9px;background:#fff;color:#263c30}
+#rhythm-view .activity-feedback{padding:12px 14px;border-radius:10px;background:#edf5ef;color:#226a52;font-size:13px;line-height:1.6}
+#rhythm-view .rhythm-weekly-row>button{min-width:44px;min-height:44px}
+@media(max-width:1100px){#actions-view .action-controls{justify-content:flex-start}#rhythm-view .rhythm-item-grid{grid-template-columns:1fr}}
+@media(max-width:600px){#actions-view .action-card{padding:16px;gap:12px}#actions-view .action-controls{grid-column:2}#rhythm-view .rhythm-overview{flex-wrap:wrap}#rhythm-view .rhythm-item{padding:14px}}
