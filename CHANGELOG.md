@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.32.0 — Launch action flow
+
+Readable Launch surfaces, one useful next action, accessible platform state and history cells. Marketing laptop storage remains outside this release. Records, targets and save paths remain unchanged.
+
 ## 0.31.0 — Career learning flow
 
 Calmer roadmap cards, readable learning sections, honest core coverage, module navigation, and preserved reading position and note drafts. Curriculum and storage boundaries are unchanged.
