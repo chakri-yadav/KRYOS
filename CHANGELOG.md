@@ -1,4 +1,8 @@
 # Changelog
+\n+## 0.29.0 — Visual and status foundation
+\n+- Shared typography, spacing tokens, controls, focus visibility and reduced-motion support.
+- Distinguish laptop-service confirmation, browser-held records, cloud connection and completed cloud sync.
+- Accessible save details without hover; preserve existing workflows, rules and storage boundaries.
 \n+## 0.28.4 — Must-do focus cards
 \n+- Highlight the next chosen commitment; presentation-only focus choice never changes task or battle evidence.
 - Add commitment completion progress and expandable finished tasks with reopening controls.
