@@ -1,0 +1,44 @@
+/* Calm, evidence-first Progress; chart values and day selection are unchanged. */
+#progress-view{color:#263a30}
+#progress-view .progress-title h1{font-size:clamp(28px,3vw,38px);line-height:1.35;letter-spacing:-.035em}
+#progress-view .progress-title p,#progress-view .progress-title>span{font-size:14px;line-height:1.75;color:#52695a}
+#progress-view .progress-flow-summary{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,.5fr);gap:28px;padding:26px;margin:22px 0;background:#edf5ef;border:1px solid #bacdbc;border-radius:16px}
+#progress-view .progress-flow-summary h2{font-size:28px;line-height:1.4;margin:7px 0 12px;color:#203f2e;letter-spacing:-.02em}
+#progress-view .progress-flow-summary p{font-size:15px;line-height:1.85;margin:0;max-width:65ch}
+#progress-view .progress-flow-days{display:grid;align-content:center;gap:12px;padding:20px;border-radius:12px;background:#fff}
+#progress-view .progress-flow-days strong{font-size:34px;color:#226a52;font-variant-numeric:tabular-nums}
+#progress-view .progress-flow-days strong small{font-size:15px;font-weight:400}
+#progress-view .progress-flow-days span{font-size:13px;line-height:1.75;color:#52695a}
+#progress-view .progress-flow-days progress{width:100%;height:8px;accent-color:#226a52}
+#progress-view .progress-flow-details{margin:18px 0;border:1px solid #dce5dd;border-radius:12px;background:#fff;padding:0 20px}
+#progress-view .progress-flow-details>summary{min-height:52px;align-content:center;font-size:15px;font-weight:600;cursor:pointer;color:#35644e}
+#progress-view .progress-records{box-shadow:none;border:0;margin:0 0 20px}
+#progress-view .progress-records span,#progress-view .progress-records small{font-size:13px;line-height:1.7}
+#progress-view .progress-records strong{font-size:27px;line-height:1.5;overflow-wrap:anywhere}
+#progress-view .progress-career-band{border:1px solid #dce5dd;border-radius:14px;background:#fff;box-shadow:none;padding:24px;gap:20px}
+#progress-view .progress-career-band h2{font-size:22px;line-height:1.5}
+#progress-view .progress-career-band p{font-size:14px;line-height:1.8}
+#progress-view .progress-career-stat span{font-size:12px}
+#progress-view .life-section{margin-top:22px;padding:24px;background:#fff;border:1px solid #dce5dd;border-radius:14px}
+#progress-view .life-heading h2{font-size:23px;line-height:1.45;letter-spacing:-.02em}
+#progress-view .life-heading p,#progress-view .life-heading>span{font-size:14px;line-height:1.75;color:#52695a}
+#progress-view .pulse-chart{border:0;background:#f8faf7;padding:20px;border-radius:12px}
+#progress-view .pulse-chart>div{font-size:12px;line-height:1.7}
+#progress-view .progress-filters label{font-size:13px;line-height:1.7}
+#progress-view .progress-filters select{min-height:44px;font-size:15px;border-radius:9px}
+#progress-view .heatmap-shell{border:0;border-radius:12px;background:#f8faf7}
+#progress-view .heatmap-days{grid-template-rows:repeat(7,20px);font-size:11px}
+#progress-view .life-heatmap{grid-template-rows:repeat(7,20px);grid-template-columns:repeat(var(--weeks,12),20px);min-width:calc(var(--weeks,12)*25px)}
+#progress-view .life-cell{width:20px;height:20px;min-height:20px;border-radius:4px}
+#progress-view .life-cell.selected{outline:2px solid #203f2e;outline-offset:2px}
+#progress-view .heatmap-legend{font-size:12px;gap:7px;flex-wrap:wrap}
+#progress-view .heatmap-insight p,#progress-view .life-evidence p{font-size:14px;line-height:1.8}
+#progress-view .consistency-section .life-evidence{border-color:#bacdbc;border-left-color:#226a52;border-radius:10px;padding:20px}
+#progress-view .progress-eyebrow strong,#progress-view .progress-eyebrow span{font-size:14px;line-height:1.7}
+#progress-view .premium-domains .life-domain-row{border-radius:12px;box-shadow:none;padding:20px}
+#progress-view .life-domain-row>div span{font-size:15px}
+#progress-view .deadline-progress-panel{border:0;box-shadow:none;margin:0;padding:20px 0}
+#progress-view .deadline-progress-head p,#progress-view .deadline-progress-row small,#progress-view .deadline-progress-metrics small{font-size:13px;line-height:1.75;white-space:normal}
+#progress-view button:not(.life-cell){min-height:44px;border-radius:9px}
+#progress-view button:focus-visible,#progress-view summary:focus-visible,#progress-view select:focus-visible{outline:3px solid #226a52;outline-offset:3px}
+@media(max-width:760px){#progress-view .progress-flow-summary{grid-template-columns:1fr;padding:20px}#progress-view .life-section{padding:18px}#progress-view .progress-career-band{padding:20px}#progress-view .progress-filters{flex-wrap:wrap}}

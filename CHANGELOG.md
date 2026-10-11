@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.34.0 — Progress evidence flow
+
+Clear rolling seven-day evidence, readable activity charts, larger date cells and expandable historical/deadline details. Existing records, calculations and rewards remain unchanged.
+
 ## 0.33.0 — Money reading flow
 
 Readable balances and records, calmer next-action surfaces, section navigation and accessible contact-history descriptions. Financial calculations, records, reward rules and storage paths are unchanged.
