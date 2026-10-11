@@ -1,4 +1,8 @@
 # Changelog
+
+## 0.31.0 — Career learning flow
+
+Calmer roadmap cards, readable learning sections, honest core coverage, module navigation, and preserved reading position and note drafts. Curriculum and storage boundaries are unchanged.
 \n+## 0.30.0 — Actions and Rhythm
 \n+- Emphasise smallest next actions and activation while retaining the three-active limit and shared Sadhana identities.
 - Keep daily routines visible with explicit record states; use reversible water and repetition totals without wrap-to-zero.
