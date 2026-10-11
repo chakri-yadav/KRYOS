@@ -1,0 +1,5 @@
+const test=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs'),path=require('node:path');
+const c={renderSettingsView(){}};vm.createContext(c);vm.runInContext(fs.readFileSync(path.join(__dirname,'../settings-flow-ui.js'),'utf8'),c);
+test('laptop storage statement keeps Marketing separate from cloud',()=>{const h=c.settingsFlowStorageMarkup(true);assert.match(h,/Laptop app/);assert.match(h,/local service/);assert.match(h,/separate from the GitHub Pages/);});
+test('cloud storage statement distinguishes connection and save',()=>{const h=c.settingsFlowStorageMarkup(false);assert.match(h,/GitHub Pages app/);assert.match(h,/not a confirmed save/);assert.match(h,/not when your records last synced/);});
+test('Settings has an accessible desktop entry and no configuration writes',()=>{const i=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8'),s=fs.readFileSync(path.join(__dirname,'../settings-flow-ui.js'),'utf8');assert.match(i,/<button class="nav-item" type="button" data-page="settings">Settings<\/button>/);assert.doesNotMatch(s,/fetch\(|saveTasks\(|localStorage|securityState\s*=/);});
