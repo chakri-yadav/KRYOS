@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.36.1 — Commitment start correction
+
+October 11 is Day 1; November 27 is Day 48. Earlier cycle history and existing dated records are preserved. Browser and assistant use the same updated cycle.
+
 ## 0.36.0 — Settings and release clarity
 
 Desktop Settings entry, prominent app version, explicit local/cloud storage explanation and readable controls. Credentials, configuration and persistence behavior are unchanged.
