@@ -1,0 +1,26 @@
+#settings-view{color:#263a30}
+#settings-view>.product-identity-card{margin-bottom:20px;padding:26px;border:1px solid #bacdbc;border-radius:16px;background:#edf5ef}
+#settings-view .product-identity-head h2{font-size:32px;line-height:1.4;letter-spacing:-.03em}
+#settings-view .version-badge{background:#fff;border:1px solid #bacdbc;border-radius:12px;padding:16px 24px}
+#settings-view .version-badge strong{font-size:28px;color:#226a52;font-variant-numeric:tabular-nums}
+#settings-view .version-badge span{font-size:12px;color:#52695a}
+#settings-view .product-version-grid{gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))}
+#settings-view .settings-flow-release{margin-top:20px;background:#fff;border:1px solid #dce5dd;border-radius:11px;padding:0 18px}
+#settings-view .settings-flow-release>summary{min-height:52px;align-content:center;font-size:15px;color:#35644e;cursor:pointer}
+#settings-view .settings-flow-release .release-note-panel{border:0;padding:18px 0;margin:0}
+#settings-view .metric-tile{border-radius:11px;box-shadow:none;min-width:0}
+#settings-view .metric-label,#settings-view .metric-note{font-size:13px;line-height:1.75;white-space:normal}
+#settings-view .metric-value{font-size:22px;line-height:1.5;overflow-wrap:anywhere}
+#settings-view .settings-flow-storage{padding:24px;margin-bottom:20px;border:1px solid #dce5dd;border-radius:14px;background:#fff}
+#settings-view .settings-flow-storage h2{font-size:23px;margin:6px 0 12px}
+#settings-view .settings-flow-storage p{font-size:15px;line-height:1.85;max-width:85ch;color:#52695a}
+#settings-view .settings-flow-storage .section-kicker{font-size:11px}
+#settings-view .settings-hero,#settings-view .section-card{border-radius:14px;box-shadow:none;border-color:#dce5dd;padding:24px}
+#settings-view .settings-hero h2,#settings-view .section-header h2{font-size:24px;line-height:1.5}
+#settings-view .principle-body,#settings-view .meta,#settings-view .setting-toggle em,#settings-view .release-note-list{font-size:14px;line-height:1.85;color:#52695a}
+#settings-view .release-note-list li{margin:10px 0}
+#settings-view .settings-layout{gap:20px}
+#settings-view input:not([type=checkbox]),#settings-view select,#settings-view textarea{font-size:16px;min-height:44px;border-radius:9px}
+#settings-view button{min-height:44px;border-radius:9px;font-size:14px}
+#settings-view button:focus-visible,#settings-view input:focus-visible,#settings-view select:focus-visible{outline:3px solid #226a52;outline-offset:3px}
+@media(max-width:760px){#settings-view .settings-flow-storage,#settings-view .section-card,#settings-view>.product-identity-card{padding:20px}}
