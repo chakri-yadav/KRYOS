@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.36.0";
+const APP_VERSION = "0.36.1";
 const APP_STAGE = "Cross-page visual workflow release";
 const APP_RELEASE_DATE = "2026-10-11";
 const APP_STATUS = "Readable daily promises and must-do tasks shared with Actions";
 const APP_NEXT_MILESTONE = "Refine daily workflows through actual use";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Devi Sadhana now counts October 11 as Day 1 and November 27 as Day 48; earlier history and existing records preserved.",
   "Career, Launch, Money, Progress and Rewards visual upgrades; clear Settings version/storage information. Existing reward rules and storage boundaries preserved.",
   "Premium Actions next-step panels and active controls; visible Rhythm routines, reversible water/repetition totals and selected-date logging. Reward rules and personal targets unchanged.",
   "Shared premium visual tokens and controls, keyboard focus, reduced motion and workspace-specific save status. Cloud connection is separate from confirmation; laptop storage is separate from browser storage.",

@@ -1,6 +1,6 @@
 /* Shared by the browser and assistant projector. No network or UI dependencies. */
 (function (root) {
-  const cycle = { id: 'devi-2026-10-10', ruleVersion: 1, title: '48-Day Devi Sadhana', dayZero: '2026-10-09', dayZeroTime: '07:00', startDate: '2026-10-10', endDate: '2026-11-26', days: 48, timezone: 'America/Chicago' };
+  const cycle = { id: 'devi-2026-10-11', ruleVersion: 2, title: '48-Day Devi Sadhana', dayZero: '2026-10-10', dayZeroTime: '07:00', startDate: '2026-10-11', endDate: '2026-11-27', days: 48, timezone: 'America/Chicago' };
   const items = [
     ['astrology','No astrology','boundary'], ['instagram','No Instagram','boundary'],
     ['snapchat','No Snapchat','boundary'], ['astrology-videos','No astrology videos','boundary'],
@@ -23,6 +23,12 @@
     if (!life.sadhana) {
       life.sadhana = { version:1, cycle:{...cycle}, days:{}, history:[], receipts:{} };
       life.sadhana.previousCycles = life.innerCommand.covenant ? [{covenant:structuredClone(life.innerCommand.covenant), records:structuredClone(life.innerCommand.containmentDays)}] : [];
+    }
+    if (life.sadhana.cycle?.id !== cycle.id) {
+      const s = life.sadhana;
+      s.previousCycles ||= [];
+      s.previousCycles.push({covenant:structuredClone(s.cycle || life.innerCommand.covenant || {}), records:structuredClone(Object.values(s.days || {})), history:structuredClone(s.history || [])});
+      s.cycle = {...cycle};
     }
     life.innerCommand.covenant = {...cycle};
     return life.sadhana;
