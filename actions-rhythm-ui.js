@@ -60,3 +60,4 @@ document.addEventListener('change',event=>{
   if(!habit||input.value===''||!Number.isFinite(value)||value<0){activityFeedback='Enter a non-negative recorded total.';renderRhythmView();return;}
   rhythmSetValue(habit.id,value,input.dataset.date);activityFeedback=`${habit.title}: ${value} recorded for ${input.dataset.date}. ${actionSyncLabel()}`;renderRhythmView();
 });
+if(typeof currentPage!=='undefined'){if(currentPage==='actions')renderActionVault();if(currentPage==='rhythm')renderRhythmView();}
