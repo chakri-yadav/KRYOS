@@ -22,3 +22,4 @@ document.addEventListener('click',event=>{
  panel.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
  panel.querySelector('h2')?.focus({preventScroll:true});
 });
+if(typeof moneyView!=='undefined'&&moneyView&&!moneyView.classList.contains('is-hidden'))renderMoneyView();
