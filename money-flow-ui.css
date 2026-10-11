@@ -1,0 +1,44 @@
+/* Scoped Money reading flow: financial meanings and status colors stay distinct. */
+#money-view{color:#263a30}
+#money-view .money-command,#money-view .money-next-action{background:#edf5ef;border:1px solid #bacdbc;border-radius:16px;box-shadow:none}
+#money-view .money-command h1,#money-view .money-premium-heading h1{font-size:clamp(27px,3vw,38px);line-height:1.35;letter-spacing:-.03em;color:#203f2e}
+#money-view .money-command p,#money-view .money-command-stat span,#money-view .money-command-stat em{font-size:13px;line-height:1.75;color:#52695a}
+#money-view .money-command-stat strong{color:#226a52;font-variant-numeric:tabular-nums}
+#money-view .money-command>div{border-color:#d5e2d6}
+#money-view .money-primary-actions button{background:#fff;color:#226a52;border-color:#bacdbc}
+#money-view .money-command-copy{background:transparent}
+#money-view .money-status{font-size:13px;line-height:1.75;color:#52695a}
+#money-view .money-status.danger{color:#9a3d32}
+#money-view .money-status.due{color:#805a16}
+#money-view .money-premium-heading p,#money-view .money-next-action p{font-size:15px;line-height:1.8}
+#money-view .money-next-action h2{font-size:25px;line-height:1.45}
+#money-view .money-next-buttons{gap:10px}
+#money-view .money-flow-navigation{margin:20px 0 26px;padding:18px 20px;border:1px solid #dce5dd;border-radius:12px;background:#fff}
+#money-view .money-flow-navigation>div{display:flex;gap:8px;flex-wrap:wrap}
+#money-view .money-flow-navigation button{font-size:13px;padding:10px 14px}
+#money-view .money-surface{border-radius:14px;padding:24px;border-color:#dce5dd;box-shadow:none;scroll-margin-top:24px}
+#money-view .money-head h2,#money-view .money-surface>h2{font-size:21px;line-height:1.5}
+#money-view .money-surface h3{font-size:17px;line-height:1.6}
+#money-view .money-section-intro,#money-view .money-principle p,#money-view .money-promise p,#money-view .money-chart-empty{font-size:14px;line-height:1.85;color:#52695a}
+#money-view .money-premium-metrics{gap:14px}
+#money-view .money-metric{border-radius:13px;border-color:#dce5dd}
+#money-view .money-metric strong{font-size:clamp(25px,2.7vw,35px);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#money-view .money-metric span,#money-view .money-metric small{font-size:13px;line-height:1.7}
+#money-view .money-timeline-row{padding:18px 0;gap:14px}
+#money-view .money-timeline-row strong{font-size:16px;line-height:1.6}
+#money-view .money-timeline-row p,#money-view .money-timeline-row em,#money-view .money-timeline-row time{font-size:13px;line-height:1.75}
+#money-view .money-card-position span,#money-view .money-verified,#money-view .money-orbit-legend,#money-view .money-contact-legend{font-size:12px;line-height:1.7}
+#money-view .money-card-position strong{font-size:17px;font-variant-numeric:tabular-nums;line-height:1.6}
+#money-view .money-dual-progress b{font-size:14px}
+#money-view .money-dual-progress em,#money-view .money-dual-progress small{font-size:12px;line-height:1.7}
+#money-view .money-sequence li span,#money-view .money-focus-brief li span{font-size:14px;line-height:1.8}
+#money-view .money-living-grid,#money-view .money-pressure-grid{gap:16px}
+#money-view .money-ledger-history time,#money-view .money-ledger-history span{font-size:13px;line-height:1.7}
+#money-view button,#money-dialog button{min-height:44px;border-radius:9px}
+#money-view button:focus-visible,#money-view h2:focus-visible{outline:3px solid #226a52;outline-offset:4px}
+#money-dialog{border:1px solid #dce5dd;border-radius:16px}
+#money-dialog .money-form-grid{gap:18px}
+#money-dialog label{font-size:14px;line-height:1.65}
+#money-dialog input,#money-dialog select,#money-dialog textarea{font-size:16px;min-height:44px;line-height:1.7;border-radius:8px}
+#money-dialog .money-form-error{font-size:14px}
+@media(max-width:760px){#money-view .money-surface{padding:18px}#money-view .money-flow-navigation{padding:16px}#money-view .money-next-action{padding:20px}#money-view .money-flow-navigation button{flex:1 1 140px}}

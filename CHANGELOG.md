@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.33.0 — Money reading flow
+
+Readable balances and records, calmer next-action surfaces, section navigation and accessible contact-history descriptions. Financial calculations, records, reward rules and storage paths are unchanged.
+
 ## 0.32.0 — Launch action flow
 
 Readable Launch surfaces, one useful next action, accessible platform state and history cells. Marketing laptop storage remains outside this release. Records, targets and save paths remain unchanged.
