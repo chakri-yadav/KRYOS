@@ -41,3 +41,4 @@ document.addEventListener('change',event=>{
  if(target){if(target.tagName==='DETAILS')target.open=true;target.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});target.querySelector('summary')?.focus({preventScroll:true});}
 });
 document.addEventListener('click',event=>{if(!event.target.closest('[data-career-flow-continue]'))return;const target=document.querySelector('#career-current-focus');target?.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});target?.querySelector('input,button')?.focus({preventScroll:true});});
+if(typeof currentPage!=='undefined'&&currentPage==='career')renderCareerView();

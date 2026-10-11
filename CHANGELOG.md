@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.36.0 — Settings and release clarity
+
+Desktop Settings entry, prominent app version, explicit local/cloud storage explanation and readable controls. Credentials, configuration and persistence behavior are unchanged.
+
 ## 0.35.0 — Rewards visual clarity
 
 Calmer balance and target cards, readable evidence and weekly states, spacious reward choices and accessible controls. CSS-only presentation change; point values, eligibility, ledgers and historical records are untouched.
