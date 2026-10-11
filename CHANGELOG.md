@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.35.0 — Rewards visual clarity
+
+Calmer balance and target cards, readable evidence and weekly states, spacious reward choices and accessible controls. CSS-only presentation change; point values, eligibility, ledgers and historical records are untouched.
+
 ## 0.34.0 — Progress evidence flow
 
 Clear rolling seven-day evidence, readable activity charts, larger date cells and expandable historical/deadline details. Existing records, calculations and rewards remain unchanged.
