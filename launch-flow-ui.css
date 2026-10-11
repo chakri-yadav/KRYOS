@@ -1,0 +1,29 @@
+/* Launch and local Marketing: calm surfaces, readable records, prominent next action. */
+#launch-view{--launch-green:#226a52;--launch-violet:#536683;color:#263a30}
+#launch-view .launch-command{background:#edf5ef;color:#263a30;border:1px solid #dce5dd;border-radius:16px;box-shadow:none}
+#launch-view .launch-command h1{color:#203f2e;font-size:clamp(25px,3vw,36px);line-height:1.35;letter-spacing:-.025em}
+#launch-view .launch-command p,#launch-view .launch-command-stat span,#launch-view .launch-command-stat small{color:#52695a;font-size:13px;line-height:1.75}
+#launch-view .launch-command-stat strong{color:#226a52}
+#launch-view .launch-command>div{border-color:#d5e2d6}
+#launch-view .launch-command button{min-height:44px;border-radius:9px;font-size:13px;color:#226a52;background:#fff;border-color:#bacdbc}
+#launch-view .launch-flow-focus{display:flex;justify-content:space-between;gap:24px;align-items:center;padding:24px;margin:20px 0;background:#fff;border:1px solid #9bb9a5;border-radius:14px}
+#launch-view .launch-flow-focus h2{font-size:23px;line-height:1.4;margin:5px 0 10px}
+#launch-view .launch-flow-focus p{font-size:14px;line-height:1.7;margin:0;color:#52695a}
+#launch-view .launch-flow-focus>div:last-child{display:grid;gap:10px;min-width:210px}
+#launch-view .launch-surface{border-radius:14px;border-color:#dce5dd;padding:24px;box-shadow:none}
+#launch-view .launch-head h2{font-size:21px;line-height:1.45}
+#launch-view .launch-head p,#launch-view .launch-footnote,#launch-view .launch-network-grid p{font-size:13px;line-height:1.75;color:#52695a}
+#launch-view .launch-parallel{border-radius:12px;background:#f8faf7}
+#launch-view .launch-parallel small,#launch-view .launch-parallel b{font-size:12px}
+#launch-view .launch-platforms button{min-height:88px;padding:16px;border-radius:10px}
+#launch-view .launch-platforms strong{font-size:15px}
+#launch-view .launch-platforms small,#launch-view .launch-week-pulse small{font-size:11px}
+#launch-view .launch-network-grid h3,#launch-view .launch-lane-title h2{font-size:18px;line-height:1.5}
+#launch-view .launch-network-types span,#launch-view .launch-metrics span,#launch-view .launch-ring span{font-size:12px}
+#launch-view .launch-log-row strong{font-size:15px;line-height:1.6}
+#launch-view .launch-log-row p,#launch-view .launch-log-row em,#launch-view .launch-log-row time{font-size:12px;line-height:1.75}
+#launch-view button,#launch-dialog button{min-height:44px}
+#launch-dialog{border:1px solid #dce5dd;border-radius:16px}
+#launch-dialog input,#launch-dialog select,#launch-dialog textarea{font-size:16px;min-height:44px}
+#launch-view .launch-heatmap i:focus-visible{outline:3px solid #226a52;outline-offset:3px}
+@media(max-width:760px){#launch-view .launch-flow-focus{flex-direction:column;align-items:stretch}#launch-view .launch-flow-focus>div:last-child{min-width:0}#launch-view .launch-surface{padding:18px}}
