@@ -1,4 +1,5 @@
 /* Shared presentation only: no storage reads, writes, polling or sync requests. */
+if(typeof KryosUI!=='undefined')KryosUI.claim('foundation.status','visual-foundation.js',["visual-foundation.css"]);
 (function(root){
   function status(input={}) {
     const {storage='browser',phase='local',connected=false,dirty=false,demo=false}=input;

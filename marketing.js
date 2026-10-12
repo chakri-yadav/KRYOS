@@ -365,3 +365,4 @@ function marketingApplyFilters(){
   const hint=document.querySelector("#marketing-search-hint");
   if(hint)hint.textContent=rows.some(row=>!row.hidden)?"Select a role to see source details and application fields.":"No roles match this search. Try another term or status.";
 }
+if(typeof KryosUI!=='undefined')KryosUI.claim('marketing.view','marketing.js',['marketing.css','marketing-flow-ui.css']);

@@ -1,4 +1,5 @@
 /* Read-only Progress presentation. Existing records and metric functions remain the owners. */
+if(typeof KryosUI!=='undefined')KryosUI.claim('progress.view','progress-flow-ui.js',["progress-flow-ui.css"]);
 function progressFlowSummaryMarkup(momentum,streak){
  return '<section class="progress-flow-summary" aria-label="Recorded effort over the last seven days"><div><p class="section-kicker">LAST SEVEN DAYS</p><h2>'+momentum.actions+' completed records</h2><p>'+momentum.activeDays+' of 7 days with recorded activity. A quiet date means no completed record here—not proof that you did nothing.</p></div><div class="progress-flow-days"><strong>'+momentum.activeDays+'<small> / 7 days</small></strong><progress max="7" value="'+momentum.activeDays+'" aria-label="Days with recorded activity"></progress><span>Journal rhythm: '+streak.current+' consecutive days · best '+streak.best+'</span></div></section>';
 }
