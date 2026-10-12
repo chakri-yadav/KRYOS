@@ -1,4 +1,5 @@
 /* Daily command presentation; uses the existing shared battle engine. */
+if(typeof KryosUI!=='undefined')KryosUI.claim('inner-command.view','commitment-premium.js',["commitment-premium.css"]);
 const commandPreviousNextStep = typeof renderInnerCommandNextStep === 'function' ? renderInnerCommandNextStep : null;
 if (commandPreviousNextStep) renderInnerCommandNextStep = () => '';
 let commandOpenPanels = new Set(['command-guidance']);

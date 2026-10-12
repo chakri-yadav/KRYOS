@@ -1,4 +1,5 @@
 /* V5 presentation and integration; old assessments remain under their own rules. */
+if(typeof KryosUI!=='undefined')KryosUI.claim('rewards.view','reward-ui-v5.js',["reward-ui-v5.css","rewards-flow-ui.css"]);
 const rewardV5OldCredits=assessmentCredits;
 const rewardV5OldEvidence=rewardEvidence;
 const rewardV5OldSave=saveTasks;

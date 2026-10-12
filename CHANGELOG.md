@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.40.0 — Navigation and presentation ownership foundation
+
+One router owns page entry, direct links, browser Back/Forward, explicit Continue targets and page-specific reading positions. Return to an already visited page resumes its position; first entry starts at the top. Rapid navigation cancels obsolete focus/scroll callbacks. Preserve unsubmitted Marketing/Commitment entry forms during page switches without replaying saved records or file inputs. Register presentation owners and their existing stylesheets; reject duplicate ownership. This establishes an incremental component migration foundation, not a complete rewrite of legacy renderers or CSS. No domain records, reward rules, backend operations or storage boundaries change.
+
 ## 0.39.1 — Non-blocking wallet confirmation
 
 Use a visible second-click confirmation for wallet restarts instead of a browser-native dialog. It keeps confirmation in context and avoids blocking browser automation or app navigation. Reset receipts, history preservation and earning boundaries are unchanged.

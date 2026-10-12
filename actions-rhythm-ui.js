@@ -1,4 +1,5 @@
 /* Actions and Rhythm presentation adapters; existing records, rules and saves remain authoritative. */
+if(typeof KryosUI!=='undefined')KryosUI.claim('actions-rhythm.controls','actions-rhythm-ui.js',["actions-rhythm-ui.css","rhythm.css"]);
 const activityPreviousActionCard=renderActionCard;
 renderActionCard=function(action){
   let html=activityPreviousActionCard(action);

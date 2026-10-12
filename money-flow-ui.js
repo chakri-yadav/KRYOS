@@ -1,4 +1,5 @@
 /* Money presentation only. No ledger calculations, rewards or storage writes. */
+if(typeof KryosUI!=='undefined')KryosUI.claim('money.view','money-flow-ui.js',["money-flow-ui.css","money.css"]);
 function moneyFlowNavigationMarkup(sections){
  return '<nav class="money-flow-navigation" aria-label="Money sections"><p class="section-kicker">FIND WHAT YOU NEED</p><div>'+sections.map(s=>'<button type="button" class="secondary-button" data-money-section="'+escapeHtml(s.id)+'">'+escapeHtml(s.title)+'</button>').join('')+'</div></nav>';
 }
