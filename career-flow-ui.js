@@ -24,6 +24,9 @@ renderCareerView=function(){
  const roadmap=findRoadmap(selectedRoadmapId),studio=document.querySelector('#career-view .career-studio');
  if(!roadmap||!studio)return;
  studio.dataset.flowRoadmap=roadmap.id;
+ // Put the actionable step ahead of the catalogue in DOM and keyboard order.
+ const paths=studio.querySelector('.studio-paths'),next=studio.querySelector('.studio-next');
+ if(paths&&next)studio.insertBefore(next,paths);
  const hero=studio.querySelector('.studio-hero');
  if(hero){hero.querySelector('.studio-ring')?.remove();hero.insertAdjacentHTML('beforeend',careerFlowProgressMarkup(roadmap));}
  const detail=document.querySelector('#career-roadmap-detail');
