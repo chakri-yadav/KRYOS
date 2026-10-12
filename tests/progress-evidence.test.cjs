@@ -5,6 +5,10 @@ const fs = require('node:fs');
 const context = vm.createContext({ toDateKey: value => String(value).slice(0, 10), rhythmHabit: id => ({ title: id }) });
 vm.runInContext(fs.readFileSync(require('node:path').join(__dirname, '../progress-evidence.js'), 'utf8'), context);
 const collect = context.collectProgressEvidence;
+test('reopened Career checks and corrected typed work leave no stale completion signal',()=>{
+ const date='2026-10-11',career={roadmaps:[{id:'r',modules:[{topics:[{checklist:[{id:'x',done:false}]}]}]}],activityLog:[{id:'a',roadmapId:'r',checkId:'x',date},{id:'b',roadmapId:'r',checkId:'x',date}]},life={rewardEvents:[{id:'m',date,kind:'mock',title:'Mock',completed:true,voidedAt:'now'}]};
+ assert.equal(collect(life,{},career,date).length,0);career.roadmaps[0].modules[0].topics[0].checklist[0].done=true;assert.equal(collect(life,{},career,date).length,1);
+});
 test('combines direct sources and counts linked journal evidence once', () => {
   const life = { actions: [{ id:'a', status:'done', completedAt:'2026-09-26', title:'Action' }], records:[{ id:'j', actionRef:'a', date:'2026-09-26', completed:true }] };
   const tasks = { rhythm:{ events:[{ id:'r', habitId:'water', value:1, date:'2026-09-26' }] }, launch:{ marketEvents:[{ id:'l', type:'application', date:'2026-09-26' }], mockSessions:[{ id:'m', completed:true, date:'2026-09-26' }] } };

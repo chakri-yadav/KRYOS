@@ -1,4 +1,12 @@
 /* Shared desktop foundation. Component structure and evidence rules stay in their owners. */
+/* Coordinated readability: solid controls and visible correction affordances. */
+.view :where(input:not([type=checkbox]):not([type=radio]):not([type=range]),select,textarea){color:#182f25;background-color:#fff;border-color:#9daf9f}
+.view :where(input,select,textarea):focus-visible{outline:3px solid #2563eb;outline-offset:2px}
+.view :where(summary){cursor:pointer;line-height:1.6}
+.view :where(summary):focus-visible{outline:3px solid #2563eb;outline-offset:3px;border-radius:8px}
+.view [role=status]{text-shadow:none;line-height:1.6}
+.view :where(.secondary-button):not(:disabled){border-color:#91a797;font-weight:600}
+@media(prefers-reduced-motion:reduce){.view *{scroll-behavior:auto!important}}
 @media (min-width: 901px) {
   :root {
     --bg: #f6f5f0;

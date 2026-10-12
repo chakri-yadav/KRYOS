@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.38.1";
+const APP_VERSION = "0.39.0";
 const APP_STAGE = "Cross-page visual workflow release";
 const APP_RELEASE_DATE = "2026-10-12";
 const APP_STATUS = "Readable daily promises and must-do tasks shared with Actions";
 const APP_NEXT_MILESTONE = "Refine daily workflows through actual use";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Connected Progress to the shared 48-day Commitment battle model and source-day corrections. Fixed Today's signal contrast and coordinated readable controls. Reward wallets can restart at zero without deleting evidence or restoring old earnings.",
   "Restored compact whole-bar Water and whole-row devotional counters from the original Rhythm design, with clear count badges, segmented water progress and keyboard focus. Existing counting, Undo, dates, sync and reward rules are unchanged.",
   "Single-tap Water, Counted Practice A and Counted Practice B counters with reset and Undo. Reward sessions now use 3/5/7/9-day intervals; prices and earned balances are unchanged. Optional Reading added to the promise outline.",
   "Pressure-aware Rewards: meaningful starts, capped effort, protected savings, stats-only Marketing handoff and the 7 a.m. Chicago day boundary. Earlier assessments preserved.",
