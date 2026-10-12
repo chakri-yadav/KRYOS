@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.37.0 — Pressure-aware Rewards
+
+Shared V5 score rules, meaningful starts and completed work, protected savings and four optional rewards. Stats-only local Marketing handoff; previous assessments preserved. All personal operating days use 7 a.m. America/Chicago.
+
 ## 0.36.1 — Commitment start correction
 
 October 11 is Day 1; November 27 is Day 48. Earlier cycle history and existing dated records are preserved. Browser and assistant use the same updated cycle.

@@ -169,6 +169,7 @@ function rewardEvidenceDates() {
 }
 
 function refreshAutomaticRewardAssessments() {
+  if(typeof KryosRewardV5!=='undefined')return typeof rewardV5Refresh==='function'?rewardV5Refresh():false;
   const store=lifeStore(); let changed=false;
   if(typeof KryosRewardV4!=='undefined'&&!store.rewardAssessmentHistory){
     store.rewardAssessmentHistory=store.dailyAssessments.filter(a=>a.ruleVersion!==4).map(a=>({date:a.date,ruleVersion:a.ruleVersion||1,total:a.total,qualified:a.qualified,credits:assessmentCredits(a),scores:a.scores||{}}));

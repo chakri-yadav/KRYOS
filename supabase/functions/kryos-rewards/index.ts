@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import '../../../reward-rules-v4.js';
-const rules=globalThis.KryosRewardV4;
+import '../../../reward-rules-v5.js';
+const rules=globalThis.KryosRewardV5;
 const admin=createClient(Deno.env.get('SUPABASE_URL')!,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,{auth:{persistSession:false}});
 const headers={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization,x-client-info,apikey,content-type','Access-Control-Allow-Methods':'POST,OPTIONS','Cache-Control':'no-store'};
 const reply=(status,body)=>Response.json(body,{status,headers});
@@ -50,22 +50,22 @@ Deno.serve(async req=>{
       if(!taskBlock||!careerBlock)return reply(409,{error:'Sync your app records first.'});
       const tasks=taskBlock.payload,career=careerBlock.payload;
       const assessments=rules.dates(tasks,career,today).map(date=>rules.evaluate(date,tasks,career));
-      const awards=[...legacyAwards(tasks.life?.dailyAssessments||[],today),...assessments.map(a=>({id:'v4-day:'+a.date,amount:a.credits})),...rules.bonuses(assessments,tasks,today)];
+      const awards=assessments.map(a=>({id:'v5-day:'+a.date,amount:a.credits}));
       if(body.preview===true){
         const {data:existing,error:existingError}=await admin.from('kryos_reward_awards').select('amount').eq('profile_id',profileId);
         if(existingError)throw existingError;
         const previousEarned=existing.reduce((sum,a)=>sum+Number(a.amount||0),0);
         const recalculatedEarned=awards.reduce((sum,a)=>sum+Number(a.amount||0),0);
-        return reply(200,{ruleVersion:4,previousEarned,recalculatedEarned,change:recalculatedEarned-previousEarned,rewardDays:assessments.length});
+        return reply(200,{ruleVersion:5,previousEarned,recalculatedEarned,change:recalculatedEarned-previousEarned,rewardDays:assessments.length});
       }
       const reward=rules.catalog.find(r=>r.id===body.request?.rewardId);
       const qualified=assessments.filter(a=>a.qualified&&a.date>=rules.shift(today,-6)).length;
       const eligible=!reward||qualified>=(reward.qualifiedDaysInWindow||0)&&(!reward.workToday||rules.evaluate(today,tasks,career).gates.work);
-      const {data:receipt,error:commitError}=await admin.rpc('kryos_commit_rewards_v4',{p_profile:profileId,p_tasks_revision:taskBlock.revision,p_career_revision:careerBlock.revision,p_awards:awards,p_request:body.request||null,p_eligible:eligible});
+      const {data:receipt,error:commitError}=await admin.rpc('kryos_commit_rewards_v5',{p_profile:profileId,p_tasks_revision:taskBlock.revision,p_career_revision:careerBlock.revision,p_awards:awards,p_request:body.request||null,p_eligible:eligible});
       if(commitError?.message?.includes('KRYOS_REWARD_SNAPSHOT_CHANGED'))continue;
       if(commitError)throw commitError;
-      if(body.diagnostics)return reply(200,{accepted:true,ruleVersion:4,effectiveDate:rules.start,transactionVerified:true});
-      return reply(200,{...receipt,ruleVersion:4,effectiveDate:rules.start,qualifiedDays:qualified});
+      if(body.diagnostics)return reply(200,{accepted:true,ruleVersion:5,effectiveDate:rules.start,transactionVerified:true});
+      return reply(200,{...receipt,ruleVersion:5,effectiveDate:rules.start,qualifiedDays:qualified});
     }
     return reply(409,{error:'Records changed during calculation. Please retry.'});
   }catch(error){console.error('Reward transaction failed',error?.code||'unknown');return reply(500,diagnostic?{error:'Reward preview failed.',code:String(error?.code||'unknown'),detail:String(error?.message||'').slice(0,160)}:{error:'Reward calculation could not finish. Your records are safe; retry sync.'});}

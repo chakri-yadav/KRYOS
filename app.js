@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.36.1";
+const APP_VERSION = "0.37.0";
 const APP_STAGE = "Cross-page visual workflow release";
-const APP_RELEASE_DATE = "2026-10-11";
+const APP_RELEASE_DATE = "2026-10-12";
 const APP_STATUS = "Readable daily promises and must-do tasks shared with Actions";
 const APP_NEXT_MILESTONE = "Refine daily workflows through actual use";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Pressure-aware Rewards: meaningful starts, capped effort, protected savings, stats-only Marketing handoff and the 7 a.m. Chicago day boundary. Earlier assessments preserved.",
   "Commitment Cycle now counts October 11 as Day 1 and November 27 as Day 48; earlier history and existing records preserved.",
   "Career, Launch, Money, Progress and Rewards visual upgrades; clear Settings version/storage information. Existing reward rules and storage boundaries preserved.",
   "Premium Actions next-step panels and active controls; visible Rhythm routines, reversible water/repetition totals and selected-date logging. Reward rules and personal targets unchanged.",
@@ -3003,12 +3004,7 @@ function normalizeDateInput(date = new Date()) {
 
 function toDateKey(date = new Date()) {
   if (isDateKey(date)) return date;
-  const value = normalizeDateInput(date);
-  if (value.getHours() < KRYOS_DAY_START_HOUR) value.setDate(value.getDate() - 1);
-  const year = value.getFullYear();
-  const month = String(value.getMonth() + 1).padStart(2, "0");
-  const day = String(value.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return KryosCommitment.today(normalizeDateInput(date).toISOString());
 }
 
 function addDays(date, amount) {
