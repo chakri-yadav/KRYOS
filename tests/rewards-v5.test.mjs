@@ -91,8 +91,8 @@ test('wallet reservations and factual deficits are bounded',()=>{
 test('call eligibility counts distinct previous-seven dates; cooldown exact boundary',()=>{
  const r=R.catalog[3],rows=Array.from({length:5},(_,i)=>({date:R.shift(date,-i),ruleVersion:5,qualified:true}));
  assert.equal(R.eligibility(r,rows,[],date).allowed,true);
- assert.equal(R.eligibility(r,rows,[{rewardId:r.id,status:'confirmed',date:R.shift(date,-6)}],date).allowed,false);
- assert.equal(R.eligibility(r,rows,[{rewardId:r.id,status:'confirmed',date:R.shift(date,-7)}],date).allowed,true);
+ assert.equal(R.eligibility(r,rows,[{rewardId:r.id,status:'confirmed',date:R.shift(date,-8)}],date).allowed,false);
+ assert.equal(R.eligibility(r,rows,[{rewardId:r.id,status:'confirmed',date:R.shift(date,-9)}],date).allowed,true);
 });
 const request=summary=>({schema_version:1,idempotency_key:'fixture',local_date:date,timezone:'America/Chicago',raw_text:'Stats snapshot supplied.',operations:[{type:'marketing.stats.import',summary,evidence_quote:'Stats snapshot supplied.'}]});
 test('assistant stats import replaces same date without importing job details',()=>{

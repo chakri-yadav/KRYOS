@@ -9,7 +9,7 @@
     ['romanticizing','No deliberate romanticizing instead of action','boundary'], ['nama-japa','Naam Japa as much as possible','practice'],
     ['battle','Every day is a battle: serve and learn','guidance'], ['promise','Keep promises to yourself','guidance'],
     ['alignment','Align intentions, words, and actions','guidance'], ['learn','Learn Hanuman Chalisa and Aditya Hridayam','guidance'],
-    ['sundara','Listen to Sundara Kanda whenever you have free time','guidance'], ['rewards','Receive instant, guilt-free rewards after action','guidance'],
+    ['sundara','Listen to Sundara Kanda whenever you have free time','guidance'], ['devi-mahatmya','Devi Mahatmya','guidance'], ['rewards','Receive instant, guilt-free rewards after action','guidance'],
     ['break','Take a break when Maa gives you one','guidance'], ['return','Get back and resume as soon as you drift','guidance'],
     ['rama','Walk in the path of Lord Rama','guidance'], ['hanuman','Remember: Hanuman helps you','guidance'],
     ['surroundings','Keep your surroundings organized','guidance']
