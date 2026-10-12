@@ -33,3 +33,7 @@ renderLifeProgress=function(){
  progressView.querySelectorAll('.progress-flow-details').forEach(d=>{const key=d.querySelector('summary')?.textContent;if(expanded.has(key))d.open=expanded.get(key);});
 };
 if(typeof progressView!=='undefined'&&progressView&&!progressView.classList.contains('is-hidden'))renderLifeProgress();
+if(typeof setInterval==='function'&&typeof KryosSadhana!=='undefined'){
+ let progressFlowDay=KryosSadhana.today();
+ setInterval(()=>{const day=KryosSadhana.today();if(day!==progressFlowDay){progressFlowDay=day;if(typeof currentPage!=='undefined'&&currentPage==='progress')renderLifeProgress();}},30000);
+}

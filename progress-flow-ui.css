@@ -1,5 +1,52 @@
 /* Calm, evidence-first Progress; chart values and day selection are unchanged. */
 #progress-view{color:#263a30}
+#progress-view .life-section.evidence-today{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center;min-height:210px;padding:28px;background:#153d31;color:#fff;border:1px solid #153d31;border-left:4px solid #76c6a0;border-radius:18px;box-shadow:0 8px 22px rgba(18,49,36,.08)}
+#progress-view .evidence-today h2{color:#fff;font-size:clamp(24px,2.5vw,32px);font-weight:650;text-shadow:none}
+#progress-view .evidence-today .section-kicker{color:#bde8ce}
+#progress-view .evidence-today-copy>p:not(.section-kicker){color:#e0eee5}
+#progress-view .evidence-today .secondary-button{background:#fff;color:#153d31;border-color:#fff}
+#progress-view .evidence-today .secondary-button:hover{background:#e5f2e9}
+#progress-view .evidence-today-stat{display:grid;justify-items:center;gap:9px;min-width:140px;color:#e0eee5;text-align:center;font-size:13px;line-height:1.5}
+#progress-view .evidence-today-orbit{display:grid;place-items:center;width:108px;height:108px;border-radius:50%}
+#progress-view .evidence-today-orbit,#progress-view .evidence-today.is-open .evidence-today-orbit{background:#f1f8f3;border:2px solid #9dcbb1;box-shadow:none}
+#progress-view .evidence-today-orbit strong{color:#153d31;font-size:40px;line-height:1;text-shadow:none;font-weight:700;font-variant-numeric:tabular-nums}
+#progress-view .evidence-bars{display:flex;gap:14px;align-items:end;margin:26px 0 16px}
+#progress-view .evidence-bar{flex:1;min-width:0;border:0;background:transparent;color:#263a30;display:grid;gap:9px;text-align:center;border-radius:8px}
+#progress-view .evidence-bar:hover{background:#edf5ef}
+#progress-view .evidence-stack{height:140px;display:flex;flex-direction:column-reverse;background:#edf2ed;border-radius:8px;overflow:hidden}
+#progress-view .evidence-stack i{display:block;flex-shrink:0}
+#progress-view .evidence-color-0{background:#216a54}
+#progress-view .evidence-color-1{background:#4483ac}
+#progress-view .evidence-color-2{background:#8c6bae}
+#progress-view .evidence-color-3{background:#72a88a}
+#progress-view .evidence-color-4{background:#c89940}
+#progress-view .evidence-color-5{background:#947960}
+#progress-view .evidence-color-6{background:#7a8797}
+#progress-view .evidence-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:#425e4e}
+#progress-view .evidence-legend span{display:flex;align-items:center;gap:6px}
+#progress-view .evidence-legend i{width:10px;height:10px;border-radius:3px}
+#progress-view .evidence-targets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:28px}
+#progress-view .evidence-targets article>div{display:flex;justify-content:space-between;gap:10px}
+#progress-view .evidence-targets progress{width:100%;height:8px;margin:12px 0;accent-color:#226a52}
+#progress-view .evidence-targets small{font-size:12px;line-height:1.6;color:#425e4e}
+@media(max-width:900px){#progress-view .evidence-targets{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:550px){#progress-view .life-section.evidence-today{grid-template-columns:1fr;padding:22px}#progress-view .evidence-today-stat{display:flex;justify-content:flex-start;text-align:left}#progress-view .evidence-today-orbit{width:64px;height:64px}#progress-view .evidence-today-orbit strong{font-size:28px}}
+#progress-view .evidence-journey{border-color:#b8cbbb;background:#fff}
+#progress-view .progress-journey-summary{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:18px 0 12px}
+#progress-view .progress-journey-summary>strong{font-size:30px;color:#153d31;font-variant-numeric:tabular-nums}
+#progress-view .progress-journey-summary small{font-size:15px;font-weight:500}
+#progress-view .progress-journey-summary>span{font-size:13px;color:#425e4e}
+#progress-view .evidence-journey>progress{width:100%;height:9px;accent-color:#226a52}
+#progress-view .evidence-calendar{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:7px;margin-top:20px}
+#progress-view .evidence-calendar button{display:grid;place-items:center;gap:3px;min-width:0;min-height:54px;background:#f1f4f0;border:1px solid #bdcabe;color:#3f5848;font-size:14px;border-radius:9px}
+#progress-view .evidence-calendar .journey-won{background:#226a52;border-color:#226a52;color:#fff}
+#progress-view .evidence-calendar .journey-not-won{background:#fff0eb;border-color:#c28f7a;color:#81351e}
+#progress-view .evidence-calendar .journey-in-progress{background:#e6f2eb;border:2px solid #226a52;color:#153d31;font-weight:700}
+#progress-view .evidence-calendar .journey-awaiting-review{background:#fff7e5;border-color:#c0a469;color:#694c16}
+#progress-view .evidence-calendar button small{color:inherit;opacity:1}
+#progress-view .evidence-note{color:#425e4e;line-height:1.7;font-size:13px}
+@media(max-width:900px){#progress-view .evidence-calendar{grid-template-columns:repeat(8,minmax(0,1fr))}}
+@media(max-width:550px){#progress-view .evidence-calendar{grid-template-columns:repeat(6,minmax(0,1fr))}}
 #progress-view .progress-title h1{font-size:clamp(28px,3vw,38px);line-height:1.35;letter-spacing:-.035em}
 #progress-view .progress-title p,#progress-view .progress-title>span{font-size:14px;line-height:1.75;color:#52695a}
 #progress-view .progress-flow-summary{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,.5fr);gap:28px;padding:26px;margin:22px 0;background:#edf5ef;border:1px solid #bacdbc;border-radius:16px}
