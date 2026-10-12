@@ -7,8 +7,13 @@ function collectProgressEvidence(life, tasks, career, today) {
     known.add(id);
     if (complete && date && date <= today) rows.set(id, { id, date, domain, title, source, completed: true });
   };
-  (life.actions || []).forEach(e => add(`action:${e.externalId || e.id}`, e.completedAt ? toDateKey(e.completedAt) : '', 'Actions', e.title, 'Actions', e.status === 'done'));
-  (career.activityLog || []).filter(e => e.checkId || e.eventType === 'module-complete').forEach(e => add(`career:${e.id}`, e.date, 'Career', e.checkText || e.moduleTitle || 'Career step', 'Career'));
+  (life.actions || []).forEach(e => add(`action:${e.externalId || e.id}`, e.completedDate || (e.completedAt ? toDateKey(e.completedAt) : ''), 'Actions', e.title, 'Actions', e.status === 'done'));
+  const checkState=new Map();
+  for(const roadmap of career.roadmaps||[])for(const module of roadmap.modules||[])for(const topic of module.topics||[])for(const check of topic.checklist||[])checkState.set(roadmap.id+':'+check.id,!!check.done);
+  const latestChecks=new Map();
+  (career.activityLog||[]).filter(e=>e.checkId).sort((a,b)=>String(a.date).localeCompare(String(b.date))).forEach(e=>{known.add('career:'+e.id);latestChecks.set((e.roadmapId||'')+':'+e.checkId,e);});
+  latestChecks.forEach((e,key)=>add('career-check:'+key,e.date,'Career',e.checkText||'Career step','Career',checkState.get(key)!==false));
+  (career.activityLog||[]).filter(e=>e.eventType==='module-complete'&&!e.checkId).forEach(e=>add('career:'+e.id,e.date,'Career',e.moduleTitle||'Career module','Career'));
   (tasks.launch?.marketEvents || []).forEach(e => add(`launch:${e.id}`, e.date, 'Launch', e.topic || e.note || e.type, 'Launch', ['application','connection','message','followup','comment','referral','conversation'].includes(e.type) || (e.type === 'post' && e.status === 'published')));
   (tasks.launch?.mockSessions || []).forEach(e => add(`mock:${e.id}`, e.date, 'Articulation', e.focus || `${e.level || 'Recorded'} interview practice`, 'Launch', e.completed || Number(e.minutes) > 0));
   (tasks.rhythm?.events || []).forEach(e => {
@@ -16,6 +21,11 @@ function collectProgressEvidence(life, tasks, career, today) {
     add(`rhythm:${e.id}`, e.date, 'Rhythm', `${habit?.title || e.habitId}${habit?.unit ? ` · ${e.value} ${habit.unit}` : ''}`, 'Rhythm', Number(e.value) > 0);
   });
   (tasks.money?.contacts || []).forEach(e => add(`money:${e.id}`, e.date, 'Money', 'Financial follow-up', 'Money'));
+  (life.rewardEvents||[]).forEach(e=>add(e.sourceRef||'work:'+(e.sourceId||e.id),e.date,['articulation-small','articulation-medium'].includes(e.kind)?'Articulation':e.kind==='shift'?'Responsibility':'Career',e.title,'Career',e.completed&&!e.voidedAt));
+  (life.marketingSummaries||[]).filter(e=>e.submittedCount>0).forEach(e=>{
+    const direct=(tasks.launch?.marketEvents||[]).filter(r=>r.date===e.date&&r.type==='application').length;
+    if(e.submittedCount>direct)add('marketing-summary:'+e.date,e.date,'Launch',e.submittedCount+' applications · laptop summary','Launch');
+  });
   (life.entries || []).forEach(e => {
     const text = String(e.text || e.body || e.note || '').trim();
     add(`journal-entry:${e.id || e.date}`, e.date, 'Journal', 'Journal recorded', 'Journal', Boolean(text || e.date));
@@ -32,14 +42,13 @@ function collectProgressEvidence(life, tasks, career, today) {
 
 function progressOverview(today) {
   const recent = Array.from({ length: 7 }, (_, i) => progressDate(today, i - 6));
-  const evidence = recent.map(date => rewardEvidence(date));
   const monday = rewardWeekKey(today);
   const weekdays = Array.from({ length: 5 }, (_, i) => progressDate(monday, i)).filter(date => date <= today);
   const totalHabit = id => recent.reduce((n, date) => n + rhythmValue(id, date), 0);
   const targets = [
-    ['Career', evidence.filter(e => e.scores.career > 0).length, 5, 'days · last 7 days'],
-    ['Launch', weekdays.filter(date => rewardEvidence(date).scores.launch > 0).length, 4, 'weekdays · this workweek'],
-    ['Articulation', evidence.filter(e => e.scores.articulation >= 6).length, 3, `medium-or-large days · last 7 days · ${evidence.some(e => e.scores.articulation >= 10) ? 'serious mock recorded' : 'one serious mock still needed'}`],
+    ['Career', recent.filter(date=>progressRecords(date,'all').some(r=>r.domain==='Career')||(lifeStore().rewardEvents||[]).some(r=>r.date===date&&!r.voidedAt&&r.completed&&['concept','practice','mock'].includes(r.kind))).length, 5, 'days · last 7 days'],
+    ['Launch', weekdays.filter(date=>(taskState.life?.marketingSummaries||[]).some(s=>s.date===date&&s.submittedCount>0)||(taskState.launch?.marketEvents||[]).some(e=>e.date===date&&e.type==='application')).length, 4, 'weekdays · this workweek'],
+    ['Articulation', recent.filter(date=>(lifeStore().rewardEvents||[]).some(r=>r.date===date&&!r.voidedAt&&r.completed&&['articulation-medium','mock'].includes(r.kind))||(taskState.launch?.mockSessions||[]).some(r=>r.date===date&&r.completed&&['medium','large'].includes(r.level))).length, 3, 'medium-or-large practice days · last 7 days'],
     ['Exercise', totalHabit('exercise'), 2, 'sessions · last 7 days'],
     ['Hair care', totalHabit('hair-care'), 1, 'session · last 7 days'],
     ['Groceries', totalHabit('groceries'), 1, 'trip · last 7 days; restock every 7–10 days'],
@@ -54,13 +63,11 @@ function progressOverview(today) {
 }
 
 function progressJourney(today) {
-  const days = Array.from({ length: 48 }, (_, i) => progressDate('2026-09-26', i));
-  const containment = lifeStore().innerCommand?.containmentDays || [];
-  return `<section class="life-section evidence-journey"><p class="section-kicker">48-DAY COMMITMENT CYCLE</p><h2>Each return is part of your journey.</h2><p>September 26 – November 12, 2026 · Select a day to view its evidence.</p><div class="evidence-calendar">${days.map((date, i) => {
-    const day = containment.find(d => d.date === date);
-    const drift = day?.status === 'breach' || day?.boundary || day?.boundaries?.length;
-    const state = date > today ? 'future' : drift ? 'drift' : progressRecords(date, 'all').length || day?.status === 'kept' ? 'recorded' : 'unknown';
-    const label = { future: 'Ahead', drift: 'Recorded drift', recorded: 'Recorded progress', unknown: 'Unrecorded' }[state];
-    return `<button class="journey-${state}" data-life="day" data-date="${date}" ${state === 'future' ? 'disabled' : ''} aria-label="${date}: ${label}" title="${date}: ${label}"><span>${i + 1}</span><small>${{ future: '—', drift: '~', recorded: '✓', unknown: '?' }[state]}</small></button>`;
-  }).join('')}</div><p class="evidence-note">✓ Recorded progress · ~ Recorded drift · ? Unrecorded · — Ahead. Unrecorded days are not failures.</p></section>`;
+  const model=KryosCommitment.journey(lifeStore(),today),labels={won:'Won','not-won':'Not won','awaiting-review':'Awaiting review','in-progress':'In progress',upcoming:'Upcoming'},symbols={won:'✓','not-won':'×','awaiting-review':'?','in-progress':'●',upcoming:'—'};
+  const range=[model.cycle.startDate,model.cycle.endDate].map(d=>new Date(d+'T12:00:00Z').toLocaleDateString('en-US',{timeZone:'UTC',month:'long',day:'numeric'})).join(' – ');
+  return `<section class="life-section evidence-journey"><div class="life-heading"><div><p class="section-kicker">48-DAY COMMITMENT CYCLE</p><h2>The same promise. One connected journey.</h2><p>${range}, ${model.cycle.startDate.slice(0,4)} · Same battle records as Inner Command.</p></div><button type="button" class="secondary-button" data-progress-command-day="${today<model.cycle.startDate?model.cycle.dayZero:today>model.cycle.endDate?model.cycle.endDate:today}">Continue in Inner Command →</button></div><div class="progress-journey-summary"><strong>${model.won}<small> / ${model.cycle.days} days won</small></strong><span>${model.elapsed} days elapsed · ${model.cycle.days-model.elapsed} remaining</span></div><progress max="${model.cycle.days}" value="${model.won}" aria-label="Commitment days won, not days elapsed"></progress><div class="evidence-calendar">${model.days.map(d=>`<button type="button" class="journey-${d.state}" data-progress-command-day="${d.date}" aria-label="Day ${d.number}, ${d.date}: ${labels[d.state]}${d.recovered?', return recorded':''}"><span>${d.number}</span><small aria-hidden="true">${symbols[d.state]}${d.recovered?' ↗':''}</small></button>`).join('')}</div><p class="evidence-note">✓ Won · × Not won · ? Awaiting review · ● In progress · — Upcoming · ↗ Return recorded. Open a day to review or correct its source record.</p></section>`;
 }
+if(typeof document!=='undefined')document.addEventListener('click',event=>{
+  const button=event.target.closest('[data-progress-command-day]');if(!button)return;
+  commitmentDate=button.dataset.progressCommandDay;setPage('journal');
+});

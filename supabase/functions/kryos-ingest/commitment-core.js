@@ -126,5 +126,14 @@
       s.history.push({id:now+':'+t.id,date:d.date,type:'action.status',at:now,before,after:structuredClone(d)});
     }
   }
-  root.KryosCommitment={cycle,items,today,number,dates,ensure,day,evaluate,apply,actionChanged,taskComplete};
+  function journey(life,asOf=today()) {
+    const snapshot=structuredClone(life);ensure(snapshot);
+    const days=dates().map((date,index)=>{
+      const result=evaluate(snapshot,date),record=life.s\u0061dhana?.days?.[date];
+      const state=date>asOf?'upcoming':result.status==='won'?'won':result.status==='not-won'?'not-won':date===asOf?'in-progress':'awaiting-review';
+      return {date,number:index+1,state,recovered:(record?.breaches||[]).some(b=>!b.correctedAt&&b.recovered)};
+    });
+    return {cycle:{...cycle},days,won:days.filter(d=>d.state==='won').length,elapsed:days.filter(d=>d.date<asOf).length};
+  }
+  root.KryosCommitment={cycle,items,today,number,dates,ensure,day,evaluate,apply,actionChanged,taskComplete,journey};
 })(globalThis);
