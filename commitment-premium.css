@@ -146,3 +146,30 @@ body:has(#journal-view:not(.is-hidden)) .topbar h1{font-size:19px;line-height:1.
 @media(max-width:1000px){#journal-view .command-premium-grid{grid-template-columns:1fr}#journal-view .commitment-calendar{grid-template-columns:repeat(8,minmax(0,1fr))}}
 @media(max-width:600px){#journal-view .command-paper,#journal-view .command-battle{padding:18px}#journal-view .command-premium-purpose{padding:20px}#journal-view .command-form-pair{grid-template-columns:1fr}#journal-view .commitment-calendar{grid-template-columns:repeat(6,minmax(0,1fr))}#journal-view .command-premium-title{gap:16px}#journal-view .command-review-action{max-width:none;width:100%}#journal-view .command-quantity{margin-left:0}#journal-view .command-stepper input{width:72px}}
 @media(prefers-reduced-motion:reduce){#journal-view .command-premium-outline article,#journal-view .command-task{transition:none}}
+
+/* Reading-first refinement: promise remains primary, summaries stop competing. */
+#journal-view .command-premium-title{margin:8px 0 18px}
+#journal-view .command-premium-purpose{padding:26px 32px;margin-bottom:20px;border-radius:16px}
+#journal-view .command-premium-purpose .section-kicker{margin-bottom:12px}
+#journal-view .command-premium-purpose>p:not(.section-kicker){margin-bottom:16px;line-height:1.65}
+#journal-view .command-premium-purpose small{padding-top:14px}
+#journal-view .command-journey-map{padding:18px 22px;margin-bottom:20px;background:#fff}
+#journal-view .command-journey-map header{margin-bottom:10px}
+#journal-view .command-journey-summary{gap:8px 18px}
+#journal-view .command-journey-summary strong{font-size:24px}
+#journal-view .command-journey-track{margin:12px 0}
+#journal-view .commitment-calendar{gap:6px;margin:12px 0}
+#journal-view .commitment-calendar button{min-height:38px;border:1px solid #dfe7df}
+#journal-view .commitment-calendar .is-selected{border:2px solid #226a52;box-shadow:none}
+#journal-view .command-paper{padding:22px;box-shadow:none}
+#journal-view .command-must-do-explainer{margin-bottom:12px}
+#journal-view .command-commitment-progress{margin-bottom:14px}
+#journal-view .command-task-list{gap:8px}
+#journal-view .command-task-list .command-task{padding:14px 16px;border-radius:10px}
+#journal-view .command-task-list .command-task.is-next{border-left:4px solid #226a52;box-shadow:none}
+#journal-view .command-task-kicker{margin-bottom:8px}
+#journal-view .command-premium-outline article{padding:8px 0}
+#journal-view .command-premium-outline .missed{background:#fff5eb}
+#journal-view .command-battle{border-left:4px solid #226a52}
+#journal-view .command-battle.not-won{border-left-color:#98633b}
+#journal-view .command-battle p{line-height:1.7}
