@@ -1,4 +1,5 @@
 /* Career reading and navigation only. Curriculum, check IDs and persistence stay in the existing owners. */
+if(typeof KryosUI!=='undefined')KryosUI.claim('career.view','career-flow-ui.js',["career-flow-ui.css","career-workflows.css"]);
 function careerFlowMetrics(roadmap){
  const overall=careerCoreProgress(roadmap);
  const modules=(roadmap?.modules||[]).map(m=>({id:m.id,title:m.title,...careerCoreProgress({modules:[m]})}));
