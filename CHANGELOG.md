@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.37.1 — Reward startup cache correction
+
+Refresh the modified legacy reward adapter cache so startup always preserves pre-V5 assessments.
+
 ## 0.37.0 — Pressure-aware Rewards
 
 Shared V5 score rules, meaningful starts and completed work, protected savings and four optional rewards. Stats-only local Marketing handoff; previous assessments preserved. All personal operating days use 7 a.m. America/Chicago.
