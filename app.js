@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.37.1";
+const APP_VERSION = "0.38.0";
 const APP_STAGE = "Cross-page visual workflow release";
 const APP_RELEASE_DATE = "2026-10-12";
 const APP_STATUS = "Readable daily promises and must-do tasks shared with Actions";
 const APP_NEXT_MILESTONE = "Refine daily workflows through actual use";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Single-tap Water, Counted Practice A and Counted Practice B counters with reset and Undo. Reward sessions now use 3/5/7/9-day intervals; prices and earned balances are unchanged. Optional Reading added to the promise outline.",
   "Pressure-aware Rewards: meaningful starts, capped effort, protected savings, stats-only Marketing handoff and the 7 a.m. Chicago day boundary. Earlier assessments preserved.",
   "Commitment Cycle now counts October 11 as Day 1 and November 27 as Day 48; earlier history and existing records preserved.",
   "Career, Launch, Money, Progress and Rewards visual upgrades; clear Settings version/storage information. Existing reward rules and storage boundaries preserved.",

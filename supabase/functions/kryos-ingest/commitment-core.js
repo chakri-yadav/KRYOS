@@ -9,7 +9,7 @@
     ['romanticizing','No deliberate romanticizing instead of action','boundary'], ['\u006e\u0061\u006d\u0061\u002d\u006a\u0061\u0070\u0061','Meditative Practice as much as possible','practice'],
     ['battle','Every day is a battle: serve and learn','guidance'], ['promise','Keep promises to yourself','guidance'],
     ['alignment','Align intentions, words, and actions','guidance'], ['learn','Learn Counted Practice A and Counted Practice B','guidance'],
-    ['\u0073\u0075\u006e\u0064\u0061\u0072\u0061','Listen to Optional Reading whenever you have free time','guidance'], ['rewards','Receive instant, guilt-free rewards after action','guidance'],
+    ['\u0073\u0075\u006e\u0064\u0061\u0072\u0061','Listen to Optional Reading whenever you have free time','guidance'], ['\u0064\u0065\u0076\u0069\u002d\u006d\u0061\u0068\u0061\u0074\u006d\u0079\u0061','Optional Reading','guidance'], ['rewards','Receive instant, guilt-free rewards after action','guidance'],
     ['break','Take a break when Maa gives you one','guidance'], ['return','Get back and resume as soon as you drift','guidance'],
     ['\u0072\u0061\u006d\u0061','Walk in the path of Lord Principled-action','guidance'], ['\u0068\u0061\u006e\u0075\u006d\u0061\u006e','Remember: Mentor helps you','guidance'],
     ['surroundings','Keep your surroundings organized','guidance']
