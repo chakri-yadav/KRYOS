@@ -5,6 +5,7 @@ const TYPES = new Set(['journal.capture', 'evidence.record', 'rhythm.measure', '
 import './sadhana-core.js';
 const SADHANA_TYPES = ['sadhana.cycle.start','sadhana.task.assign','sadhana.plan.empty','sadhana.item.set','sadhana.task.progress','sadhana.task.correct','sadhana.breach.record','sadhana.breach.correct','sadhana.breach.recover','sadhana.day.review'];
 SADHANA_TYPES.forEach(type=>TYPES.add(type));
+TYPES.add('marketing.stats.import'); TYPES.add('reward.work.record'); TYPES.add('reward.work.correct');
 const BOUNDARIES = new Set(['astrology', 'social', 'information', 'validation']);
 const MARKETING_STATUSES = new Set(['To review', 'Saved', 'Applied', 'Interview', 'Follow-up', 'Offer', 'Not selected', 'Keep for later', 'Archived', 'Verify details']);
 
@@ -69,6 +70,12 @@ export function validateRequest(request) {
   if (marketingOperations.length && (request.operations.length !== 1 || marketingOperations.length !== 1)) fail('Import a Marketing batch as its own request.');
   for (const operation of request.operations) {
     if (!operation || !TYPES.has(operation.type)) fail('Unsupported operation.');
+    if(operation.type==='marketing.stats.import'){
+      const s=operation.summary,allowed=new Set(['date','workspaceId','revision','submittedCount']);
+      if(!s||Object.keys(s).some(k=>!allowed.has(k))||s.date!==request.local_date||s.workspaceId!=='marketing-onedrive'||!Number.isSafeInteger(s.revision)||s.revision<0||!Number.isInteger(s.submittedCount)||s.submittedCount<0||s.submittedCount>10000)fail('Use a dated, stats-only Marketing snapshot. No job fields or attachments allowed.');
+    }
+    if(operation.type==='reward.work.record'&&(!['application-start','career-start','concept','practice','mock','articulation-small','articulation-medium','shift'].includes(operation.kind)||!present(operation.title,300)||!present(operation.source_id,180)||completionLooksLikeIntentOrNegation(request.raw_text,operation.evidence_quote)))fail('A reward work record needs explicit action evidence, a supported kind and stable source ID.');
+    if(operation.type==='reward.work.correct'&&(!present(operation.source_id,180)||!present(operation.reason,300)))fail('Use the exact work source ID and correction reason.');
     if (operation.type === 'sadhana.task.progress' && operation.value > 0 && completionLooksLikeIntentOrNegation(request.raw_text, operation.evidence_quote)) fail('Task progress needs evidence of completed work, not an intention.');
     if (!present(operation.evidence_quote, 1000) || !sameText(request.raw_text, operation.evidence_quote)) fail('Each operation needs an exact excerpt from the original statement.');
     if (['evidence.record', 'rhythm.complete', 'rhythm.count', 'action.complete', 'career.progress', 'career.check.complete'].includes(operation.type) && completionLooksLikeIntentOrNegation(request.raw_text, operation.evidence_quote)) fail('This sounds like an intention or negation. Review before recording completion.');
@@ -139,7 +146,26 @@ export function projectRequest(request, taskPayload, careerPayload, now = new Da
     const id = eventId(request.idempotency_key, index);
     const date = request.local_date;
     const evidence = operation.evidence_quote;
+    if(['marketing.stats.import','reward.work.record'].includes(operation.type)&&date>globalThis.KryosSadhana.today(now))fail('Future work cannot earn rewards.');
     switch (operation.type) {
+      case 'marketing.stats.import': {
+        life.marketingSummaries ||= []; const summary=operation.summary;
+        const old=life.marketingSummaries.find(s=>s.date===date&&s.workspaceId===summary.workspaceId);
+        if(old&&(summary.revision<old.revision||summary.revision===old.revision&&summary.submittedCount!==old.submittedCount))fail('This Marketing summary is stale or conflicts with the same source revision.');
+        if(old)Object.assign(old,summary,{receivedAt:now});else life.marketingSummaries.push({...summary,receivedAt:now});
+        effects.push({area:'Rewards',result:summary.submittedCount+' submitted applications recorded as stats only'});tasksChanged=true;break;
+      }
+      case 'reward.work.record': {
+        life.rewardEvents ||= [];const old=life.rewardEvents.find(e=>e.sourceId===operation.source_id);
+        if(old&&(old.date!==date||old.kind!==operation.kind||old.title!==operation.title))fail('Work source ID was reused for different evidence.');
+        if(!old)life.rewardEvents.push({id,sourceId:operation.source_id,date,kind:operation.kind,title:operation.title,completed:true,recordedAt:now});
+        effects.push({area:'Rewards',result:'Specific work evidence recorded'});tasksChanged=true;break;
+      }
+      case 'reward.work.correct': {
+        const old=(life.rewardEvents||[]).find(e=>e.sourceId===operation.source_id);if(!old)fail('Work evidence not found.');
+        old.voidedAt=now;old.correctionReason=operation.reason;
+        effects.push({area:'Rewards',result:'Mistaken work evidence excluded; history retained'});tasksChanged=true;break;
+      }
       case 'sadhana.cycle.start':
       case 'sadhana.task.assign':
       case 'sadhana.plan.empty':

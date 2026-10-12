@@ -1,0 +1,11 @@
+import '../reward-rules-v5.js';
+import {readFileSync,writeFileSync} from 'node:fs';
+const input=JSON.parse(readFileSync(0,'utf8')),row=input.rows?.[0];
+if(input.rows?.length!==1||!row?.profile||!row?.tasks||!row?.career)throw Error('Expected one Personal tasks and career snapshot.');
+const R=globalThis.KryosRewardV5;
+const p=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).map(x=>[x.type,x.value]));
+let today=p.year+'-'+p.month+'-'+p.day;if(Number(p.hour)<7)today=R.shift(today,-1);
+const awards=R.dates(row.tasks,row.career,today).map(d=>({id:'v5-day:'+d,amount:R.evaluate(d,row.tasks,row.career).credits}));
+const sql="select public.kryos_commit_rewards_v5('"+row.profile+"'::uuid,"+Number(row.tasks_revision)+","+Number(row.career_revision)+",'"+JSON.stringify(awards)+"'::jsonb,null,false);\n";
+const output=process.argv[2];if(!output||!/(^|[\\/])\.private([\\/]|$)/.test(output))throw Error('Use an ignored .private output path.');
+writeFileSync(output,sql);console.log(JSON.stringify({assessmentDays:awards.length,version:5,request:null}));

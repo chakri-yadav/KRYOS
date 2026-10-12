@@ -15,7 +15,7 @@
     ['surroundings','Keep your surroundings organized','guidance']
   ].map(([id,label,type]) => ({id,label,type}));
   function validDate(value) { return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value)) && new Date(value).toISOString().slice(0,10) === value; }
-  function today(now = new Date().toISOString()) { const p = Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:cycle.timezone,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(now)).map(x=>[x.type,x.value])); return `${p.year}-${p.month}-${p.day}`; }
+  function today(now = new Date().toISOString()) { const p = Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:cycle.timezone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',hourCycle:'h23'}).formatToParts(new Date(now)).map(x=>[x.type,x.value])); const date=`${p.year}-${p.month}-${p.day}`; return Number(p.hour)<7 ? new Date(Date.parse(date+'T12:00:00Z')-86400000).toISOString().slice(0,10) : date; }
   function number(date) { return Math.round((Date.parse(date+'T12:00:00Z')-Date.parse(cycle.startDate+'T12:00:00Z'))/86400000)+1; }
   function dates() { return Array.from({length:48},(_,i)=>new Date(Date.parse(cycle.startDate+'T12:00:00Z')+i*86400000).toISOString().slice(0,10)); }
   function ensure(life) {
