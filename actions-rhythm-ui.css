@@ -61,3 +61,34 @@
 #rhythm-view .rhythm-weekly-row>button{min-width:44px;min-height:44px}
 @media(max-width:1100px){#actions-view .action-controls{justify-content:flex-start}#rhythm-view .rhythm-item-grid{grid-template-columns:1fr}}
 @media(max-width:600px){#actions-view .action-card{padding:16px;gap:12px}#actions-view .action-controls{grid-column:2}#rhythm-view .rhythm-overview{flex-wrap:wrap}#rhythm-view .rhythm-item{padding:14px}}
+
+/* Compact work surfaces; existing records, tap controls and targets are unchanged. */
+#actions-view .action-title{padding:12px 0 18px}
+#actions-view .action-title h1{font-size:30px;line-height:1.25}
+#actions-view .action-command{border-radius:14px;background:#31584a;grid-template-columns:minmax(0,1.45fr) 150px minmax(0,1fr)}
+#actions-view .action-command>div{min-height:108px;padding:18px 22px;background:#173d32}
+#actions-view .action-command h2{font-size:21px;line-height:1.4;margin:6px 0}
+#actions-view .action-command span,#actions-view .capacity-visual small{color:#c2d9cd}
+#actions-view .action-command p{color:#e0ece5;line-height:1.65}
+#actions-view .capacity-visual strong{font-size:28px;margin-top:10px}
+#actions-view .action-card{padding:16px 20px;gap:14px;box-shadow:none}
+#actions-view .action-card h3{margin:4px 0}
+#actions-view .activity-next-step{padding:10px 12px;margin-top:8px;border-left:3px solid #226a52}
+#actions-view .action-check:focus-visible,#actions-view button:focus-visible,#actions-view select:focus-visible{outline:3px solid #226a52;outline-offset:3px}
+#rhythm-view .rhythm-command{grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(100px,.55fr));border-radius:14px}
+#rhythm-view .rhythm-command>div{padding:18px 20px}
+#rhythm-view .rhythm-command h1{font-size:30px}
+#rhythm-view .rhythm-command-stat strong{font-size:28px;margin:10px 0 6px}
+#rhythm-view .rhythm-command p,#rhythm-view .rhythm-command-stat em,#rhythm-view .rhythm-command-stat>span{color:#d7e5dd}
+#rhythm-view .rhythm-overview{gap:16px;padding:12px 18px;border-radius:12px}
+#rhythm-view .rhythm-overview-score>i{width:auto;height:auto;border-radius:0;background:none;font-style:normal}
+#rhythm-view .rhythm-overview-score{grid-template-columns:auto auto;gap:8px}
+#rhythm-view .rhythm-overview-score b{font-size:18px;color:#226a52;font-variant-numeric:tabular-nums}
+#rhythm-view .rhythm-overview-score span{font-size:13px;color:#52695a}
+#rhythm-view .rhythm-surface{box-shadow:none;padding:20px}
+#rhythm-view .rhythm-section-head h2{font-size:22px}
+#rhythm-view .activity-check-tile{min-height:76px}
+#rhythm-view .rhythm-group-head{margin-bottom:12px}
+#rhythm-view .rhythm-weekly-row{padding-block:14px}
+#rhythm-view .rhythm-group-note{font-size:12px;line-height:1.6}
+@media(max-width:900px){#actions-view .action-command{grid-template-columns:1fr 140px}#rhythm-view .rhythm-command{grid-template-columns:1fr 1fr}}
