@@ -42,7 +42,9 @@ renderRhythmView=function(){
   }
   const sync=document.querySelector('#rhythm-view .rhythm-sync');if(sync){sync.textContent=actionSyncLabel();sync.setAttribute('role','status');}
   document.querySelectorAll('#rhythm-view [data-rhythm-weekly]').forEach(button=>{button.dataset.activityWeekly=button.dataset.rhythmWeekly;button.dataset.date=rhythmSelectedDate||toDateKey();delete button.dataset.rhythmWeekly;});
-  const heading=document.querySelector('#rhythm-view .rhythm-main .rhythm-section-head h2');if(heading)heading.textContent='Your daily routines, clearly in view.';
+  const heading=document.querySelector('#rhythm-view .rhythm-main .rhythm-section-head h2');if(heading)heading.textContent='Your daily routines.';
+  const coverage=document.querySelector('#rhythm-view .rhythm-main .rhythm-section-head>span');
+  if(coverage){coverage.textContent='Routine coverage · not reward eligibility';coverage.title='This page records routines. Rewards applies its own qualification rules.';}
   if(activityFeedback){const p=document.createElement('p');p.className='activity-feedback';p.setAttribute('role','status');p.textContent=activityFeedback;if(activityLastCycle){const undo=document.createElement('button');undo.type='button';undo.dataset.activityUndo='';undo.textContent='Undo last tap';p.append(undo);}document.querySelector('#rhythm-view .rhythm-groups')?.before(p);}
   requestAnimationFrame(()=>{const main=document.querySelector('#app');if(main)main.scrollTop=scroll;window.scrollTo({top:y,behavior:'instant'});if(attribute)document.querySelector(`[data-${attribute}="${CSS.escape(value)}"]${active?.dataset.delta?`[data-delta="${active.dataset.delta}"]`:''}`)?.focus({preventScroll:true});});
 };

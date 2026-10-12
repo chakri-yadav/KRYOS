@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.40.2 — Promise, actions and routines visual refinement
+
+- Preserve the prominent promise with compact journey and must-do surfaces.
+- Improve action hierarchy, routine readability, focus visibility and recorded-state contrast.
+- Distinguish routine coverage from reward qualification; preserve existing targets, IDs and whole-row counting.
+
+
 ## 0.40.1 — Work-first Career
 
 - Put the next learning action before the roadmap catalogue; compact switching and reading surfaces.
