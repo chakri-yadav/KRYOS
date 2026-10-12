@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.38.1 — Original compact Rhythm counter visuals
+
+Restore the original horizontal water bar and compact Counted Practice A / Counted Practice B rows instead of oversized counter cards. Whole-control taps, count badges, segmented water progress, completion contrast and keyboard focus are preserved. No change to personal records, targets, counting, Undo, saving or reward rules.
+
 ## 0.38.0 — Tap counters and intentional reward intervals
 
 Water advances by the existing 0.5 L step to 3 L; Counted Practice A and Counted Practice B advance to three rounds. The next tap resets the selected day's total, with safe single-use Undo and dependent reward recalculation. Videos/news allow one hour every three days; friend calls every five, movies every seven, personal calls every nine. Existing prices, personal-call qualification, earned balances and history remain unchanged. The database enforces redemption intervals atomically. Optional Reading is reading guidance, not a new daily gate.
