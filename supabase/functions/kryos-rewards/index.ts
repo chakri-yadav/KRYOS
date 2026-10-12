@@ -32,7 +32,7 @@ Deno.serve(async req=>{
       const {data}=await admin.from('kryos_assistant_credentials').select('profile_id,revoked_at,expires_at').eq('token_hash',hash).maybeSingle();
       if(!data||data.revoked_at||data.expires_at&&data.expires_at<=new Date().toISOString())return reply(401,{error:'Assistant access unavailable.'});
       profileId=data.profile_id;
-      if(body.request)return reply(403,{error:'Redeem from the signed-in app.'});
+      if(body.request||body.action==='reset-wallet')return reply(403,{error:'Redeem or restart from the signed-in app.'});
     }else{
       const {data,error}=await admin.auth.getUser(token);
       if(error||!data.user)return reply(401,{error:'Sign in to sync rewards.'});
@@ -42,6 +42,11 @@ Deno.serve(async req=>{
     // Operating days begin at 07:00 in the owner's timezone, including DST.
     const parts=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).map(p=>[p.type,p.value]));
     let today=`${parts.year}-${parts.month}-${parts.day}`;if(Number(parts.hour)<7)today=rules.shift(today,-1);
+    if(body.action==='reset-wallet'){
+      if(!/^[A-Za-z0-9_-]{1,100}$/.test(body.requestId)||!rules.valid(body.earnFromDate)||body.earnFromDate>rules.shift(today,1))return reply(400,{error:'Invalid wallet restart.'});
+      const {data,error}=await admin.rpc('kryos_reset_reward_wallet',{p_profile:profileId,p_request_id:body.requestId,p_earn_from_date:body.earnFromDate});
+      if(error)throw error;return reply(200,data);
+    }
     if(body.request&&(!/^[A-Za-z0-9_-]{1,100}$/.test(body.request.id)||!rules.catalog.some(r=>r.id===body.request.rewardId)))return reply(400,{error:'Invalid reward request.'});
     for(let attempt=0;attempt<3;attempt++){
       const {data:blocks,error}=await admin.from('kryos_sync_blocks').select('block_key,payload,revision').eq('profile_id',profileId).in('block_key',['tasks','career']);

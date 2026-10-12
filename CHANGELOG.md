@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.39.0 — Connected Progress and fresh wallet
+
+Progress and Inner Command use one shared read-only Sadhana journey projection. Journey dates and outcomes are no longer copied from the retired containment calendar; each date opens the corresponding Inner Command record. Correct Today's signal surface/text contrast, remove decorative count glow, and strengthen shared input/correction affordances. Weekly indicators read current activity rather than obsolete reward weights. Wallet restarts archive prior earnings/spending and start a dated earning epoch; historical journals, assessments and redemptions remain intact.
+
 ## 0.38.1 — Original compact Rhythm counter visuals
 
 Restore the original horizontal water bar and compact Hanuman Chalisa / Aditya Hridayam rows instead of oversized counter cards. Whole-control taps, count badges, segmented water progress, completion contrast and keyboard focus are preserved. No change to personal records, targets, counting, Undo, saving or reward rules.
