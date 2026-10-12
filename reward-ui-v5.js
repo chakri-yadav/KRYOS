@@ -67,8 +67,8 @@ document.addEventListener('click',async event=>{const route=event.target.closest
 let rewardV5LastDay=toDateKey();setInterval(()=>{const day=toDateKey();if(day===rewardV5LastDay)return;rewardV5LastDay=day;if(currentPage==='journal')renderLifeJournal();if(currentPage==='rewards'){rewardSelectedDate='';renderRewardV5();}},30000);
 if(currentPage==='rewards')renderRewardV5();
 document.addEventListener('click',async event=>{
- if(!event.target.closest('[data-v5-reset]'))return;
- if(!confirm('Restart spendable points at zero? Earlier records stay archived. New earning begins with the next 7 a.m. KRYOS day.'))return;
+ const restartButton=event.target.closest('[data-v5-reset]');if(!restartButton)return;
+ if(restartButton.dataset.confirmRestart!=='true'){restartButton.dataset.confirmRestart='true';restartButton.textContent='Confirm restart · archive points, keep records';return;}
  const pendingReset=rewardV5Store().rewardV5.pendingWalletReset;
  const start=pendingReset?.earnFromDate||KryosRewardV5.shift(toDateKey(),1),id=pendingReset?.id||createId();
  if(document.body.dataset.kryosStorage==='laptop'){
