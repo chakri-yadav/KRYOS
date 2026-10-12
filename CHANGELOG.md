@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.40.1 — Work-first Career
+
+- Put the next learning action before the roadmap catalogue; compact switching and reading surfaces.
++- Preserve curriculum, completion IDs, reward rules and storage boundaries.
+
+
 ## 0.40.0 — Navigation and presentation ownership foundation
 
 One router owns page entry, direct links, browser Back/Forward, explicit Continue targets and page-specific reading positions. Return to an already visited page resumes its position; first entry starts at the top. Rapid navigation cancels obsolete focus/scroll callbacks. Preserve unsubmitted Marketing/Commitment entry forms during page switches without replaying saved records or file inputs. Register presentation owners and their existing stylesheets; reject duplicate ownership. This establishes an incremental component migration foundation, not a complete rewrite of legacy renderers or CSS. No domain records, reward rules, backend operations or storage boundaries change.
