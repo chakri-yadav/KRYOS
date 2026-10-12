@@ -39,6 +39,13 @@ test('water and devotional tap counts wrap at their targets',()=>{
  assert.equal(context.activityCycleValue(habits[1],0),1);assert.equal(context.activityCycleValue(habits[1],1),2);assert.equal(context.activityCycleValue(habits[1],2),3);assert.equal(context.activityCycleValue(habits[1],3),0);
  assert.equal(context.activityCycleValue(habits[0],2.8),3);
 });
+test('original compact water bar and devotional rows replace oversized cards',()=>{
+ const {context,habits}=setup(),water=context.renderRhythmHabit(habits[0],'2026-10-10'),prayer=context.renderRhythmHabit(habits[1],'2026-10-10');
+ assert.match(water,/activity-cycle-row rhythm-water/);assert.match(water,/rhythm-water-track/);assert.match(water,/3\.0 L/);assert.equal((water.match(/<i class="is-filled"/g)||[]).length,6);
+ assert.match(prayer,/activity-cycle-badge">3\/3/);assert.match(prayer,/Complete · tap to reset/);
+ for(const html of [water,prayer]){assert.doesNotMatch(html,/activity-cycle-total|activity-count-controls|data-rhythm-step/);assert.equal((html.match(/<button/g)||[]).length,1);}
+ const css=fs.readFileSync(require('node:path').join(__dirname,'../actions-rhythm-ui.css'),'utf8');assert.doesNotMatch(css,/min-height:174px/);assert.match(css,/activity-cycle-row:focus-visible/);
+});
 test('tap reset preserves historical date and stale undo cannot overwrite a changed total',()=>{
  const {handlers,writes}=setup(),button={dataset:{activityCycle:'water',date:'2026-10-10'}};
  handlers.filter(h=>h.type==='click').forEach(h=>h.handler({target:{closest:s=>s==='[data-activity-cycle]'?button:null}}));
