@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.38.0 — Tap counters and intentional reward intervals
+
+Water advances by the existing 0.5 L step to 3 L; Hanuman Chalisa and Aditya Hridayam advance to three rounds. The next tap resets the selected day's total, with safe single-use Undo and dependent reward recalculation. Videos/news allow one hour every three days; friend calls every five, movies every seven, personal calls every nine. Existing prices, personal-call qualification, earned balances and history remain unchanged. The database enforces redemption intervals atomically. Devi Mahatmya is reading guidance, not a new daily gate.
+
 ## 0.37.1 — Reward startup cache correction
 
 Refresh the modified legacy reward adapter cache so startup always preserves pre-V5 assessments.
