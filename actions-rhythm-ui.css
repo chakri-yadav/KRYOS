@@ -28,15 +28,20 @@
 #rhythm-view .activity-check-tile b{font-size:12px;color:#226a52;white-space:nowrap}
 #rhythm-view .activity-count-tile{display:grid;grid-template-columns:1fr;gap:14px;align-content:start}
 #rhythm-view .activity-count-tile:has([data-activity-total="water"]),#rhythm-view [data-activity-cycle="water"]{grid-column:1/-1}
-#rhythm-view .activity-cycle-tile{cursor:pointer;width:100%;min-height:174px;transition:border-color .15s,background-color .15s}
-#rhythm-view .activity-cycle-tile:hover{border-color:#7caa8f;background:#f4f8f4}
-#rhythm-view .activity-cycle-tile:focus-visible{outline:3px solid #398164;outline-offset:3px}
-#rhythm-view .activity-cycle-tile .activity-habit-title>span:nth-child(2){display:grid;flex:1}
-#rhythm-view .activity-cycle-total{display:flex;align-items:baseline;gap:10px}
-#rhythm-view .activity-cycle-total strong{font-size:38px;line-height:1.2;font-variant-numeric:tabular-nums;letter-spacing:-.04em}
-#rhythm-view .activity-cycle-total>span{font-size:14px;color:#576c5e}
+#rhythm-view .activity-cycle-row{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;align-content:center;gap:12px;cursor:pointer;width:100%;min-height:76px;padding:14px 16px;transition:border-color .15s,background-color .15s}
+#rhythm-view .activity-cycle-row.rhythm-water{grid-template-columns:34px minmax(100px,.8fr) minmax(64px,1fr) auto}
+#rhythm-view .activity-cycle-row:hover{border-color:#7caa8f;background:#f4f8f4;transform:none}
+#rhythm-view .activity-cycle-row:focus-visible{outline:3px solid #398164;outline-offset:3px}
+#rhythm-view .activity-cycle-label{min-width:0}
+#rhythm-view .activity-cycle-label small{margin-top:3px;font-size:11px}
+#rhythm-view .activity-cycle-badge{padding:7px 10px;border-radius:9px;background:#eef4ef;color:#226a52;font-size:16px;line-height:1.2;white-space:nowrap;font-variant-numeric:tabular-nums}
+#rhythm-view .activity-cycle-row.is-done .activity-cycle-badge{background:#226a52;color:#fff}
+#rhythm-view .rhythm-water-track{display:flex;gap:4px;min-width:0}
+#rhythm-view .rhythm-water-track i{height:8px;border-radius:3px;background:#e1e8e0;transition:background-color .15s}
+#rhythm-view .rhythm-water-track i.is-filled{background:#2563eb}
 #rhythm-view .activity-feedback button{margin-left:12px;min-height:44px;padding:8px 14px;border:1px solid #9ebeaa;border-radius:9px;background:#fff;color:#226a52;cursor:pointer}
-@media(prefers-reduced-motion:reduce){#rhythm-view .activity-cycle-tile{transition:none}}
+@media(max-width:680px){#rhythm-view .activity-cycle-row.rhythm-water{grid-template-columns:34px minmax(0,1fr) auto}#rhythm-view .activity-cycle-row .rhythm-water-track{grid-column:2/-1;grid-row:2}}
+@media(prefers-reduced-motion:reduce){#rhythm-view .activity-cycle-row,#rhythm-view .rhythm-water-track i{transition:none}}
 #rhythm-view .activity-habit-title{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 #rhythm-view .activity-habit-title>div{display:grid;flex:1}
 #rhythm-view .activity-record-state{font-size:11px;color:#35644e}
