@@ -29,3 +29,7 @@ Do not infer completion from intentions such as “I should read” or from nega
 - The encrypted credential is stored only in ignored `.private/assistant-token.dpapi` in the isolated feature checkout. Never print, commit, copy into chat, or regenerate it while active. A replacement requires revoking the old credential in Supabase first.
 - Use strict versioning from `VERSION.md`. Do not bump a live version for an untested or undeployed backend change.
 - Test changes in proportion to their risk. Supabase migrations and assistant writes require a real cloud round trip before announcing a production release.
+# Public release terminology
+
+Use technical feature descriptions in commit messages, branch names, pull requests, release notes, and public documentation. Use the engineering/ branch namespace. Keep personal practice names, assistant branding, and machine-specific paths out of public files and metadata. Preserve compatibility with existing private storage and deployed operation identifiers.
+
