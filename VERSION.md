@@ -29,7 +29,7 @@ Canonical current version:
 | `0.4.x` | Life Execution Foundation |
 | `0.5.x` | Focused iPhone mobile experience |
 | `0.6.x` | Assistant capture and revision-safe sync |
-| `0.7.x` | Devi Sadhana and automatic reward system |
+| `0.7.x` | commitment cycle and automatic reward system |
 | `0.8.x` | Money command and verified statement checkpoints |
 | `0.9.x` | Living Money ledger and statement-interest allocation |
 | `0.10.x` | Private statement evidence and interest-pressure analytics |

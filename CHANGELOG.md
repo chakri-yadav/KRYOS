@@ -15,7 +15,7 @@
 
 ## 0.40.0 — Navigation and presentation ownership foundation
 
-One router owns page entry, direct links, browser Back/Forward, explicit Continue targets and page-specific reading positions. Return to an already visited page resumes its position; first entry starts at the top. Rapid navigation cancels obsolete focus/scroll callbacks. Preserve unsubmitted Marketing/Sadhana entry forms during page switches without replaying saved records or file inputs. Register presentation owners and their existing stylesheets; reject duplicate ownership. This establishes an incremental component migration foundation, not a complete rewrite of legacy renderers or CSS. No domain records, reward rules, backend operations or storage boundaries change.
+One router owns page entry, direct links, browser Back/Forward, explicit Continue targets and page-specific reading positions. Return to an already visited page resumes its position; first entry starts at the top. Rapid navigation cancels obsolete focus/scroll callbacks. Preserve unsubmitted Marketing/commitment cycle entry forms during page switches without replaying saved records or file inputs. Register presentation owners and their existing stylesheets; reject duplicate ownership. This establishes an incremental component migration foundation, not a complete rewrite of legacy renderers or CSS. No domain records, reward rules, backend operations or storage boundaries change.
 
 ## 0.39.1 — Non-blocking wallet confirmation
 
@@ -23,15 +23,15 @@ Use a visible second-click confirmation for wallet restarts instead of a browser
 
 ## 0.39.0 — Connected Progress and fresh wallet
 
-Progress and Inner Command use one shared read-only Sadhana journey projection. Journey dates and outcomes are no longer copied from the retired containment calendar; each date opens the corresponding Inner Command record. Correct Today's signal surface/text contrast, remove decorative count glow, and strengthen shared input/correction affordances. Weekly indicators read current activity rather than obsolete reward weights. Wallet restarts archive prior earnings/spending and start a dated earning epoch; historical journals, assessments and redemptions remain intact.
+Progress and Inner Command use one shared read-only commitment cycle journey projection. Journey dates and outcomes are no longer copied from the retired containment calendar; each date opens the corresponding Inner Command record. Correct Today's signal surface/text contrast, remove decorative count glow, and strengthen shared input/correction affordances. Weekly indicators read current activity rather than obsolete reward weights. Wallet restarts archive prior earnings/spending and start a dated earning epoch; historical journals, assessments and redemptions remain intact.
 
 ## 0.38.1 — Original compact Rhythm counter visuals
 
-Restore the original horizontal water bar and compact Hanuman Chalisa / Aditya Hridayam rows instead of oversized counter cards. Whole-control taps, count badges, segmented water progress, completion contrast and keyboard focus are preserved. No change to personal records, targets, counting, Undo, saving or reward rules.
+Restore the original horizontal water bar and compact counted practice A / counted practice B rows instead of oversized counter cards. Whole-control taps, count badges, segmented water progress, completion contrast and keyboard focus are preserved. No change to personal records, targets, counting, Undo, saving or reward rules.
 
 ## 0.38.0 — Tap counters and intentional reward intervals
 
-Water advances by the existing 0.5 L step to 3 L; Hanuman Chalisa and Aditya Hridayam advance to three rounds. The next tap resets the selected day's total, with safe single-use Undo and dependent reward recalculation. Videos/news allow one hour every three days; friend calls every five, movies every seven, personal calls every nine. Existing prices, personal-call qualification, earned balances and history remain unchanged. The database enforces redemption intervals atomically. Devi Mahatmya is reading guidance, not a new daily gate.
+Water advances by the existing 0.5 L step to 3 L; counted practice A and counted practice B advance to three rounds. The next tap resets the selected day's total, with safe single-use Undo and dependent reward recalculation. Videos/news allow one hour every three days; friend calls every five, movies every seven, personal calls every nine. Existing prices, personal-call qualification, earned balances and history remain unchanged. The database enforces redemption intervals atomically. optional reading guidance is reading guidance, not a new daily gate.
 
 ## 0.37.1 — Reward startup cache correction
 
@@ -41,7 +41,7 @@ Refresh the modified legacy reward adapter cache so startup always preserves pre
 
 Shared V5 score rules, meaningful starts and completed work, protected savings and four optional rewards. Stats-only local Marketing handoff; previous assessments preserved. All personal operating days use 7 a.m. America/Chicago.
 
-## 0.36.1 — Sadhana start correction
+## 0.36.1 — commitment cycle start correction
 
 October 11 is Day 1; November 27 is Day 48. Earlier cycle history and existing dated records are preserved. Browser and assistant use the same updated cycle.
 
@@ -69,7 +69,7 @@ Readable Launch surfaces, one useful next action, accessible platform state and 
 
 Calmer roadmap cards, readable learning sections, honest core coverage, module navigation, and preserved reading position and note drafts. Curriculum and storage boundaries are unchanged.
 \n+## 0.30.0 — Actions and Rhythm
-\n+- Emphasise smallest next actions and activation while retaining the three-active limit and shared Sadhana identities.
+\n+- Emphasise smallest next actions and activation while retaining the three-active limit and shared commitment cycle identities.
 - Keep daily routines visible with explicit record states; use reversible water and repetition totals without wrap-to-zero.
 - Weekly additions use the selected date; existing targets, scoring, reward rules and storage are unchanged.
 \n+## 0.29.0 — Visual and status foundation
@@ -91,7 +91,7 @@ Calmer roadmap cards, readable learning sections, honest core coverage, module n
 - Selected two-column daily workspace, readable purpose, direct quantity controls and quieter secondary actions.
 - Preserves open panels, drafts and reading position; adds focused correction dialogs and a clear preparation label.
 
-## 0.28.0 — Daily Sadhana commitments
+## 0.28.0 — Daily commitment cycle commitments
 
 - Day 0 preparation and a separate 48-day cycle preserve earlier records.
 - Daily must-do tasks share identity and completion with Actions; quantity targets, late occurrence dates, corrections and multiple boundaries feed one battle engine.
@@ -241,7 +241,7 @@ All notable KRYOS changes should be recorded here.
 - QA: Marketing unit tests, deployment/cache tests, full test suite, and diff validation.
 - Known limitation: Marketing records and attached files remain browser-local and are not cloud-synced or backed up.
 
-## 0.16.4 - Visible Sadhana drift evidence
+## 0.16.4 - Visible commitment cycle drift evidence
 
 - Render assistant-recorded `drift` statuses as visible Day 1–48 drift markers instead of grey, unreviewed-looking days.
 - Count saved drift statuses in the Inner Command summary and today state while retaining compatibility with existing `breach` entries.
@@ -324,10 +324,10 @@ All notable KRYOS changes should be recorded here.
 - Reduced redemption choices to two extra ADHD relief breaks, casual time, one initiated call, and movie night.
 - Required five qualified days in the current seven-day window for an initiated call.
 
-## 0.10.1 - Sadhana spirit rhythm patch
+## 0.10.1 - commitment cycle spirit rhythm patch
 
-- Restored Nama Japa to the Rhythm spirit practice surface.
-- Made Aditya Hridayam and Hanuman Chalisa visible 0/3 counted practices before completion.
+- Restored meditative practice to the Rhythm spirit practice surface.
+- Made counted practice B and counted practice A visible 0/3 counted practices before completion.
 - Added assistant ingestion support for exact counted Rhythm practices so late journal capture can still update the correct day.
 - Kept Reward scoring strict: counted practices only qualify when their configured target is reached.
 
@@ -351,9 +351,9 @@ All notable KRYOS changes should be recorded here.
 - Preserved prior Money balances, contacts, promises, payments, adjustments, and card snapshots.
 - Kept personal settlement amounts out of the public code; a checkpoint is shown only after it is saved to the Personal profile.
 
-## 0.7.0 - Devi Sadhana and Automatic Rewards
+## 0.7.0 - commitment cycle and Automatic Rewards
 
-- Reframed Inner Command as a 48-day Devi Sadhana from September 26 through November 12, 2026.
+- Reframed Inner Command as a 48-day commitment cycle from September 26 through November 12, 2026.
 - Added evidence-derived nourishment, care, spiritual, Career, Launch, articulation, Action, and boundary scoring.
 - Added rolling exercise, hair-care, grocery, Career, Launch, and articulation consistency gates.
 - Added the founder's small, social, medium, movie, and important-call reward catalog.

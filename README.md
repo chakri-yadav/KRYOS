@@ -2,12 +2,12 @@
 \n+0.30.0 improves Actions and Rhythm with clear next steps, visible routines and correctable counts.
 \n+0.29.0 establishes shared premium visual styling and truthful workspace-specific save feedback.
 \n+0.28.4 adds premium must-do focus cards and clearer completion feedback.
-\n+0.28.3 gives the promise to Devi Mother stronger visual prominence and readable premium styling.
-\n+0.28.2 adds the always-visible 48-day Sadhana journey map, keeping days won separate from elapsed time.
+\n+0.28.3 gives the promise to personal commitment stronger visual prominence and readable premium styling.
+\n+0.28.2 adds the always-visible 48-day commitment cycle journey map, keeping days won separate from elapsed time.
 
 0.28.1 adds the premium Daily Command interface with readable promises, shared must-do cards and stable editing controls.
 
-Inner Command 0.28.0 adds a 48-day Sadhana cycle, dated must-do commitments shared with Actions, quantity targets, multi-boundary records, and audited daily battle review.
+Inner Command 0.28.0 adds a 48-day commitment cycle cycle, dated must-do commitments shared with Actions, quantity targets, multi-boundary records, and audited daily battle review.
 
 Career 0.27.0 supports the updated Debugging studio: numbered exercises, mixed sessions, optional reinforcement, read-only field guides and diagnostic evidence notes.
 
@@ -63,7 +63,7 @@ KRYOS should answer three questions in the moment:
 - A slip never creates negative points. Recovery is always available.
 - Weekly Review reads evidence; it does not create work.
 - Personal and demo storage remain separated.
-- Existing task and career blocks still own behavior state. Version 0.7.0 adds the 48-day Devi Sadhana and evidence-derived reward rules without replacing those blocks.
+- Existing task and career blocks still own behavior state. Version 0.7.0 adds the 48-day commitment cycle and evidence-derived reward rules without replacing those blocks.
 
 ## Documentation Map
 
