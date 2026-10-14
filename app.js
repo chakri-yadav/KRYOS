@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.40.2";
-const APP_STAGE = "Cross-page visual workflow release";
-const APP_RELEASE_DATE = "2026-10-12";
-const APP_STATUS = "Readable daily promises and must-do tasks shared with Actions";
+const APP_VERSION = "0.41.0";
+const APP_STAGE = "Cloud aggregate progress release";
+const APP_RELEASE_DATE = "2026-10-13";
+const APP_STATUS = "Dated Marketing statistics integrated with progress and rewards";
 const APP_NEXT_MILESTONE = "Refine daily workflows through actual use";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Hosted Marketing shows aggregate application progress, recorded dates, source freshness and links to reward evidence. Job records and documents remain in the laptop workspace.",
   "Shared navigation with page-specific reading positions, direct links, Back/Forward and safe Continue targets. Presentation components have explicit owners; duplicate owners are rejected. Existing records, reward rules and storage boundaries are unchanged.",
   "Connected Progress to the shared 48-day Commitment battle model and source-day corrections. Fixed Today's signal contrast and coordinated readable controls. Reward wallets can restart at zero without deleting evidence or restoring old earnings.",
   "Restored compact whole-bar Water and whole-row devotional counters from the original Rhythm design, with clear count badges, segmented water progress and keyboard focus. Existing counting, Undo, dates, sync and reward rules are unchanged.",
