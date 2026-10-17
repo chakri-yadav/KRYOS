@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.45.4 — Release asset consistency
+
+- Normalize bundled asset cache keys and guard against mixed browser releases.
+
 ## 0.45.3 — Dated journal drafts and financial entry
 
 - Isolate journal drafts by selected date and preserve legacy draft content.
