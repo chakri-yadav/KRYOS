@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.45.0 — Historical review queue
+
+- Surface unreviewed historical days and pending corrections.
+- Open any queued date directly in its guided review.
+- Keep confirmed days accessible through the shared calendar.
+
 ## 0.44.0 — Connected review summaries
 
 - Coordinate selected-day review status across Progress and Rewards.
