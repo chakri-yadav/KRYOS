@@ -14,7 +14,7 @@ renderLifeProgress=function(){
  progressFlowOriginalRenderer();
  if(!progressView)return;
  const momentum=progressView.querySelector('.momentum-command');
- if(momentum)momentum.outerHTML=progressFlowSummaryMarkup(momentumStats(toDateKey()),journalProgressStreak());
+ if(momentum){const date=typeof kryosSelectedDate==='function'?kryosSelectedDate():toDateKey();momentum.outerHTML=progressFlowSummaryMarkup(momentumStats(date),journalProgressStreak(date));}
  const intro=progressView.querySelector('.progress-title>div>p:last-child');if(intro)intro.textContent='Recorded activity, learning and follow-through. No extra tracking needed here.';
  const records=progressView.querySelector('.progress-records');
  if(records){

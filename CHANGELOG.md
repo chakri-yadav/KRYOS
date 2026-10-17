@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.44.0 — Connected review summaries
+
+- Coordinate selected-day review status across Progress and Rewards.
+- Anchor historical charts and evidence weeks to the selected date.
+- Display earned points separately from the current wallet balance.
+
 ## 0.43.0 — Guided daily review
 
 - Introduce commitments, requirements and outcome preview in a focused review dialog.

@@ -38,11 +38,11 @@
   },true);
   document.addEventListener('click',event=>{
     if(currentPage==='marketing')return;
-    const el=event.target.closest('[data-shared-day-step],[data-shared-day-today],[data-commitment-day],[data-commitment-open],[data-rhythm-date],[data-life="day"],[data-journal-open-date]');if(!el)return;
+    const el=event.target.closest('[data-shared-day-step],[data-shared-day-today],[data-commitment-day],[data-commitment-open],[data-rhythm-date],[data-life="day"],[data-journal-open-date],[data-progress-command-day]');if(!el)return;
     event.preventDefault();event.stopImmediatePropagation();
     if(el.hasAttribute('data-shared-day-today'))context.today();
     else if(el.dataset.sharedDayStep){const d=new Date(context.get().selectedDate+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+Number(el.dataset.sharedDayStep));context.set(d.toISOString().slice(0,10));}
-    else {context.set(el.dataset.commitmentDay||el.dataset.commitmentOpen||el.dataset.rhythmDate||el.dataset.journalOpenDate||el.dataset.date);if(el.dataset.commitmentOpen||el.dataset.journalOpenDate)setPage('journal');}
+    else {context.set(el.dataset.commitmentDay||el.dataset.commitmentOpen||el.dataset.rhythmDate||el.dataset.journalOpenDate||el.dataset.progressCommandDay||el.dataset.date);if(el.dataset.commitmentOpen||el.dataset.journalOpenDate||el.dataset.progressCommandDay)setPage('journal');}
   },true);
   let lastCurrent=context.get().currentDate;
   setInterval(()=>{const state=context.get();if(state.currentDate!==lastCurrent){lastCurrent=state.currentDate;if(state.mode==='today'&&currentPage!=='marketing')render();else paint();}},30000);

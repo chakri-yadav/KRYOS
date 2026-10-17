@@ -29,7 +29,7 @@ function rewardV5CanSpend(reward,stats){return reward.cost<=(reward.id===lifeSto
 function rewardV5Message(reward,stats,gate){if(gate.missingCooldown)return 'Available '+gate.availableOn+' · '+gate.missingCooldown+' day'+(gate.missingCooldown===1?'':'s')+' remaining.';if(gate.missingDays)return gate.missingDays+' more qualified day(s) in the previous seven.';if(!rewardV5CanSpend(reward,stats))return Math.max(0,reward.cost-(reward.id===lifeStore().rewardV5.reservation?.rewardId?stats.balance:stats.available))+' points remaining outside protected savings.';return 'Available when you choose.';}
 function renderRewardV5(){if(rewardV5Rendering)return;rewardV5Rendering=true;try{
  const s=rewardV5Store(),stats=journalRewardStats(),today=toDateKey(),date=rewardSelectedDate||today,e=rewardEvidence(date),modern=date>=KryosRewardV5.start,activeWallet=!s.rewardV5.reset||date>=s.rewardV5.reset.earnFromDate;
- const target=KryosRewardV5.catalog.find(r=>r.id===(s.rewardV5.target||s.rewardTarget))||KryosRewardV5.catalog[3],gate=rewardEligibility(target),days=Array.from({length:7},(_,i)=>KryosRewardV5.shift(today,i-6));
+ const target=KryosRewardV5.catalog.find(r=>r.id===(s.rewardV5.target||s.rewardTarget))||KryosRewardV5.catalog[3],gate=rewardEligibility(target),days=Array.from({length:7},(_,i)=>KryosRewardV5.shift(date,i-6));
  const next=!e.work?['Finish one application or a defined Career outcome','launch']:e.scores.foundation<8?['Continue your visible foundations','rhythm']:['Choose your next commitment','journal'];
  const ready=gate.allowed&&rewardV5CanSpend(target,stats);
  const weekday=new Date(date+'T12:00:00Z').getUTCDay(),context=s.rewardV5.context[date]||(weekday===1?'recovery':weekday===2||weekday===3||weekday===4?'applications':'shift');

@@ -32,8 +32,8 @@ function journalProgressDays() {
   return [...new Set([...entryDays, ...evidenceDays])].sort();
 }
 
-function journalProgressStreak() {
-  const dates = journalProgressDays();
+function journalProgressStreak(anchor = toDateKey()) {
+  const dates = journalProgressDays().filter(date=>date<=anchor);
   if (!dates.length) return { current: 0, best: 0, total: 0 };
   let run = 0;
   let best = 0;
@@ -43,7 +43,7 @@ function journalProgressStreak() {
     best = Math.max(best, run);
     previous = date;
   });
-  const today = toDateKey();
+  const today = anchor;
   const last = dates.at(-1);
   return { current: last === today || progressDate(last, 1) === today ? run : 0, best, total: dates.length };
 }
@@ -135,9 +135,9 @@ function progressDeadlineTracker() {
 
 function renderProgressDashboard() {
   const store = lifeStore();
-  const today = toDateKey();
+  const today = typeof kryosSelectedDate==='function'?kryosSelectedDate():toDateKey();
   progressEvidence = collectProgressEvidence(store, taskState, careerState, today);
-  const streak = journalProgressStreak();
+  const streak = journalProgressStreak(today);
   const momentum = momentumStats(today);
   const days = Array.from({ length: progressRange }, (_, index) => progressDate(today, index - progressRange + 1));
   const domains = [...new Set(progressEvidence.map(record => record.domain))].sort();
@@ -164,7 +164,7 @@ function renderProgressDashboard() {
       <div class="evidence-today-stat" aria-label="${todayActivityCount} recorded activities today"><div class="evidence-today-orbit"><strong>${todayActivityCount}</strong></div><span>recorded<br>today</span></div>
     </section>
     ${progressOverview(today)}
-    ${progressJourney(today)}
+    ${progressJourney(toDateKey())}
     <section class="momentum-command">
       <div class="momentum-copy"><span class="signal-dot"></span><p>Current rhythm</p><h2>${momentum.activeDays ? `${momentum.activeDays} active ${momentum.activeDays === 1 ? 'day' : 'days'} this week` : 'The next action starts the signal'}</h2><small>${trendLabel}</small></div>
       ${momentumDial(momentum.momentum)}
