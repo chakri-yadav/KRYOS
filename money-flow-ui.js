@@ -13,6 +13,7 @@ renderMoneyView=function(){
  return {id,title:panel.querySelector('.section-kicker')?.textContent||heading.textContent};
  }).filter(Boolean);
  const anchor=moneyView.querySelector('.money-next-action')||moneyView.querySelector('.money-command');
+ if(anchor&&typeof moneyEntryDate==='function')anchor.insertAdjacentHTML('beforebegin','<p class="money-date-context">New records default to '+escapeHtml(moneyEntryDate())+'. Balances and account status show the current position.</p>');
  if(anchor&&sections.length)anchor.insertAdjacentHTML('afterend',moneyFlowNavigationMarkup(sections));
  const grid=moneyView.querySelector('.money-contact-grid');
  if(grid){grid.setAttribute('role','img');grid.setAttribute('aria-label','Contact history: '+[...grid.querySelectorAll('[title]')].map(c=>c.title).join('; '));}

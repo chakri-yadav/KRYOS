@@ -292,18 +292,33 @@ function renderContainmentDialog() {
   if (!containmentDialogOpen) return '';
   return `<dialog id="containment-dialog" class="money-dialog containment-dialog"><form id="life-containment-form"><header><div><p class="section-kicker">TRUTH, THEN RETURN</p><h2>What pulled attention away?</h2></div><button type="button" data-containment="close" aria-label="Close">×</button></header><div class="containment-breach-options"><label><input type="radio" name="boundary" value="astrology" required><span><strong>Astrology seeking</strong><small>Reading, prediction, chart check, or reassurance loop</small></span></label><label><input type="radio" name="boundary" value="social" required><span><strong>Instagram scrolling</strong><small>Unplanned feed or reel use</small></span></label><label><input type="radio" name="boundary" value="information" required><span><strong>Information replaced action</strong><small>News, interviews, or analysis used instead of the needed work</small></span></label><label><input type="radio" name="boundary" value="validation" required><span><strong>Validation-seeking contact</strong><small>Contact used primarily to escape or obtain reassurance</small></span></label><label class="containment-note"><span><strong>What happened?</strong><small>Brief facts, without punishment or justification.</small></span><textarea name="note" maxlength="500"></textarea></label></div><footer><button type="button" class="secondary-button" data-containment="close">Cancel</button><button class="primary-button">Record and return</button></footer></form></dialog>`;
 }
+function lifeDraftFor(date,store=lifeStore()){
+  return store.drafts?.[date]??((store.draftDate||toDateKey())===date?store.draft||'':'');
+}
+function lifeSaveDraft(date,text,store=lifeStore()){
+  if(!lifeDate(date))throw new Error('Choose a valid journal date.');
+  store.drafts ||= {};
+  const oldDate=store.draftDate||toDateKey();
+  if(store.draft&&!Object.prototype.hasOwnProperty.call(store.drafts,oldDate))store.drafts[oldDate]=store.draft;
+  store.drafts[date]=text;store.draft=text;store.draftDate=date;
+}
+function lifeClearDraft(date,store=lifeStore()){
+  store.drafts ||= {};store.drafts[date]='';
+  if((store.draftDate||toDateKey())===date)store.draft='';
+}
 function renderLifeJournal() {
   const store = lifeStore();
-  const today = toDateKey();
+  const today = typeof kryosSelectedDate==='function'?kryosSelectedDate():toDateKey();
+  const draft=lifeDraftFor(today,store);
   const todayRecords = store.records.filter(record => record.date === today && record.completed);
   const domains = new Set(todayRecords.map(record => record.domain));
-  const streak = typeof journalProgressStreak === 'function' ? journalProgressStreak() : { current: 0 };
-  journalView.innerHTML = `${renderInnerCommandPurpose()}${renderInnerCommandNextStep()}${renderContainmentCovenant()}${renderContainmentDialog()}<header class="journal-title inner-journal-title"><div><p class="section-kicker">DAILY EVIDENCE</p><h1>Tell the truth about the day.</h1><p>Record what happened. KRYOS and your assistant can organize the signal.</p></div><div class="journal-today"><strong>${todayRecords.length}</strong><span>actions today</span><small>${domains.size} domains · ${streak.current} day rhythm</small></div></header>
+  const streak = typeof journalProgressStreak === 'function' ? journalProgressStreak(today) : { current: 0 };
+  journalView.innerHTML = `${renderInnerCommandPurpose()}${renderInnerCommandNextStep()}${renderContainmentCovenant()}${renderContainmentDialog()}<header class="journal-title inner-journal-title"><div><p class="section-kicker">DAILY EVIDENCE</p><h1>Tell the truth about the day.</h1><p>Record what happened. KRYOS and your assistant can organize the signal.</p></div><div class="journal-today"><strong>${todayRecords.length}</strong><span>actions on this day</span><small>${domains.size} domains · ${streak.current} day rhythm</small></div></header>
     <div class="life-status" role="status">${escapeHtml(lifeNotice)}</div>
     <section class="life-compose premium-compose">
       <div class="compose-rail"><span>DAILY CAPTURE</span><strong>${new Date(`${today}T12:00:00`).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})}</strong><p>Work, body, mood, relationships, and whatever affected the day.</p></div>
-      <form id="life-entry-form"><div class="compose-toolbar"><label>Date<input name="date" type="date" value="${today}" max="${today}" required></label><span class="draft-indicator"><i></i><span id="life-draft-status" aria-live="polite">${store.draft ? 'Draft preserved' : 'Ready to capture'}</span></span></div>
-      <label class="life-wide journal-paper"><span>Journal entry</span><textarea name="text" id="life-draft" placeholder="Write the day as it happened. What moved, what resisted, what mattered?" required maxlength="100000">${escapeHtml(store.draft || '')}</textarea></label>
+      <form id="life-entry-form"><div class="compose-toolbar"><label>Date<input name="date" type="date" value="${today}" max="${toDateKey()}" data-shared-day-input required></label><span class="draft-indicator"><i></i><span id="life-draft-status" aria-live="polite">${draft ? 'Draft preserved' : 'Ready to capture'}</span></span></div>
+      <label class="life-wide journal-paper"><span>Journal entry</span><textarea name="text" id="life-draft" placeholder="Write the day as it happened. What moved, what resisted, what mattered?" required maxlength="100000">${escapeHtml(draft)}</textarea></label>
       <div class="compose-footer"><span>One honest record is enough.</span><button class="primary-button">Save to timeline</button></div></form>
     </section>
     <section class="life-section journal-history"><div class="life-heading"><div><p class="section-kicker">EVIDENCE LEDGER</p><h2>Your timeline</h2><p>${store.entries.length} entries preserved</p></div><input id="life-search" type="search" placeholder="Search entries" aria-label="Search journal"></div><div id="life-timeline" class="journal-timeline">${lifeTimeline()}</div></section>`;
@@ -335,7 +350,7 @@ function renderLifeProgress() {
   renderProgressDashboard();
 }
 document.addEventListener('input', e => {
-  if (e.target.id === 'life-draft') { lifeStore().draft = e.target.value; saveTasks(); document.querySelector('#life-draft-status').textContent = 'Draft saved on this device'; }
+  if (e.target.id === 'life-draft') { lifeSaveDraft(e.target.form.elements.date.value,e.target.value); saveTasks(); document.querySelector('#life-draft-status').textContent = 'Draft saved on this device'; }
   if (e.target.id === 'life-search') document.querySelector('#life-timeline').innerHTML = lifeTimeline(e.target.value);
 });
 document.addEventListener('change', e => {
@@ -359,7 +374,7 @@ document.addEventListener('submit', e => {
       if(existing)Object.assign(existing,next);else store.innerCommand.containmentDays.push(next);
       containmentDialogOpen=false;saveTasks();lifeNotice='Breach recorded without excuses. Return through the next right action.';
     }
-    if (e.target.id === 'life-entry-form') { lifeCommit(validateLifeImport({version:1,id:createId(),date:f.get('date'),text:f.get('text'),records:[]})); lifeStore().draft=''; saveTasks(); lifeNotice='Journal saved.'; }
+    if (e.target.id === 'life-entry-form') { lifeCommit(validateLifeImport({version:1,id:createId(),date:f.get('date'),text:f.get('text'),records:[]})); lifeClearDraft(f.get('date')); saveTasks(); lifeNotice='Journal saved.'; }
     if (e.target.id === 'life-record-form') { const title=f.get('title').trim(); const kind=f.get('kind'); lifeCommit(validateLifeImport({version:1,id:createId(),date:f.get('date'),text:title,records:[{title,domain:f.get('domain'),kind,evidence:title,completed:kind==='activity',minutes:f.get('minutes')===''?null:Number(f.get('minutes'))}]})); lifeNotice='Record saved. No automatic VP for health or mood records.'; }
     if (e.target.id === 'life-import-form') { const candidate=validateLifeImport(JSON.parse(f.get('package'))); if(lifeStore().entries.some(x=>x.packageId===candidate.id))throw new Error('This package is already saved.'); lifePreview=candidate; lifeNotice='Review the proposed records below.'; }
   } catch(error) { lifeNotice=error.message; }

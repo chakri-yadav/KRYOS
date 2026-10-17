@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.45.3 — Dated journal drafts and financial entry
+
+- Isolate journal drafts by selected date and preserve legacy draft content.
+- Connect journal and financial record entry defaults to the shared date.
+- Keep current account balances clearly identified.
+
 ## 0.45.2 — Review navigation recovery
 
 - Restore dates through browser history and resume unfinished reviews at their previous step.
