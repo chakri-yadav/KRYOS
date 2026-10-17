@@ -2,9 +2,11 @@
 let commitmentDate = '';
 function commitmentLife() { const life=lifeStore(); KryosCommitment.ensure(life); return life; }
 function commitmentSelected() { const today=KryosCommitment.today(); return commitmentDate || (today<KryosCommitment.cycle.dayZero?KryosCommitment.cycle.dayZero:today>KryosCommitment.cycle.endDate?KryosCommitment.cycle.endDate:today); }
-function commitmentMutate(operation,date=commitmentSelected()) {
+function commitmentMutate(operation,date=commitmentSelected(),requestKey=createId()) {
   const next=structuredClone(commitmentLife());
-  const receipt=KryosCommitment.apply(next,operation,date,new Date().toISOString(),createId());
+  const prior=next.s\u0061dhana?.receipts?.[requestKey];
+  const revision=prior?JSON.parse(prior.fingerprint).operation.expectedRevision:KryosCommitment.day(next,date).revision;
+  const receipt=KryosCommitment.apply(next,{expectedRevision:revision,...operation},date,new Date().toISOString(),requestKey);
   taskState.life=next; saveTasks(); lifeNotice='Saved on this device. '+(typeof actionSyncLabel==='function'?actionSyncLabel():'');
   renderLifeJournal(); return receipt;
 }
@@ -68,7 +70,17 @@ document.addEventListener('click',event=>{
   }catch(error){lifeNotice=error.message;renderLifeJournal();}
 });
 const commitmentOriginalActionStatus=updateActionStatus;
-updateActionStatus=function(action,status){const now=new Date().toISOString(),date=KryosCommitment.today(now);const previous=action.status;const result=commitmentOriginalActionStatus(action,status);if(result&&status!==previous&&(status==='done'||previous==='done')){KryosCommitment.actionChanged(commitmentLife(),action,date,now);saveTasks();}return result;};
+updateActionStatus=function(action,status){
+  const now=new Date().toISOString(),date=typeof kryosSelectedDate==='function'?kryosSelectedDate():KryosCommitment.today(now);
+  if(status==='done'&&date>KryosCommitment.today(now)){alert('Future days can be planned, not completed.');return false;}
+  if(status===action.status)return true;
+  const previous=action.status,result=commitmentOriginalActionStatus(action,status);
+  if(result){action.revision=(action.revision||0)+1;action.recordedAt=now;action.occurredDate=date;
+    if(status==='done'||previous==='done'){KryosCommitment.actionChanged(commitmentLife(),action,date,now);action.completedAt=status==='done'?now:null;}
+    saveTasks();
+  }
+  return result;
+};
 const commitmentOriginalSyncIndicator=updateActionSyncIndicator;
 updateActionSyncIndicator=function(){commitmentOriginalSyncIndicator();const el=document.querySelector('#commitment-sync');if(el)el.textContent=actionSyncLabel();};
 const commitmentOriginalActionCard=renderActionCard;

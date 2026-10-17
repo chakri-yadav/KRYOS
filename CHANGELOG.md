@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.42.1 — Historical activity attribution
+
+- Use the selected occurrence day for manual activity completion and preserve entry timestamps.
+- Preserve routine identity and avoid duplicate state changes.
+- Connect revision and request-replay safeguards in the daily-command adapter.
+
 ## 0.42.0 — Shared date context
 
 - Coordinate personal-page date selection with persistent previous, next and current-day controls.

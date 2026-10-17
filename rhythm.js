@@ -53,11 +53,15 @@ function rhythmTarget(habit) {
   return Number(habit.target || 1);
 }
 
-function rhythmSetValue(habitId, value, date = toDateKey(), source = 'manual') {
+function rhythmSetValue(habitId, value, date = (typeof kryosSelectedDate==='function'?kryosSelectedDate():toDateKey()), source = 'manual') {
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||Number.isNaN(Date.parse(date))||new Date(date).toISOString().slice(0,10)!==date||date>toDateKey())throw new Error('Choose today or an earlier day to record activity.');
   const store = rhythmStore();
   const index = store.events.findIndex(event => event.habitId === habitId && event.date === date);
   const habit = rhythmHabit(habitId);
-  const next = { id: index >= 0 ? store.events[index].id : createId(), habitId, date, value: Math.max(0, Number(value) || 0), unit: habit?.unit || 'completion', source, updatedAt: new Date().toISOString() };
+  const existing=index>=0?store.events[index]:null,now=new Date().toISOString(),total=Math.max(0,Number(value)||0);
+  if(!Number.isFinite(total))throw new Error('Enter a finite activity total.');
+  if(existing&&existing.value===total)return existing;
+  const next = { ...existing,id: existing?.id || createId(), habitId, date, occurredDate:date,recordedAt:existing?.recordedAt||now,revision:(existing?.revision||0)+1,value:total, unit: habit?.unit || 'completion', source, updatedAt: now };
   if (index >= 0) store.events[index] = next;
   else store.events.push(next);
   saveTasks();
