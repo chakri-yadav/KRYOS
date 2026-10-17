@@ -12,7 +12,7 @@
   root.createKryosDayContext=createDayContext;
   if(typeof module!=='undefined')module.exports={createDayContext};
   if(typeof document==='undefined')return;
-  const context=createDayContext({today:()=>toDateKey(),load:()=>JSON.parse(localStorage.getItem('kryos-day-context-v1')||'null'),save:value=>localStorage.setItem('kryos-day-context-v1',JSON.stringify(value))});
+  const context=createDayContext({today:()=>toDateKey(),load:()=>window.history.state?.kryosDay||JSON.parse(localStorage.getItem('kryos-day-context-v1')||'null'),save:value=>localStorage.setItem('kryos-day-context-v1',JSON.stringify(value))});
   root.KryosDayContext=context;
   root.kryosSelectedDate=()=>context.get().selectedDate;
   function connect(){const date=context.get().selectedDate;selectedTaskDate=date;selectedJournalDate=date;lifeSelectedDate=date;rhythmSelectedDate=date;rewardSelectedDate=date;commitmentDate=date;}
@@ -28,7 +28,18 @@
   }
   const previousRender=render;
   render=function(){connect();previousRender();paint();};
-  context.subscribe(()=>{connect();render();window.dispatchEvent(new CustomEvent('kryos:day-changed',{detail:context.get()}));});
+  let restoringHistory=false;
+  function rememberDay(replace=false){
+    const value=context.get(),prior=window.history.state?.kryosDay;
+    if(!replace&&prior?.selectedDate===value.selectedDate&&prior?.mode===value.mode)return;
+    window.history[replace?'replaceState':'pushState']({...window.history.state,kryosDay:value},'',window.location.href);
+  }
+  context.subscribe(()=>{if(!restoringHistory)rememberDay();connect();render();window.dispatchEvent(new CustomEvent('kryos:day-changed',{detail:context.get()}));});
+  window.addEventListener('popstate',event=>{
+    const day=event.state?.kryosDay;if(!day)return;
+    restoringHistory=true;try{context.set(day.selectedDate,{followToday:day.mode==='today'});}finally{restoringHistory=false;}
+  });
+  rememberDay(true);
   document.addEventListener('change',event=>{
     if(currentPage==='marketing')return;
     const el=event.target;

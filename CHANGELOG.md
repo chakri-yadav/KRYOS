@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.45.2 — Review navigation recovery
+
+- Restore dates through browser history and resume unfinished reviews at their previous step.
+- Keep historical record attribution intact during navigation and refresh.
+
 ## 0.45.1 — Career and launch date attribution
 
 - Connect learning completion and Launch activity entry to the shared selected day.

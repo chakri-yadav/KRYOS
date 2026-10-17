@@ -26,8 +26,12 @@
   const baseJourney=commandJourneyModel;
   commandJourneyModel=function(life,today){return baseJourney(life,today).map(d=>d.date<today&&model(life,d.date).pending?{...d,state:'awaiting-review'}:d);};
   let dialog,date,step=0,previewRevision,returnFocus;
+  const reviewPositionKey=date=>'kryos-review-position-v1:'+date;
+  function savedStep(date){try{const value=Number(localStorage.getItem(reviewPositionKey(date)));return Number.isInteger(value)&&value>=0&&value<=2?value:0;}catch{return 0;}}
   function close(){dialog?.close();returnFocus?.focus();}
+  window.addEventListener?.('kryos:day-changed',()=>{if(dialog?.open&&kryosSelectedDate()!==date)close();});
   function draw(){
+    try{localStorage.setItem(reviewPositionKey(date),String(step));}catch{}
     const life=commitmentLife(),m=model(life,date),d=m.day;
     let content='';
     if(step===0)content=`<h3>What did you complete?</h3><p>Record what happened on ${escapeHtml(commandDateLabel(date))}.</p>${d.tasks.map(t=>`<label class="day-review-row"><span>${escapeHtml(t.title)} <small>Target: ${t.target}</small></span><input aria-label="Completed amount for ${escapeHtml(t.title)}" type="number" min="0" max="${t.kind==='check'?1:100000}" value="${t.progress?.value??(KryosCommitment.taskComplete(t,life,date)?t.target:0)}" data-review-task="${escapeHtml(t.id)}"></label>`).join('')||'<p>No must-do commitments recorded for this day.</p>'}${!d.planSet?'<button type="button" data-review-empty>I had no additional must-do commitments</button><p>If commitments are missing, close this review and add what you had committed to that day.</p>':''}`;
@@ -42,7 +46,7 @@
   }
   document.addEventListener('click',e=>{
     const open=e.target.closest('[data-guided-review],[data-commitment-review]');if(!open)return;
-    e.preventDefault();e.stopImmediatePropagation();date=commitmentSelected();step=0;returnFocus=open;
+    e.preventDefault();e.stopImmediatePropagation();date=commitmentSelected();step=savedStep(date);returnFocus=open;
     dialog=document.getElementById('day-review-dialog');if(!dialog){dialog=document.createElement('dialog');dialog.id='day-review-dialog';dialog.className='day-review-dialog';dialog.setAttribute('aria-label','Review selected day');document.body.append(dialog);}
     draw();dialog.showModal();
   },true);
@@ -55,7 +59,7 @@
       if(b.hasAttribute('data-review-step')){step=Number(b.dataset.reviewStep);draw();}
       if(b.hasAttribute('data-review-next')){step++;draw();}
       if(b.hasAttribute('data-review-back')){step--;draw();}
-      if(b.hasAttribute('data-review-confirm')){commitmentMutate({type:'day.review',expectedRevision:previewRevision},date);close();}
+      if(b.hasAttribute('data-review-confirm')){commitmentMutate({type:'day.review',expectedRevision:previewRevision},date);try{localStorage.removeItem(reviewPositionKey(date));}catch{}close();}
     }catch(error){dialog.querySelector('#day-review-error').textContent=error.message;}
   });
   document.addEventListener('change',e=>{
