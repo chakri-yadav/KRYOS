@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.43.0 — Guided daily review
+
+- Introduce commitments, requirements and outcome preview in a focused review dialog.
+- Explain missing answers and calculated failure reasons before confirmation.
+- Mark corrected reviews as awaiting confirmation and preserve the prior confirmed result label.
+
 ## 0.42.1 — Historical activity attribution
 
 - Use the selected occurrence day for manual activity completion and preserve entry timestamps.
