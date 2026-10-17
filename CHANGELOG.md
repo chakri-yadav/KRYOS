@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.45.1 — Career and launch date attribution
+
+- Connect learning completion and Launch activity entry to the shared selected day.
+- Preserve occurrence dates for deadline calculations and entry timestamps for audit.
+- Prevent future-dated completion and repeated checklist evidence.
+
 ## 0.45.0 — Historical review queue
 
 - Surface unreviewed historical days and pending corrections.

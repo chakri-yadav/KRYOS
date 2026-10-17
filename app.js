@@ -15,7 +15,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.45.0";
+const APP_VERSION = "0.45.1";
 const APP_STAGE = "Cloud aggregate progress release";
 const APP_RELEASE_DATE = "2026-10-13";
 const APP_STATUS = "Dated Marketing statistics integrated with progress and rewards";
@@ -3053,7 +3053,7 @@ function careerDateDistance(fromKey, toKey) {
 
 function getCareerDeadlineState(item, stats, todayKey = toDateKey()) {
   const targetDate = isDateKey(item.targetDate) ? item.targetDate : "";
-  const completedDate = item.completedAt ? toDateKey(item.completedAt) : "";
+  const completedDate = item.completedDate || (item.completedAt ? toDateKey(item.completedAt) : "");
   if (!targetDate) return { key: "unscheduled", label: "No deadline", targetDate, completedDate, days: null, score: null, stats };
   if (stats.total > 0 && stats.done === stats.total) {
     const daysLate = careerDateDistance(targetDate, completedDate || todayKey);
@@ -8956,6 +8956,8 @@ function updateCareerField(dataset, field, value) {
 }
 
 function toggleCareerCheck(dataset, checked) {
+  const activityDate=typeof kryosSelectedDate==='function'?kryosSelectedDate():toDateKey();
+  if(checked&&activityDate>toDateKey()){alert('Future days can be planned, not completed.');render();return;}
   const { roadmap, isDraft } = getCareerEditorRoadmap(dataset.roadmapId);
   const module = findModule(roadmap, dataset.moduleId);
   const topic = findTopic(module, dataset.topicId);
@@ -8977,6 +8979,7 @@ function toggleCareerCheck(dataset, checked) {
     const topicStats = getTopicStats(topic);
     if (topicStats.total > 0 && topicStats.done === topicStats.total && !topic.completedAt) {
       topic.completedAt = new Date().toISOString();
+      topic.completedDate = activityDate;
       logCareerAction({
         eventType: "topic-complete",
         roadmapId: roadmap.id,
@@ -8986,15 +8989,17 @@ function toggleCareerCheck(dataset, checked) {
         topicId: topic.id,
         topicTitle: topic.title,
         checkId: `topic:${topic.id}`,
-        checkText: `${topic.title} completed${topic.targetDate && toDateKey() <= topic.targetDate ? " on time" : ""}`,
+        checkText: `${topic.title} completed${topic.targetDate && activityDate <= topic.targetDate ? " on time" : ""}`,
         targetDate: topic.targetDate || "",
       });
     } else if (topicStats.done < topicStats.total && topic.completedAt) {
       topic.completedAt = "";
+      topic.completedDate = "";
     }
     const moduleStats = getModuleStats(module);
     if (moduleStats.total > 0 && moduleStats.done === moduleStats.total && !module.completedAt) {
       module.completedAt = new Date().toISOString();
+      module.completedDate = activityDate;
       logCareerAction({
         eventType: "module-complete",
         roadmapId: roadmap.id,
@@ -9002,11 +9007,12 @@ function toggleCareerCheck(dataset, checked) {
         moduleId: module.id,
         moduleTitle: module.title,
         checkId: `module:${module.id}`,
-        checkText: `${module.title} completed${module.targetDate && toDateKey() <= module.targetDate ? " on time" : ""}`,
+        checkText: `${module.title} completed${module.targetDate && activityDate <= module.targetDate ? " on time" : ""}`,
         targetDate: module.targetDate || "",
       });
     } else if (moduleStats.done < moduleStats.total && module.completedAt) {
       module.completedAt = "";
+      module.completedDate = "";
     }
   }
   if (!isDraft) {
@@ -9016,15 +9022,17 @@ function toggleCareerCheck(dataset, checked) {
 }
 
 function logCareerAction(details) {
-  const date = toDateKey();
+  const date = typeof kryosSelectedDate==='function'?kryosSelectedDate():toDateKey();
   const alreadyLogged = careerState.activityLog.some(
-    (item) => item.date === date && item.checkId === details.checkId,
+    (item) => item.roadmapId === details.roadmapId && item.checkId === details.checkId && !item.voidedAt,
   );
   if (alreadyLogged) return;
 
   careerState.activityLog.push({
     id: createId(),
     date,
+    occurredDate: date,
+    recordedAt: new Date().toISOString(),
     ...details,
   });
 }
