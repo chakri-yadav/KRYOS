@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.42.0 — Shared date context
+
+- Coordinate personal-page date selection with persistent previous, next and current-day controls.
+- Preserve historical selection across refresh and operating-day rollover.
+- Keep the application-tracking workspace independent.
+
 ## 0.40.2 — Promise, actions and routines visual refinement
 
 - Preserve the prominent promise with compact journey and must-do surfaces.
