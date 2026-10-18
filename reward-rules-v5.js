@@ -50,7 +50,7 @@
   const payment=list(tasks.money?.ledgerEvents).find(e=>e.date===date&&e.type==='card-payment'&&e.funder==='own'&&Number(e.amountCents)>0&&!e.voidedAt);
   if(payment)add('responsibility','payment:'+payment.id,'Payment obligation completed','Money',5);
   uniqueTyped.filter(e=>e.kind==='shift').slice(0,1).forEach(e=>add('responsibility',identity(e),e.title,'Work',3));
-  list(life.actions).filter(e=>e.status==='done'&&dayOf(e)===date&&['important','critical'].includes(e.priority)).forEach(e=>{if(/^(money|career|launch|application|mock)[:\-]/.test(e.sourceRef||'')||list(tasks.money?.contacts).some(c=>c.actionId===e.id)||list(tasks.money?.ledgerEvents).some(c=>c.actionId===e.id))return;add('responsibility',e.sourceRef||'action:'+(e.externalId||e.id),e.title,'Actions',e.priority==='critical'?5:3);});
+  list(life.actions).filter(e=>[...list(e.completionDates),...(e.status==='done'?[dayOf(e)]:[])].filter(valid).sort()[0]===date&&['important','critical'].includes(e.priority)).forEach(e=>{if(/^(money|career|launch|application|mock)[:\-]/.test(e.sourceRef||'')||list(tasks.money?.contacts).some(c=>c.actionId===e.id)||list(tasks.money?.ledgerEvents).some(c=>c.actionId===e.id))return;add('responsibility',e.sourceRef||'action:'+(e.externalId||e.id),e.title,'Actions',e.priority==='critical'?5:3);});
   const gross=Object.values(scores).reduce((a,b)=>a+b,0),work=applicationCount>0||learning.length>0;
   const qualified=work&&scores.purpose>=15&&scores.foundation>=8&&gross>=30;
   return {date,ruleVersion:version,buckets,scores,total:gross,gross,qualified,work,gates:{work,foundation:scores.foundation>=8,threshold:gross>=30},credits:Math.floor(gross/5),remainder:gross%5,deduction:0,workspaces:[...new Set(Object.values(buckets).flat().map(e=>e.source))]};

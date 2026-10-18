@@ -39,7 +39,8 @@
   }
   function taskComplete(task,life,date) {
     const action=life.actions.find(a=>a.id===task.actionId);
-    if(task.progress?.occurredDate===date) return task.progress.value>=task.target && action?.status==='done';
+    if(task.progress?.occurredDate===date) return task.progress.value>=task.target;
+    if(task.kind==='check'&&action?.completionDates?.includes(date))return true;
     if(task.kind==='check' && action?.status==='done') return (action.completedDate || (action.completedAt ? today(action.completedAt) : ''))===date;
     return false;
   }
@@ -86,13 +87,14 @@
       if(t.kind==='check'&&operation.value>1) throw new Error('A check task is either complete or incomplete.');
       t.progress={value:operation.value,occurredDate:date,recordedAt:now}; t.missed=!!d.reviewedAt&&operation.value<t.target;
       const a=life.actions.find(a=>a.id===t.actionId); if(!a) throw new Error('Linked action not found.');
+      const completed=new Set(a.completionDates||[]);if(a.completedDate)completed.add(a.completedDate);if(operation.value>=t.target)completed.add(date);else completed.delete(date);a.completionDates=[...completed].sort();
       a.status=operation.value>=t.target?'done':'open'; a.completedAt=a.status==='done'?date+'T12:00:00.000Z':null; a.completedDate=a.status==='done'?date:null; a.updatedAt=now;
     } else if(type==='task.correct') {
       const t=d.tasks.find(t=>t.id===operation.taskId); if(!t) throw new Error('Task not found.');
       if(!String(operation.reason||'').trim()) throw new Error('Explain this correction.');
       if(!Number.isInteger(operation.target)||operation.target<1||operation.target>100000||t.kind==='check'&&operation.target!==1) throw new Error('Invalid corrected target.');
       t.target=operation.target;
-      const a=life.actions.find(a=>a.id===t.actionId); if(a){a.status=(t.progress?.value||0)>=t.target?'done':'open';a.completedDate=a.status==='done'?date:null;a.completedAt=a.status==='done'?date+'T12:00:00.000Z':null;a.updatedAt=now;}
+      const a=life.actions.find(a=>a.id===t.actionId); if(a){const completed=new Set(a.completionDates||[]);if(a.completedDate)completed.add(a.completedDate);if((t.progress?.value||0)>=t.target)completed.add(date);else completed.delete(date);a.completionDates=[...completed].sort();a.status=(t.progress?.value||0)>=t.target?'done':'open';a.completedDate=a.status==='done'?date:null;a.completedAt=a.status==='done'?date+'T12:00:00.000Z':null;a.updatedAt=now;}
     } else if(type==='breach.record') {
       if(!Array.isArray(operation.boundaries)||!operation.boundaries.length||operation.boundaries.some(id=>!items.some(i=>i.id===id&&i.type==='boundary'))) throw new Error('Select one or more boundaries.');
       d.breaches.push({id:key+':breach',boundaries:[...new Set(operation.boundaries)],note:String(operation.note||'').slice(0,500),recordedAt:now,recovered:operation.recovered===true});
@@ -117,8 +119,11 @@
     return receipt;
   }
   function actionChanged(life,action,date,now) {
-    const s=ensure(life); action.completedDate=action.status==='done'?date:null;
-    for(const d of Object.values(s.days)) for(const t of d.tasks.filter(t=>t.actionId===action.id)) {
+    const s=ensure(life),completed=new Set(action.completionDates||[]);
+    if(action.completedDate)completed.add(action.completedDate);
+    if(action.status==='done')completed.add(date);else completed.delete(date);
+    action.completionDates=[...completed].sort();action.completedDate=action.status==='done'?date:null;
+    for(const d of Object.values(s.days).filter(d=>d.date===date)) for(const t of d.tasks.filter(t=>t.actionId===action.id)) {
       const before=structuredClone(d);
       if(action.status!=='done') {t.progress={value:0,occurredDate:d.date,recordedAt:now};t.missed=!!d.reviewedAt;}
       else if(date===d.date) {t.progress={value:t.target,occurredDate:date,recordedAt:now};t.missed=false;}

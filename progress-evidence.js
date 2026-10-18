@@ -7,7 +7,11 @@ function collectProgressEvidence(life, tasks, career, today) {
     known.add(id);
     if (complete && date && date <= today) rows.set(id, { id, date, domain, title, source, completed: true });
   };
-  (life.actions || []).forEach(e => add(`action:${e.externalId || e.id}`, e.completedDate || (e.completedAt ? toDateKey(e.completedAt) : ''), 'Actions', e.title, 'Actions', e.status === 'done'));
+  (life.actions || []).forEach(e => {
+    const ref=`action:${e.externalId||e.id}`,dates=new Set(e.completionDates||[]);known.add(ref);
+    if(e.status==='done'){const date=e.completedDate||(e.completedAt?toDateKey(e.completedAt):'');if(date)dates.add(date);}
+    for(const date of dates)add(ref+':'+date,date,'Actions',e.title,'Actions');
+  });
   const checkState=new Map();
   for(const roadmap of career.roadmaps||[])for(const module of roadmap.modules||[])for(const topic of module.topics||[])for(const check of topic.checklist||[])checkState.set(roadmap.id+':'+check.id,!!check.done);
   const latestChecks=new Map();
