@@ -81,6 +81,7 @@ function scheduleTaskCloudSync() {
 }
 
 async function flushTaskCloudSync() {
+  if(globalThis.KryosJournalConflict?.resolving)return;
   if (actionSyncRunning || !actionSyncDirty) return;
   actionSyncRunning = true;
   actionSyncDirty = false;

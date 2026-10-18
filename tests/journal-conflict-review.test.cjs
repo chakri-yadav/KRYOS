@@ -9,8 +9,9 @@ test('missing and matching data produce safe summaries',()=>{
  assert.equal(compare(null,null).changedEntries.length,0);assert.equal(compare({entries:{}},{entries:{}}).recordsDiffer,false);
  const copy={life:{entries:[{id:'same',text:'Same'}],draft:'Legacy draft'}};assert.equal(compare(copy,copy).changedEntries.length,0);assert.equal(compare(copy,copy).localDrafts,1);
 });
-test('inspection code uses read-only queries, excludes unrelated blocks and never pushes or pulls',()=>{
+test('resolution is block-scoped and guarded; never uses broad push, pull or upsert',()=>{
  const source=fs.readFileSync(path.join(__dirname,'../journal-conflict-review.js'),'utf8');
- assert.match(source,/\['tasks','journal'\]/);assert.doesNotMatch(source,/\.upsert\(|\.rpc\(|pushToSupabase\(|pullFromSupabase\(|applyRemoteBlock\(/);
+ assert.match(source,/\['tasks','journal'\]/);assert.doesNotMatch(source,/\.upsert\(|\.rpc\(|pushToSupabase\(|pullFromSupabase\(/);
+ assert.match(source,/eq\('revision',selected.cloudRevision\)/);assert.match(source,/eq\('payload_updated_at',selected.cloudUpdatedAt\)/);
  assert.match(source,/snapshotOwner!==syncState.userId/);
 });
