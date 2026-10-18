@@ -15,7 +15,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.45.8";
+const APP_VERSION = "0.45.9";
 const APP_STAGE = "Cloud aggregate progress release";
 const APP_RELEASE_DATE = "2026-10-13";
 const APP_STATUS = "Dated Marketing statistics integrated with progress and rewards";
@@ -7479,6 +7479,14 @@ function isAfter(left, right) {
   return new Date(left).getTime() > new Date(right).getTime();
 }
 
+function hasProtectedJournalWork(blockKey,payload) {
+  if(blockKey!=='tasks'||!payload?.life)return false;
+  const life=payload.life;
+  return (Array.isArray(life.entries)&&life.entries.length>0)
+    ||(Array.isArray(life.records)&&life.records.length>0)
+    ||(typeof life.draft==='string'&&!!life.draft.trim())
+    ||Object.values(life.drafts||{}).some(text=>typeof text==='string'&&!!text.trim());
+}
 function getSyncEvidenceScore(blockKey, payload) {
   if (!payload || typeof payload !== "object") return 0;
   if (blockKey === "career") {
@@ -7533,7 +7541,8 @@ async function refreshCloudData({ automatic = false } = {}) {
       const knownRemoteAt = syncState.remoteBlockVersions?.[row.block_key] || null;
       const localEvidence = getSyncEvidenceScore(row.block_key, localBlock?.value);
       const remoteEvidence = getSyncEvidenceScore(row.block_key, row.payload);
-      const recoveryFromStaleLocal = !knownRemoteAt && remoteEvidence > localEvidence;
+      const protectedJournalWork = hasProtectedJournalWork(row.block_key,localBlock?.value);
+      const recoveryFromStaleLocal = !knownRemoteAt && remoteEvidence > localEvidence && !protectedJournalWork;
       const knownRemoteRevision = Number(syncState.remoteBlockRevisions?.[row.block_key] || 0);
       const remoteRevision = Number(row.revision || 0);
       const remoteAdvanced = isAfter(remoteAt, knownRemoteAt) || remoteRevision > knownRemoteRevision;
@@ -7555,7 +7564,7 @@ async function refreshCloudData({ automatic = false } = {}) {
       }
       const localChangedSinceRemote = knownRemoteAt
         ? isAfter(localAt, knownRemoteAt)
-        : localEvidence > 0;
+        : localEvidence > 0 || protectedJournalWork;
       if (localChangedSinceRemote && remoteAdvanced && !recoveryFromStaleLocal) {
         conflicts += 1;
         continue;
