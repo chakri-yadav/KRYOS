@@ -7,7 +7,7 @@ KRYOS is a personal ADHD support application. The owner may report daily facts o
 - Journal text, water intake, spiritual practice, Action completion, Career progress, and Inner Command observations belong in the Personal Supabase profile.
 - Never put private journal text, raw personal statements, API tokens, or database exports into GitHub commits, issues, pull requests, release notes, or test fixtures.
 - A code change or GitHub commit is not evidence that a personal KRYOS record was saved. Say it was saved only after receiving an accepted cloud receipt.
-- The local `9619` screen PIN does not authorize backend writes.
+- A local screen PIN does not authorize backend writes.
 
 ## Assistant ingestion workflow
 
@@ -32,4 +32,6 @@ Do not infer completion from intentions such as “I should read” or from nega
 # Public release terminology
 
 Use technical feature descriptions in commit messages, branch names, pull requests, release notes, and public documentation. Use the engineering/ branch namespace. Keep personal practice names, assistant branding, and machine-specific paths out of public files and metadata. Preserve compatibility with existing private storage and deployed operation identifiers.
+
+Before publication, run `node scripts/check-public-surface.mjs` and the complete test suite. After committing, run the publication check with `--metadata`. Follow `docs/project/publication-policy.md` for remote metadata checks and optional private vocabulary checks. Never include screen credentials in public instructions.
 
