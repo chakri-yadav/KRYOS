@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.45.16";
-const APP_STAGE = "Daily workspace visual upgrade";
+const APP_VERSION = "0.45.17";
+const APP_STAGE = "Learning and application workspace presentation";
 const APP_RELEASE_DATE = "2026-10-18";
-const APP_STATUS = "Reading-first daily work, explained review and connected journey";
-const APP_NEXT_MILESTONE = "Refine career and application workspace presentation";
+const APP_STATUS = "Clear learning lanes, document controls and spacious analytics";
+const APP_NEXT_MILESTONE = "Refine supporting-page presentation";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Learning and application workspace presentation: readable roadmap lanes, clear core coverage, shared status colors and spacious analytics. Laptop document controls remain local; hosted views contain approved aggregate receipts only. Curriculum, reward rules and storage boundaries are unchanged.",
   "Daily workspace visual upgrade: full promise in a calm reading surface, commitments before the journey, explicit outline states and explained review outcomes. Actions and Rhythm use the approved palette; linked records, historical corrections, whole-row counters, Undo and reward rules are preserved.",
   "Shared visual foundation: forest-and-warm-neutral shell, readable controls, blue keyboard focus and explicit historical date attribution. Existing features, reward rules and storage boundaries remain unchanged. Page redesign and dark-mode activation are separate later slices.",
   "Hosted Marketing shows aggregate application progress, recorded dates, source freshness and links to reward evidence. Job records and documents remain in the laptop workspace.",

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.45.17 — Learning and aggregate workspace presentation
+
+- Improve roadmap reading lanes, module hierarchy, focus and core-coverage presentation without changing curriculum.
+- Refine spacious aggregate analytics, date controls, recorded-day coverage and receipt presentation.
+- Preserve the aggregate-only hosted surface; no application records, documents or new handoffs are included.
+
 ## 0.45.16 — Daily workspace visual upgrade
 
 - Apply reading-first daily composition with the complete original promise and outline.
