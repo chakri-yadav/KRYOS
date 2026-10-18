@@ -15,7 +15,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.45.12";
+const APP_VERSION = "0.45.13";
 const APP_STAGE = "Cloud aggregate progress release";
 const APP_RELEASE_DATE = "2026-10-13";
 const APP_STATUS = "Dated Marketing statistics integrated with progress and rewards";
@@ -190,7 +190,6 @@ const SYNC_BLOCKS = [
   { key: "career", storageKey: CAREER_STORAGE_KEY },
   { key: "tasks", storageKey: TASKS_STORAGE_KEY },
   { key: "journal", storageKey: JOURNAL_STORAGE_KEY },
-  { key: "marketing", storageKey: "kryos-marketing-batches-v1" },
   { key: "security", storageKey: SECURITY_STORAGE_KEY },
   { key: "ui_state", payloadKey: "uiState", storageKey: UI_STATE_STORAGE_KEY },
 ];
@@ -2775,52 +2774,14 @@ function scheduleCareerCloudSync() {
 }
 
 function scheduleMarketingCloudSync() {
-  if (isDemoMode()) return;
-  marketingSyncDirty = true;
-  marketingSyncState = "saving";
-  updateGlobalCloudState();
+  // Hosted Marketing is aggregate-only. Retain legacy browser data without sending it.
   window.clearTimeout(marketingSyncTimer);
-  marketingSyncTimer = window.setTimeout(flushMarketingCloudSync, 400);
+  marketingSyncDirty = false;
+  marketingSyncState = "local";
 }
 
 async function flushMarketingCloudSync() {
-  if (marketingSyncRunning || !marketingSyncDirty) return;
-  marketingSyncRunning = true;
-  marketingSyncDirty = false;
-  try {
-    const session = await refreshSyncAuthState({ silent: true });
-    if (!session) {
-      marketingSyncState = "local";
-      return;
-    }
-    const client = getSupabaseClient();
-    const profileId = await ensureSupabaseProfile(session);
-    const marketingBlock = getSyncBlockPayloads().find((block) => block.block_key === "marketing");
-    const revision = await writeVersionedBlock(client, profileId, marketingBlock);
-    syncState = {
-      ...syncState,
-      enabled: true,
-      endpointConfigured: true,
-      status: "connected",
-      lastSyncAt: new Date().toISOString(),
-      lastAttemptAt: new Date().toISOString(),
-      remoteBlockVersions: { ...syncState.remoteBlockVersions, marketing: marketingBlock.payload_updated_at },
-      remoteBlockRevisions: { ...syncState.remoteBlockRevisions, marketing: revision },
-      remoteProfileId: profileId,
-      userEmail: session.user.email || syncState.userEmail,
-      userId: session.user.id,
-    };
-    saveSyncState();
-    marketingSyncState = "synced";
-  } catch (error) {
-    console.warn("KRYOS Marketing auto-sync failed.", error);
-    marketingSyncState = "error";
-    if (!String(error?.message || "").includes("KRYOS_CONFLICT")) marketingSyncDirty = true;
-  } finally {
-    marketingSyncRunning = false;
-    updateGlobalCloudState();
-    if (marketingSyncDirty && marketingSyncState !== "error") scheduleMarketingCloudSync();
-  }
+  scheduleMarketingCloudSync();
 }
 
 async function flushCareerCloudSync() {
@@ -7524,7 +7485,7 @@ async function refreshCloudData({ automatic = false } = {}) {
       .select("block_key,payload,payload_updated_at,updated_at,schema_version,revision")
       .eq("profile_id", profileId);
     if (error) throw error;
-    const safeKeys = new Set(["foundation", "career", "tasks", "journal", "marketing"]);
+    const safeKeys = new Set(["foundation", "career", "tasks", "journal"]);
     const localPreview = createSyncPayloadPreview();
     const nextRemoteBlockVersions = { ...syncState.remoteBlockVersions };
     const nextRemoteBlockRevisions = { ...syncState.remoteBlockRevisions };
@@ -7646,19 +7607,12 @@ async function refreshCloudData({ automatic = false } = {}) {
 function retryPendingCloudWrites() {
   const tasksLocalAt = getLocalSyncBlockUpdatedAt("tasks");
   const careerLocalAt = getLocalSyncBlockUpdatedAt("career");
-  const marketingLocalAt = getLocalSyncBlockUpdatedAt("marketing");
   if ((typeof actionSyncDirty !== "undefined" && actionSyncDirty)
       || (syncState.remoteBlockVersions?.tasks && isAfter(tasksLocalAt, syncState.remoteBlockVersions.tasks))) {
     scheduleTaskCloudSync();
   }
   if (careerSyncDirty || (syncState.remoteBlockVersions?.career && isAfter(careerLocalAt, syncState.remoteBlockVersions.career))) {
     scheduleCareerCloudSync();
-  }
-  const localMarketing = typeof marketingRead === "function" ? marketingRead() : null;
-  const hasLocalMarketing = Array.isArray(localMarketing?.batches) && localMarketing.batches.length > 0;
-  if (marketingSyncDirty || (hasLocalMarketing && !syncState.remoteBlockVersions?.marketing)
-      || (syncState.remoteBlockVersions?.marketing && isAfter(marketingLocalAt, syncState.remoteBlockVersions.marketing))) {
-    scheduleMarketingCloudSync();
   }
 }
 
@@ -7899,13 +7853,12 @@ function renderCloudVersionPanel() {
   const areas = [
     { key: "foundation", title: "Purpose & Foundation", detail: "Your direction and core principles" },
     { key: "career", title: "Career", detail: "Roadmaps, checks, and completed work" },
-    { key: "tasks", title: "Actions, Rhythm, Launch & Money", detail: "Your daily records and reward evidence" },
+    { key: "tasks", title: "Daily records & Marketing analytics", detail: "Actions, Rhythm, Launch, Money, journal evidence and aggregate application counts" },
     { key: "journal", title: "Inner Command & Journal", detail: "Dated entries and reflections" },
-    { key: "marketing", title: "Marketing", detail: "Job batches and application details; files stay on this browser" },
   ];
   return `
     <section class="sync-version-panel" aria-labelledby="sync-version-title">
-      <div class="sync-version-heading"><div><p class="section-kicker">CLOUD VERSIONS</p><h3 id="sync-version-title">Your KRYOS areas</h3><p>These five areas are checked for fresh updates across your devices.</p></div><span class="sync-version-total">${areas.length}<small>areas</small></span></div>
+      <div class="sync-version-heading"><div><p class="section-kicker">CLOUD VERSIONS</p><h3 id="sync-version-title">Your KRYOS areas</h3><p>These ${areas.length} personal areas are checked for fresh updates. Marketing job records and files remain on the laptop.</p></div><span class="sync-version-total">${areas.length}<small>areas</small></span></div>
       <div class="sync-version-grid">${areas.map(area => {
         const updatedAt = syncState.remoteBlockVersions?.[area.key];
         const revision = Number(syncState.remoteBlockRevisions?.[area.key] || 0);

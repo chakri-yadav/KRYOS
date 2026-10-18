@@ -25,6 +25,7 @@ if(typeof document!=='undefined'){
     const demo=typeof isDemoMode==='function'&&isDemoMode();
     if(laptop&&page==='marketing')return KryosVisualFoundation.status({storage:'laptop',phase:marketingLocalStatus,dirty:marketingLocalDirty,demo});
     if(laptop&&page==='career')return KryosVisualFoundation.status({storage:'laptop',phase:careerSyncState==='error'?'error':careerSyncState==='saving'?'saving':typeof careerLocalReady!=='undefined'&&careerLocalReady?'connected':'checking',demo});
+    if(!laptop&&page==='marketing')return KryosVisualFoundation.status({phase:typeof actionSyncState==='undefined'?'local':actionSyncState,dirty:typeof actionSyncDirty!=='undefined'&&actionSyncDirty,connected,demo});
     const phase=page==='career'?careerSyncState:page==='marketing'&&typeof marketingSyncState!=='undefined'?marketingSyncState:typeof actionSyncState==='undefined'?'local':actionSyncState;
     const dirty=page==='career'?careerSyncDirty:page==='marketing'&&typeof marketingSyncDirty!=='undefined'?marketingSyncDirty:typeof actionSyncDirty!=='undefined'&&actionSyncDirty;
     return KryosVisualFoundation.status({phase,dirty,connected,demo});

@@ -43,7 +43,7 @@
       document.querySelectorAll('.nav-item,.mobile-nav-item').forEach(button=>{
         if(button.dataset.page===page)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');
       });
-      if(['actions','career','rhythm','journal','settings'].includes(page))refreshCloudData({automatic:true});
+      if(['actions','career','rhythm','journal','settings','marketing'].includes(page))refreshCloudData({automatic:true});
       if(page==='rewards'&&typeof syncRewardLedger==='function')syncRewardLedger();
     },
     schedule:fn=>requestAnimationFrame(()=>requestAnimationFrame(fn)),

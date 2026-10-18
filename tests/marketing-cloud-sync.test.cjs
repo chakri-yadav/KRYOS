@@ -2,24 +2,19 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 
-test('Marketing batch data is part of the app sync and backup contracts', () => {
-  const app = fs.readFileSync('app.js', 'utf8');
-  const marketing = fs.readFileSync('marketing.js', 'utf8');
-  assert.match(app, /\{ key: "marketing", storageKey: "kryos-marketing-batches-v1" \}/);
-  assert.match(app, /marketing:\s*\{[\s\S]*?value: marketingData/);
-  assert.match(app, /const safeKeys = new Set\(\["foundation", "career", "tasks", "journal", "marketing"\]\)/);
-  assert.match(app, /row\.block_key === "marketing"/);
-  assert.match(app, /mergeMarketingSyncPayload\(localBlock\?\.value, row\.payload\)/);
-  assert.match(app, /remoteBatchIds\.has\(String\(marketingActiveBatchId\)\)/);
-  assert.match(app, /updatedKeys\.includes\("marketing"\)/);
-  assert.match(app, /key: "marketing", title: "Marketing"/);
-  assert.match(app, /function scheduleMarketingCloudSync\(\)/);
-  assert.match(marketing, /function marketingWrite\(data\)[\s\S]*?scheduleMarketingCloudSync\(\)/);
-  assert.match(marketing, /mergeMarketingSyncPayload/);
-  assert.doesNotMatch(marketing, /browser-local records · not cloud or backup-synced/);
+test('hosted Marketing excludes private batch storage from outgoing and incoming sync', () => {
+ const app=fs.readFileSync('app.js','utf8'),vm=require('node:vm');
+ const blocks=app.slice(app.indexOf('const SYNC_BLOCKS = ['),app.indexOf('const TASK_DOMAINS ='));
+ assert.doesNotMatch(blocks,/key: "marketing"/);
+ assert.ok(app.includes('const safeKeys = new Set(["foundation", "career", "tasks", "journal"])'));
+ const code=app.slice(app.indexOf('function scheduleMarketingCloudSync()'),app.indexOf('async function flushCareerCloudSync()'));
+ const context={window:{clearTimeout(){}},marketingSyncTimer:null,marketingSyncDirty:true,marketingSyncState:'saving'};vm.runInNewContext(code,context);
+ context.scheduleMarketingCloudSync();assert.equal(context.marketingSyncDirty,false);assert.equal(context.marketingSyncState,'local');
+ for(const call of ['.rpc(','.upsert(','writeVersionedBlock('])assert.ok(!code.includes(call));
+ assert.doesNotMatch(app.slice(app.indexOf('function retryPendingCloudWrites()'),app.indexOf('async function startCloudFreshnessMonitor(')),/scheduleMarketingCloudSync/);
 });
 
-test('Supabase allows Marketing block writes only through the revision-checked writer', () => {
+test('legacy server migration retains its revision-checked contract for compatibility, not active hosted UI sync', () => {
   const schema = fs.readFileSync('supabase-schema.sql', 'utf8');
   const migration = fs.readFileSync('supabase/migrations/20261007120000_marketing_cloud_assistant_import.sql', 'utf8');
   assert.match(schema, /'journal', 'marketing', 'security'/);
@@ -30,7 +25,7 @@ test('Supabase allows Marketing block writes only through the revision-checked w
   assert.match(migration, /'marketing_revision', v_revision/);
 });
 
-test('assistant endpoint routes Marketing imports to the transactional idempotent RPC', () => {
+test('legacy ingestion implementation remains transactional; current handoffs use aggregate stats instead', () => {
   const edge = fs.readFileSync('supabase/functions/kryos-ingest/index.ts', 'utf8');
   const projector = fs.readFileSync('supabase/functions/kryos-ingest/projector.mjs', 'utf8');
   assert.match(edge, /const marketingOnly = input\.operations\.length === 1/);

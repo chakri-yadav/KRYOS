@@ -2,12 +2,14 @@
 
 ## Current scope and release
 
-Hosted application: **0.45.12**. Laptop application: **0.25.8**.
+Hosted application: **0.45.13**. Laptop application: **0.25.8**.
 These are independent release lines, not competing versions of the same deployment.
 
 The selected-day, journal-correction and guarded-conflict-resolution phase is **complete for the agreed desktop scope**. Phone acceptance is explicitly deferred by the owner and does not block desktop completion. This does not mean the entire product is finished or every legacy workflow has been revalidated.
 
 ## Completed in this phase
+
+Subsequent authorized delivery in 0.45.13: hosted aggregate Marketing date-range analytics, handoff freshness and navigation rendering repair. The laptop workspace and private job storage remain unchanged. The desktop history/sync acceptance record below remains the evidence for its original release, not a claim to retest every product feature.
 
 - [x] Shared selected date across personal pages, separate from the actual operating clock.
 - [x] Historical date navigation, browser history and date persistence.
