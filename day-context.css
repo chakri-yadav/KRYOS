@@ -6,3 +6,12 @@
 .journal-scope-controls{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}
 .journal-scope-controls button[aria-pressed="true"]{background:var(--accent,#d9aa61);color:#161b21;border-color:var(--accent,#d9aa61)}
 .journal-scope-controls button:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+.journal-entry-controls{margin:18px 0;display:grid;gap:12px}
+.journal-edit-form{display:grid;gap:10px;padding:18px;border:1px solid var(--border,#cbd5e1);border-radius:14px}
+.journal-edit-form label{display:grid;gap:8px;font-weight:600}
+.journal-edit-form textarea{width:100%;min-height:180px;padding:14px;font:inherit;line-height:1.65;resize:vertical;box-sizing:border-box}
+.journal-edit-form>div{display:flex;gap:10px;flex-wrap:wrap}
+.journal-edit-form p{margin:0;font-size:.9rem}
+.journal-edit-form [role="status"]{color:var(--danger,#a12f31)}
+.journal-corrections summary{cursor:pointer;min-height:36px;padding:8px 0}
+.journal-corrections article{padding:12px;border-left:2px solid var(--border,#cbd5e1)}

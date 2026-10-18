@@ -7,6 +7,18 @@ let lifeSelectedDate = '';
 let lifeTimelineScope = 'day';
 let lifeTimelineQuery = '';
 let lifeTimelineDate = '';
+const lifeEntryEdits = new Map();
+function lifeCorrectEntry(store,id,text,expectedText,expectedUpdatedAt,now=new Date().toISOString()){
+  const entry=store.entries.find(e=>e.id===id);
+  if(!entry)throw new Error('This entry is no longer available. Refresh the timeline.');
+  if(entry.text!==expectedText||(entry.updatedAt||'')!==(expectedUpdatedAt||''))throw new Error('This entry changed since you opened it. Cancel and reopen Edit to use the latest version.');
+  if(typeof text!=='string'||!text.trim()||text.length>100000)throw new Error('Include journal text up to 100,000 characters.');
+  if(entry.text===text)return false;
+  entry.corrections ||= [];
+  entry.corrections.push({text:entry.text,recordedAt:now,previousUpdatedAt:entry.updatedAt||entry.createdAt||null});
+  entry.text=text;entry.updatedAt=now;entry.revision=(Number(entry.revision)||0)+1;
+  return true;
+}
 function lifeTimelineEntries(entries,date,scope='day',query='') {
   const search=String(query).trim().toLowerCase();
   return [...entries].filter(e=>(scope==='all'||e.date===date)&&`${e.text} ${e.date}`.toLowerCase().includes(search)).sort((a,b)=>b.date.localeCompare(a.date)||String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
@@ -331,6 +343,11 @@ function renderLifeJournal() {
     </section>
     <section class="life-section journal-history"><div class="life-heading"><div><p class="section-kicker">EVIDENCE LEDGER</p><h2>${lifeTimelineScope==='all'?'All journal days':'Journal for this day'}</h2><p>${lifeTimelineScope==='all'?store.entries.length:store.entries.filter(e=>e.date===today).length} entries · ${lifeTimelineScope==='all'?'all dates':today} · ${store.entries.length} preserved overall</p></div><input id="life-search" type="search" value="${escapeHtml(lifeTimelineQuery)}" placeholder="Search within this view" aria-label="Search journal"></div><div class="journal-scope-controls" role="group" aria-label="Journal date scope"><button type="button" class="secondary-button" data-life-scope="day" aria-pressed="${lifeTimelineScope==='day'}">Selected day</button><button type="button" class="secondary-button" data-life-scope="all" aria-pressed="${lifeTimelineScope==='all'}">All days</button></div><div id="life-timeline" class="journal-timeline">${lifeTimeline(lifeTimelineQuery)}</div></section>`;
 }
+function lifeEntryControls(entry){
+  const id=escapeHtml(entry.id),edit=lifeEntryEdits.get(entry.id),history=entry.corrections||[];
+  const revisions=history.length?`<details class="journal-corrections"><summary>Correction history (${history.length})</summary>${[...history].reverse().map(item=>`<article><small>Replaced ${escapeHtml(item.recordedAt||'')}</small><p class="life-text">${escapeHtml(item.text)}</p></article>`).join('')}</details>`:'';
+  return `<div class="journal-entry-controls">${edit?`<form class="journal-edit-form" data-journal-edit-form="${id}"><label>Correct journal text · ${escapeHtml(entry.date)}<textarea data-journal-edit-text="${id}" required maxlength="100000">${escapeHtml(edit.text)}</textarea></label><p>Text only. The original date, linked activities and earned evidence stay unchanged.</p><p role="status">${escapeHtml(edit.error||'')}</p><div><button type="submit" class="primary-button">Save correction</button><button type="button" class="secondary-button" data-life="edit-cancel" data-id="${id}">Cancel</button></div></form>`:`<button type="button" class="secondary-button" data-life="edit" data-id="${id}">Edit entry</button>`}${revisions}</div>`;
+}
 function lifeTimeline(query = '') {
   const store = lifeStore();
   const selectedDate=typeof kryosSelectedDate==='function'?kryosSelectedDate():toDateKey();
@@ -340,7 +357,8 @@ function lifeTimeline(query = '') {
     const completed = records.filter(r => r.completed);
     const domains = [...new Set(records.map(r => r.domain))];
     const date = new Date(`${e.date}T12:00:00`);
-    return `<article class="life-entry premium-entry"><div class="entry-date"><span>${date.toLocaleDateString(undefined,{month:'short'}).toUpperCase()}</span><strong>${date.getDate()}</strong><small>${date.toLocaleDateString(undefined,{weekday:'short'})}</small></div><div class="entry-body"><div class="entry-head"><div><time>${date.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'})}</time><div class="entry-chips">${domains.slice(0,4).map(domain => `<span>${escapeHtml(domain)}</span>`).join('')}${domains.length > 4 ? `<span>+${domains.length - 4}</span>` : ''}</div></div><div class="entry-score"><strong>${completed.length}</strong><span>done</span></div></div><p class="life-text">${escapeHtml(e.text)}</p>${records.length ? `<div class="entry-records">${records.map(r => `<div class="life-row"><span><i class="record-dot ${r.completed ? 'done' : ''}"></i><b>${escapeHtml(r.domain)}</b>${escapeHtml(r.title)}${r.minutes == null ? '' : `<small>${r.minutes} min</small>`}</span>${r.kind === 'task' ? `<button class="secondary-button" data-life="task" data-id="${r.id}">${r.completed ? 'Reopen' : 'Complete'}</button>` : ''}</div>`).join('')}</div>` : ''}<button class="life-delete" data-life="delete" data-id="${e.id}">Delete entry</button></div></article>`;
+    const controls=lifeEntryControls(e);
+    return `<article class="life-entry premium-entry"><div class="entry-date"><span>${date.toLocaleDateString(undefined,{month:'short'}).toUpperCase()}</span><strong>${date.getDate()}</strong><small>${date.toLocaleDateString(undefined,{weekday:'short'})}</small></div><div class="entry-body"><div class="entry-head"><div><time>${date.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'})}</time><div class="entry-chips">${domains.slice(0,4).map(domain => `<span>${escapeHtml(domain)}</span>`).join('')}${domains.length > 4 ? `<span>+${domains.length - 4}</span>` : ''}</div></div><div class="entry-score"><strong>${completed.length}</strong><span>done</span></div></div><p class="life-text">${escapeHtml(e.text)}</p>${records.length ? `<div class="entry-records">${records.map(r => `<div class="life-row"><span><i class="record-dot ${r.completed ? 'done' : ''}"></i><b>${escapeHtml(r.domain)}</b>${escapeHtml(r.title)}${r.minutes == null ? '' : `<small>${r.minutes} min</small>`}</span>${r.kind === 'task' ? `<button class="secondary-button" data-life="task" data-id="${r.id}">${r.completed ? 'Reopen' : 'Complete'}</button>` : ''}</div>`).join('')}</div>` : ''}${controls}<button type="button" class="life-delete" data-life="delete" data-id="${e.id}">Delete entry</button></div></article>`;
   }).join('') : `<div class="journal-empty"><strong>${query.trim()?'No matching entries':lifeTimelineScope==='day'?'No journal entries for this day':'Your evidence begins here.'}</strong><p>${query.trim()?'Try another search or switch the date scope.':lifeTimelineScope==='day'?'Write above to record this day, or choose All days to find another entry.':'A few truthful lines are enough to start the pattern.'}</p></div>`;
 }
 function lifeDay(date) {
@@ -359,6 +377,7 @@ function renderLifeProgress() {
   renderProgressDashboard();
 }
 document.addEventListener('input', e => {
+  if(e.target.hasAttribute('data-journal-edit-text')){const edit=lifeEntryEdits.get(e.target.dataset.journalEditText);if(edit)edit.text=e.target.value;}
   if (e.target.id === 'life-draft') { lifeSaveDraft(e.target.form.elements.date.value,e.target.value); saveTasks(); document.querySelector('#life-draft-status').textContent = 'Draft saved on this device'; }
   if (e.target.id === 'life-search') {lifeTimelineQuery=e.target.value;document.querySelector('#life-timeline').innerHTML = lifeTimeline(lifeTimelineQuery);}
 });
@@ -374,6 +393,12 @@ document.addEventListener('change', e => {
   }
 });
 document.addEventListener('submit', e => {
+  if(e.target.hasAttribute('data-journal-edit-form')){
+    e.preventDefault();const id=e.target.dataset.journalEditForm,edit=lifeEntryEdits.get(id);if(!edit)return;
+    try{const changed=lifeCorrectEntry(lifeStore(),id,edit.text,edit.originalText,edit.originalUpdatedAt);if(changed)saveTasks();lifeEntryEdits.delete(id);lifeNotice=changed?'Journal text corrected. Linked activity records were not changed.':'No text changes to save.';}
+    catch(error){edit.error=error.message;}
+    renderLifeJournal();return;
+  }
   if (!e.target.id.startsWith('life-')) return;
   e.preventDefault(); const f=new FormData(e.target);
   try {
@@ -404,6 +429,8 @@ document.addEventListener('click', async e => {
   }
   const button=e.target.closest('[data-life]'); if(!button)return;
   const action=button.dataset.life;
+  if(action==='edit'){const entry=lifeStore().entries.find(x=>x.id===button.dataset.id);if(entry&&!lifeEntryEdits.has(entry.id))lifeEntryEdits.set(entry.id,{text:entry.text,originalText:entry.text,originalUpdatedAt:entry.updatedAt||'',error:''});renderLifeJournal();document.querySelector('[data-journal-edit-text]')?.focus();return;}
+  if(action==='edit-cancel'){lifeEntryEdits.delete(button.dataset.id);renderLifeJournal();return;}
   try {
     if(action==='approve' && lifePreview) {
       lifeCommit(lifePreview);lifePreview=null;lifeNotice='Import saved on this device. Records now appear in Progress.';
