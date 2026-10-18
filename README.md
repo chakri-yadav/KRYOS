@@ -4,7 +4,9 @@ A desktop-first directed-attention workspace connecting daily commitments, journ
 
 ## Current status
 
-- Hosted release: **0.45.14**. Laptop release: **0.25.9**.
+The shared visual foundation now follows the [accepted design contract](docs/design/visual-contract-v1.md). Light-mode shell, controls, date attribution and save-status surfaces are delivered; feature-page redesign and dark-mode activation remain later slices. See [verification and limits](docs/qa/visual-foundation-acceptance.md).
+
+- Hosted release: **0.45.15**. Laptop release: **0.25.10**.
 - Current phase: selected-day workflows, journal corrections and guarded block-conflict resolution completed for desktop scope.
 - Hosted personal records: browser copies with signed-in Supabase synchronization.
 - Marketing: laptop-only job records and files; hosted progress receives only explicitly requested dated aggregate statistics.

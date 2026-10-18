@@ -1,0 +1,31 @@
+/* Approved visual contract v1. Light is the release mode; dark values are staged, not activated. */
+:root{
+ color-scheme:light;
+ --kryos-canvas:#f4f5f3;--kryos-surface:#ffffff;--kryos-text:#202b28;--kryos-text-secondary:#55645e;
+ --kryos-divider:#dce3de;--kryos-control-border:#78887f;
+ --kryos-action:#17614e;--kryos-action-hover:#125240;--kryos-action-pressed:#0e4435;--kryos-on-action:#ffffff;
+ --kryos-positive:#17614e;--kryos-positive-surface:#e8f2ec;
+ --kryos-information:#355fb3;--kryos-information-surface:#edf2fc;
+ --kryos-learning:#7752a3;--kryos-learning-surface:#f3edf9;
+ --kryos-attention:#89560e;--kryos-attention-surface:#fff3df;
+ --kryos-negative:#9c4650;--kryos-negative-surface:#fbeff0;--kryos-error:#ae353d;--kryos-error-surface:#fbeff0;
+ --kryos-focus:#355fb3;
+ --kryos-dark-canvas:#151a19;--kryos-dark-surface:#1e2523;--kryos-dark-text:#e6eeea;--kryos-dark-text-secondary:#a9bbb1;
+ --kryos-dark-divider:#38463f;--kryos-dark-control-border:#879c90;--kryos-dark-action:#80d5b4;--kryos-dark-on-action:#112c21;
+ --kryos-dark-positive:#80d5b4;--kryos-dark-positive-surface:#223a2e;
+ --kryos-dark-information:#8fb3ff;--kryos-dark-information-surface:#26334c;
+ --kryos-dark-learning:#c1a5eb;--kryos-dark-learning-surface:#332942;
+ --kryos-dark-attention:#f0c785;--kryos-dark-attention-surface:#382f22;
+ --kryos-dark-negative:#e9a4ab;--kryos-dark-negative-surface:#38262c;--kryos-dark-error:#ffa5ad;
+ --kryos-space-1:4px;--kryos-space-2:8px;--kryos-space-3:12px;--kryos-space-4:16px;--kryos-space-6:24px;--kryos-space-8:32px;
+ --kryos-radius-control:8px;--kryos-radius-surface:14px;--kryos-motion:160ms;
+ --kryos-font:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+ /* Compatibility aliases: existing feature owners migrate in bounded later slices. */
+ --bg:var(--kryos-canvas);--surface:var(--kryos-surface);--surface-2:var(--kryos-positive-surface);
+ --text:var(--kryos-text);--muted:var(--kryos-text-secondary);--line:var(--kryos-divider);--line-strong:var(--kryos-control-border);
+ --signal:var(--kryos-positive);--signal-deep:var(--kryos-action);--signal-soft:var(--kryos-positive-surface);
+ --green:var(--kryos-positive);--green-soft:var(--kryos-positive-surface);--blue:var(--kryos-information);--blue-soft:var(--kryos-information-surface);
+ --amber:var(--kryos-attention);--amber-soft:var(--kryos-attention-surface);--red:var(--kryos-error);--red-soft:var(--kryos-error-surface);
+ --shadow:0 8px 24px rgb(32 43 40 / .06);
+}
+

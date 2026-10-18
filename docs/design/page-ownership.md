@@ -1,5 +1,7 @@
 # Page Ownership
 
+This table retains legacy page names. The [accepted visual contract](visual-contract-v1.md) defines the current presentation baseline; this document does not authorize resurrecting retired pages or duplicating features.
+
 This document is the duplicate-feature guardrail.
 
 | Page | Owns | Does not own |

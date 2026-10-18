@@ -1,7 +1,9 @@
-.shared-day-context{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 22px;padding:14px 18px;border:1px solid var(--border,#cbd5e1);border-radius:16px;background:var(--surface,#fff);color:var(--text,#172033)}
+.shared-day-context{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:0 0 22px;padding:16px 18px;border:1px solid var(--kryos-divider);border-radius:var(--kryos-radius-surface);background:var(--kryos-surface);color:var(--kryos-text)}
+.shared-day-context[data-date-mode=history]{border-left:3px solid var(--kryos-attention)}
+.shared-day-context[data-date-mode=future]{border-left:3px solid var(--kryos-information)}
 .shared-day-context[hidden]{display:none}
 .shared-day-context strong,.shared-day-context small{display:block}.shared-day-context small{margin-top:4px;color:var(--muted,#526174)}
-.shared-day-controls{display:flex;align-items:center;gap:8px}.shared-day-controls button,.shared-day-controls input{min-height:44px;border:1px solid #b5c2d1;border-radius:9px;background:transparent;color:inherit;padding:8px 12px;font:inherit}.shared-day-controls button{cursor:pointer}.shared-day-controls :focus-visible{outline:3px solid #5169ce;outline-offset:3px}
+.shared-day-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.shared-day-controls button,.shared-day-controls input{min-height:44px;border:1px solid var(--kryos-control-border);border-radius:var(--kryos-radius-control);background:var(--kryos-surface);color:inherit;padding:8px 12px;font:inherit}.shared-day-controls button{cursor:pointer}.shared-day-controls :focus-visible{outline:3px solid var(--kryos-focus);outline-offset:3px}
 @media(max-width:650px){.shared-day-context{align-items:flex-start;flex-direction:column}.shared-day-controls{width:100%;gap:5px}.shared-day-controls input{min-width:0;width:100%;padding:8px}.shared-day-controls label{flex:1;min-width:0}}
 .journal-scope-controls{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}
 .journal-scope-controls button[aria-pressed="true"]{background:var(--accent,#d9aa61);color:#161b21;border-color:var(--accent,#d9aa61)}

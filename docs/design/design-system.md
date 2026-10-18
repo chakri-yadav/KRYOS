@@ -1,5 +1,11 @@
 # Design System
 
+## Accepted baseline
+
+The [Visual design contract v1](visual-contract-v1.md) was accepted on 2026-10-18 and is authoritative for the visual upgrade. Implementation is a separate phase. Preserve existing features, content, reward rules and data ownership.
+
+The notes below are legacy guidance; the accepted contract takes precedence wherever they differ. Implementation ownership and migration boundaries are recorded in [foundation ownership](foundation-ownership.md).
+
 KRYOS should feel premium, calm, focused, and progress-oriented.
 
 ## Visual Direction
@@ -19,7 +25,8 @@ KRYOS should feel premium, calm, focused, and progress-oriented.
 | Deep green | primary motivation and important progress |
 | Blue | stable structure, neutral status, system trust |
 | Amber | drift, partial, attention |
-| Red | delete, missed, danger |
+| Restrained rose | not-won outcome, with explicit text and symbol |
+| Red | actual errors and destructive actions, not ordinary missing evidence |
 | White/surface | main panels |
 | Muted gray | secondary information |
 
@@ -37,7 +44,7 @@ KRYOS should feel premium, calm, focused, and progress-oriented.
 - Icon buttons for repeated utility actions.
 - Chips for status.
 - Progress bars for completion.
-- Heatmaps for long-term consistency.
+- Categorical day grids for outcomes; sequential heatmaps only for real quantity intensity.
 - Cards for repeated items only.
 - Panels for focused sections.
 

@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.45.14";
-const APP_STAGE = "Coordinated daily-workflow release";
+const APP_VERSION = "0.45.15";
+const APP_STAGE = "Shared visual foundation";
 const APP_RELEASE_DATE = "2026-10-18";
-const APP_STATUS = "Shared 48-day date window with preserved history";
-const APP_NEXT_MILESTONE = "Refine daily workflows through actual use";
+const APP_STATUS = "Coordinated palette, shared controls and explicit date context";
+const APP_NEXT_MILESTONE = "Refine daily review and journey page composition";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Shared visual foundation: forest-and-warm-neutral shell, readable controls, blue keyboard focus and explicit historical date attribution. Existing features, reward rules and storage boundaries remain unchanged. Page redesign and dark-mode activation are separate later slices.",
   "Hosted Marketing shows aggregate application progress, recorded dates, source freshness and links to reward evidence. Job records and documents remain in the laptop workspace.",
   "Shared navigation with page-specific reading positions, direct links, Back/Forward and safe Continue targets. Presentation components have explicit owners; duplicate owners are rejected. Existing records, reward rules and storage boundaries are unchanged.",
   "Connected Progress to the shared 48-day commitment cycle battle model and source-day corrections. Fixed Today's signal contrast and coordinated readable controls. Reward wallets can restart at zero without deleting evidence or restoring old earnings.",

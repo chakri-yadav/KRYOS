@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.45.15 — Shared visual foundation
+
+- Apply the approved semantic palette to shared navigation, controls and save indicators.
+- Clarify historical date attribution while preserving dated records and domain rules.
+- Separate legacy page surfaces from shared visual ownership; dark mode remains staged.
+
 ## 0.45.4 — Release asset consistency
 
 - Normalize bundled asset cache keys and guard against mixed browser releases.

@@ -139,10 +139,7 @@
 #journal-view .command-premium-workspace button:disabled{opacity:.45;cursor:default}
 #journal-view .command-premium-workspace button:focus-visible,#journal-view .command-premium-workspace input:focus-visible,#journal-view .command-premium-workspace summary:focus-visible,#journal-view .command-date-picker input:focus-visible{outline:3px solid #75a68a;outline-offset:3px}
 #journal-view .command-premium-outline article,#journal-view .command-task{transition:background-color 150ms ease}
-body:has(#journal-view:not(.is-hidden)) .sidebar{background:#112e29}
-body:has(#journal-view:not(.is-hidden)) .nav-item.is-active{background:#254c3e;color:#f0f6f1}
-body:has(#journal-view:not(.is-hidden)) .main{background:#f4f6f1}
-body:has(#journal-view:not(.is-hidden)) .topbar h1{font-size:19px;line-height:1.3;margin:0}
+/* Navigation and shell appearance belong to the shared foundation. */
 @media(max-width:1000px){#journal-view .command-premium-grid{grid-template-columns:1fr}#journal-view .commitment-calendar{grid-template-columns:repeat(8,minmax(0,1fr))}}
 @media(max-width:600px){#journal-view .command-paper,#journal-view .command-battle{padding:18px}#journal-view .command-premium-purpose{padding:20px}#journal-view .command-form-pair{grid-template-columns:1fr}#journal-view .commitment-calendar{grid-template-columns:repeat(6,minmax(0,1fr))}#journal-view .command-premium-title{gap:16px}#journal-view .command-review-action{max-width:none;width:100%}#journal-view .command-quantity{margin-left:0}#journal-view .command-stepper input{width:72px}}
 @media(prefers-reduced-motion:reduce){#journal-view .command-premium-outline article,#journal-view .command-task{transition:none}}

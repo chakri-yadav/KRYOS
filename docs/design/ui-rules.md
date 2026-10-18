@@ -1,5 +1,7 @@
 # UI Rules
 
+For the approved visual upgrade, follow the [accepted visual contract](visual-contract-v1.md). It takes precedence over conflicting legacy visual guidance here; domain behavior and storage contracts stay unchanged.
+
 These rules prevent KRYOS from becoming visually confusing.
 
 ## General Rules
