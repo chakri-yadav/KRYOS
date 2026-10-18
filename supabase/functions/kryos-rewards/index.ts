@@ -36,7 +36,8 @@ Deno.serve(async req=>{
     }else{
       const {data,error}=await admin.auth.getUser(token);
       if(error||!data.user)return reply(401,{error:'Sign in to sync rewards.'});
-      const {data:profile}=await admin.from('kryos_profiles').select('id').eq('id',body.profile).eq('user_id',data.user.id).maybeSingle();
+      const ownerClient=createClient(Deno.env.get('SUPABASE_URL')!,Deno.env.get('SUPABASE_ANON_KEY')!,{auth:{persistSession:false},global:{headers:{Authorization:`Bearer ${token}`}}});
+      const {data:profile}=await ownerClient.from('kryos_profiles').select('id').eq('id',body.profile).eq('user_id',data.user.id).maybeSingle();
       if(!profile)return reply(403,{error:'Profile unavailable.'});profileId=profile.id;
     }
     // Operating days begin at 07:00 in the owner's timezone, including DST.
