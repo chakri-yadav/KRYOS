@@ -3,6 +3,7 @@ if(typeof KryosUI!=='undefined')KryosUI.claim('actions-rhythm.controls','actions
 const activityPreviousActionCard=renderActionCard;
 renderActionCard=function(action){
   let html=activityPreviousActionCard(action);
+  if(action.status==='done'&&action.deadline)html=html.replace(/<time class="deadline-[^"]*" datetime="[^"]*">[^<]*<\/time>/,`<time class="deadline-recorded" datetime="${escapeHtml(action.deadline)}">Due ${escapeHtml(action.deadline)}</time>`);
   const copy=action.nextAction?`<p><span>Next step</span>${escapeHtml(action.nextAction)}</p>`:'';
   const next=action.nextAction?`<div class="activity-next-step"><span>SMALLEST NEXT ACTION</span><p>${escapeHtml(action.nextAction)}</p></div>`:`<button type="button" class="activity-add-next" data-action-command="edit" data-id="${escapeHtml(action.id)}">＋ Add a smallest next action</button>`;
   if(copy)html=html.replace(copy,next);else html=html.replace('</h3>','</h3>'+next);

@@ -13,4 +13,4 @@ The accepted visual contract is implemented in bounded slices, not a global page
 
 The light foundation is active. Dark semantic values are staged only: existing feature surfaces still need independent migration and rendered verification. Do not activate a dark canvas over light-only feature styles.
 
-Later slices handle reading-first composition, complete feature-status mapping, full-width analytics and page-specific typography. This foundation does not claim those page redesigns are finished.
+The daily-use slice migrates Inner Command, review, journey, Actions and Rhythm into their existing presentation owners. Migrated Actions/Rhythm rules are removed from the hosted legacy file. Full-width Marketing analytics, Career and the remaining supporting-page migration stay separate slices; the foundation alone does not claim those redesigns are finished.

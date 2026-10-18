@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.45.16 — Daily workspace visual upgrade
+
+- Apply reading-first daily composition with the complete original promise and outline.
+- Explain review, unknown and reconfirmation states; coordinate journey outcome colors.
+- Refresh Actions and Rhythm while preserving shared tasks, dated edits, tap/reset/Undo and reward rules.
+
 ## 0.45.15 — Shared visual foundation
 
 - Apply the approved semantic palette to shared navigation, controls and save indicators.

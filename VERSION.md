@@ -9,7 +9,7 @@ major.minor.patch
 Canonical current version:
 
 ```text
-0.45.15
+0.45.16
 ```
 
 ## Meaning

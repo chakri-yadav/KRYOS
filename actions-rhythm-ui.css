@@ -1,94 +1,122 @@
-/* Scoped premium Actions and Rhythm; no scoring or target changes. */
-#actions-view .action-title h1{font-size:clamp(28px,3vw,38px);letter-spacing:-.03em}
-#actions-view .action-command{background:#173d32;border:1px solid #31584a;border-radius:18px;box-shadow:none}
+/* Actions and Rhythm presentation owner. No targets, counts, dates or reward rules change. */
+#actions-view .action-title{padding:12px 0 22px;gap:20px}
+#actions-view .action-title h1,#rhythm-view .rhythm-command h1{font-size:30px;line-height:1.25;letter-spacing:0;font-weight:600;color:var(--kryos-text)}
+#actions-view .action-title p{font-size:16px;line-height:1.65;color:var(--kryos-text-secondary)}
+#actions-view .action-open-count{color:var(--kryos-text)}
+#actions-view .action-open-count strong{font-size:28px}
+#actions-view .action-open-count :is(span,small){color:var(--kryos-text-secondary);font-size:14px}
+#actions-view .action-open-count .has-overdue{color:var(--kryos-attention)}
+#actions-view .action-command{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(120px,.45fr) minmax(0,1fr);background:var(--kryos-divider);border:1px solid var(--kryos-divider);border-radius:14px;box-shadow:none;overflow:hidden}
+#actions-view .action-command>div{background:var(--kryos-surface);padding:22px;min-height:110px;color:var(--kryos-text)}
+#actions-view .action-command h2{font-size:22px;line-height:1.4;margin:8px 0;color:var(--kryos-text)}
+#actions-view .action-command :is(span,small){color:var(--kryos-text-secondary);font-size:12px}
+#actions-view .action-command p{color:var(--kryos-text-secondary);line-height:1.65;font-size:16px}
+#actions-view .capacity-visual strong{font-size:28px;margin-top:10px;color:var(--kryos-text)}
+#actions-view .capacity-visual>div i{background:var(--kryos-divider)}
+#actions-view .capacity-visual>div i.filled{background:var(--kryos-action)}
+#actions-view .action-toolbar{gap:16px;flex-wrap:wrap}
+#actions-view .action-next{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;margin:22px 0;padding:24px;border:1px solid var(--kryos-divider);border-left:3px solid var(--kryos-action);border-radius:14px;background:var(--kryos-positive-surface)}
+#actions-view .action-next h2{font-size:22px;line-height:1.4;margin:8px 0;color:var(--kryos-text)}
+#actions-view .action-next p{font-size:16px;line-height:1.65;color:var(--kryos-text-secondary);max-width:60ch}
+#actions-view .action-next>div:nth-child(2){display:flex;gap:10px;flex-wrap:wrap}
+#actions-view .action-finished{display:block;padding:22px;margin-top:22px;border:1px solid var(--kryos-divider);border-radius:14px;background:var(--kryos-surface)}
+#actions-view .action-finished>div{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:14px 0;border-bottom:1px solid var(--kryos-divider)}
+#actions-view .action-finished>div:last-child{border-bottom:0}
+#actions-view .action-filters{gap:8px;flex-wrap:wrap}
+#actions-view .action-filters button{min-height:44px;background:var(--kryos-surface);color:var(--kryos-text-secondary);border:1px solid var(--kryos-control-border);border-radius:8px;font-size:14px;padding:9px 12px}
+#actions-view .action-filters button.active{background:var(--kryos-positive-surface);color:var(--kryos-action);border-color:var(--kryos-action);text-decoration:underline;text-underline-offset:5px}
+#actions-view .action-filters button span{color:inherit;background:transparent}
+#actions-view .action-add summary{min-height:44px;font-size:16px;color:var(--kryos-action)}
 #actions-view .action-list{display:grid;gap:14px}
-#actions-view .action-card{padding:20px;gap:18px;border:1px solid #dce5dd;border-radius:14px;box-shadow:0 3px 14px rgba(25,53,38,.035);background:#fff}
-#actions-view .action-card.status-active{background:#f0f7f1;border-color:#8fb49d}
-#actions-view .action-card h3{font-size:18px;font-weight:600;line-height:1.5;letter-spacing:-.01em;margin:8px 0}
-#actions-view .action-check{width:44px;height:44px;min-width:44px;border-radius:12px}
-#actions-view .activity-next-step{padding:12px 14px;margin-top:12px;background:#eef5ef;border-radius:10px}
-#actions-view .activity-next-step>span{font-size:10px;letter-spacing:.08em;color:#35644e;font-weight:650}
-#actions-view .activity-next-step>p{margin:5px 0 0;font-size:15px;line-height:1.65;color:#263c30}
-#actions-view .activity-add-next{border:0;background:none;color:#226a52;padding:8px 0;font-size:13px;min-height:44px;text-align:left}
-#actions-view .activity-start{min-height:44px;padding:10px 14px;border:0;border-radius:10px;background:#226a52;color:#fff;font-size:13px;font-weight:550}
+#actions-view .action-card{padding:20px;gap:18px;border:1px solid var(--kryos-divider);border-radius:14px;box-shadow:none;background:var(--kryos-surface);min-width:0}
+#actions-view .action-card.status-active{border-left:3px solid var(--kryos-information);background:var(--kryos-surface)}
+#actions-view .action-card h3{font-size:18px;font-weight:500;line-height:1.5;letter-spacing:0;margin:4px 0;color:var(--kryos-text);overflow-wrap:anywhere}
+#actions-view .action-card.status-done{opacity:1}
+#actions-view .action-card.status-done h3{color:var(--kryos-text-secondary)}
+#actions-view .action-check{width:44px;height:44px;min-width:44px;border:1px solid var(--kryos-control-border);border-radius:8px;background:var(--kryos-surface);color:var(--kryos-action)}
+#actions-view .status-done .action-check{background:var(--kryos-positive-surface);color:var(--kryos-positive)}
+#actions-view .activity-next-step{padding:14px 16px;margin-top:12px;background:var(--kryos-positive-surface);border-left:3px solid var(--kryos-action);border-radius:8px}
+#actions-view .activity-next-step>span{font-size:12px;letter-spacing:.08em;color:var(--kryos-action);font-weight:500}
+#actions-view .activity-next-step>p{margin:6px 0 0;font-size:16px;line-height:1.65;color:var(--kryos-text)}
+#actions-view .activity-add-next{border:0;background:transparent;color:var(--kryos-action);padding:10px 0;font-size:14px;min-height:44px;text-align:left}
+#actions-view .activity-start{min-height:44px;padding:10px 14px;border:1px solid var(--kryos-action);border-radius:8px;background:var(--kryos-action);color:var(--kryos-on-action);font-size:14px;font-weight:500}
 #actions-view .action-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-#actions-view .action-controls select{min-height:44px;border-radius:10px}
-#rhythm-view .rhythm-command{background:#173d32;border:1px solid #31584a;border-radius:18px;box-shadow:none}
-#rhythm-view .rhythm-command h1{font-size:clamp(28px,3vw,38px);line-height:1.25;letter-spacing:-.03em}
-#rhythm-view .rhythm-surface{border-radius:16px;border-color:#dce5dd;box-shadow:0 3px 14px rgba(25,53,38,.035)}
-#rhythm-view .rhythm-group-head>div>span{font-size:19px;font-weight:600;color:#263c30}
-#rhythm-view .rhythm-group-head p{font-size:13px;line-height:1.7;color:#586b5e}
+#actions-view .action-controls select{min-height:44px;border-radius:8px;border-color:var(--kryos-control-border);background:var(--kryos-surface);color:var(--kryos-text);font-size:14px}
+#actions-view .action-meta{font-size:14px;color:var(--kryos-text-secondary);gap:10px;flex-wrap:wrap}
+#actions-view .action-meta :is(.action-priority.critical,.action-priority.important,.deadline-overdue,.deadline-soon,.deadline-today){background:var(--kryos-attention-surface);color:var(--kryos-attention)}
+#actions-view .status-done .action-meta time{background:var(--kryos-canvas);color:var(--kryos-text-secondary)}
+#actions-view .commitment-action-links{display:flex;gap:8px;flex-wrap:wrap;margin-top:-4px;padding:0 0 8px 64px}
+#actions-view .commitment-action-links button{font-size:14px;background:var(--kryos-information-surface);color:var(--kryos-information);border-color:var(--kryos-information)}
+#rhythm-view .rhythm-command{display:grid;grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(100px,.55fr));border:1px solid var(--kryos-divider);background:var(--kryos-surface);border-radius:14px;box-shadow:none}
+#rhythm-view .rhythm-command>div{padding:22px;background:transparent}
+#rhythm-view .rhythm-command :is(p,span,em){color:var(--kryos-text-secondary)}
+#rhythm-view .rhythm-command .section-kicker{font-size:12px;letter-spacing:.08em}
+#rhythm-view .rhythm-command-copy>p:not(.section-kicker){font-size:16px;line-height:1.65}
+#rhythm-view .rhythm-command-stat{border-color:var(--kryos-divider)}
+#rhythm-view .rhythm-command-stat strong{font-size:28px;color:var(--kryos-text);margin:12px 0 8px}
+#rhythm-view .rhythm-command-stat :is(em,span,small){font-size:12px;line-height:1.6;color:var(--kryos-text-secondary)}
+#rhythm-view .rhythm-sync{font-size:12px;line-height:1.6;color:var(--kryos-text-secondary)}
+#rhythm-view .rhythm-overview{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:16px 20px;border:1px solid var(--kryos-divider);border-radius:12px;background:var(--kryos-surface)}
+#rhythm-view .rhythm-overview-score{grid-template-columns:auto auto;gap:8px}
+#rhythm-view .rhythm-overview-score>i{width:auto;height:auto;border:0;border-radius:0;background:transparent;font-style:normal}
+#rhythm-view .rhythm-overview-score b{font-size:18px;color:var(--kryos-text);font-variant-numeric:tabular-nums}
+#rhythm-view .rhythm-overview-score span{font-size:14px;color:var(--kryos-text-secondary)}
+#rhythm-view .activity-date{display:grid;gap:6px;font-size:14px;color:var(--kryos-text-secondary);flex:1;min-width:160px;max-width:260px}
+#rhythm-view .activity-date input{min-height:44px;padding:10px;border:1px solid var(--kryos-control-border);border-radius:8px;background:var(--kryos-surface);color:var(--kryos-text)}
+#rhythm-view .rhythm-layout{grid-template-columns:minmax(0,1.65fr) minmax(260px,1fr);gap:22px}
+#rhythm-view .rhythm-surface{border-radius:14px;border:1px solid var(--kryos-divider);box-shadow:none;padding:22px;background:var(--kryos-surface)}
+#rhythm-view .rhythm-section-head{gap:14px;flex-wrap:wrap}
+#rhythm-view .rhythm-section-head h2{font-size:22px;color:var(--kryos-text);line-height:1.4;font-weight:500}
+#rhythm-view .rhythm-section-head>span{font-size:12px;color:var(--kryos-text-secondary)}
+#rhythm-view .rhythm-group-head{margin-bottom:14px}
+#rhythm-view .rhythm-group-head>div>span{font-size:19px;font-weight:500;color:var(--kryos-text)}
+#rhythm-view .rhythm-group-head p{font-size:14px;line-height:1.65;color:var(--kryos-text-secondary)}
 #rhythm-view .rhythm-item-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-#rhythm-view .rhythm-item{min-width:0;padding:16px;border-radius:12px;border:1px solid #dce5dd;background:#fff;box-shadow:none;text-align:left}
-#rhythm-view .rhythm-item.is-done{background:#edf5ef;border-color:#9ebeaa}
-#rhythm-view .rhythm-item strong{font-size:15px;line-height:1.5;color:#263c30}
-#rhythm-view .rhythm-item small{font-size:12px;line-height:1.6;color:#576c5e}
-#rhythm-view .activity-check-tile{display:flex;align-items:center;gap:12px;min-height:90px}
+#rhythm-view .rhythm-item{min-width:0;padding:16px;border-radius:10px;border:1px solid var(--kryos-control-border);background:var(--kryos-surface);box-shadow:none;text-align:left}
+#rhythm-view .rhythm-item.is-done{background:var(--kryos-positive-surface);border-color:var(--kryos-positive)}
+#rhythm-view .rhythm-item strong{font-size:16px;line-height:1.5;color:var(--kryos-text);overflow-wrap:anywhere}
+#rhythm-view .rhythm-item small{font-size:12px;line-height:1.65;color:var(--kryos-text-secondary)}
+#rhythm-view .activity-check-tile{display:flex;align-items:center;gap:12px;min-height:76px}
 #rhythm-view .activity-check-tile>span:nth-child(2){flex:1;min-width:0}
-#rhythm-view .activity-check-tile b{font-size:12px;color:#226a52;white-space:nowrap}
+#rhythm-view .activity-check-tile b{font-size:12px;color:var(--kryos-action);white-space:nowrap}
 #rhythm-view .activity-count-tile{display:grid;grid-template-columns:1fr;gap:14px;align-content:start}
 #rhythm-view .activity-count-tile:has([data-activity-total="water"]),#rhythm-view [data-activity-cycle="water"]{grid-column:1/-1}
-#rhythm-view .activity-cycle-row{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;align-content:center;gap:12px;cursor:pointer;width:100%;min-height:76px;padding:14px 16px;transition:border-color .15s,background-color .15s}
+#rhythm-view .activity-cycle-row{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;align-content:center;gap:12px;cursor:pointer;width:100%;min-height:76px;padding:16px;transition:background-color var(--kryos-motion)}
 #rhythm-view .activity-cycle-row.rhythm-water{grid-template-columns:34px minmax(100px,.8fr) minmax(64px,1fr) auto}
-#rhythm-view .activity-cycle-row:hover{border-color:#7caa8f;background:#f4f8f4;transform:none}
-#rhythm-view .activity-cycle-row:focus-visible{outline:3px solid #398164;outline-offset:3px}
+#rhythm-view .activity-cycle-row:hover{background:var(--kryos-canvas);transform:none}
+#rhythm-view .activity-cycle-row.is-done:hover{background:var(--kryos-positive-surface)}
 #rhythm-view .activity-cycle-label{min-width:0}
-#rhythm-view .activity-cycle-label small{margin-top:3px;font-size:11px}
-#rhythm-view .activity-cycle-badge{padding:7px 10px;border-radius:9px;background:#eef4ef;color:#226a52;font-size:16px;line-height:1.2;white-space:nowrap;font-variant-numeric:tabular-nums}
-#rhythm-view .activity-cycle-row.is-done .activity-cycle-badge{background:#226a52;color:#fff}
+#rhythm-view .activity-cycle-label small{margin-top:4px;font-size:12px}
+#rhythm-view .activity-cycle-badge{padding:8px 10px;border-radius:8px;background:var(--kryos-information-surface);color:var(--kryos-information);font-size:18px;line-height:1.3;white-space:nowrap;font-variant-numeric:tabular-nums}
+#rhythm-view .activity-cycle-row.is-done .activity-cycle-badge{background:var(--kryos-positive);color:var(--kryos-on-action)}
 #rhythm-view .rhythm-water-track{display:flex;gap:4px;min-width:0}
-#rhythm-view .rhythm-water-track i{height:8px;border-radius:3px;background:#e1e8e0;transition:background-color .15s}
-#rhythm-view .rhythm-water-track i.is-filled{background:#2563eb}
-#rhythm-view .activity-feedback button{margin-left:12px;min-height:44px;padding:8px 14px;border:1px solid #9ebeaa;border-radius:9px;background:#fff;color:#226a52;cursor:pointer}
-@media(max-width:680px){#rhythm-view .activity-cycle-row.rhythm-water{grid-template-columns:34px minmax(0,1fr) auto}#rhythm-view .activity-cycle-row .rhythm-water-track{grid-column:2/-1;grid-row:2}}
-@media(prefers-reduced-motion:reduce){#rhythm-view .activity-cycle-row,#rhythm-view .rhythm-water-track i{transition:none}}
+#rhythm-view .rhythm-water-track i{flex:1;height:8px;border:0;border-radius:3px;background:var(--kryos-divider)}
+#rhythm-view .rhythm-water-track i.is-filled{background:var(--kryos-information)}
+#rhythm-view .rhythm-item-icon{width:34px;height:34px;border-radius:8px;background:var(--kryos-canvas);color:var(--kryos-text-secondary)}
 #rhythm-view .activity-habit-title{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 #rhythm-view .activity-habit-title>div{display:grid;flex:1}
-#rhythm-view .activity-record-state{font-size:11px;color:#35644e}
-#rhythm-view .activity-count-controls{display:flex;gap:8px;align-items:center}
-#rhythm-view .activity-count-controls button{width:44px;height:44px;border:0;border-radius:9px;background:#e3eee5;color:#226a52;font-size:20px}
-#rhythm-view .activity-count-controls input{width:78px;min-height:44px;border:1px solid #b8cbbc;border-radius:9px;text-align:center;background:#fff;font-variant-numeric:tabular-nums}
-#rhythm-view .activity-count-controls>span{font-size:13px;color:#576c5e}
+#rhythm-view .activity-record-state{font-size:12px;color:var(--kryos-text-secondary)}
+#rhythm-view .activity-count-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#rhythm-view .activity-count-controls button{width:44px;height:44px;border:1px solid var(--kryos-control-border);border-radius:8px;background:var(--kryos-surface);color:var(--kryos-action);font-size:20px}
+#rhythm-view .activity-count-controls input{width:78px;min-height:44px;border:1px solid var(--kryos-control-border);border-radius:8px;text-align:center;background:var(--kryos-surface);font-variant-numeric:tabular-nums}
+#rhythm-view .activity-count-controls>span{font-size:14px;color:var(--kryos-text-secondary)}
 #rhythm-view .activity-habit-segments{display:flex;gap:5px;height:7px}
-#rhythm-view .activity-habit-segments i{flex:1;background:#e1e8e0;border-radius:4px}
-#rhythm-view .activity-habit-segments i.filled{background:#226a52}
-#rhythm-view .rhythm-group-note{font-size:12px;color:#576c5e;margin:12px 0 0}
-#rhythm-view .activity-date{display:grid;gap:5px;font-size:12px;color:#576c5e}
-#rhythm-view .rhythm-overview{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
-#rhythm-view .activity-date{flex:1;min-width:180px;max-width:280px}
-#rhythm-view .activity-date input{min-height:44px;padding:9px 12px;border:1px solid #dce5dd;border-radius:9px;background:#fff;color:#263c30}
-#rhythm-view .activity-feedback{padding:12px 14px;border-radius:10px;background:#edf5ef;color:#226a52;font-size:13px;line-height:1.6}
+#rhythm-view .activity-habit-segments i{flex:1;background:var(--kryos-divider);border-radius:4px}
+#rhythm-view .activity-habit-segments i.filled{background:var(--kryos-positive)}
+#rhythm-view .rhythm-group-note{font-size:12px;color:var(--kryos-text-secondary);margin:12px 0 0;line-height:1.65}
+#rhythm-view .activity-feedback{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap;padding:14px 16px;border-radius:10px;background:var(--kryos-information-surface);color:var(--kryos-information);font-size:14px;line-height:1.65}
+#rhythm-view .activity-feedback button{min-height:44px;padding:10px 14px;border:1px solid var(--kryos-control-border);border-radius:8px;background:var(--kryos-surface);color:var(--kryos-information);cursor:pointer}
+#rhythm-view .rhythm-weekly-row{padding-block:16px}
 #rhythm-view .rhythm-weekly-row>button{min-width:44px;min-height:44px}
-@media(max-width:1100px){#actions-view .action-controls{justify-content:flex-start}#rhythm-view .rhythm-item-grid{grid-template-columns:1fr}}
-@media(max-width:600px){#actions-view .action-card{padding:16px;gap:12px}#actions-view .action-controls{grid-column:2}#rhythm-view .rhythm-overview{flex-wrap:wrap}#rhythm-view .rhythm-item{padding:14px}}
-
-/* Compact work surfaces; existing records, tap controls and targets are unchanged. */
-#actions-view .action-title{padding:12px 0 18px}
-#actions-view .action-title h1{font-size:30px;line-height:1.25}
-#actions-view .action-command{border-radius:14px;background:#31584a;grid-template-columns:minmax(0,1.45fr) 150px minmax(0,1fr)}
-#actions-view .action-command>div{min-height:108px;padding:18px 22px;background:#173d32}
-#actions-view .action-command h2{font-size:21px;line-height:1.4;margin:6px 0}
-#actions-view .action-command span,#actions-view .capacity-visual small{color:#c2d9cd}
-#actions-view .action-command p{color:#e0ece5;line-height:1.65}
-#actions-view .capacity-visual strong{font-size:28px;margin-top:10px}
-#actions-view .action-card{padding:16px 20px;gap:14px;box-shadow:none}
-#actions-view .action-card h3{margin:4px 0}
-#actions-view .activity-next-step{padding:10px 12px;margin-top:8px;border-left:3px solid #226a52}
-#actions-view .action-check:focus-visible,#actions-view button:focus-visible,#actions-view select:focus-visible{outline:3px solid #226a52;outline-offset:3px}
-#rhythm-view .rhythm-command{grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(100px,.55fr));border-radius:14px}
-#rhythm-view .rhythm-command>div{padding:18px 20px}
-#rhythm-view .rhythm-command h1{font-size:30px}
-#rhythm-view .rhythm-command-stat strong{font-size:28px;margin:10px 0 6px}
-#rhythm-view .rhythm-command p,#rhythm-view .rhythm-command-stat em,#rhythm-view .rhythm-command-stat>span{color:#d7e5dd}
-#rhythm-view .rhythm-overview{gap:16px;padding:12px 18px;border-radius:12px}
-#rhythm-view .rhythm-overview-score>i{width:auto;height:auto;border-radius:0;background:none;font-style:normal}
-#rhythm-view .rhythm-overview-score{grid-template-columns:auto auto;gap:8px}
-#rhythm-view .rhythm-overview-score b{font-size:18px;color:#226a52;font-variant-numeric:tabular-nums}
-#rhythm-view .rhythm-overview-score span{font-size:13px;color:#52695a}
-#rhythm-view .rhythm-surface{box-shadow:none;padding:20px}
-#rhythm-view .rhythm-section-head h2{font-size:22px}
-#rhythm-view .activity-check-tile{min-height:76px}
-#rhythm-view .rhythm-group-head{margin-bottom:12px}
-#rhythm-view .rhythm-weekly-row{padding-block:14px}
-#rhythm-view .rhythm-group-note{font-size:12px;line-height:1.6}
-@media(max-width:900px){#actions-view .action-command{grid-template-columns:1fr 140px}#rhythm-view .rhythm-command{grid-template-columns:1fr 1fr}}
+#rhythm-view .rhythm-weekly-row :is(small,span){color:var(--kryos-text-secondary)}
+#rhythm-view .rhythm-goal-track{background:var(--kryos-divider)}
+#rhythm-view .rhythm-goal-track i{background:var(--kryos-positive)}
+#rhythm-view .rhythm-week-pulse button{color:var(--kryos-text-secondary)}
+#rhythm-view .rhythm-week-pulse button i{background:var(--kryos-positive)}
+#rhythm-view .rhythm-week-pulse button.is-selected{border-color:var(--kryos-information)}
+#rhythm-view .activity-cycle-row:focus-visible,:is(#actions-view,#rhythm-view) :is(button,select,input,textarea,summary):focus-visible{outline:3px solid var(--kryos-focus);outline-offset:3px}
+@media(max-width:1200px){#rhythm-view .rhythm-layout{grid-template-columns:1fr}#rhythm-view .rhythm-item-grid{grid-template-columns:1fr}#actions-view .action-controls{justify-content:flex-start}}
+@media(max-width:900px){#actions-view .action-command{grid-template-columns:1fr 130px}#actions-view .action-command-rule{grid-column:1/-1}#rhythm-view .rhythm-command{grid-template-columns:1fr 1fr}#rhythm-view .rhythm-command-copy{grid-column:1/-1}}
+@media(max-width:680px){#rhythm-view .activity-cycle-row.rhythm-water{grid-template-columns:34px minmax(0,1fr) auto}#rhythm-view .activity-cycle-row .rhythm-water-track{grid-column:2/-1;grid-row:2}}
+@media(max-width:600px){#actions-view .action-card{padding:16px;gap:12px;grid-template-columns:44px minmax(0,1fr)}#actions-view .action-controls{grid-column:2;min-width:0}#actions-view .action-title h1,#rhythm-view .rhythm-command h1{font-size:26px}#actions-view .commitment-action-links{padding-left:0}#rhythm-view .rhythm-surface{padding:18px}#rhythm-view .rhythm-overview{gap:14px}#rhythm-view .rhythm-item{padding:14px}#rhythm-view .rhythm-command>div{padding:18px}}
+@media(max-width:390px){#actions-view .action-command{grid-template-columns:1fr}#actions-view .action-command-rule{grid-column:auto}#rhythm-view .activity-check-tile{flex-wrap:wrap}#rhythm-view .activity-cycle-row{gap:8px;grid-template-columns:26px minmax(0,1fr) auto}#rhythm-view .rhythm-item-icon{width:26px;height:30px}#rhythm-view .activity-cycle-row.rhythm-water{grid-template-columns:26px minmax(0,1fr) auto}#rhythm-view .activity-cycle-badge{font-size:16px;padding:6px}}

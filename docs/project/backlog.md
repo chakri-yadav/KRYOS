@@ -2,9 +2,9 @@
 
 ## Current scope and release
 
-Visual upgrade: the accepted design and shared light-mode foundation are delivered. Next bounded slice: Inner Command/review/journey composition. Dark-mode activation and full page-specific color migration are not yet complete. See [foundation acceptance](../qa/visual-foundation-acceptance.md).
+Visual upgrade: the accepted design, shared light-mode foundation and daily-use slice are delivered. Next bounded slice: Career and Marketing presentation. Dark-mode activation and the remaining supporting-page migration are not yet complete. See [daily-use acceptance](../qa/daily-use-visual-acceptance.md).
 
-Hosted application: **0.45.15**. Laptop application: **0.25.10**.
+Hosted application: **0.45.16**. Laptop application: **0.25.11**.
 These are independent release lines, not competing versions of the same deployment.
 
 The selected-day, journal-correction and guarded-conflict-resolution phase is **complete for the agreed desktop scope**. Phone acceptance is explicitly deferred by the owner and does not block desktop completion. This does not mean the entire product is finished or every legacy workflow has been revalidated.

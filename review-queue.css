@@ -1,1 +1,14 @@
-.review-queue{margin:20px 0;padding:22px;border:1px solid #cbd5e1;border-radius:18px;background:#f6f8fc;color:#19243a}.review-queue header{display:flex;justify-content:space-between;align-items:center;gap:18px}.review-queue h2{margin:4px 0}.review-queue p,.review-queue small{color:#526174;line-height:1.5}.review-queue-list{margin-top:14px}.review-queue-day{display:flex;width:100%;align-items:center;justify-content:space-between;gap:16px;border:1px solid #dce3ef;border-radius:10px;background:#fff;padding:13px 15px;text-align:left;margin:8px 0;color:inherit;cursor:pointer;min-height:52px;font:inherit}.review-queue-day strong,.review-queue-day small{display:block}.review-queue-day small{margin-top:4px}.review-queue summary{padding:12px 0;cursor:pointer}.review-queue :focus-visible{outline:3px solid #5266bc;outline-offset:3px}.review-queue-clear{background:#f3f8f5}.review-queue-clear p{margin-bottom:0}@media(max-width:550px){.review-queue{padding:16px}.review-queue header{align-items:flex-start;flex-direction:column}}
+/* Catch-up is secondary to the selected day's work. Absence is never styled as failure. */
+.review-queue{margin:22px 0;padding:22px;border:1px solid var(--kryos-divider);border-radius:14px;background:var(--kryos-surface);color:var(--kryos-text)}
+.review-queue header{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}
+.review-queue h2{margin:6px 0;font-size:20px;line-height:1.4;font-weight:500}
+.review-queue .section-kicker{font-size:12px;letter-spacing:.08em}
+.review-queue p,.review-queue small{color:var(--kryos-text-secondary);line-height:1.65}
+.review-queue p{font-size:16px}.review-queue small{font-size:14px}
+.review-queue-list{margin-top:16px}
+.review-queue-day{display:flex;width:100%;align-items:center;justify-content:space-between;gap:16px;border:0;border-bottom:1px solid var(--kryos-divider);border-radius:0;background:var(--kryos-surface);padding:16px 0;text-align:left;margin:0;color:inherit;cursor:pointer;min-height:56px;font:inherit}
+.review-queue-day strong,.review-queue-day small{display:block}.review-queue-day small{margin-top:6px}
+.review-queue summary{padding:14px 0;cursor:pointer;font-size:14px}
+.review-queue :focus-visible{outline:3px solid var(--kryos-focus);outline-offset:3px}
+.review-queue-clear p{margin-bottom:0}
+@media(max-width:550px){.review-queue{padding:18px}.review-queue header{align-items:flex-start;flex-direction:column}}

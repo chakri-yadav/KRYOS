@@ -16,7 +16,7 @@
     return `<section class="review-queue" aria-label="Days to review"><header><div><p class="section-kicker">CATCH UP WHEN YOU ARE READY</p><h2>${days.length} ${days.length===1?'day needs':'days need'} review</h2><p>Choose any day. Unrecorded does not mean lost.</p></div><button type="button" class="primary-button" data-review-queue-day="${resume.date}">${resume.date===selected?'Continue this day':'Review a past day'}</button></header><div class="review-queue-list">${recent.slice(0,3).map(row).join('')}</div>${recent.length>3?`<details><summary>Show all ${days.length} days</summary>${recent.slice(3).map(row).join('')}</details>`:''}</section>`;
   }
   const command=renderContainmentCovenant;
-  renderContainmentCovenant=function(){return markup()+command();};
+  renderContainmentCovenant=function(){return command()+markup();};
   const progress=renderLifeProgress;
   renderLifeProgress=function(){progress();progressView.querySelector('.review-queue')?.remove();progressView.querySelector('.shared-day-summary')?.insertAdjacentHTML('afterend',markup());};
   document.addEventListener('click',event=>{

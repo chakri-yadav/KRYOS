@@ -1,6 +1,6 @@
 # Current sync plan
 
-Status: deployed desktop integration. Hosted application 0.45.15; laptop application 0.25.10.
+Status: deployed desktop integration. Hosted application 0.45.16; laptop application 0.25.11.
 
 ## Storage boundaries
 

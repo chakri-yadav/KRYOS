@@ -4,9 +4,9 @@ A desktop-first directed-attention workspace connecting daily commitments, journ
 
 ## Current status
 
-The shared visual foundation now follows the [accepted design contract](docs/design/visual-contract-v1.md). Light-mode shell, controls, date attribution and save-status surfaces are delivered; feature-page redesign and dark-mode activation remain later slices. See [verification and limits](docs/qa/visual-foundation-acceptance.md).
+The shared foundation and daily-use visual slice follow the [accepted design contract](docs/design/visual-contract-v1.md). Inner Command, review, journey, Actions and Rhythm are updated. Career/Marketing, remaining supporting pages and dark-mode activation remain separate slices. See [daily-use verification and limits](docs/qa/daily-use-visual-acceptance.md).
 
-- Hosted release: **0.45.15**. Laptop release: **0.25.10**.
+- Hosted release: **0.45.16**. Laptop release: **0.25.11**.
 - Current phase: selected-day workflows, journal corrections and guarded block-conflict resolution completed for desktop scope.
 - Hosted personal records: browser copies with signed-in Supabase synchronization.
 - Marketing: laptop-only job records and files; hosted progress receives only explicitly requested dated aggregate statistics.

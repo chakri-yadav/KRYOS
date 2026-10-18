@@ -38,15 +38,16 @@
 #progress-view .progress-journey-summary>span{font-size:13px;color:#425e4e}
 #progress-view .evidence-journey>progress{width:100%;height:9px;accent-color:#226a52}
 #progress-view .evidence-calendar{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:7px;margin-top:20px}
-#progress-view .evidence-calendar button{display:grid;place-items:center;gap:3px;min-width:0;min-height:54px;background:#f1f4f0;border:1px solid #bdcabe;color:#3f5848;font-size:14px;border-radius:9px}
-#progress-view .evidence-calendar .journey-won{background:#226a52;border-color:#226a52;color:#fff}
-#progress-view .evidence-calendar .journey-not-won{background:#fff0eb;border-color:#c28f7a;color:#81351e}
-#progress-view .evidence-calendar .journey-in-progress{background:#e6f2eb;border:2px solid #226a52;color:#153d31;font-weight:700}
-#progress-view .evidence-calendar .journey-awaiting-review{background:#fff7e5;border-color:#c0a469;color:#694c16}
+#progress-view .evidence-calendar button{display:grid;place-items:center;gap:3px;min-width:0;min-height:54px;background:var(--kryos-canvas);border:0;color:var(--kryos-text-secondary);font-size:14px;border-radius:8px}
+#progress-view .evidence-calendar .journey-won{background:var(--kryos-positive-surface);color:var(--kryos-positive)}
+#progress-view .evidence-calendar .journey-not-won{background:var(--kryos-negative-surface);color:var(--kryos-negative)}
+#progress-view .evidence-calendar .journey-in-progress{background:var(--kryos-information-surface);color:var(--kryos-information);font-weight:500}
+#progress-view .evidence-calendar .journey-awaiting-review{background:var(--kryos-attention-surface);color:var(--kryos-attention)}
 #progress-view .evidence-calendar button small{color:inherit;opacity:1}
 #progress-view .evidence-note{color:#425e4e;line-height:1.7;font-size:13px}
 @media(max-width:900px){#progress-view .evidence-calendar{grid-template-columns:repeat(8,minmax(0,1fr))}}
 @media(max-width:550px){#progress-view .evidence-calendar{grid-template-columns:repeat(6,minmax(0,1fr))}}
+@media(max-width:420px){#progress-view .evidence-calendar{grid-template-columns:repeat(4,minmax(0,1fr))}}
 #progress-view .progress-title h1{font-size:clamp(28px,3vw,38px);line-height:1.35;letter-spacing:-.035em}
 #progress-view .progress-title p,#progress-view .progress-title>span{font-size:14px;line-height:1.75;color:#52695a}
 #progress-view .progress-flow-summary{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,.5fr);gap:28px;padding:26px;margin:22px 0;background:#edf5ef;border:1px solid #bacdbc;border-radius:16px}
