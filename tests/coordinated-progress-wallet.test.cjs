@@ -3,10 +3,10 @@ require('../supabase/functions/kryos-ingest/commitment-core.js');require('../rew
 test('Progress and Inner Command share the exact cycle, battle outcomes and corrections',()=>{
  const life={actions:[]};C.ensure(life);const date=C.cycle.startDate,day=C.day(life,date);
  day.planSet=true;day.reviewedAt='fixture';for(const item of C.items.filter(i=>i.type!=='guidance'))day.items[item.id]='kept';
- const before=JSON.stringify(life),model=C.journey(life,'2026-10-12');assert.equal(model.days.length,48);assert.equal(model.days[0].date,'2026-10-11');assert.equal(model.days[47].date,'2026-11-27');assert.equal(model.days[0].state,'won');assert.equal(JSON.stringify(life),before);
- day.items.instagram='missed';assert.equal(C.journey(life,'2026-10-12').days[0].state,'not-won');
- const context={KryosCommitment:C,lifeStore:()=>life,document:{addEventListener(){}},progressRecords:()=>[]};vm.createContext(context);vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../progress-evidence.js'),'utf8'),context);const html=context.progressJourney('2026-10-12');
- assert.match(html,/October 11 – November 27/);assert.doesNotMatch(html,/September 26|November 12|containmentDays/);assert.match(html,/data-progress-command-day="2026-10-11"/);assert.match(html,/journey-not-won/);
+ const before=JSON.stringify(life),model=C.journey(life,'2026-10-19');assert.equal(model.days.length,48);assert.equal(model.days[0].date,'2026-10-18');assert.equal(model.days[47].date,'2026-12-04');assert.equal(model.days[0].state,'won');assert.equal(JSON.stringify(life),before);
+ day.items.instagram='missed';assert.equal(C.journey(life,'2026-10-19').days[0].state,'not-won');
+const context={KryosCommitment:{...C,today:()=> '2026-10-19'},lifeStore:()=>life,document:{addEventListener(){}},progressRecords:()=>[]};vm.createContext(context);vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../progress-evidence.js'),'utf8'),context);const html=context.progressJourney('2026-10-19');
+ assert.match(html,/October 18 – December 4/);assert.doesNotMatch(html,/September 26|November 12|containmentDays/);assert.match(html,/data-progress-command-day="2026-10-18"/);assert.match(html,/journey-not-won/);
 });
 test('wallet restart excludes earlier points, old spending and late backfills',()=>{
  const reset={earnFromDate:'2026-10-12',createdAt:'2026-10-12T07:00:00.000Z'},rows=[{date:'2026-09-26',credits:100},{date:'2026-10-11',credits:20},{date:'legacy-weekly',credits:20}],spent=[{status:'confirmed',cost:90,createdAt:'2026-10-11T14:00:00.000Z'}];

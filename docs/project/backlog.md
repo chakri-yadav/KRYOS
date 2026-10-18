@@ -2,7 +2,7 @@
 
 ## Current scope and release
 
-Hosted application: **0.45.13**. Laptop application: **0.25.8**.
+Hosted application: **0.45.14**. Laptop application: **0.25.9**.
 These are independent release lines, not competing versions of the same deployment.
 
 The selected-day, journal-correction and guarded-conflict-resolution phase is **complete for the agreed desktop scope**. Phone acceptance is explicitly deferred by the owner and does not block desktop completion. This does not mean the entire product is finished or every legacy workflow has been revalidated.

@@ -9,9 +9,9 @@ test('restart preserves recorded days and archives old cycle only once',()=>{
  assert.equal(life.s\u0061dhana.previousCycles.length,1);
  assert.equal(life.s\u0061dhana.previousCycles[0].records.length,2);
  assert.equal(life.s\u0061dhana.days['2026-10-11'],record);
- assert.equal(life.s\u0061dhana.cycle.startDate,'2026-10-11');
- assert.equal(C.number('2026-10-11'),1);
- assert.equal(C.number('2026-11-27'),48);
+ assert.equal(life.s\u0061dhana.cycle.startDate,'2026-10-18');
+ assert.equal(C.number('2026-10-18'),1);
+ assert.equal(C.number('2026-12-04'),48);
  assert.equal(C.dates().length,48);
  assert.equal(life.actions[0].id,'existing');
 });

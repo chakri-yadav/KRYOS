@@ -1,6 +1,6 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
 function setup(){const ctx={structuredClone,Intl,Date,renderContainmentCovenant:()=>'',commandJourneyModel:()=>[],document:{addEventListener(){}},window:{}};vm.createContext(ctx);vm.runInContext(fs.readFileSync('supabase/functions/kryos-ingest/commitment-core.js','utf8'),ctx);vm.runInContext(fs.readFileSync('day-review.js','utf8'),ctx);return {core:ctx.KryosCommitment,model:ctx.window.KryosDayReview.model};}
-const date='2026-10-14',now='2026-10-17T18:00:00Z';
+const date='2026-10-21',now='2026-10-24T18:00:00Z';
 function complete(core,life){core.apply(life,{type:'plan.empty'},date,now,'plan');for(const item of core.items.filter(i=>i.type!=='guidance'))core.apply(life,{type:'item.set',itemId:item.id,value:'kept'},date,now,item.id);}
 test('unanswered days cannot preview a win and preview never changes evidence',()=>{const {core,model}=setup(),life={};core.day(life,date);const before=JSON.stringify(life),m=model(life,date,now);assert.ok(m.missing.length);assert.equal(m.result,null);assert.equal(JSON.stringify(life),before);});
 test('complete day previews won without changing its revision',()=>{const {core,model}=setup(),life={};complete(core,life);const revision=core.day(life,date).revision,m=model(life,date,now);assert.equal(m.result.result,'won');assert.equal(m.day.revision,revision);assert.equal(core.day(life,date).reviewedAt,null);});

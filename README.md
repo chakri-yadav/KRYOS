@@ -4,7 +4,7 @@ A desktop-first directed-attention workspace connecting daily commitments, journ
 
 ## Current status
 
-- Hosted release: **0.45.13**. Laptop release: **0.25.8**.
+- Hosted release: **0.45.14**. Laptop release: **0.25.9**.
 - Current phase: selected-day workflows, journal corrections and guarded block-conflict resolution completed for desktop scope.
 - Hosted personal records: browser copies with signed-in Supabase synchronization.
 - Marketing: laptop-only job records and files; hosted progress receives only explicitly requested dated aggregate statistics.
