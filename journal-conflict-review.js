@@ -123,7 +123,7 @@
    }
    if(session.user.id!==syncState.userId)throw Error('Account changed during comparison. Compare again.');
    snapshotOwner=session.user.id;snapshot={version:1,purpose:'read-only-journal-conflict-review',capturedAt:new Date().toISOString(),areas};
-   notice=areas.length?'Comparison ready. Neither copy was changed. Download both before using existing Push or Pull controls.':'No cloud journal blocks found. Your browser copy is unchanged.';
+   notice=areas.length?'Comparison ready. Neither copy was changed. Download both, then use a block-specific choice below.':'No cloud journal blocks found. Your browser copy is unchanged.';
   }catch(error){notice=error.message||'Comparison unavailable. Neither copy was changed.';}
   finally{busy=false;renderPanel();}
  });
