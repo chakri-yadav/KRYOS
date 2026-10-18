@@ -4,6 +4,13 @@ const LIFE_RHYTHM_HABITS = new Set(['breakfast', 'lunch', 'dinner', 'protein', '
 let lifePreview = null;
 let lifeNotice = '';
 let lifeSelectedDate = '';
+let lifeTimelineScope = 'day';
+let lifeTimelineQuery = '';
+let lifeTimelineDate = '';
+function lifeTimelineEntries(entries,date,scope='day',query='') {
+  const search=String(query).trim().toLowerCase();
+  return [...entries].filter(e=>(scope==='all'||e.date===date)&&`${e.text} ${e.date}`.toLowerCase().includes(search)).sort((a,b)=>b.date.localeCompare(a.date)||String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
+}
 let assistantImportOpened = false;
 let containmentDialogOpen = false;
 function lifeStore() {
@@ -309,6 +316,7 @@ function lifeClearDraft(date,store=lifeStore()){
 function renderLifeJournal() {
   const store = lifeStore();
   const today = typeof kryosSelectedDate==='function'?kryosSelectedDate():toDateKey();
+  if(lifeTimelineDate!==today){lifeTimelineDate=today;lifeTimelineScope='day';lifeTimelineQuery='';}
   const draft=lifeDraftFor(today,store);
   const todayRecords = store.records.filter(record => record.date === today && record.completed);
   const domains = new Set(todayRecords.map(record => record.domain));
@@ -321,18 +329,19 @@ function renderLifeJournal() {
       <label class="life-wide journal-paper"><span>Journal entry</span><textarea name="text" id="life-draft" placeholder="Write the day as it happened. What moved, what resisted, what mattered?" required maxlength="100000">${escapeHtml(draft)}</textarea></label>
       <div class="compose-footer"><span>One honest record is enough.</span><button class="primary-button">Save to timeline</button></div></form>
     </section>
-    <section class="life-section journal-history"><div class="life-heading"><div><p class="section-kicker">EVIDENCE LEDGER</p><h2>Your timeline</h2><p>${store.entries.length} entries preserved</p></div><input id="life-search" type="search" placeholder="Search entries" aria-label="Search journal"></div><div id="life-timeline" class="journal-timeline">${lifeTimeline()}</div></section>`;
+    <section class="life-section journal-history"><div class="life-heading"><div><p class="section-kicker">EVIDENCE LEDGER</p><h2>${lifeTimelineScope==='all'?'All journal days':'Journal for this day'}</h2><p>${lifeTimelineScope==='all'?store.entries.length:store.entries.filter(e=>e.date===today).length} entries · ${lifeTimelineScope==='all'?'all dates':today} · ${store.entries.length} preserved overall</p></div><input id="life-search" type="search" value="${escapeHtml(lifeTimelineQuery)}" placeholder="Search within this view" aria-label="Search journal"></div><div class="journal-scope-controls" role="group" aria-label="Journal date scope"><button type="button" class="secondary-button" data-life-scope="day" aria-pressed="${lifeTimelineScope==='day'}">Selected day</button><button type="button" class="secondary-button" data-life-scope="all" aria-pressed="${lifeTimelineScope==='all'}">All days</button></div><div id="life-timeline" class="journal-timeline">${lifeTimeline(lifeTimelineQuery)}</div></section>`;
 }
 function lifeTimeline(query = '') {
   const store = lifeStore();
-  const entries = [...store.entries].sort((a,b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt)).filter(e => `${e.text} ${e.date}`.toLowerCase().includes(query.toLowerCase()));
+  const selectedDate=typeof kryosSelectedDate==='function'?kryosSelectedDate():toDateKey();
+  const entries = lifeTimelineEntries(store.entries,selectedDate,lifeTimelineScope,query);
   return entries.length ? entries.map(e => {
     const records = store.records.filter(r => r.entryId === e.id);
     const completed = records.filter(r => r.completed);
     const domains = [...new Set(records.map(r => r.domain))];
     const date = new Date(`${e.date}T12:00:00`);
     return `<article class="life-entry premium-entry"><div class="entry-date"><span>${date.toLocaleDateString(undefined,{month:'short'}).toUpperCase()}</span><strong>${date.getDate()}</strong><small>${date.toLocaleDateString(undefined,{weekday:'short'})}</small></div><div class="entry-body"><div class="entry-head"><div><time>${date.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'})}</time><div class="entry-chips">${domains.slice(0,4).map(domain => `<span>${escapeHtml(domain)}</span>`).join('')}${domains.length > 4 ? `<span>+${domains.length - 4}</span>` : ''}</div></div><div class="entry-score"><strong>${completed.length}</strong><span>done</span></div></div><p class="life-text">${escapeHtml(e.text)}</p>${records.length ? `<div class="entry-records">${records.map(r => `<div class="life-row"><span><i class="record-dot ${r.completed ? 'done' : ''}"></i><b>${escapeHtml(r.domain)}</b>${escapeHtml(r.title)}${r.minutes == null ? '' : `<small>${r.minutes} min</small>`}</span>${r.kind === 'task' ? `<button class="secondary-button" data-life="task" data-id="${r.id}">${r.completed ? 'Reopen' : 'Complete'}</button>` : ''}</div>`).join('')}</div>` : ''}<button class="life-delete" data-life="delete" data-id="${e.id}">Delete entry</button></div></article>`;
-  }).join('') : '<div class="journal-empty"><strong>Your evidence begins here.</strong><p>A few truthful lines are enough to start the pattern.</p></div>';
+  }).join('') : `<div class="journal-empty"><strong>${query.trim()?'No matching entries':lifeTimelineScope==='day'?'No journal entries for this day':'Your evidence begins here.'}</strong><p>${query.trim()?'Try another search or switch the date scope.':lifeTimelineScope==='day'?'Write above to record this day, or choose All days to find another entry.':'A few truthful lines are enough to start the pattern.'}</p></div>`;
 }
 function lifeDay(date) {
   const b = getBehavior();
@@ -351,7 +360,7 @@ function renderLifeProgress() {
 }
 document.addEventListener('input', e => {
   if (e.target.id === 'life-draft') { lifeSaveDraft(e.target.form.elements.date.value,e.target.value); saveTasks(); document.querySelector('#life-draft-status').textContent = 'Draft saved on this device'; }
-  if (e.target.id === 'life-search') document.querySelector('#life-timeline').innerHTML = lifeTimeline(e.target.value);
+  if (e.target.id === 'life-search') {lifeTimelineQuery=e.target.value;document.querySelector('#life-timeline').innerHTML = lifeTimeline(lifeTimelineQuery);}
 });
 document.addEventListener('change', e => {
   if (e.target.dataset.lifeSchedule !== undefined) {
@@ -381,6 +390,8 @@ document.addEventListener('submit', e => {
   renderLifeJournal();
 });
 document.addEventListener('click', async e => {
+  const scope=e.target.closest('[data-life-scope]');
+  if(scope){lifeTimelineScope=scope.dataset.lifeScope==='all'?'all':'day';renderLifeJournal();return;}
   const containment=e.target.closest('[data-containment]');
   if(containment){
     const store=lifeStore(),date=toDateKey(),status=containment.dataset.containment;
