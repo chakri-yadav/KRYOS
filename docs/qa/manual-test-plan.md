@@ -2,6 +2,10 @@
 
 Use this before major version bumps.
 
+## Current desktop scope
+
+The selected-day and journal/sync phase has a separate [desktop acceptance record](desktop-history-sync-acceptance.md). It distinguishes automated, simulated and live endpoint evidence. Physical phone acceptance is deferred by the owner and is not a desktop release gate. The broader checklist below remains a regression plan, not proof that every item was retested in this phase.
+
 ## Foundation
 
 - Edit declaration.

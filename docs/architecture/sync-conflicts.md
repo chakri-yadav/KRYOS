@@ -1,72 +1,56 @@
-# Sync Conflict Rules
+# Sync conflict contract
 
-Status: planned for `0.003.x`.
+Status: implemented for the desktop journal/daily-records workflow in hosted 0.45.12 and laptop 0.25.8. Phone acceptance is deferred.
 
-KRYOS sync must protect trust before convenience. A conflict warning is better than silent data loss.
+## Unit and boundaries
 
-## Sync Unit
+Resolution replaces one complete block, not an individual sentence or field:
 
-The conflict unit is one block:
+- `tasks`: current journal entries and linked daily data, including Actions, Rhythm, Launch and Money.
+- `journal`: legacy journal workspace.
 
-- Foundation
-- Career
-- Tasks and habits
-- Journal
-- UI state
+The confirmation explicitly names the whole-block impact. Marketing and Career are excluded. Existing broad Push/Pull controls are not equivalent to this guarded per-block workflow. This is not a universal replacement for every legacy sync path.
 
-KRYOS will not try to merge individual nested roadmap items or journal fields in the first prototype.
+## Review and choice
 
-## Required Metadata
+1. Read the current account's browser and cloud copies.
+2. Show journal entry differences, draft counts, linked-record differences and correction-history counts.
+3. Download both reviewed copies together.
+4. Choose Keep browser copy or Use cloud copy for one block.
+5. Acknowledge that the paired download was kept and that the whole selected block will be replaced.
+6. Confirm the direction explicitly.
 
-Each local block sync attempt needs:
+Comparison does not write data. No automatic merge or default winning copy is selected.
 
-- `block_key`
-- `schema_version`
-- `payload`
-- `payload_updated_at`
-- `client_updated_at`
-- last known `remote_updated_at`
+## Preconditions and backup
 
-## No Silent Overwrite Rule
+- Reject unsupported blocks, signed-out/demo contexts, changed accounts and newer unsupported cloud formats.
+- Refuse overlapping active sync; pause background task writes during resolution.
+- Recheck cloud revision, timestamp and content, plus current browser content.
+- Persist and read back a profile-scoped recovery snapshot before replacement. Backup failure stops the operation.
+- Keep a downloadable last recovery snapshot on this browser. Later attempts replace that last-snapshot slot; the required paired downloads preserve earlier reviewed copies independently.
+- Snapshot content is private and must not be published.
 
-If both local and remote changed after the last known remote version, KRYOS must create an open conflict and stop writing that block.
+The paired/recovery format is not the standard full-application backup format. There is no one-click restore UI or automatic rollback in this phase; restoration requires an explicitly reviewed recovery operation.
 
-The UI can still sync other safe blocks, but it must show a conflict warning in Settings.
+## Keep browser copy
 
-## Resolution Choices
+Update only the selected profile/block row. Require both its reviewed revision and payload timestamp to match; increment revision on success. Read cloud back and verify revision and semantic JSON content. JSON field ordering alone must not produce a failure.
 
-First prototype resolution can be simple:
+An unmatched conditional update is a conflict, not permission for an unconditional retry. Lost receipts or changed read-back data are not reported as successful resolution. Browser edits made while the request is in flight remain preserved and require another review.
 
-- keep local
-- keep remote
-- export backup and decide manually
+## Use cloud copy
 
-No automatic field-level merge until real usage proves the need.
+Recheck cloud and browser again after backing up, then persist the reviewed cloud payload only to the selected browser block. Verify browser storage and reload the appropriate in-memory state. Do not write cloud, change the selected viewing date or touch unrelated blocks.
 
-## Offline Rule
+Cloud may advance after the final read; the chosen snapshot is not a distributed lock. Later changes must be detected by subsequent normal freshness checks.
 
-If the app cannot reach Supabase:
+## Result and failure reporting
 
-- continue local usage
-- show sync as stale or unavailable
-- do not block Today, Habits, Journal, or Career
-- never delete local data because remote is unavailable
+Only a verified selected-block result is called resolved. Do not clear unrelated conflicts or claim every device received it. Account changes clear loaded comparisons. Failure preserves the recovery copy, explains what could or could not be verified, and requires comparison again rather than blindly overwriting.
 
-## Demo-First Rule
+The first-recovery guard additionally prevents action-count heuristics from silently replacing existing journal work when the browser has no known cloud baseline.
 
-Run conflict tests on Demo data before Personal:
+## Evidence and limits
 
-- edit Demo Career on laptop
-- edit Demo Career differently on phone
-- attempt sync
-- confirm conflict is recorded
-- confirm neither side is silently overwritten
-
-## Rollback Rule
-
-Before any first Personal sync test:
-
-1. Export Personal backup.
-2. Confirm backup imports into a clean browser profile.
-3. Run Demo sync test.
-4. Only then enable Personal sync.
+See [desktop acceptance evidence](../qa/desktop-history-sync-acceptance.md). Automated and simulated desktop tests are not evidence of physical phone acceptance. No real personal block was replaced as a test.

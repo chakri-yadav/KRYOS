@@ -1,33 +1,26 @@
 # KRYOS
-\n+0.30.0 improves Actions and Rhythm with clear next steps, visible routines and correctable counts.
-\n+0.29.0 establishes shared premium visual styling and truthful workspace-specific save feedback.
-\n+0.28.4 adds premium must-do focus cards and clearer completion feedback.
-\n+0.28.3 gives the promise to personal commitment stronger visual prominence and readable premium styling.
-\n+0.28.2 adds the always-visible 48-day commitment cycle journey map, keeping days won separate from elapsed time.
 
-0.28.1 adds the premium Daily Command interface with readable promises, shared must-do cards and stable editing controls.
+A desktop-first directed-attention workspace connecting daily commitments, journal evidence, routines, learning roadmaps and progress.
 
-Inner Command 0.28.0 adds a 48-day commitment cycle cycle, dated must-do commitments shared with Actions, quantity targets, multi-boundary records, and audited daily battle review.
+## Current status
 
-Career 0.27.0 supports the updated Debugging studio: numbered exercises, mixed sessions, optional reinforcement, read-only field guides and diagnostic evidence notes.
+- Hosted release: **0.45.12**. Laptop release: **0.25.8**.
+- Current phase: selected-day workflows, journal corrections and guarded block-conflict resolution completed for desktop scope.
+- Hosted personal records: browser copies with signed-in Supabase synchronization.
+- Marketing: laptop-only job records and files; hosted progress receives only explicitly requested dated aggregate statistics.
+- Career: local-service storage on the laptop; separate Supabase-backed hosted copy.
+- Phone acceptance: deferred by the owner; not represented as tested or required for desktop closeout.
+- Documentation-only closeout does not change application versions, private data, credentials or storage.
 
-Career 0.26.0 supports phased workplace-learning roadmaps, workplace-language reference cards, safe simulation checklists, readiness gates and private practice evidence.
+## Current product records
 
-Career visual release 0.25.1: a focused learning studio with one next action, roadmap-specific visual lanes, collapsible modules, and retained progress/editing. No data migration.
+- [Active backlog](docs/project/backlog.md)
+- [Desktop acceptance evidence and test limits](docs/qa/desktop-history-sync-acceptance.md)
+- [Current sync plan](docs/architecture/sync-plan.md)
+- [Conflict resolution contract](docs/architecture/sync-conflicts.md)
+- [Version policy](VERSION.md)
 
-KRYOS is a private directed-attention operating system. It converts intention, distraction, urges, and setbacks into small physical actions that produce visible evidence.
-
-It is not a generic todo app, journal, or habit tracker. KRYOS is designed to help one person choose one outcome, enter focus quickly, redirect impulses, recover from slips, and advance one breakthrough project without turning self-improvement into more reading.
-
-## Current Status
-
-- Version: `0.25.0`
-- Stage: Marketing cloud sync reconciliation and assistant batch import
-- Audience: private personal daily use
-- App type: local-first browser application
-- Marketing: batches and application records sync to the Personal Supabase profile; attached file bytes remain in the browser's local file store and are not yet cross-device or cloud-backed.
-- Sync status: local-first with revision-checked Supabase sync for core records and Marketing; successful sign-in pulls fresh Personal data and starts Realtime/foreground refresh
-- Backend status: assistant ingestion supports journal, actions, rhythm, career, money statements, and Marketing batch imports; the encrypted assistant credential stays out of GitHub
+The active backlog separates shipped work from deferred work. Older prototype plans are archived rather than treated as live requirements.
 
 ## Product Promise
 

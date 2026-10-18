@@ -1,74 +1,51 @@
 # Product Backlog
 
-This backlog starts after `0.002.002`.
+## Current scope and release
 
-## Done: Phase 1 Stabilization Finish
+Hosted application: **0.45.12**. Laptop application: **0.25.8**.
+These are independent release lines, not competing versions of the same deployment.
 
-Target: `0.001.006`
+The selected-day, journal-correction and guarded-conflict-resolution phase is **complete for the agreed desktop scope**. Phone acceptance is explicitly deferred by the owner and does not block desktop completion. This does not mean the entire product is finished or every legacy workflow has been revalidated.
 
-- Bug: complete visual QA in browser.
-- Task: add in-app version identity in Settings. Done in `0.001.005`.
-- Task: add release notes panel. Done in `0.001.005`.
-- QA: run full manual test plan.
-- Documentation: update release note after QA.
+## Completed in this phase
 
-## Done: Personal And Demo Separation
+- [x] Shared selected date across personal pages, separate from the actual operating clock.
+- [x] Historical date navigation, browser history and date persistence.
+- [x] Guided daily review with an explained result and reconfirmation after corrections.
+- [x] Review queue for elapsed days needing attention.
+- [x] Selected-day progress and reward summaries; current wallet clearly separate.
+- [x] Dated completion evidence isolated from edits to other days; duplicate one-off action credit prevented.
+- [x] Date-scoped journal timeline, explicit all-days view and search.
+- [x] Inline journal text corrections, prior-text history and stale-edit rejection.
+- [x] Initial cloud recovery protects journal entries, linked records and drafts.
+- [x] Read-only comparison and paired download of browser/cloud snapshots.
+- [x] Explicit per-block browser/cloud resolution with backup, acknowledgement, freshness checks and conditional cloud writes.
+- [x] Independent desktop browser/offline/conflict verification.
+- [x] Current backlog, conflict contract and QA evidence documented.
 
-Target: `0.002.000`
+## Verification evidence
 
-- Architecture: define account mode storage key strategy. Done in `0.002.000`.
-- Feature: add Personal/Demo mode selector. Done in `0.002.000`.
-- Feature: add demo seed data. Done in `0.002.000`.
-- Feature: add Demo Mode badge. Done in `0.002.000`.
-- Feature: add reset demo data. Done in `0.002.000`.
-- QA: confirm personal export cannot include demo data and demo export cannot include personal data. Pending browser/manual QA.
+- Hosted code: 268 automated checks passed.
+- Laptop code: 159 automated checks passed.
+- Browser regression checks cover shared dates, journal save/cancel/history, scope changes, refresh, conflict choices and account-change clearing.
+- Two isolated desktop browser contexts passed online propagation, historical correction, offline persistence, concurrent-change preservation and stale-write rejection against a simulated shared transport.
+- A live authenticated conditional-update check matched zero rows and confirmed that the cloud block was unchanged.
+- The hosted release was deployed and browser-tested. No real personal block was replaced to test a conflict choice.
 
-## Done: Profile Login Correction
+See [desktop acceptance evidence](../qa/desktop-history-sync-acceptance.md).
 
-Target: `0.002.001`
+## Deferred, not blocking
 
-- Feature: open Demo from lock screen credentials. Done in `0.002.001`.
-- Task: remove in-app Personal/Demo Settings switch. Done in `0.002.001`.
-- Task: keep demo credentials fixed for showcase access. Done in `0.002.001`.
-- QA: confirm Personal PIN opens Personal and demo PIN opens Demo. Done in `0.002.002`.
+- [ ] Physical phone acceptance and real laptop-to-phone offline/reconnect testing. Resume only when the owner requests mobile work.
+- Automatic field-level merging is not approved scope and is not silently added to the backlog.
+- A recovery-snapshot restore/import UI is not part of this phase. Saved recovery snapshots are not standard full-application backup files.
 
-## Done: GitHub Product Setup
+## Product boundaries
 
-Target: `0.002.002`
+Marketing job records and documents remain laptop-only. Career in the laptop app remains separate from the hosted Career copy. Guarded conflict resolution handles only the selected daily-records or legacy-journal block; it does not publish Marketing, migrate Career, resolve every block at once, or change reward rules.
 
-- Task: create private GitHub repo. Done.
-- Task: add labels for type, area, priority, and risk. Done.
-- Task: create milestones for `0.002.002` and `0.003.000`. Done.
-- Task: create first backlog issues. Done.
+## Completion rule for future work
 
-## Done: Manual QA Hardening
+New tasks need a concrete observed issue or an explicitly approved requirement, a bounded scope, acceptance checks and a release/documentation record. Do not treat repeated continuation requests as permission to invent an endless feature queue.
 
-Target: `0.002.002`
-
-- Feature: active profile badge polish. Done in `0.002.002`.
-- Documentation: demo walkthrough script. Done in `0.002.002`.
-- Architecture: sync boundary ADR. Done in `0.002.002`.
-- Architecture: free backend choice ADR. Done in `0.002.002`.
-
-## Done: Free Sync Foundation
-
-Target: `0.003.000`
-
-- Architecture: define Supabase sync schema. Done in `0.003.000`.
-- Security: define what must not sync. Done in `0.003.000`.
-- Architecture: define sync auth model. Done in `0.003.000`.
-- Architecture: define conflict behavior. Done in `0.003.000`.
-- Feature: add sync readiness status. Done in `0.003.000`.
-- Feature: add local dry-run trigger. Done in `0.003.000`.
-
-## Epic: Demo Sync Prototype
-
-Target: `0.003.001`
-
-- Task: create Supabase Free project.
-- Task: apply schema and RLS policies.
-- Task: add environment/config loading for Supabase URL and anon key.
-- Feature: write Demo profile blocks to Supabase.
-- Feature: read Demo profile blocks from Supabase.
-- QA: test phone/laptop sync with Demo data first.
-- Guardrail: Personal sync stays blocked until Demo round trip is proven.
+[Historical prototype backlog](archive/backlog-legacy.md) is retained for reference only; its old status statements are not the current product plan.
