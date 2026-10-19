@@ -101,11 +101,6 @@
 #journal-view .command-history summary{min-height:44px;display:flex;align-items:center}
 #journal-view .command-feedback{font-size:14px;line-height:1.6;color:var(--command-accent);padding:14px 16px;background:var(--command-soft);border-radius:10px}
 #journal-view .command-feedback:empty{display:none}
-#journal-view .command-correction-dialog{width:min(540px,calc(100vw - 32px));max-height:85dvh;overflow:auto;border:1px solid var(--kryos-control-border);border-radius:16px;padding:24px;background:var(--command-paper);color:var(--command-ink);box-shadow:var(--shadow)}
-#journal-view .command-correction-dialog::backdrop{background:rgb(32 43 40 / .45)}
-#journal-view .command-correction-dialog header{display:flex;align-items:center;justify-content:space-between;gap:12px}
-#journal-view .command-correction-dialog h2{font-size:22px;margin:0}
-#journal-view .command-correction-dialog header button{min-width:44px;min-height:44px;border:1px solid var(--kryos-control-border);border-radius:8px;background:var(--command-paper);color:var(--command-ink)}
 #journal-view #command-correction-error{color:var(--kryos-error);font-size:14px;margin:0}
 #journal-view .command-preparation{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;background:var(--command-paper);padding:20px;border:1px solid var(--command-line);border-radius:14px}
 #journal-view .command-preparation p{font-size:14px;color:var(--command-muted);line-height:1.6;margin:8px 0 0}

@@ -57,6 +57,6 @@
     else {context.set(el.dataset.commitmentDay||el.dataset.commitmentOpen||el.dataset.rhythmDate||el.dataset.journalOpenDate||el.dataset.progressCommandDay||el.dataset.date);if(el.dataset.commitmentOpen||el.dataset.journalOpenDate||el.dataset.progressCommandDay)setPage('journal');}
   },true);
   let lastCurrent=context.get().currentDate;
-  setInterval(()=>{const state=context.get();if(state.currentDate!==lastCurrent){lastCurrent=state.currentDate;if(state.mode==='today'&&currentPage!=='marketing')render();else paint();}},30000);
+  setInterval(()=>{const state=context.get();if(state.currentDate!==lastCurrent){lastCurrent=state.currentDate;if(state.mode==='today'&&currentPage!=='marketing')render();else paint();window.dispatchEvent(new CustomEvent('kryos:day-changed',{detail:context.get()}));}},30000);
   connect();paint();
 })(globalThis);

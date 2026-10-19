@@ -65,8 +65,6 @@ document.addEventListener('click',event=>{
     if(el.hasAttribute('data-commitment-empty'))commitmentMutate({type:'plan.empty'});
     if(el.hasAttribute('data-commitment-review'))commitmentMutate({type:'day.review'});
     if(el.dataset.commitmentRecover)commitmentMutate({type:'breach.recover',breachId:el.dataset.commitmentRecover});
-    if(el.dataset.commitmentCorrect){const t=KryosCommitment.day(commitmentLife(),commitmentSelected()).tasks.find(t=>t.id===el.dataset.commitmentCorrect);const target=prompt('Correct quantity target',String(t.target));if(target===null)return;const reason=prompt('Why is this a correction?');if(reason===null)return;commitmentMutate({type:'task.correct',taskId:t.id,target:Number(target),reason});}
-    if(el.dataset.commitmentBreachCorrect){const reason=prompt('Explain the mistaken record. A genuine breach remains part of the day.');if(reason!==null)commitmentMutate({type:'breach.correct',breachId:el.dataset.commitmentBreachCorrect,reason});}
   }catch(error){lifeNotice=error.message;renderLifeJournal();}
 });
 const commitmentOriginalActionStatus=updateActionStatus;

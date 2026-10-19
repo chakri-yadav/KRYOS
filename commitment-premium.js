@@ -49,8 +49,6 @@ function renderContainmentCovenant() {
     <details id="command-history" class="command-history"><summary>Previous Commitment history and corrections</summary>${(life.s\u0061dhana.previousCycles||[]).map(c=>`<p>${escapeHtml(c.covenant.startDate)} – ${escapeHtml(c.covenant.endDate)} · ${c.records.length} preserved records</p>`).join('')}<p>${life.s\u0061dhana.history.length} changes recorded for this cycle.</p></details></section>`;
 }
 const commandPreviousJournalRenderer=renderLifeJournal;
-const commandBaseCovenantRenderer=renderContainmentCovenant;
-renderContainmentCovenant=function(){return commandBaseCovenantRenderer()+`<dialog id="command-correction-dialog" class="command-correction-dialog"><form id="command-correction-form"><input type="hidden" name="operation"><input type="hidden" name="recordId"><header><h2>Correct the record</h2><button type="button" data-command-close aria-label="Close correction">×</button></header><p id="command-correction-context"></p><label id="command-correction-target">Correct quantity target<input type="number" name="target" min="1" max="100000" required></label><label>Reason for this correction<textarea name="reason" maxlength="500" required></textarea></label><p id="command-correction-error" role="alert"></p><button class="primary-button">Save correction</button></form></dialog>`;};
 renderLifeJournal=function(){
   const previous=document.querySelector('.command-premium-workspace');
   if(previous)commandOpenPanels=new Set([...previous.querySelectorAll('details[open][id]')].map(el=>el.id));
@@ -71,21 +69,8 @@ renderLifeJournal=function(){
 };
 document.addEventListener('change',event=>{if(event.target.matches('[data-command-kind]'))event.target.closest('form').querySelector('.command-target-field').hidden=event.target.value!=='quantity';});
 document.addEventListener('submit',event=>{if(event.target.closest('.command-premium-workspace'))commandSubmittedForm=event.target.id;},true);
-document.addEventListener('click',event=>{
-  const button=event.target.closest('[data-commitment-correct],[data-commitment-breach-correct]');if(!button)return;
-  event.preventDefault();event.stopImmediatePropagation();
-  const dialog=document.querySelector('#command-correction-dialog'),form=dialog.querySelector('form');form.reset();
-  const isTask=!!button.dataset.commitmentCorrect,recordId=button.dataset.commitmentCorrect||button.dataset.commitmentBreachCorrect;
-  form.elements.operation.value=isTask?'task.correct':'breach.correct';form.elements.recordId.value=recordId;
-  const task=isTask?KryosCommitment.day(commitmentLife(),commitmentSelected()).tasks.find(t=>t.id===recordId):null;
-  document.querySelector('#command-correction-target').hidden=!isTask;
-  form.elements.target.required=isTask;form.elements.target.disabled=!isTask;
-  if(task)form.elements.target.value=task.target;
-  document.querySelector('#command-correction-context').textContent=task?task.title:'Correct a mistaken incident. The original record remains in history.';
-  document.querySelector('#command-correction-error').textContent='';dialog.showModal();form.elements.reason.focus();
-},true);
-document.addEventListener('click',event=>{if(event.target.closest('[data-command-close]'))event.target.closest('dialog').close();});
-document.addEventListener('submit',event=>{if(event.target.id!=='command-correction-form')return;event.preventDefault();const f=new FormData(event.target),type=f.get('operation');try{commitmentMutate({type,taskId:type==='task.correct'?f.get('recordId'):undefined,breachId:type==='breach.correct'?f.get('recordId'):undefined,target:Number(f.get('target')),reason:f.get('reason')});}catch(error){document.querySelector('#command-correction-error').textContent=error.message;}});
+if(typeof KryosDailyCorrections!=='undefined')KryosDailyCorrections.install({prefix:'commitment',getDate:commitmentSelected,getDay:date=>KryosCommitment.day(commitmentLife(),date),mutate:commitmentMutate,items:KryosCommitment.items,label:commandDateLabel});
+
 document.addEventListener('click',event=>{
   const el=event.target.closest('button');if(!el)return;
   if(el.hasAttribute('data-command-plan-first')){if(typeof KryosDayContext!=='undefined')KryosDayContext.set(KryosCommitment.cycle.startDate);else{commitmentDate=KryosCommitment.cycle.startDate;renderLifeJournal();}const panel=document.querySelector('#command-add-task');if(panel){panel.open=true;panel.querySelector('input[name="title"]')?.focus();}}

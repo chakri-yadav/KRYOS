@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.47.0 — Contextual daily corrections
+
+- Capture correction date and revision; retain drafts across rerenders and stale-edit refresh.
+- Show original values, required reason, inline validation and reliable cancel/focus return.
+- Link missing review answers to controls and refresh stale result previews without changing rules.
+
 ## 0.46.2 — Submission evidence compatibility
 
 - Publish shared event-aware projection, migration policy and correction tests for laptop 0.28.0.

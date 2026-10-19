@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.46.2";
-const APP_STAGE = "Submission evidence compatibility";
+const APP_VERSION = "0.47.0";
+const APP_STAGE = "Contextual daily corrections and review clarity";
 const APP_RELEASE_DATE = "2026-10-19";
-const APP_STATUS = "Approved aggregate evidence with shared submission reader";
-const APP_NEXT_MILESTONE = "Shared date and daily review correction clarity";
+const APP_STATUS = "Date-bound corrections with revision checks and guided review";
+const APP_NEXT_MILESTONE = "Reading-first daily workspace refinement";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Daily corrections show the captured date and original values, retain drafts through updates, block stale changes and offer explicit refresh. Daily review links missing answers to their controls and refreshes stale result previews. Existing records, rules and synchronization ownership are preserved.",
   "Shared submission-history reader and deterministic correction policy support laptop 0.28.0. Hosted views continue to use approved aggregate snapshots only; application records and files remain local.",
   "Dated application evidence connects Launch, Progress and Rewards. Local records and approved hosted snapshots show their source and freshness, with direct access to earlier dates. Overlapping application counts use the larger total; no duplicated activity logs or new reward formulas. Job details and files remain local; handoff remains explicit.",
   "Desktop release verification: finance next-action contrast corrected; layout, keyboard, dated edits, file transfer, refresh, offline recovery and conflict tests pass. Separate software/data backups and recovery instructions recorded. Production signed-in synchronization is not claimed from simulated tests.",
