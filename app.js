@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.48.0";
-const APP_STAGE = "Focused daily workspace and explicit journey states";
+const APP_VERSION = "0.49.0";
+const APP_STAGE = "Learning context and launch continuity";
 const APP_RELEASE_DATE = "2026-10-19";
-const APP_STATUS = "Reading-first daily work, reversible counters and one visible focus";
-const APP_NEXT_MILESTONE = "Learning context and launch continuity";
+const APP_STATUS = "Remembered learning context and explicit next-action routes";
+const APP_NEXT_MILESTONE = "Application detail and document retrieval refinement";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Career remembers browser-only module/topic context and expanded panels, preserves session note drafts and resumes existing core steps without changing roadmap content. Launch offers an explicit work focus, routes speaking through existing rehearsal records and connects Marketing entry/Back through the shared router. Records, reward rules and storage boundaries are unchanged.",
   "Journey cells distinguish unrecorded, edited and confirmed states with icons, dates and current-day outlines. Actions focus is presentation-only and aligns the next-action panel. Whole-row counters explain completion, reset and Undo; records, targets, rewards and storage boundaries are unchanged.",
   "Daily corrections show the captured date and original values, retain drafts through updates, block stale changes and offer explicit refresh. Daily review links missing answers to their controls and refreshes stale result previews. Existing records, rules and synchronization ownership are preserved.",
   "Shared submission-history reader and deterministic correction policy support laptop 0.28.0. Hosted views continue to use approved aggregate snapshots only; application records and files remain local.",

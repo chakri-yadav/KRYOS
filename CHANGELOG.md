@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.49.0 — Learning context and launch continuity
+
+- Remember browser-only module/topic context and expanded panels per workspace/profile/roadmap.
+- Resume existing core steps, preserve session note drafts and explain reload behavior.
+- Select one Launch focus, reuse dated rehearsal records and repair shared Marketing entry/return routes.
+
 ## 0.48.0 — Focused daily workspace
 
 - Distinguish unrecorded and revised journey days with labels, dates and a current-day outline.

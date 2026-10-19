@@ -1,4 +1,9 @@
 /* Launch and local Marketing: calm surfaces, readable records, prominent next action. */
+#launch-view .launch-flow-choices{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 12px}
+#launch-view .launch-flow-choices button{min-height:44px;white-space:normal;line-height:1.5}
+#launch-view .launch-flow-choices [aria-pressed=true]{border-color:var(--kryos-action);background:var(--kryos-surface);color:var(--kryos-action);text-decoration:underline;text-underline-offset:4px}
+#launch-view .launch-flow-note{display:block;max-width:65ch;font-size:13px;line-height:1.65;color:var(--kryos-text-secondary)}
+#launch-view .launch-flow-evidence{display:block;min-height:44px;padding:8px 0;border:0;background:transparent;color:var(--kryos-action);font:inherit;text-align:left;text-decoration:underline;white-space:normal}
 #launch-view{--launch-green:var(--kryos-action);--launch-violet:var(--kryos-learning);color:var(--kryos-text)}
 #launch-view .launch-command{background:var(--kryos-positive-surface);color:var(--kryos-text);border:1px solid var(--kryos-divider);border-radius:16px;box-shadow:none}
 #launch-view .launch-command h1{color:var(--kryos-text);font-size:clamp(25px,3vw,36px);line-height:1.35;letter-spacing:-.025em}

@@ -63,6 +63,8 @@
   window.KryosNavigation={ready:true,...nav};
   // One navigation event owner for sidebar and inline links in both app variants.
   document.addEventListener('click',event=>{
+    const marketingOpen=event.target.closest?.('[data-marketing-open]'),marketingBack=event.target.closest?.('[data-marketing-back]');
+    if(marketingOpen||marketingBack){event.preventDefault();event.stopImmediatePropagation();if(marketingOpen)nav.navigate('marketing');else returnFromMarketing();return;}
     const button=event.target.closest?.('[data-page]');
     if(!button||!APP_PAGES.includes(button.dataset.page))return;
     event.preventDefault();event.stopImmediatePropagation();
