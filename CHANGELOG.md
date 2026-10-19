@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.46.1 — Consistent submission evidence
+
+- Share one legacy submission projection between application analytics, evidence and aggregate export.
+- Exclude synthetic entries and invalid identities; deduplicate per date with deterministic representatives.
+- Keep aggregate payload boundaries and existing records, reward rules and snapshot approvals unchanged.
+
 ## 0.46.0 — Dated application evidence integration
 
 - Connect approved application snapshots to Launch, Progress and Rewards source panels.
