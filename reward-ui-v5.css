@@ -1,13 +1,25 @@
-#rewards-view .reward-v5-next{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:28px;border:1px solid #b8d9cc;border-radius:24px;background:#edf7f1;margin:24px 0}
+#rewards-view .reward-v5-next{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:28px;border:1px solid #b8d9cc;border-radius:24px;background:var(--kryos-positive-surface);margin:24px 0}
 #rewards-view .reward-v5-next h2{font-size:25px;line-height:1.3;margin:8px 0}
 #rewards-view .reward-v5-next p{max-width:65ch;line-height:1.6}
-#rewards-view .reward-v5-capture,#rewards-view .reward-v5-history{background:white;border:1px solid #dce5df;border-radius:20px;padding:24px;margin:24px 0}
+#rewards-view .reward-v5-capture,#rewards-view .reward-v5-history{background:white;border:1px solid var(--kryos-divider);border-radius:20px;padding:24px;margin:24px 0}
 #rewards-view summary{cursor:pointer;min-height:44px;line-height:1.5}
 #rewards-view .reward-v5-capture form,#rewards-view #reward-v5-reserve{display:grid;gap:16px;margin:20px 0}
 #rewards-view input,#rewards-view select{min-height:46px;font-size:16px;width:100%;padding:10px;border:1px solid #cad8cf;border-radius:10px}
 #rewards-view label{display:grid;gap:8px}
 #rewards-view .reward-target-meter{display:flex;align-items:baseline;gap:12px;margin:24px 0 16px}
-#rewards-view .reward-target-meter strong{font-size:48px;color:#12674e;line-height:1}
+#rewards-view .reward-target-meter strong{font-size:48px;color:var(--kryos-action);line-height:1}
 #rewards-view .reward-v5-history p{line-height:1.65}
-#rewards-view :focus-visible{outline:3px solid #168363;outline-offset:4px}
+#rewards-view :focus-visible{outline:3px solid var(--kryos-focus);outline-offset:4px}
 @media(max-width:700px){#rewards-view .reward-v5-next{align-items:flex-start;flex-direction:column}#rewards-view .reward-review header{flex-wrap:wrap}}
+/* Current presentation layer inherits shared status and control meanings. */
+#rewards-view .reward-v5-next{padding:28px;border:1px solid var(--kryos-divider);border-left:4px solid var(--kryos-action);border-radius:var(--kryos-radius-surface);background:var(--kryos-positive-surface)}
+#rewards-view .reward-v5-next p{font-size:16px;line-height:1.8;color:var(--kryos-text-secondary)}
+#rewards-view .reward-v5-next small{display:block;max-width:70ch;font-size:14px;line-height:1.7;color:var(--kryos-text-secondary)}
+#rewards-view .reward-v5-next label{font-size:14px;max-width:420px}
+#rewards-view .reward-v5-capture,#rewards-view .reward-v5-history{border-radius:var(--kryos-radius-surface);background:var(--kryos-surface);border-color:var(--kryos-divider);padding:26px}
+#rewards-view input,#rewards-view select{border-color:var(--kryos-control-border);color:var(--kryos-text);background:var(--kryos-surface)}
+#rewards-view .reward-target-meter{flex-wrap:wrap}
+#rewards-view .reward-target-meter strong{font-size:38px;color:var(--kryos-action)}
+#rewards-view .reward-v5-history p{font-size:15px;line-height:1.8;overflow-wrap:anywhere}
+#rewards-view :focus-visible{outline:3px solid var(--kryos-focus);outline-offset:3px}
+@media(max-width:700px){#rewards-view .reward-v5-next,#rewards-view .reward-v5-capture,#rewards-view .reward-v5-history{padding:20px}#rewards-view .reward-v5-next>button{width:100%}}

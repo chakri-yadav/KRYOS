@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.45.17";
-const APP_STAGE = "Learning and application workspace presentation";
+const APP_VERSION = "0.45.18";
+const APP_STAGE = "Supporting workspace visual alignment";
 const APP_RELEASE_DATE = "2026-10-18";
-const APP_STATUS = "Clear learning lanes, document controls and spacious analytics";
-const APP_NEXT_MILESTONE = "Refine supporting-page presentation";
+const APP_STATUS = "Consistent evidence, wallet, finance, entry and settings surfaces";
+const APP_NEXT_MILESTONE = "Whole-app visual and interaction acceptance";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Supporting workspace alignment: consistent surfaces, typography, keyboard focus and status meanings across Progress, Rewards, Money, Launch and Settings. Current wallet and historical evidence remain separate. Existing reward rules, financial calculations and storage boundaries are unchanged.",
   "Learning and application workspace presentation: readable roadmap lanes, clear core coverage, shared status colors and spacious analytics. Laptop document controls remain local; hosted views contain approved aggregate receipts only. Curriculum, reward rules and storage boundaries are unchanged.",
   "Daily workspace visual upgrade: full promise in a calm reading surface, commitments before the journey, explicit outline states and explained review outcomes. Actions and Rhythm use the approved palette; linked records, historical corrections, whole-row counters, Undo and reward rules are preserved.",
   "Shared visual foundation: forest-and-warm-neutral shell, readable controls, blue keyboard focus and explicit historical date attribution. Existing features, reward rules and storage boundaries remain unchanged. Page redesign and dark-mode activation are separate later slices.",

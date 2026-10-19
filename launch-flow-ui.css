@@ -1,19 +1,19 @@
 /* Launch and local Marketing: calm surfaces, readable records, prominent next action. */
-#launch-view{--launch-green:#226a52;--launch-violet:#536683;color:#263a30}
-#launch-view .launch-command{background:#edf5ef;color:#263a30;border:1px solid #dce5dd;border-radius:16px;box-shadow:none}
-#launch-view .launch-command h1{color:#203f2e;font-size:clamp(25px,3vw,36px);line-height:1.35;letter-spacing:-.025em}
-#launch-view .launch-command p,#launch-view .launch-command-stat span,#launch-view .launch-command-stat small{color:#52695a;font-size:13px;line-height:1.75}
-#launch-view .launch-command-stat strong{color:#226a52}
+#launch-view{--launch-green:var(--kryos-action);--launch-violet:var(--kryos-learning);color:var(--kryos-text)}
+#launch-view .launch-command{background:var(--kryos-positive-surface);color:var(--kryos-text);border:1px solid var(--kryos-divider);border-radius:16px;box-shadow:none}
+#launch-view .launch-command h1{color:var(--kryos-text);font-size:clamp(25px,3vw,36px);line-height:1.35;letter-spacing:-.025em}
+#launch-view .launch-command p,#launch-view .launch-command-stat span,#launch-view .launch-command-stat small{color:var(--kryos-text-secondary);font-size:13px;line-height:1.75}
+#launch-view .launch-command-stat strong{color:var(--kryos-action)}
 #launch-view .launch-command>div{border-color:#d5e2d6}
-#launch-view .launch-command button{min-height:44px;border-radius:9px;font-size:13px;color:#226a52;background:#fff;border-color:#bacdbc}
+#launch-view .launch-command button{min-height:44px;border-radius:9px;font-size:13px;color:var(--kryos-action);background:#fff;border-color:var(--kryos-control-border)}
 #launch-view .launch-flow-focus{display:flex;justify-content:space-between;gap:24px;align-items:center;padding:24px;margin:20px 0;background:#fff;border:1px solid #9bb9a5;border-radius:14px}
 #launch-view .launch-flow-focus h2{font-size:23px;line-height:1.4;margin:5px 0 10px}
-#launch-view .launch-flow-focus p{font-size:14px;line-height:1.7;margin:0;color:#52695a}
+#launch-view .launch-flow-focus p{font-size:14px;line-height:1.7;margin:0;color:var(--kryos-text-secondary)}
 #launch-view .launch-flow-focus>div:last-child{display:grid;gap:10px;min-width:210px}
-#launch-view .launch-surface{border-radius:14px;border-color:#dce5dd;padding:24px;box-shadow:none}
+#launch-view .launch-surface{border-radius:14px;border-color:var(--kryos-divider);padding:24px;box-shadow:none}
 #launch-view .launch-head h2{font-size:21px;line-height:1.45}
-#launch-view .launch-head p,#launch-view .launch-footnote,#launch-view .launch-network-grid p{font-size:13px;line-height:1.75;color:#52695a}
-#launch-view .launch-parallel{border-radius:12px;background:#f8faf7}
+#launch-view .launch-head p,#launch-view .launch-footnote,#launch-view .launch-network-grid p{font-size:13px;line-height:1.75;color:var(--kryos-text-secondary)}
+#launch-view .launch-parallel{border-radius:12px;background:var(--kryos-canvas)}
 #launch-view .launch-parallel small,#launch-view .launch-parallel b{font-size:12px}
 #launch-view .launch-platforms button{min-height:88px;padding:16px;border-radius:10px}
 #launch-view .launch-platforms strong{font-size:15px}
@@ -23,7 +23,34 @@
 #launch-view .launch-log-row strong{font-size:15px;line-height:1.6}
 #launch-view .launch-log-row p,#launch-view .launch-log-row em,#launch-view .launch-log-row time{font-size:12px;line-height:1.75}
 #launch-view button,#launch-dialog button{min-height:44px}
-#launch-dialog{border:1px solid #dce5dd;border-radius:16px}
+#launch-dialog{border:1px solid var(--kryos-divider);border-radius:16px}
 #launch-dialog input,#launch-dialog select,#launch-dialog textarea{font-size:16px;min-height:44px}
-#launch-view .launch-heatmap i:focus-visible{outline:3px solid #226a52;outline-offset:3px}
+#launch-view .launch-heatmap i:focus-visible{outline:3px solid var(--kryos-action);outline-offset:3px}
 @media(max-width:760px){#launch-view .launch-flow-focus{flex-direction:column;align-items:stretch}#launch-view .launch-flow-focus>div:last-child{min-width:0}#launch-view .launch-surface{padding:18px}}
+/* A clear entry into work; existing activity logs and outcome measures are unchanged. */
+#launch-view .launch-grid>main,#launch-view .launch-grid>aside,#launch-view .launch-surface{min-width:0}
+#launch-view .launch-week-pulse{max-width:100%;min-width:0}
+#launch-view{--launch-ink:var(--kryos-text);--launch-green:var(--kryos-action);--launch-blue:var(--kryos-information);--launch-violet:var(--kryos-learning);max-width:1240px;margin-inline:auto}
+#launch-view .launch-command{background:var(--kryos-surface);border-color:var(--kryos-divider);border-radius:var(--kryos-radius-surface)}
+#launch-view .launch-command>div{padding:24px;border-color:var(--kryos-divider)}
+#launch-view .launch-command-stat strong{color:var(--kryos-text);font-variant-numeric:tabular-nums}
+#launch-view .launch-command p,#launch-view .launch-command-stat span,#launch-view .launch-command-stat small{font-size:14px;line-height:1.7}
+#launch-view .launch-flow-focus{background:var(--kryos-positive-surface);border:1px solid var(--kryos-divider);border-left:4px solid var(--kryos-action);padding:28px;margin-block:24px;border-radius:var(--kryos-radius-surface)}
+#launch-view .launch-flow-focus h2{font-size:26px;line-height:1.45}
+#launch-view .launch-flow-focus p{font-size:16px;line-height:1.8}
+#launch-view .launch-surface{background:var(--kryos-surface);border-color:var(--kryos-divider);border-radius:var(--kryos-radius-surface);padding:26px}
+#launch-view .launch-parallel{background:var(--kryos-canvas);border-color:var(--kryos-divider);gap:20px}
+#launch-view .launch-head{flex-wrap:wrap;gap:16px}
+#launch-view .launch-platforms button{border:1px solid var(--kryos-control-border);background:var(--kryos-surface);color:var(--kryos-text);padding:20px;border-radius:10px}
+#launch-view .launch-platforms button.checked{border-color:var(--kryos-action);background:var(--kryos-positive-surface)}
+#launch-view .launch-platforms small,#launch-view .launch-week-pulse small,#launch-view .launch-log-row p,#launch-view .launch-log-row time,#launch-view .launch-log-row em{font-size:13px;line-height:1.7}
+#launch-view .launch-network-grid p,#launch-view .launch-footnote{font-size:14px;line-height:1.8}
+#launch-view .launch-lane-title h2{color:var(--kryos-text);font-size:20px}
+#launch-view .launch-ring strong,#launch-view .launch-metrics strong{color:var(--kryos-text);font-variant-numeric:tabular-nums}
+#launch-view .launch-ring span,#launch-view .launch-metrics span{font-size:13px;line-height:1.6;color:var(--kryos-text-secondary)}
+#launch-view .launch-log-row{padding:20px 0;gap:16px}
+#launch-view .launch-log-row strong{font-size:16px;color:var(--kryos-text)}
+#launch-view :is(button,a,input,select,summary,.launch-heatmap i):focus-visible,#launch-dialog :focus-visible{outline:3px solid var(--kryos-focus);outline-offset:3px}
+#launch-dialog{background:var(--kryos-surface);color:var(--kryos-text);border-color:var(--kryos-divider);border-radius:var(--kryos-radius-surface);max-width:min(720px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto}
+#launch-dialog input,#launch-dialog select,#launch-dialog textarea{background:var(--kryos-surface);color:var(--kryos-text);border-color:var(--kryos-control-border)}
+@media(max-width:760px){#launch-view .launch-command>div,#launch-view .launch-flow-focus,#launch-view .launch-surface{padding:20px}#launch-dialog .money-form-grid{grid-template-columns:minmax(0,1fr)}}

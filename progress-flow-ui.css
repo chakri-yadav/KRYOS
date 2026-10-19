@@ -1,5 +1,5 @@
 /* Calm, evidence-first Progress; chart values and day selection are unchanged. */
-#progress-view{color:#263a30}
+#progress-view{color:var(--kryos-text)}
 #progress-view .life-section.evidence-today{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center;min-height:210px;padding:28px;background:#153d31;color:#fff;border:1px solid #153d31;border-left:4px solid #76c6a0;border-radius:18px;box-shadow:0 8px 22px rgba(18,49,36,.08)}
 #progress-view .evidence-today h2{color:#fff;font-size:clamp(24px,2.5vw,32px);font-weight:650;text-shadow:none}
 #progress-view .evidence-today .section-kicker{color:#bde8ce}
@@ -11,8 +11,8 @@
 #progress-view .evidence-today-orbit,#progress-view .evidence-today.is-open .evidence-today-orbit{background:#f1f8f3;border:2px solid #9dcbb1;box-shadow:none}
 #progress-view .evidence-today-orbit strong{color:#153d31;font-size:40px;line-height:1;text-shadow:none;font-weight:700;font-variant-numeric:tabular-nums}
 #progress-view .evidence-bars{display:flex;gap:14px;align-items:end;margin:26px 0 16px}
-#progress-view .evidence-bar{flex:1;min-width:0;border:0;background:transparent;color:#263a30;display:grid;gap:9px;text-align:center;border-radius:8px}
-#progress-view .evidence-bar:hover{background:#edf5ef}
+#progress-view .evidence-bar{flex:1;min-width:0;border:0;background:transparent;color:var(--kryos-text);display:grid;gap:9px;text-align:center;border-radius:8px}
+#progress-view .evidence-bar:hover{background:var(--kryos-positive-surface)}
 #progress-view .evidence-stack{height:140px;display:flex;flex-direction:column-reverse;background:#edf2ed;border-radius:8px;overflow:hidden}
 #progress-view .evidence-stack i{display:block;flex-shrink:0}
 #progress-view .evidence-color-0{background:#216a54}
@@ -22,21 +22,21 @@
 #progress-view .evidence-color-4{background:#c89940}
 #progress-view .evidence-color-5{background:#947960}
 #progress-view .evidence-color-6{background:#7a8797}
-#progress-view .evidence-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:#425e4e}
+#progress-view .evidence-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--kryos-text-secondary)}
 #progress-view .evidence-legend span{display:flex;align-items:center;gap:6px}
 #progress-view .evidence-legend i{width:10px;height:10px;border-radius:3px}
 #progress-view .evidence-targets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:28px}
 #progress-view .evidence-targets article>div{display:flex;justify-content:space-between;gap:10px}
-#progress-view .evidence-targets progress{width:100%;height:8px;margin:12px 0;accent-color:#226a52}
-#progress-view .evidence-targets small{font-size:12px;line-height:1.6;color:#425e4e}
+#progress-view .evidence-targets progress{width:100%;height:8px;margin:12px 0;accent-color:var(--kryos-action)}
+#progress-view .evidence-targets small{font-size:12px;line-height:1.6;color:var(--kryos-text-secondary)}
 @media(max-width:900px){#progress-view .evidence-targets{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:550px){#progress-view .life-section.evidence-today{grid-template-columns:1fr;padding:22px}#progress-view .evidence-today-stat{display:flex;justify-content:flex-start;text-align:left}#progress-view .evidence-today-orbit{width:64px;height:64px}#progress-view .evidence-today-orbit strong{font-size:28px}}
 #progress-view .evidence-journey{border-color:#b8cbbb;background:#fff}
 #progress-view .progress-journey-summary{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:18px 0 12px}
 #progress-view .progress-journey-summary>strong{font-size:30px;color:#153d31;font-variant-numeric:tabular-nums}
 #progress-view .progress-journey-summary small{font-size:15px;font-weight:500}
-#progress-view .progress-journey-summary>span{font-size:13px;color:#425e4e}
-#progress-view .evidence-journey>progress{width:100%;height:9px;accent-color:#226a52}
+#progress-view .progress-journey-summary>span{font-size:13px;color:var(--kryos-text-secondary)}
+#progress-view .evidence-journey>progress{width:100%;height:9px;accent-color:var(--kryos-action)}
 #progress-view .evidence-calendar{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:7px;margin-top:20px}
 #progress-view .evidence-calendar button{display:grid;place-items:center;gap:3px;min-width:0;min-height:54px;background:var(--kryos-canvas);border:0;color:var(--kryos-text-secondary);font-size:14px;border-radius:8px}
 #progress-view .evidence-calendar .journey-won{background:var(--kryos-positive-surface);color:var(--kryos-positive)}
@@ -44,49 +44,78 @@
 #progress-view .evidence-calendar .journey-in-progress{background:var(--kryos-information-surface);color:var(--kryos-information);font-weight:500}
 #progress-view .evidence-calendar .journey-awaiting-review{background:var(--kryos-attention-surface);color:var(--kryos-attention)}
 #progress-view .evidence-calendar button small{color:inherit;opacity:1}
-#progress-view .evidence-note{color:#425e4e;line-height:1.7;font-size:13px}
+#progress-view .evidence-note{color:var(--kryos-text-secondary);line-height:1.7;font-size:13px}
 @media(max-width:900px){#progress-view .evidence-calendar{grid-template-columns:repeat(8,minmax(0,1fr))}}
 @media(max-width:550px){#progress-view .evidence-calendar{grid-template-columns:repeat(6,minmax(0,1fr))}}
 @media(max-width:420px){#progress-view .evidence-calendar{grid-template-columns:repeat(4,minmax(0,1fr))}}
 #progress-view .progress-title h1{font-size:clamp(28px,3vw,38px);line-height:1.35;letter-spacing:-.035em}
-#progress-view .progress-title p,#progress-view .progress-title>span{font-size:14px;line-height:1.75;color:#52695a}
-#progress-view .progress-flow-summary{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,.5fr);gap:28px;padding:26px;margin:22px 0;background:#edf5ef;border:1px solid #bacdbc;border-radius:16px}
-#progress-view .progress-flow-summary h2{font-size:28px;line-height:1.4;margin:7px 0 12px;color:#203f2e;letter-spacing:-.02em}
+#progress-view .progress-title p,#progress-view .progress-title>span{font-size:14px;line-height:1.75;color:var(--kryos-text-secondary)}
+#progress-view .progress-flow-summary{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,.5fr);gap:28px;padding:26px;margin:22px 0;background:var(--kryos-positive-surface);border:1px solid var(--kryos-control-border);border-radius:16px}
+#progress-view .progress-flow-summary h2{font-size:28px;line-height:1.4;margin:7px 0 12px;color:var(--kryos-text);letter-spacing:-.02em}
 #progress-view .progress-flow-summary p{font-size:15px;line-height:1.85;margin:0;max-width:65ch}
 #progress-view .progress-flow-days{display:grid;align-content:center;gap:12px;padding:20px;border-radius:12px;background:#fff}
-#progress-view .progress-flow-days strong{font-size:34px;color:#226a52;font-variant-numeric:tabular-nums}
+#progress-view .progress-flow-days strong{font-size:34px;color:var(--kryos-action);font-variant-numeric:tabular-nums}
 #progress-view .progress-flow-days strong small{font-size:15px;font-weight:400}
-#progress-view .progress-flow-days span{font-size:13px;line-height:1.75;color:#52695a}
-#progress-view .progress-flow-days progress{width:100%;height:8px;accent-color:#226a52}
-#progress-view .progress-flow-details{margin:18px 0;border:1px solid #dce5dd;border-radius:12px;background:#fff;padding:0 20px}
-#progress-view .progress-flow-details>summary{min-height:52px;align-content:center;font-size:15px;font-weight:600;cursor:pointer;color:#35644e}
+#progress-view .progress-flow-days span{font-size:13px;line-height:1.75;color:var(--kryos-text-secondary)}
+#progress-view .progress-flow-days progress{width:100%;height:8px;accent-color:var(--kryos-action)}
+#progress-view .progress-flow-details{margin:18px 0;border:1px solid var(--kryos-divider);border-radius:12px;background:#fff;padding:0 20px}
+#progress-view .progress-flow-details>summary{min-height:52px;align-content:center;font-size:15px;font-weight:600;cursor:pointer;color:var(--kryos-action)}
 #progress-view .progress-records{box-shadow:none;border:0;margin:0 0 20px}
 #progress-view .progress-records span,#progress-view .progress-records small{font-size:13px;line-height:1.7}
 #progress-view .progress-records strong{font-size:27px;line-height:1.5;overflow-wrap:anywhere}
-#progress-view .progress-career-band{border:1px solid #dce5dd;border-radius:14px;background:#fff;box-shadow:none;padding:24px;gap:20px}
+#progress-view .progress-career-band{border:1px solid var(--kryos-divider);border-radius:14px;background:#fff;box-shadow:none;padding:24px;gap:20px}
 #progress-view .progress-career-band h2{font-size:22px;line-height:1.5}
 #progress-view .progress-career-band p{font-size:14px;line-height:1.8}
 #progress-view .progress-career-stat span{font-size:12px}
-#progress-view .life-section{margin-top:22px;padding:24px;background:#fff;border:1px solid #dce5dd;border-radius:14px}
+#progress-view .life-section{margin-top:22px;padding:24px;background:#fff;border:1px solid var(--kryos-divider);border-radius:14px}
 #progress-view .life-heading h2{font-size:23px;line-height:1.45;letter-spacing:-.02em}
-#progress-view .life-heading p,#progress-view .life-heading>span{font-size:14px;line-height:1.75;color:#52695a}
-#progress-view .pulse-chart{border:0;background:#f8faf7;padding:20px;border-radius:12px}
+#progress-view .life-heading p,#progress-view .life-heading>span{font-size:14px;line-height:1.75;color:var(--kryos-text-secondary)}
+#progress-view .pulse-chart{border:0;background:var(--kryos-canvas);padding:20px;border-radius:12px}
 #progress-view .pulse-chart>div{font-size:12px;line-height:1.7}
 #progress-view .progress-filters label{font-size:13px;line-height:1.7}
 #progress-view .progress-filters select{min-height:44px;font-size:15px;border-radius:9px}
-#progress-view .heatmap-shell{border:0;border-radius:12px;background:#f8faf7}
+#progress-view .heatmap-shell{border:0;border-radius:12px;background:var(--kryos-canvas)}
 #progress-view .heatmap-days{grid-template-rows:repeat(7,20px);font-size:11px}
 #progress-view .life-heatmap{grid-template-rows:repeat(7,20px);grid-template-columns:repeat(var(--weeks,12),20px);min-width:calc(var(--weeks,12)*25px)}
 #progress-view .life-cell{width:20px;height:20px;min-height:20px;border-radius:4px}
-#progress-view .life-cell.selected{outline:2px solid #203f2e;outline-offset:2px}
+#progress-view .life-cell.selected{outline:2px solid var(--kryos-text);outline-offset:2px}
 #progress-view .heatmap-legend{font-size:12px;gap:7px;flex-wrap:wrap}
 #progress-view .heatmap-insight p,#progress-view .life-evidence p{font-size:14px;line-height:1.8}
-#progress-view .consistency-section .life-evidence{border-color:#bacdbc;border-left-color:#226a52;border-radius:10px;padding:20px}
+#progress-view .consistency-section .life-evidence{border-color:var(--kryos-control-border);border-left-color:var(--kryos-action);border-radius:10px;padding:20px}
 #progress-view .progress-eyebrow strong,#progress-view .progress-eyebrow span{font-size:14px;line-height:1.7}
 #progress-view .premium-domains .life-domain-row{border-radius:12px;box-shadow:none;padding:20px}
 #progress-view .life-domain-row>div span{font-size:15px}
 #progress-view .deadline-progress-panel{border:0;box-shadow:none;margin:0;padding:20px 0}
 #progress-view .deadline-progress-head p,#progress-view .deadline-progress-row small,#progress-view .deadline-progress-metrics small{font-size:13px;line-height:1.75;white-space:normal}
 #progress-view button:not(.life-cell){min-height:44px;border-radius:9px}
-#progress-view button:focus-visible,#progress-view summary:focus-visible,#progress-view select:focus-visible{outline:3px solid #226a52;outline-offset:3px}
+#progress-view button:focus-visible,#progress-view summary:focus-visible,#progress-view select:focus-visible{outline:3px solid var(--kryos-action);outline-offset:3px}
 @media(max-width:760px){#progress-view .progress-flow-summary{grid-template-columns:1fr;padding:20px}#progress-view .life-section{padding:18px}#progress-view .progress-career-band{padding:20px}#progress-view .progress-filters{flex-wrap:wrap}}
+/* Supporting-page contract: evidence quantities and categorical outcomes stay distinct. */
+#progress-view{max-width:1240px;margin-inline:auto}
+#progress-view .life-section.evidence-today{background:var(--kryos-surface);color:var(--kryos-text);border:1px solid var(--kryos-divider);border-left:4px solid var(--kryos-information);border-radius:var(--kryos-radius-surface);box-shadow:none;padding:28px}
+#progress-view .evidence-today h2{color:var(--kryos-text);line-height:1.4}
+#progress-view .evidence-today .section-kicker{color:var(--kryos-information)}
+#progress-view .evidence-today-copy>p:not(.section-kicker),#progress-view .evidence-today-stat{color:var(--kryos-text-secondary);font-size:14px;line-height:1.7}
+#progress-view .evidence-today-orbit,#progress-view .evidence-today.is-open .evidence-today-orbit{background:var(--kryos-information-surface);border:1px solid var(--kryos-divider);border-radius:14px}
+#progress-view .evidence-today-orbit strong{color:var(--kryos-information);font-size:38px}
+#progress-view .progress-flow-summary{background:var(--kryos-positive-surface);border-color:var(--kryos-divider);padding:28px}
+#progress-view :is(.life-section,.progress-career-band,.progress-flow-details){background:var(--kryos-surface);border-color:var(--kryos-divider);border-radius:var(--kryos-radius-surface);box-shadow:none}
+#progress-view .progress-flow-days{background:var(--kryos-surface);padding:22px}
+#progress-view .progress-flow-days span,#progress-view .evidence-note,#progress-view .evidence-targets small{font-size:14px;line-height:1.75;color:var(--kryos-text-secondary)}
+#progress-view .life-heading{gap:20px;flex-wrap:wrap}
+#progress-view .evidence-bars{overflow-x:auto;padding:8px 4px;gap:16px}
+#progress-view .evidence-bar{flex:1 0 44px;font-variant-numeric:tabular-nums;color:var(--kryos-text)}
+#progress-view .evidence-stack{height:160px;background:var(--kryos-canvas)}
+#progress-view .evidence-legend{font-size:14px;line-height:1.7;color:var(--kryos-text-secondary)}
+#progress-view .evidence-color-0{background:var(--kryos-action)}
+#progress-view .evidence-color-1{background:var(--kryos-information)}
+#progress-view .evidence-color-2{background:var(--kryos-learning)}
+#progress-view .evidence-calendar{gap:8px}
+#progress-view .evidence-calendar button{border:1px solid transparent;min-height:58px}
+#progress-view .evidence-calendar button[aria-current],#progress-view .evidence-calendar button.is-selected{border-color:var(--kryos-control-border)}
+#progress-view .progress-flow-details>summary{padding-block:16px;line-height:1.6;font-size:16px;color:var(--kryos-text);min-height:52px}
+#progress-view .progress-records{gap:16px}
+#progress-view .life-evidence{background:var(--kryos-surface);color:var(--kryos-text)}
+#progress-view .life-evidence p{gap:16px;line-height:1.75;overflow-wrap:anywhere}
+#progress-view :is(button,summary,select,input,a):focus-visible{outline:3px solid var(--kryos-focus);outline-offset:3px}
+@media(max-width:760px){#progress-view .evidence-targets{grid-template-columns:minmax(0,1fr)}#progress-view .life-section.evidence-today,#progress-view .progress-flow-summary{padding:20px}#progress-view .life-evidence p{flex-wrap:wrap}}

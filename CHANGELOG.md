@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.45.18 — Supporting workspace visual alignment
+
+- Align Progress, Rewards, Money, Launch and Settings with shared semantic surfaces, readable metrics and blue keyboard focus.
+- Preserve current-wallet versus historical-evidence meanings, financial calculations and all earning/redemption rules.
+- Correct narrow-layout overflow in reward and activity panels; retain existing storage and aggregate-only boundaries.
+
 ## 0.45.17 — Learning and aggregate workspace presentation
 
 - Improve roadmap reading lanes, module hierarchy, focus and core-coverage presentation without changing curriculum.

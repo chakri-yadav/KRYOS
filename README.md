@@ -4,9 +4,9 @@ A desktop-first directed-attention workspace connecting daily commitments, journ
 
 ## Current status
 
-The shared foundation, daily-use pages, Career and application-workspace presentation follow the [accepted design contract](docs/design/visual-contract-v1.md). See [Career/workspace acceptance](docs/qa/career-marketing-visual-acceptance.md) for preservation checks and storage boundaries. Supporting pages and dark-mode activation remain separate slices.
+The shared foundation, daily pages, learning workspace and supporting pages follow the [accepted design contract](docs/design/visual-contract-v1.md). See [supporting-page acceptance](docs/qa/supporting-visual-acceptance.md) and [Career/workspace acceptance](docs/qa/career-marketing-visual-acceptance.md). Whole-app acceptance and dark-mode activation remain separate milestones.
 
-- Hosted release: **0.45.17**. Laptop release: **0.25.12**.
+- Hosted release: **0.45.18**. Laptop release: **0.25.13**.
 - Current phase: selected-day workflows, journal corrections and guarded block-conflict resolution completed for desktop scope.
 - Hosted personal records: browser copies with signed-in Supabase synchronization.
 - Marketing: laptop-only job records and files; hosted progress receives only explicitly requested dated aggregate statistics.

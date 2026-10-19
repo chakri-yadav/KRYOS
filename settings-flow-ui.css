@@ -1,35 +1,60 @@
-#settings-view{color:#263a30}
-#settings-view>.product-identity-card{margin-bottom:20px;padding:26px;border:1px solid #bacdbc;border-radius:16px;background:#edf5ef}
+#settings-view{color:var(--kryos-text)}
+#settings-view>.product-identity-card{margin-bottom:20px;padding:26px;border:1px solid var(--kryos-control-border);border-radius:16px;background:var(--kryos-positive-surface)}
 #settings-view .product-identity-head h2{font-size:32px;line-height:1.4;letter-spacing:-.03em}
-#settings-view .version-badge{background:#fff;border:1px solid #bacdbc;border-radius:12px;padding:16px 24px}
-#settings-view .version-badge strong{font-size:28px;color:#226a52;font-variant-numeric:tabular-nums}
-#settings-view .version-badge span{font-size:12px;color:#52695a}
+#settings-view .version-badge{background:#fff;border:1px solid var(--kryos-control-border);border-radius:12px;padding:16px 24px}
+#settings-view .version-badge strong{font-size:28px;color:var(--kryos-action);font-variant-numeric:tabular-nums}
+#settings-view .version-badge span{font-size:12px;color:var(--kryos-text-secondary)}
 #settings-view .product-version-grid{gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))}
-#settings-view .settings-flow-release{margin-top:20px;background:#fff;border:1px solid #dce5dd;border-radius:11px;padding:0 18px}
-#settings-view .settings-flow-release>summary{min-height:52px;align-content:center;font-size:15px;color:#35644e;cursor:pointer}
+#settings-view .settings-flow-release{margin-top:20px;background:#fff;border:1px solid var(--kryos-divider);border-radius:11px;padding:0 18px}
+#settings-view .settings-flow-release>summary{min-height:52px;align-content:center;font-size:15px;color:var(--kryos-action);cursor:pointer}
 #settings-view .settings-flow-release .release-note-panel{border:0;padding:18px 0;margin:0}
 #settings-view .metric-tile{border-radius:11px;box-shadow:none;min-width:0}
 #settings-view .metric-label,#settings-view .metric-note{font-size:13px;line-height:1.75;white-space:normal}
 #settings-view .metric-value{font-size:22px;line-height:1.5;overflow-wrap:anywhere}
-#settings-view .settings-flow-storage{padding:24px;margin-bottom:20px;border:1px solid #dce5dd;border-radius:14px;background:#fff}
+#settings-view .settings-flow-storage{padding:24px;margin-bottom:20px;border:1px solid var(--kryos-divider);border-radius:14px;background:#fff}
 #settings-view .settings-flow-storage h2{font-size:23px;margin:6px 0 12px}
-#settings-view .settings-flow-storage p{font-size:15px;line-height:1.85;max-width:85ch;color:#52695a}
+#settings-view .settings-flow-storage p{font-size:15px;line-height:1.85;max-width:85ch;color:var(--kryos-text-secondary)}
 #settings-view .settings-flow-storage .section-kicker{font-size:11px}
-#settings-view .settings-hero,#settings-view .section-card{border-radius:14px;box-shadow:none;border-color:#dce5dd;padding:24px}
+#settings-view .settings-hero,#settings-view .section-card{border-radius:14px;box-shadow:none;border-color:var(--kryos-divider);padding:24px}
 #settings-view .settings-hero h2,#settings-view .section-header h2{font-size:24px;line-height:1.5}
-#settings-view .principle-body,#settings-view .meta,#settings-view .setting-toggle em,#settings-view .release-note-list{font-size:14px;line-height:1.85;color:#52695a}
+#settings-view .principle-body,#settings-view .meta,#settings-view .setting-toggle em,#settings-view .release-note-list{font-size:14px;line-height:1.85;color:var(--kryos-text-secondary)}
 #settings-view .release-note-list li{margin:10px 0}
 #settings-view .settings-layout{gap:20px}
 #settings-view input:not([type=checkbox]),#settings-view select,#settings-view textarea{font-size:16px;min-height:44px;border-radius:9px}
 #settings-view button{min-height:44px;border-radius:9px;font-size:14px}
-#settings-view button:focus-visible,#settings-view input:focus-visible,#settings-view select:focus-visible{outline:3px solid #226a52;outline-offset:3px}
+#settings-view button:focus-visible,#settings-view input:focus-visible,#settings-view select:focus-visible{outline:3px solid var(--kryos-action);outline-offset:3px}
 @media(max-width:760px){#settings-view .settings-flow-storage,#settings-view .section-card,#settings-view>.product-identity-card{padding:20px}}
-.journal-conflict-review{margin-top:24px;padding:24px;border:1px solid #bacdbc;border-radius:16px;background:#f4f8f5;color:#263a30}
+.journal-conflict-review{margin-top:24px;padding:24px;border:1px solid var(--kryos-control-border);border-radius:16px;background:#f4f8f5;color:var(--kryos-text)}
 .journal-conflict-actions{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}
-.journal-conflict-review article{padding:16px;margin:12px 0;background:#fff;border:1px solid #dce5dd;border-radius:12px}
+.journal-conflict-review article{padding:16px;margin:12px 0;background:#fff;border:1px solid var(--kryos-divider);border-radius:12px}
 .journal-conflict-review p,.journal-conflict-review li{line-height:1.7;overflow-wrap:anywhere}
 .journal-conflict-review summary{cursor:pointer;min-height:40px;padding:8px 0}
-.journal-conflict-note{font-size:.85rem;color:#52695a}
+.journal-conflict-note{font-size:.85rem;color:var(--kryos-text-secondary)}
 .journal-resolution-confirm{margin:18px 0;padding:20px;border:2px solid #9a6a23;border-radius:14px;background:#fff8e9;color:#47351e}
 .journal-resolution-confirm label{display:flex;gap:10px;align-items:flex-start;line-height:1.7}
 .journal-resolution-confirm input{min-width:20px;min-height:20px;margin-top:4px}
+/* Version, connection and confirmed-save information are separate concepts. */
+#settings-view{max-width:1240px;margin-inline:auto}
+#settings-view>.product-identity-card{background:var(--kryos-positive-surface);border-color:var(--kryos-divider);border-radius:var(--kryos-radius-surface);padding:28px}
+#settings-view .version-badge{background:var(--kryos-surface);border-color:var(--kryos-control-border)}
+#settings-view .version-badge span{font-size:14px}
+#settings-view .product-identity-head{gap:24px;flex-wrap:wrap}
+#settings-view .product-version-grid{gap:20px}
+#settings-view .metric-tile{background:var(--kryos-surface);border:1px solid var(--kryos-divider);padding:20px}
+#settings-view .metric-value{font-size:23px;color:var(--kryos-text);font-variant-numeric:tabular-nums}
+#settings-view .metric-label,#settings-view .metric-note{font-size:14px;color:var(--kryos-text-secondary);line-height:1.75}
+#settings-view .settings-flow-storage{background:var(--kryos-information-surface);border-color:var(--kryos-divider);border-radius:var(--kryos-radius-surface);padding:26px}
+#settings-view .settings-flow-storage h2{color:var(--kryos-text)}
+#settings-view .settings-flow-storage .section-kicker{font-size:12px;color:var(--kryos-information)}
+#settings-view :is(.settings-hero,.section-card,.settings-flow-release){background:var(--kryos-surface);border-color:var(--kryos-divider);border-radius:var(--kryos-radius-surface);box-shadow:none}
+#settings-view .settings-layout{gap:24px}
+#settings-view .section-header{gap:16px;flex-wrap:wrap}
+#settings-view .settings-flow-release>summary{padding-block:16px;color:var(--kryos-text);line-height:1.6}
+#settings-view .setting-toggle{padding:16px;gap:16px;border-color:var(--kryos-divider)}
+#settings-view .setting-toggle em{font-size:14px;line-height:1.8}
+#settings-view :is(button,input,select,textarea,summary,a):focus-visible{outline:3px solid var(--kryos-focus);outline-offset:3px}
+#settings-view input:not([type=checkbox]),#settings-view select,#settings-view textarea{background:var(--kryos-surface);color:var(--kryos-text);border-color:var(--kryos-control-border)}
+.journal-conflict-review{background:var(--kryos-attention-surface);border-color:var(--kryos-attention);border-radius:var(--kryos-radius-surface);color:var(--kryos-text)}
+.journal-resolution-confirm{background:var(--kryos-attention-surface);border-color:var(--kryos-attention);color:var(--kryos-text)}
+.journal-conflict-note{font-size:14px;color:var(--kryos-text-secondary);line-height:1.75}
+@media(max-width:760px){#settings-view .product-version-grid{grid-template-columns:minmax(0,1fr)}#settings-view>.product-identity-card,#settings-view .settings-flow-storage{padding:20px}}

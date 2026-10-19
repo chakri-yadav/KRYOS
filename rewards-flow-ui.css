@@ -1,64 +1,98 @@
 /* Rewards presentation only. Costs, eligibility, ledger and calculations are untouched. */
-#rewards-view{--reward-ink:#263a30;--reward-green:#226a52;--reward-blue:#536683;--reward-gold:#805a16;color:#263a30}
-#rewards-view .reward-hero{background:#edf5ef;border:1px solid #bacdbc;border-radius:16px;box-shadow:none;color:#263a30}
+#rewards-view{--reward-ink:var(--kryos-text);--reward-green:var(--kryos-action);--reward-blue:var(--kryos-learning);--reward-gold:var(--kryos-attention);color:var(--kryos-text)}
+#rewards-view .reward-hero{background:var(--kryos-positive-surface);border:1px solid var(--kryos-control-border);border-radius:16px;box-shadow:none;color:var(--kryos-text)}
 #rewards-view .reward-hero>div{padding:28px;min-height:180px}
 #rewards-view .reward-hero>div+div{border-color:#d5e2d6;background:#fff}
-#rewards-view .reward-hero h1{font-size:clamp(28px,3vw,38px);line-height:1.35;letter-spacing:-.03em;color:#203f2e}
-#rewards-view .reward-hero .section-kicker{color:#35644e}
-#rewards-view .reward-hero p{font-size:15px;line-height:1.85;color:#52695a}
-#rewards-view .reward-hero div>span{font-size:13px;line-height:1.75;color:#52695a}
-#rewards-view .reward-hero div+div strong{color:#226a52;font-size:54px;font-variant-numeric:tabular-nums;line-height:1.3}
-#rewards-view .reward-hero div+div small{font-size:11px;color:#35644e;letter-spacing:.08em}
+#rewards-view .reward-hero h1{font-size:clamp(28px,3vw,38px);line-height:1.35;letter-spacing:-.03em;color:var(--kryos-text)}
+#rewards-view .reward-hero .section-kicker{color:var(--kryos-action)}
+#rewards-view .reward-hero p{font-size:15px;line-height:1.85;color:var(--kryos-text-secondary)}
+#rewards-view .reward-hero div>span{font-size:13px;line-height:1.75;color:var(--kryos-text-secondary)}
+#rewards-view .reward-hero div+div strong{color:var(--kryos-action);font-size:54px;font-variant-numeric:tabular-nums;line-height:1.3}
+#rewards-view .reward-hero div+div small{font-size:11px;color:var(--kryos-action);letter-spacing:.08em}
 #rewards-view .reward-focus{grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:20px}
-#rewards-view .reward-focus>section,#rewards-view .reward-review,#rewards-view .reward-covenant,#rewards-view>.life-section{padding:26px;border:1px solid #dce5dd;border-radius:14px;background:#fff;box-shadow:none}
-#rewards-view .reward-focus>section:first-child{background:#f7faf6;border-color:#bacdbc}
-#rewards-view .reward-focus label{font-size:14px;color:#52695a;line-height:1.7}
-#rewards-view .reward-focus select{font-size:17px;min-height:48px;border-radius:9px;color:#263a30}
-#rewards-view .reward-focus p:last-child{font-size:14px;line-height:1.8;color:#52695a}
-#rewards-view .reward-target-meter strong{font-size:36px;color:#226a52;font-variant-numeric:tabular-nums}
-#rewards-view .reward-target-meter span{font-size:14px;line-height:1.7;color:#52695a}
-#rewards-view .reward-focus progress{height:8px;accent-color:#226a52}
+#rewards-view .reward-focus>section,#rewards-view .reward-review,#rewards-view .reward-covenant,#rewards-view>.life-section{padding:26px;border:1px solid var(--kryos-divider);border-radius:14px;background:#fff;box-shadow:none}
+#rewards-view .reward-focus>section:first-child{background:var(--kryos-canvas);border-color:var(--kryos-control-border)}
+#rewards-view .reward-focus label{font-size:14px;color:var(--kryos-text-secondary);line-height:1.7}
+#rewards-view .reward-focus select{font-size:17px;min-height:48px;border-radius:9px;color:var(--kryos-text)}
+#rewards-view .reward-focus p:last-child{font-size:14px;line-height:1.8;color:var(--kryos-text-secondary)}
+#rewards-view .reward-target-meter strong{font-size:36px;color:var(--kryos-action);font-variant-numeric:tabular-nums}
+#rewards-view .reward-target-meter span{font-size:14px;line-height:1.7;color:var(--kryos-text-secondary)}
+#rewards-view .reward-focus progress{height:8px;accent-color:var(--kryos-action)}
 #rewards-view .reward-week{gap:8px;margin:18px 0;grid-template-columns:repeat(7,minmax(68px,1fr));overflow-x:auto}
-#rewards-view .reward-week>div{padding:14px 6px;gap:7px;border-radius:10px;border-color:#dce5dd;background:#f7faf6}
-#rewards-view .reward-week small,#rewards-view .reward-week span{font-size:11px;line-height:1.5;color:#52695a;white-space:nowrap;text-align:center}
+#rewards-view .reward-week>div{padding:14px 6px;gap:7px;border-radius:10px;border-color:var(--kryos-divider);background:var(--kryos-canvas)}
+#rewards-view .reward-week small,#rewards-view .reward-week span{font-size:11px;line-height:1.5;color:var(--kryos-text-secondary);white-space:nowrap;text-align:center}
 #rewards-view .reward-week strong{font-size:20px;font-variant-numeric:tabular-nums}
-#rewards-view .reward-week .qualified{background:#edf5ef;border-color:#91b09a}
+#rewards-view .reward-week .qualified{background:var(--kryos-positive-surface);border-color:#91b09a}
 #rewards-view .reward-week .partial{background:#fff9ed;border-color:#dac48a}
 #rewards-view .reward-review h2,#rewards-view .life-heading h2,#rewards-view>.life-section>h2{font-size:24px;line-height:1.45;letter-spacing:-.02em}
-#rewards-view .reward-review header p,#rewards-view .life-heading p{font-size:14px;line-height:1.8;color:#52695a}
+#rewards-view .reward-review header p,#rewards-view .life-heading p{font-size:14px;line-height:1.8;color:var(--kryos-text-secondary)}
 #rewards-view .reward-review input{font-size:16px;min-height:44px;border-radius:9px}
 #rewards-view .reward-gates>div{padding:18px;border-radius:10px}
 #rewards-view .reward-gates span,#rewards-view .reward-gates strong{font-size:14px;line-height:1.7}
 #rewards-view .reward-v4-gates{gap:12px}
-#rewards-view .reward-v4-gates button{padding:18px;border-radius:11px;min-height:86px;font-size:15px;line-height:1.7;border-color:#dce5dd;background:#f8faf7;color:#263a30}
-#rewards-view .reward-v4-gates button.met{background:#edf5ef;border-color:#91b09a}
-#rewards-view .reward-v4-gates small{font-size:12px;line-height:1.7;color:#52695a}
+#rewards-view .reward-v4-gates button{padding:18px;border-radius:11px;min-height:86px;font-size:15px;line-height:1.7;border-color:var(--kryos-divider);background:var(--kryos-canvas);color:var(--kryos-text)}
+#rewards-view .reward-v4-gates button.met{background:var(--kryos-positive-surface);border-color:#91b09a}
+#rewards-view .reward-v4-gates small{font-size:12px;line-height:1.7;color:var(--kryos-text-secondary)}
 #rewards-view .reward-evidence{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:22px}
-#rewards-view .reward-evidence details{border:1px solid #dce5dd;border-radius:11px;background:#f8faf7}
+#rewards-view .reward-evidence details{border:1px solid var(--kryos-divider);border-radius:11px;background:var(--kryos-canvas)}
 #rewards-view .reward-evidence summary{padding:18px;min-height:60px}
-#rewards-view .reward-evidence summary span{font-size:14px;line-height:1.6;color:#263a30}
+#rewards-view .reward-evidence summary span{font-size:14px;line-height:1.6;color:var(--kryos-text)}
 #rewards-view .reward-evidence summary b{font-size:15px;line-height:1.6}
-#rewards-view .reward-evidence details>p{font-size:14px;line-height:1.85;padding:12px 18px;color:#52695a;overflow-wrap:anywhere}
+#rewards-view .reward-evidence details>p{font-size:14px;line-height:1.85;padding:12px 18px;color:var(--kryos-text-secondary);overflow-wrap:anywhere}
 #rewards-view .reward-evidence details>p small{display:block;font-size:12px;line-height:1.75;margin-top:4px}
-#rewards-view .reward-review>footer span,#rewards-view .reward-review>p,#rewards-view .reward-policy-note,#rewards-view .reward-ledger-status{font-size:13px;line-height:1.85;color:#52695a}
+#rewards-view .reward-review>footer span,#rewards-view .reward-review>p,#rewards-view .reward-policy-note,#rewards-view .reward-ledger-status{font-size:13px;line-height:1.85;color:var(--kryos-text-secondary)}
 #rewards-view .reward-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
-#rewards-view .reward-card{display:flex;flex-direction:column;gap:12px;padding:24px;border:1px solid #dce5dd;border-radius:14px;background:#fff;box-shadow:none;min-width:0}
-#rewards-view .reward-card.selected{background:#f7faf6;border-color:#91b09a}
-#rewards-view .reward-card.ready{border-color:#226a52}
-#rewards-view .reward-card h3{font-size:23px;line-height:1.45;letter-spacing:-.02em;margin:0;color:#203f2e}
-#rewards-view .reward-card>p{font-size:15px;line-height:1.85;margin:0;color:#52695a}
-#rewards-view .reward-card>strong,#rewards-view .reward-cost b{font-size:28px;color:#226a52;font-variant-numeric:tabular-nums}
-#rewards-view .reward-card>span,#rewards-view .reward-card-heading>span{font-size:11px;letter-spacing:.07em;color:#52695a}
-#rewards-view .reward-cost small,#rewards-view .reward-card>small,#rewards-view .reward-card-gate,#rewards-view .reward-card-progress small{font-size:13px;line-height:1.8;color:#52695a}
+#rewards-view .reward-card{display:flex;flex-direction:column;gap:12px;padding:24px;border:1px solid var(--kryos-divider);border-radius:14px;background:#fff;box-shadow:none;min-width:0}
+#rewards-view .reward-card.selected{background:var(--kryos-canvas);border-color:#91b09a}
+#rewards-view .reward-card.ready{border-color:var(--kryos-action)}
+#rewards-view .reward-card h3{font-size:23px;line-height:1.45;letter-spacing:-.02em;margin:0;color:var(--kryos-text)}
+#rewards-view .reward-card>p{font-size:15px;line-height:1.85;margin:0;color:var(--kryos-text-secondary)}
+#rewards-view .reward-card>strong,#rewards-view .reward-cost b{font-size:28px;color:var(--kryos-action);font-variant-numeric:tabular-nums}
+#rewards-view .reward-card>span,#rewards-view .reward-card-heading>span{font-size:11px;letter-spacing:.07em;color:var(--kryos-text-secondary)}
+#rewards-view .reward-cost small,#rewards-view .reward-card>small,#rewards-view .reward-card-gate,#rewards-view .reward-card-progress small{font-size:13px;line-height:1.8;color:var(--kryos-text-secondary)}
 #rewards-view .reward-card-footer{margin-top:auto;padding-top:12px;gap:12px;align-items:stretch;flex-wrap:wrap}
-#rewards-view .reward-focus-label{font-size:13px;color:#226a52;border:1px solid #bacdbc;border-radius:8px;padding:10px 14px;background:#edf5ef}
+#rewards-view .reward-focus-label{font-size:13px;color:var(--kryos-action);border:1px solid var(--kryos-control-border);border-radius:8px;padding:10px 14px;background:var(--kryos-positive-surface)}
 #rewards-view .reward-card button{width:100%;margin-top:auto}
 #rewards-view .reward-card-footer button{margin-top:0}
 #rewards-view .reward-covenant p{font-size:14px;line-height:1.85}
 #rewards-view .reward-audit article{border-radius:11px;padding:18px}
 #rewards-view .reward-audit p,#rewards-view .reward-audit small,#rewards-view .reward-audit span{font-size:13px;line-height:1.75}
 #rewards-view button{min-height:44px;border-radius:9px;font-size:14px}
-#rewards-view button:disabled{opacity:1;background:#f0f3ee;color:#657264;border-color:#dce5dd;cursor:not-allowed}
-#rewards-view button:focus-visible,#rewards-view summary:focus-visible,#rewards-view select:focus-visible,#rewards-view input:focus-visible{outline:3px solid #226a52;outline-offset:3px}
+#rewards-view button:disabled{opacity:1;background:#f0f3ee;color:#657264;border-color:var(--kryos-divider);cursor:not-allowed}
+#rewards-view button:focus-visible,#rewards-view summary:focus-visible,#rewards-view select:focus-visible,#rewards-view input:focus-visible{outline:3px solid var(--kryos-action);outline-offset:3px}
 @media(max-width:850px){#rewards-view .reward-focus{grid-template-columns:1fr}#rewards-view .reward-week{overflow-x:auto;grid-template-columns:repeat(7,minmax(58px,1fr))}}
 @media(max-width:620px){#rewards-view .reward-grid,#rewards-view .reward-evidence{grid-template-columns:1fr}#rewards-view .reward-focus>section,#rewards-view .reward-review,#rewards-view>.life-section{padding:20px}#rewards-view .reward-card{padding:20px}}
+/* Selected-day evidence is separate from the current wallet and eligibility. */
+#rewards-view{--reward-ink:var(--kryos-text);--reward-green:var(--kryos-action);--reward-blue:var(--kryos-information);--reward-gold:var(--kryos-attention);max-width:1240px;margin-inline:auto}
+#rewards-view .reward-hero{background:var(--kryos-surface);border-color:var(--kryos-divider)}
+#rewards-view .reward-hero>div{padding:28px}
+#rewards-view .reward-hero>div+div{background:var(--kryos-positive-surface);border-color:var(--kryos-divider)}
+#rewards-view .reward-hero div+div small{font-size:13px;letter-spacing:.06em}
+#rewards-view .reward-hero div>span{font-size:14px;line-height:1.7}
+#rewards-view :is(.reward-review,.reward-covenant,.reward-focus>section,.reward-card){background:var(--kryos-surface);border-color:var(--kryos-divider);border-radius:var(--kryos-radius-surface);box-shadow:none}
+#rewards-view .reward-focus{gap:24px;margin-block:24px;min-width:0}
+#rewards-view .reward-focus>section{min-width:0}
+#rewards-view .reward-focus select{width:100%;max-width:100%;min-width:0}
+#rewards-view .reward-week{padding:4px 2px 12px;gap:10px}
+#rewards-view .reward-week>div{background:var(--kryos-canvas);border-color:var(--kryos-divider);min-width:0}
+#rewards-view .reward-week small,#rewards-view .reward-week span{font-size:12px;line-height:1.6}
+#rewards-view .reward-week .qualified{background:var(--kryos-positive-surface);color:var(--kryos-positive);border-color:var(--kryos-control-border)}
+#rewards-view .reward-week .partial{background:var(--kryos-canvas);color:var(--kryos-text-secondary);border-color:var(--kryos-divider)}
+#rewards-view .reward-review header{display:flex;justify-content:space-between;align-items:start;gap:24px;flex-wrap:wrap}
+#rewards-view .reward-review header h2{font-size:26px;font-variant-numeric:tabular-nums}
+#rewards-view .reward-review header input{width:auto;min-width:170px;max-width:100%;border-color:var(--kryos-control-border)}
+#rewards-view .reward-evidence{gap:16px;margin-block:24px}
+#rewards-view .reward-evidence details{background:var(--kryos-canvas);border:1px solid var(--kryos-divider);border-radius:12px;padding:18px;min-width:0}
+#rewards-view .reward-evidence summary{min-height:48px;line-height:1.7;color:var(--kryos-text);font-size:15px}
+#rewards-view .reward-evidence p{font-size:15px;line-height:1.8;overflow-wrap:anywhere}
+#rewards-view .reward-evidence small{display:block;font-size:13px;color:var(--kryos-text-secondary)}
+#rewards-view .reward-grid{gap:24px}
+#rewards-view .reward-card{padding:24px;gap:16px}
+#rewards-view .reward-card.ready{border-color:var(--kryos-positive);border-top-width:3px}
+#rewards-view .reward-card>span{font-size:12px;line-height:1.6}
+#rewards-view .reward-card>h3{font-size:22px;color:var(--kryos-text)}
+#rewards-view .reward-card>strong{font-size:28px;color:var(--kryos-text)}
+#rewards-view .reward-card>p{font-size:15px;line-height:1.8}
+#rewards-view button:disabled{background:var(--kryos-canvas);color:var(--kryos-text-secondary);border:1px solid var(--kryos-divider);opacity:1}
+#rewards-view :is(button,summary,select,input,a):focus-visible{outline:3px solid var(--kryos-focus);outline-offset:3px}
+@media(max-width:760px){#rewards-view .reward-hero>div{padding:20px}#rewards-view .reward-grid,#rewards-view .reward-evidence{grid-template-columns:minmax(0,1fr)}}
