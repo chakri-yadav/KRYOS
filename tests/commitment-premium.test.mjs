@@ -3,12 +3,13 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import fs from 'node:fs';
 import '../supabase/functions/kryos-ingest/commitment-core.js';
+import '../daily-presentation.js';
 const C=globalThis.KryosCommitment;
 function setup(date){
   const life={actions:[]};C.ensure(life);
   const handlers=[],writes=[];
   const context={KryosCommitment:{...C,today:()=> '2026-10-19'},commitmentSelected:()=>date,commitmentLife:()=>life,lifeNotice:'',escapeHtml:value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),actionSyncLabel:()=> 'Saved on device',renderLifeJournal(){},renderContainmentCovenant(){},document:{addEventListener:(type,handler)=>handlers.push({type,handler})},commitmentMutate:operation=>writes.push(operation)};
-  vm.createContext(context);vm.runInContext(fs.readFileSync(new URL('../commitment-premium.js',import.meta.url),'utf8'),context);
+  context.KryosDailyPresentation=globalThis.KryosDailyPresentation;vm.createContext(context);vm.runInContext(fs.readFileSync(new URL('../commitment-premium.js',import.meta.url),'utf8'),context);
   return {context,life,handlers,writes};
 }
 test('preparation hides the internal start hour; first day shows the correct Sunday',()=>{

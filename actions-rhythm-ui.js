@@ -1,6 +1,9 @@
 /* Actions and Rhythm presentation adapters; existing records, rules and saves remain authoritative. */
 if(typeof KryosUI!=='undefined')KryosUI.claim('actions-rhythm.controls','actions-rhythm-ui.js',["actions-rhythm-ui.css","rhythm.css"]);
 const activityPreviousActionCard=renderActionCard;
+const activityFocusedActions=new Map();
+let activityRenderedFocus=null;
+function activityFocusDate(){return typeof kryosSelectedDate==='function'?kryosSelectedDate():toDateKey();}
 renderActionCard=function(action){
   let html=activityPreviousActionCard(action);
   if(action.status==='done'&&action.deadline)html=html.replace(/<time class="deadline-[^"]*" datetime="[^"]*">[^<]*<\/time>/,`<time class="deadline-recorded" datetime="${escapeHtml(action.deadline)}">Due ${escapeHtml(action.deadline)}</time>`);
@@ -8,7 +11,34 @@ renderActionCard=function(action){
   const next=action.nextAction?`<div class="activity-next-step"><span>SMALLEST NEXT ACTION</span><p>${escapeHtml(action.nextAction)}</p></div>`:`<button type="button" class="activity-add-next" data-action-command="edit" data-id="${escapeHtml(action.id)}">＋ Add a smallest next action</button>`;
   if(copy)html=html.replace(copy,next);else html=html.replace('</h3>','</h3>'+next);
   if(['open','waiting'].includes(action.status))html=html.replace('<div class="action-controls">',`<div class="action-controls"><button type="button" class="activity-start" data-activity-start="${escapeHtml(action.id)}">Make active →</button>`);
+  if(['open','active'].includes(action.status)){
+    const focused=action.id===activityRenderedFocus?.id;
+    html=html.replace('<div class="action-controls">',`<div class="action-controls"><button type="button" class="activity-focus-choice" data-activity-focus="${escapeHtml(action.id)}" aria-pressed="${focused}">${focused?'◎ Your focus':'Focus on this'}</button>`);
+    if(focused)html=html.replace('class="action-card ', 'class="action-card is-focused ');
+  }
   return html;
+};
+const activityPreviousActions=renderActionVault;
+renderActionVault=function(){
+  const all=[...actionVault()].sort(actionSort),visible=all.filter(a=>actionFilter==='all'?a.status!=='archived':a.status===actionFilter);
+  activityRenderedFocus=KryosDailyPresentation.focus(visible,activityFocusedActions.get(activityFocusDate()));
+  const active=document.activeElement,focusedId=active?.dataset?.activityFocus;
+  activityPreviousActions();
+  const hero=document.querySelector('#actions-view .action-next');
+  if(hero){
+    hero.hidden=!activityRenderedFocus;
+    if(activityRenderedFocus){
+      hero.querySelector('.section-kicker').textContent='YOUR FOCUS';
+      hero.querySelector('h2').textContent=activityRenderedFocus.title;
+      hero.querySelector('h2+p').textContent=activityRenderedFocus.nextAction||'Choose the smallest step you can do now.';
+      hero.querySelectorAll('[data-action-command]').forEach(button=>{button.dataset.id=activityRenderedFocus.id;if(button.dataset.actionCommand!=='done'){button.dataset.actionCommand=activityRenderedFocus.status==='active'?'edit':'start';button.textContent=activityRenderedFocus.status==='active'?'View next step':'Start this action';}});
+    }
+  }
+  const list=document.querySelector('#actions-view .action-list');
+  if(list&&activityRenderedFocus){
+    const note=document.createElement('p');note.className='activity-focus-note';note.textContent='One focus in this view · highlighting does not change status or earn points.';list.before(note);
+  }
+  if(focusedId){const target=document.querySelector(`[data-activity-focus="${CSS.escape(focusedId)}"]`);target?.focus({preventScroll:true});}
 };
 function activityCountValue(habit,value,delta){return Math.max(0,Math.round((value+delta*(habit.step||1))*100)/100);}
 function activityCycleValue(habit,value){return value>=rhythmTarget(habit)?0:Math.min(rhythmTarget(habit),activityCountValue(habit,value,1));}
@@ -46,20 +76,22 @@ renderRhythmView=function(){
   const heading=document.querySelector('#rhythm-view .rhythm-main .rhythm-section-head h2');if(heading)heading.textContent='Your daily routines.';
   const coverage=document.querySelector('#rhythm-view .rhythm-main .rhythm-section-head>span');
   if(coverage){coverage.textContent='Routine coverage · not reward eligibility';coverage.title='This page records routines. Rewards applies its own qualification rules.';}
-  if(activityFeedback){const p=document.createElement('p');p.className='activity-feedback';p.setAttribute('role','status');p.textContent=activityFeedback;if(activityLastCycle){const undo=document.createElement('button');undo.type='button';undo.dataset.activityUndo='';undo.textContent='Undo last tap';p.append(undo);}document.querySelector('#rhythm-view .rhythm-groups')?.before(p);}
+  const p=document.createElement('p');p.className='activity-feedback';p.setAttribute('role','status');p.setAttribute('aria-atomic','true');p.textContent=activityFeedback||'Tap a row to record. At the target, the next tap resets it; Undo restores the last tap.';if(activityLastCycle){const undo=document.createElement('button');undo.type='button';undo.dataset.activityUndo='';undo.textContent='Undo last tap';p.append(undo);}document.querySelector('#rhythm-view .rhythm-groups')?.before(p);
   requestAnimationFrame(()=>{const main=document.querySelector('#app');if(main)main.scrollTop=scroll;window.scrollTo({top:y,behavior:'instant'});if(attribute)document.querySelector(`[data-${attribute}="${CSS.escape(value)}"]${active?.dataset.delta?`[data-delta="${active.dataset.delta}"]`:''}`)?.focus({preventScroll:true});});
 };
 const activityPreviousSync=updateActionSyncIndicator;
 updateActionSyncIndicator=function(){activityPreviousSync();const el=document.querySelector('#rhythm-view .rhythm-sync');if(el)el.textContent=actionSyncLabel();};
 document.addEventListener('click',event=>{
+  const focus=event.target.closest('[data-activity-focus]');
+  if(focus){const action=actionVault().find(a=>a.id===focus.dataset.activityFocus);if(action&&['open','active'].includes(action.status)){activityFocusedActions.set(activityFocusDate(),action.id);renderActionVault();}return;}
   if(event.target.closest('[data-activity-undo]')){
     const last=activityLastCycle;activityLastCycle=null;
     if(last&&rhythmValue(last.id,last.date)===last.after){rhythmSetValue(last.id,last.before,last.date);activityFeedback='Last tap undone for '+last.date+'. '+actionSyncLabel();}
     else activityFeedback='The record changed since that tap. Review the current total before correcting it.';
-    renderRhythmView();return;
+    renderRhythmView();if(last)document.querySelector?.('[data-activity-cycle="'+CSS.escape(last.id)+'"]')?.focus({preventScroll:true});return;
   }
   const cycle=event.target.closest('[data-activity-cycle]');
-  if(cycle){const habit=rhythmHabit(cycle.dataset.activityCycle);if(!habit||!['water','\u0063\u0068\u0061\u006c\u0069\u0073\u0061','\u0061\u0064\u0069\u0074\u0079\u0061'].includes(habit.id))return;const date=cycle.dataset.date,before=rhythmValue(habit.id,date),after=activityCycleValue(habit,before);rhythmSetValue(habit.id,after,date);activityLastCycle={id:habit.id,date,before,after};activityFeedback=habit.title+': '+after+(habit.id==='water'?' L':' / '+rhythmTarget(habit))+' recorded for '+date+'. '+actionSyncLabel();renderRhythmView();return;}
+  if(cycle){const habit=rhythmHabit(cycle.dataset.activityCycle);if(!habit||!['water','\u0063\u0068\u0061\u006c\u0069\u0073\u0061','\u0061\u0064\u0069\u0074\u0079\u0061'].includes(habit.id))return;const date=cycle.dataset.date,before=rhythmValue(habit.id,date),after=activityCycleValue(habit,before);rhythmSetValue(habit.id,after,date);activityLastCycle={id:habit.id,date,before,after};activityFeedback=KryosDailyPresentation.counterFeedback(habit.title,before,after,rhythmTarget(habit),habit.id==='water'?'litres':'repetitions',date)+' '+actionSyncLabel();renderRhythmView();return;}
   const weekly=event.target.closest('[data-activity-weekly]');if(weekly){const habit=rhythmHabit(weekly.dataset.activityWeekly);if(!habit)return;rhythmSetValue(habit.id,rhythmValue(habit.id,weekly.dataset.date)+1,weekly.dataset.date);activityFeedback=habit.title+' recorded for '+weekly.dataset.date+'. '+actionSyncLabel();renderRhythmView();return;}
   const start=event.target.closest('[data-activity-start]');
   if(start){const action=actionVault().find(a=>a.id===start.dataset.activityStart);if(action){updateActionStatus(action,'active');renderActionVault();}return;}

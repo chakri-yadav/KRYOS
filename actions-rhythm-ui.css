@@ -1,4 +1,9 @@
 /* Actions and Rhythm presentation owner. No targets, counts, dates or reward rules change. */
+#actions-view .activity-focus-note{font-size:14px;line-height:1.6;color:var(--kryos-text-secondary);margin:0 0 16px}
+#actions-view .action-card.is-focused{border-left:4px solid var(--kryos-action);background:var(--kryos-positive-surface)}
+#actions-view .activity-focus-choice{min-height:44px;white-space:normal;padding:8px 12px;border:1px solid var(--kryos-control-border);border-radius:8px;background:var(--kryos-surface);color:var(--kryos-text)}
+#actions-view .action-next[hidden]{display:none}
+#actions-view .activity-focus-choice[aria-pressed=true]{color:var(--kryos-action);font-weight:600}
 #actions-view .action-title{padding:12px 0 22px;gap:20px}
 #actions-view .action-title h1,#rhythm-view .rhythm-command h1{font-size:30px;line-height:1.25;letter-spacing:0;font-weight:600;color:var(--kryos-text)}
 #actions-view .action-title p{font-size:16px;line-height:1.65;color:var(--kryos-text-secondary)}

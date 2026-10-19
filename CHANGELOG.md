@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.48.0 — Focused daily workspace
+
+- Distinguish unrecorded and revised journey days with labels, dates and a current-day outline.
+- Highlight one existing Action without changing status or rewards; align the next-action panel.
+- Explain target completion and reset with dated, reversible whole-row counter feedback.
+
 ## 0.47.0 — Contextual daily corrections
 
 - Capture correction date and revision; retain drafts across rerenders and stale-edit refresh.

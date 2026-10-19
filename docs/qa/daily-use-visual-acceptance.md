@@ -1,5 +1,23 @@
 # Daily workspace visual acceptance — 2026-10-18
 
+## 19 October refinement
+
+Local 0.30.0 / hosted 0.48.0 retain the reading-first composition. Pure display
+policy in daily-presentation.js distinguishes neutral unrecorded days and revised
+review-pending days without changing core results. Journey cells include dates,
+symbols, accessible labels and an independent current-day outline.
+
+Actions uses existing IDs and next-step fields; date-scoped session focus changes
+no records or earnings. Hosted next-action presentation follows the same focus.
+The choice survives navigation, not reload. Rhythm reports target completion,
+reset and exact Undo restoration. Optional routines and targets are unchanged.
+
+216 local / 329 public tests pass, plus isolated browser regressions in both
+builds: linked completion/history, review corrections, focus without writes,
+keyboard/focus return, labelled journey navigation, reset/stale Undo, five
+regression widths and 200% CSS-zoom reflow. No production cloud writes or full
+accessibility certification are inferred from these checks.
+
 ## Scope and preservation
 
 Reading-first daily page, guided review, 48-day journey, Actions and Rhythm. Promise wording, outline items, guidance, task IDs, dated evidence, reward rules, storage destinations and import behavior are preserved. Core scoring/persistence files are not changed.
