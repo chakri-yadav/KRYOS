@@ -6,7 +6,7 @@ Date: 2026-10-18 (America/Chicago). Laptop 0.25.14; hosted 0.45.19.
 
 Desktop visual and isolated persistence/transfer acceptance passes. Finance next-action text and buttons now explicitly override legacy dark-panel colors on the approved light surface. This is a compatible correction; no schema, reward-rule or storage migration.
 
-A signed-in production Supabase write/read round trip is **not verified in this acceptance**. Do not present the two-client simulation or deployed software version as a confirmed personal cloud save. Physical-phone and full accessibility certification remain deferred.
+Signed-in production follow-up: the authorized hosted session displayed a successful automatic daily-data synchronization, retained its saved revision after refresh, and reported that data was up to date. A profile backup was exported, validated and retained privately. No bulk transfer or fabricated personal record was used. This verifies the observed automatic save/read-back path, not every possible cross-device edit. Physical-phone and full accessibility certification remain deferred.
 
 ## Evidence
 
@@ -26,7 +26,7 @@ Separate private artifacts contain the laptop software package, hosted Git bundl
 
 The local database backup passes SQLite integrity verification, and every stored document hash matches its copied file. Inventory counts, source revision and recovery locations are retained privately, not published. Backup filenames may use UTC; acceptance dates use the stated product timezone.
 
-The local database snapshot includes locally owned workspace tables. It is not a backup of the hosted Supabase account or every browser-only record. No production cloud-data backup is claimed here. Code tags and a Git bundle are software backups, not account-data backups.
+The local database snapshot includes locally owned workspace tables. It is not a backup of the hosted Supabase account or every browser-only record. A separate active-profile JSON export was validated after the signed-in follow-up; it is an application backup, not a full Supabase infrastructure/Auth backup. Code tags and a Git bundle are software backups, not account-data backups.
 
 ## Laptop rollback
 
@@ -41,6 +41,6 @@ The local database snapshot includes locally owned workspace tables. It is not a
 
 Use the retained clean public tags/bundle. Restore the affected presentation assets from the chosen known-good tag onto a new engineering branch, preserving any later domain changes. Run acceptance checks, publish a forward recovery release, and verify Pages deployment plus the served version. Do not force-rewrite history, merge private history, or restore account data to reverse a visual issue.
 
-## Remaining live-account acceptance
+## Signed-in follow-up and further coverage
 
-Using the owner's signed-in hosted session, first export an account backup. Confirm the displayed release and save destination; verify one explicitly approved reversible edit, its accepted cloud confirmation and read-back after refresh. Do not overwrite a pending conflict or use blanket Push/Pull as a test. This step requires a real signed-in session and is not substituted by assistant-import authorization.
+The observed automatic save and refresh/read-back follow-up is complete. A deliberate new-record edit test and physical second-device propagation were not exercised. Any later test of those paths must preserve a fresh account backup, use an explicitly approved reversible edit, and verify its accepted confirmation. Do not overwrite a pending conflict or use blanket Push/Pull as a test. Assistant-import authorization is not a substitute for a signed-in account session.
