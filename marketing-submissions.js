@@ -4,7 +4,7 @@
  const validDate=d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)&&Number.isFinite(Date.parse(d))&&new Date(d).toISOString().slice(0,10)===d;
  const synthetic=(batch,role)=>!!(batch.demo||role.demo||role.is_test||String(role.id||'').startsWith('demo-')||/FICTIONAL SAMPLE|SYNTHETIC TEST/i.test(role.raw_description||''));
  const identity=role=>String(role.canonical_url||role.source_url||role.id||'').trim().toLowerCase();
- function projectLegacySubmissions(state){
+ function projectLegacyOnly(state){
   const groups=new Map(),jobs=new Map(),jobIds=new Set(),diagnostics=[];
   const rank=r=>[String(r.updated_at||r.updatedAt||'0000'),String(r.id||''),JSON.stringify(r)].join('|');
   for(const batch of state?.batches||[])for(const role of batch.roles||[]){
@@ -28,7 +28,13 @@
   return {byDate,records,roles:[...jobs.values()],jobIds,diagnostics};
  }
  const countSubmissions=(p,from,through=from)=>p.records.filter(r=>r.date>=from&&r.date<=through).length;
- const api={projectLegacySubmissions,countSubmissions,validDate};
+ function projectLegacySubmissions(state){
+  if(state?.submission_history?.version!==1)return projectLegacyOnly(state);
+  const history=root.KryosSubmissionHistory||(typeof module==='object'&&module.exports?require('./marketing-submission-history.js'):null);
+  if(!history)throw Error('Submission history reader unavailable.');
+  return history.project(state);
+ }
+ const api={projectLegacySubmissions,projectLegacyOnly,countSubmissions,validDate,isSynthetic:synthetic};
  root.KryosSubmissions=api;
  if(typeof module==='object'&&module.exports)module.exports=api;
 })(globalThis);

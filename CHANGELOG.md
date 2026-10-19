@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.46.2 — Submission evidence compatibility
+
+- Publish shared event-aware projection, migration policy and correction tests for laptop 0.28.0.
+- Preserve approved aggregate-only hosted behavior with no job records or documents.
+- Document explicit correction and verified database recovery contracts.
+
 ## Laptop 0.27.0 — Explicit next-action policy
 
 - Publish deterministic work-selection and planning policy with regression tests.

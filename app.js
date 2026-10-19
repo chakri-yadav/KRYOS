@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.46.1";
-const APP_STAGE = "Dated application evidence integration";
-const APP_RELEASE_DATE = "2026-10-18";
-const APP_STATUS = "Application counts connected across Launch, Progress and Rewards";
-const APP_NEXT_MILESTONE = "Owner acceptance of dated application visibility";
+const APP_VERSION = "0.46.2";
+const APP_STAGE = "Submission evidence compatibility";
+const APP_RELEASE_DATE = "2026-10-19";
+const APP_STATUS = "Approved aggregate evidence with shared submission reader";
+const APP_NEXT_MILESTONE = "Shared date and daily review correction clarity";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Shared submission-history reader and deterministic correction policy support laptop 0.28.0. Hosted views continue to use approved aggregate snapshots only; application records and files remain local.",
   "Dated application evidence connects Launch, Progress and Rewards. Local records and approved hosted snapshots show their source and freshness, with direct access to earlier dates. Overlapping application counts use the larger total; no duplicated activity logs or new reward formulas. Job details and files remain local; handoff remains explicit.",
   "Desktop release verification: finance next-action contrast corrected; layout, keyboard, dated edits, file transfer, refresh, offline recovery and conflict tests pass. Separate software/data backups and recovery instructions recorded. Production signed-in synchronization is not claimed from simulated tests.",
   "Supporting workspace alignment: consistent surfaces, typography, keyboard focus and status meanings across Progress, Rewards, Money, Launch and Settings. Current wallet and historical evidence remain separate. Existing reward rules, financial calculations and storage boundaries are unchanged.",

@@ -11,6 +11,15 @@ test('statistics exporter uses the same projection and emits only aggregate fiel
  const summary=result.operations[0].summary;
  assert.deepEqual(Object.keys(summary).sort(),['date','revision','submittedCount','workspaceId']);
  assert.equal(summary.submittedCount,api.countSubmissions(api.projectLegacySubmissions(fixture),'2026-10-19'));
+ const history=require('../marketing-submission-history.js');
+ const withHistory={batches:[{roles:[{id:'history-export',application:{status:'Applied',applied_date:'2026-10-19'}}]}]};
+ history.migrate(withHistory,'2026-10-19T18:00:00Z');
+ withHistory.batches[0].roles[0].application.status='Saved';
+ const update=new DatabaseSync(path.join(dir,'marketing.sqlite'));
+ update.prepare('UPDATE workspace SET state_json=? WHERE id=1').run(JSON.stringify(withHistory));update.close();
+ const afterStage=JSON.parse(cp.execFileSync(process.execPath,['scripts/kryos-marketing-reward-stats.mjs','--date','2026-10-19'],{env:{...process.env,KRYOS_LOCAL_DATA_DIR:dir},encoding:'utf8',stdio:['ignore','pipe','ignore']}));
+ assert.equal(afterStage.operations[0].summary.submittedCount,1);
+ assert.deepEqual(Object.keys(afterStage.operations[0].summary).sort(),['date','revision','submittedCount','workspaceId']);
  assert.throws(()=>cp.execFileSync(process.execPath,['scripts/kryos-marketing-reward-stats.mjs','--date','2026-02-30'],{env:{...process.env,KRYOS_LOCAL_DATA_DIR:dir},stdio:'ignore'}));
  }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
