@@ -1,5 +1,11 @@
 # Changelog
 
+## Laptop 0.27.0 — Explicit next-action policy
+
+- Publish deterministic work-selection and planning policy with regression tests.
+- Document laptop planning operations and separate distribution scope.
+- Hosted app remains 0.46.1 and receives no application records or planning controls.
+
 ## 0.46.1 — Consistent submission evidence
 
 - Share one legacy submission projection between application analytics, evidence and aggregate export.
