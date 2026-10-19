@@ -6,6 +6,11 @@ imports, migrations, and production fixes.
 
 ## Release principles
 
+Current storage and distribution responsibilities are defined by
+[Current runtime](../architecture/current-runtime.md). Local and hosted releases
+are independent; documentation-only updates do not require an application version bump.
+Run `node scripts/check-release-contract.mjs` in each changed distribution.
+
 - Versions describe completed user-facing outcomes, not file counts.
 - One version has one clear product reason.
 - Every release is reproducible from an immutable Git tag.

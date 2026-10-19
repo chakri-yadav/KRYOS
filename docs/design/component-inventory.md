@@ -19,21 +19,23 @@ Rules:
 - active page must be visually clear
 - do not add sub-navigation here until the product needs it
 
-### Mobile Navigation
+### Compact Navigation
 
-Used only for Field Mode.
+The current compact shell exposes Command, Actions, Career and Rhythm, with
+Settings available through its existing control. Physical-phone acceptance is
+deferred; responsive layout checks do not imply phone acceptance.
 
 Purpose:
 
-- Today
-- Add
-- Habits
-- Pulse
+- Command
+- Actions
+- Career
+- Rhythm
 
 Rules:
 
 - keep four actions
-- no full desktop navigation on mobile
+- preserve access to existing routes; do not resurrect older page names
 
 ## Cards And Panels
 

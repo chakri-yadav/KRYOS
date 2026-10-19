@@ -16,6 +16,8 @@ The shared foundation, daily pages, learning workspace and supporting pages foll
 
 ## Current product records
 
+- [Current runtime and storage ownership](docs/architecture/current-runtime.md)
+
 - [Active backlog](docs/project/backlog.md)
 - [Desktop acceptance evidence and test limits](docs/qa/desktop-history-sync-acceptance.md)
 - [Current sync plan](docs/architecture/sync-plan.md)

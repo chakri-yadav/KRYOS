@@ -1,8 +1,14 @@
 # Architecture Overview
 
+The current authority is [Current runtime and storage ownership](current-runtime.md).
+The browser-only description below is a historical baseline, not the current
+deployment contract. The laptop now has a local service and the hosted
+distribution uses Supabase. Feature modules and page adapters share ownership
+with the original application shell.
+
 KRYOS is currently a local-first static browser application.
 
-## Current Runtime
+## Historical browser-only runtime
 
 - `index.html` provides the shell.
 - `styles.css` provides the design system and responsive behavior.
@@ -10,7 +16,7 @@ KRYOS is currently a local-first static browser application.
 
 ## Architecture Style
 
-Current style:
+Historical style:
 
 - single-page application
 - local state loaded from browser local storage

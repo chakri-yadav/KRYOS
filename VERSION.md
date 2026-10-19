@@ -19,7 +19,12 @@ Canonical current version:
 - Patch: a compatible correction with no new user workflow or data migration.
 - Major: an incompatible product or data foundation change.
 
-## Version Bands
+## Historical version bands
+
+These entries describe earlier milestones, not current storage or deployment
+contracts. See [Current runtime](docs/architecture/current-runtime.md).
+Historical cloud application-storage work is superseded by laptop-only
+records/files and explicitly approved aggregate handoff.
 
 | Version band | Meaning |
 | --- | --- |
@@ -74,6 +79,6 @@ identified data ownership, persistence and error-state verification, documented
 sync/backup impact, QA evidence, updated README/CHANGELOG/release documentation,
 and a matching Git tag for a published milestone.
 
-The older display forms such as `0.004.030` are retired. New canonical tags use
-the standard form, currently `v0.11.1`.
+The older display forms are retired. New published milestone tags use
+`v<version>`, matching the canonical current version above.
 See `docs/project/release-governance.md` for the complete workflow.

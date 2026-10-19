@@ -1,19 +1,22 @@
 # Page Ownership
 
-This table retains legacy page names. The [accepted visual contract](visual-contract-v1.md) defines the current presentation baseline; this document does not authorize resurrecting retired pages or duplicating features.
+The [accepted visual contract](visual-contract-v1.md) defines presentation.
+Storage is defined by [Current runtime](../architecture/current-runtime.md).
 
 This document is the duplicate-feature guardrail.
 
 | Page | Owns | Does not own |
 | --- | --- | --- |
-| Foundation | why, vows, principles, strengths, weaknesses | execution, analytics |
+| Inner Command (journal route) | reading context, daily requirements, journal and result review | independent scoring rules |
 | Career | roadmaps, modules, topics, career checklist completion | job application pipeline, daily todo board |
-| Today | dated work, inbox, carry-forward, task status | habit analytics, journaling |
-| Habits | recurring consistency, habit matrix, drift causes | one-off todos |
-| Journal | mental state, truth filter, shutdown | progress dashboard |
+| Actions | canonical tasks, status and dated completion | copied tasks for another page |
+| Rhythm | routine records and familiar counters | one-off task ownership |
+| Launch | work entry points, mocks, articulation and integrated evidence | duplicate job records |
+| Marketing | local applications, details, documents and application analytics | hosted job/file storage |
+| Money | ledger, contacts, obligations and statement evidence | inferred financial outcomes |
 | Progress | read-only analytics | manual entry |
 | Settings | lock, privacy, backup, import, reset | daily work |
-| Field Mode | mobile quick action | full desktop workflows |
+| Rewards | earned-credit explanation and redemption through the existing authority | a second scoring engine |
 
 ## Decision Rule
 
