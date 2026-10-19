@@ -1,5 +1,12 @@
 # Changelog
 
+## Local 0.32.0 — Local document versions and retrieval
+
+- Atomic local document metadata/file commits with revision checks, retry receipts and rollback.
+- Exact submitted-version projection, same-name version labels and retained deletion history.
+- Clear application sections, missing-file recovery and explicit retrieval date scopes.
+- Hosted application remains 0.49.0 and aggregate-only; no job records or files move to cloud.
+
 ## 0.49.0 — Learning context and launch continuity
 
 - Remember browser-only module/topic context and expanded panels per workspace/profile/roadmap.
