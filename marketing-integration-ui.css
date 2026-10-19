@@ -1,0 +1,13 @@
+/* Dated source panel shared by Launch, Progress and Rewards. */
+.marketing-integration{padding:24px;margin:24px 0;border:1px solid var(--kryos-divider);border-radius:var(--kryos-radius-surface);background:var(--kryos-surface);color:var(--kryos-text)}
+.marketing-integration header{display:flex;justify-content:space-between;align-items:start;gap:20px;flex-wrap:wrap}
+.marketing-integration h2{font-size:24px;line-height:1.5;margin:8px 0 20px;color:var(--kryos-text)}
+.marketing-integration-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.marketing-integration-metrics>div{display:grid;gap:8px;padding:18px;border-radius:10px;background:var(--kryos-information-surface);min-width:0}
+.marketing-integration-metrics strong{font-size:28px;font-variant-numeric:tabular-nums;color:var(--kryos-information)}
+.marketing-integration-metrics span,.marketing-integration .marketing-evidence-note{font-size:14px;line-height:1.75;color:var(--kryos-text-secondary)}
+.marketing-integration details{margin-top:20px;border-top:1px solid var(--kryos-divider);padding-top:12px}
+.marketing-integration summary{min-height:44px;padding-block:10px;cursor:pointer}
+.marketing-integration-dates{display:flex;flex-wrap:wrap;gap:10px;margin-block:12px}
+.marketing-integration :focus-visible{outline:3px solid var(--kryos-focus);outline-offset:3px}
+@media(max-width:760px){.marketing-integration{padding:20px}.marketing-integration-metrics{grid-template-columns:minmax(0,1fr)}}

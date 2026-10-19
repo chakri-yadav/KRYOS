@@ -8,7 +8,7 @@ renderLaunchView=function(){
  launchFlowOriginalRenderer();
  if(!launchView)return;
  const command=launchView.querySelector('.launch-command');
- if(command){const date=launchActivityDate();command.insertAdjacentHTML('afterend',launchFlowFocusMarkup(date,launchEventsOn(date).length,launchMocksOn(date).length));}
+if(command){const date=launchActivityDate();command.insertAdjacentHTML('afterend',launchFlowFocusMarkup(date,launchIntegratedCount(date),launchMocksOn(date).length));}
  launchView.querySelectorAll('[data-launch-platform]').forEach(button=>button.setAttribute('aria-pressed',String(button.classList.contains('checked'))));
  launchView.querySelectorAll('.launch-heatmap i[title]').forEach(cell=>{cell.setAttribute('tabindex','0');cell.setAttribute('role','img');cell.setAttribute('aria-label',cell.title);});
 };

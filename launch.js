@@ -44,7 +44,7 @@ function launchEventsOn(date) { return launchStore().marketEvents.filter(item=>i
 function launchMocksOn(date) { return launchStore().mockSessions.filter(item=>item.date===date); }
 function launchCurrentWeek() {
   const dates=launchWeekDates(),weekdays=dates.slice(0,5);
-  const marketDays=weekdays.filter(date=>launchEventsOn(date).length).length;
+const marketDays=weekdays.filter(date=>launchIntegratedCount(date)).length;
   const mocks=launchStore().mockSessions.filter(item=>dates.includes(item.date));
   return { dates, weekdays, marketDays, mocks, marketEvents:launchStore().marketEvents.filter(item=>dates.includes(item.date)) };
 }
@@ -53,7 +53,7 @@ function launchWeekdayStreak() {
   for(let i=0;i<120;i+=1){
     const key=toDateKey(date),day=date.getDay();
     if(day===0||day===6){date=addDays(date,-1);continue;}
-    if(launchEventsOn(key).length)streak+=1;else if(key!==launchActivityDate())break;
+    if(launchIntegratedCount(key))streak+=1;else if(key!==launchActivityDate())break;
     date=addDays(date,-1);
   }
   return streak;
@@ -79,18 +79,20 @@ function launchNetworkVisibility() {
 function launchExposureGrid() {
   const end=getDateFromKey(launchActivityDate()),start=addDays(end,-83);
   const dates=Array.from({length:84},(_,index)=>toDateKey(addDays(start,index)));
-  return `<div class="launch-heatmap">${dates.map(date=>{const market=launchEventsOn(date).length,mocks=launchMocksOn(date).length,level=Math.min(4,market+mocks);return `<i class="level-${level}" title="${formatDateKey(date)}: ${market} market, ${mocks} rehearsal"><span>${new Date(`${date}T12:00:00`).getDate()}</span></i>`}).join('')}</div><div class="launch-heat-legend"><span>12 weeks ago</span><div><i></i><i class="level-1"></i><i class="level-2"></i><i class="level-3"></i><i class="level-4"></i></div><span>Today</span></div>`;
+  return `<div class="launch-heatmap">${dates.map(date=>{const market=launchIntegratedCount(date),mocks=launchMocksOn(date).length,level=Math.min(4,market+mocks);return `<i class="level-${level}" title="${formatDateKey(date)}: ${market} market, ${mocks} rehearsal"><span>${new Date(`${date}T12:00:00`).getDate()}</span></i>`}).join('')}</div><div class="launch-heat-legend"><span>12 weeks ago</span><div><i></i><i class="level-1"></i><i class="level-2"></i><i class="level-3"></i><i class="level-4"></i></div><span>Today</span></div>`;
 }
 function launchWeekPulse() {
   const week=launchCurrentWeek();
-  return `<div class="launch-week-pulse">${week.dates.map(date=>{const market=launchEventsOn(date).length,mocks=launchMocksOn(date).length,isWeekday=[1,2,3,4,5].includes(getDateFromKey(date).getDay());return `<article class="${date===launchActivityDate()?'today':''}"><span>${getDateFromKey(date).toLocaleDateString(undefined,{weekday:'short'}).slice(0,2)}</span><strong>${market+mocks}</strong><div><i class="market ${market?'active':''}"></i><i class="mock ${mocks?'active':''}"></i></div><small>${isWeekday?'market day':'recovery'}</small></article>`}).join('')}</div>`;
+  return `<div class="launch-week-pulse">${week.dates.map(date=>{const market=launchIntegratedCount(date),mocks=launchMocksOn(date).length,isWeekday=[1,2,3,4,5].includes(getDateFromKey(date).getDay());return `<article class="${date===launchActivityDate()?'today':''}"><span>${getDateFromKey(date).toLocaleDateString(undefined,{weekday:'short'}).slice(0,2)}</span><strong>${market+mocks}</strong><div><i class="market ${market?'active':''}"></i><i class="mock ${mocks?'active':''}"></i></div><small>${isWeekday?'market day':'recovery'}</small></article>`}).join('')}</div>`;
 }
 function launchMarketPipeline() {
   const store=launchStore();
   const applications=store.marketEvents.filter(item=>item.type==='application');
   const stages=['applied','response','interview','offer'];
   const counts=stages.map(stage=>applications.filter(item=>item.stage===stage || (stage==='applied'&&item.stage==='')).length);
-  return `<div class="launch-pipeline">${stages.map((stage,index)=>`<div><span>${stage}</span><strong>${counts[index]}</strong><i style="--pipeline:${applications.length?Math.max(8,counts[index]/applications.length*100):0}%"></i></div>`).join('')}</div>`;
+  const snapshots=marketingEvidenceSource().rows,dates=new Set([...snapshots.map(r=>r.date),...applications.filter(r=>!r.voidedAt).map(r=>r.date)]);
+  counts[0]=[...dates].reduce((n,date)=>n+marketingEvidenceModel(date,snapshots,store.marketEvents).applications,0);
+return `<div class="launch-pipeline">${stages.map((stage,index)=>`<div><span>${stage}</span><strong>${counts[index]}</strong><i style="--pipeline:${counts[0]?Math.max(8,counts[index]/Math.max(counts[0],counts[index])*100):0}%"></i></div>`).join('')}</div><p class="launch-footnote">Applied combines dated Marketing counts and Launch logs without adding overlap. Response, interview and offer show Launch logs only; handoffs contain no employer outcomes.</p>`;
 }
 function launchTimeline() {
   const rows=[...launchStore().marketEvents.map(item=>({date:item.date,type:'market',title:launchMarketLabel(item.type),subject:[item.company,item.role,item.person,item.topic].filter(Boolean).join(' · ')||'Market action',detail:item.note||item.stage||item.status||item.channel||'Recorded exposure'})),...launchStore().mockSessions.map(item=>({date:item.date,type:'mock',title:item.mode==='self'?'Self mock · AirPods':'AI mock interview',subject:item.focus||'Interview rehearsal',detail:`${item.minutes} min${item.confidenceAfter?` · confidence ${item.confidenceBefore||'—'} → ${item.confidenceAfter}`:''}${item.note?` · ${item.note}`:''}`}))].sort((a,b)=>b.date.localeCompare(a.date));

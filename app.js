@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.45.19";
-const APP_STAGE = "Desktop visual release verification";
+const APP_VERSION = "0.46.0";
+const APP_STAGE = "Dated application evidence integration";
 const APP_RELEASE_DATE = "2026-10-18";
-const APP_STATUS = "Verified desktop layouts, transfers and recovery; finance contrast corrected";
-const APP_NEXT_MILESTONE = "Signed-in production synchronization acceptance";
+const APP_STATUS = "Application counts connected across Launch, Progress and Rewards";
+const APP_NEXT_MILESTONE = "Owner acceptance of dated application visibility";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Dated application evidence connects Launch, Progress and Rewards. Local records and approved hosted snapshots show their source and freshness, with direct access to earlier dates. Overlapping application counts use the larger total; no duplicated activity logs or new reward formulas. Job details and files remain local; handoff remains explicit.",
   "Desktop release verification: finance next-action contrast corrected; layout, keyboard, dated edits, file transfer, refresh, offline recovery and conflict tests pass. Separate software/data backups and recovery instructions recorded. Production signed-in synchronization is not claimed from simulated tests.",
   "Supporting workspace alignment: consistent surfaces, typography, keyboard focus and status meanings across Progress, Rewards, Money, Launch and Settings. Current wallet and historical evidence remain separate. Existing reward rules, financial calculations and storage boundaries are unchanged.",
   "Learning and application workspace presentation: readable roadmap lanes, clear core coverage, shared status colors and spacious analytics. Laptop document controls remain local; hosted views contain approved aggregate receipts only. Curriculum, reward rules and storage boundaries are unchanged.",

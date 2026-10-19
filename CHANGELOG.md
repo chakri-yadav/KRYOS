@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.46.0 — Dated application evidence integration
+
+- Connect approved application snapshots to Launch, Progress and Rewards source panels.
+- Reflect application evidence in Launch exposure and applied totals; keep outcome stages explicitly manual-source only.
+- Add previous-date access, known-zero versus missing distinction and explicit handoff freshness.
+- Preserve reward formulas and local/cloud boundaries; no automatic import or fabricated activity logs.
+
 ## 0.45.19 — Verified visual release and contrast correction
 
 - Correct inherited dark-panel text/button colors on the light finance next-action surface.
