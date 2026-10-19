@@ -1,5 +1,11 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs');
 const pages=['progress','rewards','money','launch','settings'];
+test('Money next action overrides legacy dark-panel text and button colors',()=>{
+ const css=fs.readFileSync('money-flow-ui.css','utf8');
+ assert.match(css,/\.money-next-action h2\{color:var\(--kryos-text\)/);
+ assert.match(css,/\.money-next-action p\{color:var\(--kryos-text-secondary\)/);
+ assert.match(css,/\.money-next-buttons \.primary-button\{background:var\(--kryos-action\);color:var\(--kryos-on-action\)/);
+});
 test('supporting page owners inherit the same surface and focus roles',()=>{
  for(const name of pages){const css=fs.readFileSync(name+'-flow-ui.css','utf8');for(const token of ['--kryos-surface','--kryos-divider','--kryos-radius-surface','--kryos-focus'])assert.ok(css.includes('var('+token+')'),name+' '+token);}
 });

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.45.19 — Verified visual release and contrast correction
+
+- Correct inherited dark-panel text/button colors on the light finance next-action surface.
+- Record desktop, file-transfer, offline, conflict, backup and recovery acceptance evidence.
+- Preserve all records, document locations, rules and storage boundaries.
+
 ## 0.45.18 — Supporting workspace visual alignment
 
 - Align Progress, Rewards, Money, Launch and Settings with shared semantic surfaces, readable metrics and blue keyboard focus.

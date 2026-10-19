@@ -43,6 +43,11 @@
 #money-dialog .money-form-error{font-size:14px}
 @media(max-width:760px){#money-view .money-surface{padding:18px}#money-view .money-flow-navigation{padding:16px}#money-view .money-next-action{padding:20px}#money-view .money-flow-navigation button{flex:1 1 140px}}
 /* Financial figures retain original units, sources, dates and ledger calculations. */
+#money-view .money-next-action h2{color:var(--kryos-text)}
+#money-view .money-next-action p{color:var(--kryos-text-secondary)}
+#money-view .money-next-action .section-kicker{color:var(--kryos-action)}
+#money-view .money-next-buttons .primary-button{background:var(--kryos-action);color:var(--kryos-on-action);border-color:var(--kryos-action)}
+#money-view .money-next-buttons .secondary-button{background:var(--kryos-surface);color:var(--kryos-action);border-color:var(--kryos-control-border)}
 #money-view{max-width:1240px;margin-inline:auto}
 #money-view .money-command,#money-view .money-next-action{border-color:var(--kryos-divider);border-radius:var(--kryos-radius-surface)}
 #money-view .money-command{background:var(--kryos-surface)}
