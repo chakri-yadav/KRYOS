@@ -17,23 +17,41 @@ function marketingEvidenceMarkup(page){
 function marketingEvidenceAttach(page,root){
  if(!root)return;
  const previous=root.querySelector('.marketing-integration');
- if(previous?.contains(document.activeElement))return;
+ if(previous?.contains(document.activeElement))return false;
  if(previous)previous.querySelectorAll('[data-evidence-disclosure]').forEach(d=>marketingEvidenceDisclosures.set(marketingEvidenceDisclosureKey(page,previous.dataset.evidenceDay,d.dataset.evidenceDisclosure),d.open));
  const html=marketingEvidenceMarkup(page);
- if(previous&&previous.outerHTML===html)return;
+ if(previous&&previous.outerHTML===html)return true;
  const anchor=page==='rewards'?(root.querySelector('.reward-day-summary')||root.querySelector('.reward-hero')):root.querySelector(page==='launch'?'.launch-flow-focus':'.progress-title');
- if(!anchor)return;
+ if(!anchor)return true;
  previous?.remove();anchor.insertAdjacentHTML('afterend',html);
+ return true;
 }
 document.addEventListener('toggle',event=>{
  const node=event.target;if(!node.matches?.('[data-evidence-disclosure]'))return;
  const section=node.closest('.marketing-integration');if(section)marketingEvidenceDisclosures.set(marketingEvidenceDisclosureKey(section.dataset.evidencePage,section.dataset.evidenceDay,node.dataset.evidenceDisclosure),node.open);
 },true);
-const marketingEvidenceLaunchRender=renderLaunchView;renderLaunchView=function(){marketingEvidenceProjection=marketingEvidenceReadSource();try{marketingEvidenceLaunchRender();marketingEvidenceAttach('launch',launchView);}finally{marketingEvidenceProjection=null;}};
-const marketingEvidenceProgressRender=renderLifeProgress;renderLifeProgress=function(){marketingEvidenceProgressRender();marketingEvidenceAttach('progress',progressView);};
-const marketingEvidenceRewardsRender=renderRewardV5;renderRewardV5=function(){marketingEvidenceRewardsRender();marketingEvidenceAttach('rewards',rewardsView);};
-const marketingEvidenceJournalRewards=renderJournalRewards;renderJournalRewards=function(){marketingEvidenceJournalRewards();marketingEvidenceAttach('rewards',rewardsView);};
-let marketingEvidenceLocalSignature='';
-setInterval(()=>{if(document.body.dataset.kryosStorage!=='laptop'||!['launch','progress','rewards'].includes(currentPage))return;const signature=[typeof marketingLocalRevision==='number'?marketingLocalRevision:0,typeof marketingLocalConnected!=='undefined'&&marketingLocalConnected,typeof marketingLocalDirty!=='undefined'&&marketingLocalDirty].join('|');const root=currentPage==='launch'?launchView:currentPage==='progress'?progressView:rewardsView;if(signature===marketingEvidenceLocalSignature||document.querySelector('#launch-dialog[open]')||root?.contains(document.activeElement))return;marketingEvidenceLocalSignature=signature;if(currentPage==='launch')renderLaunchView();else marketingEvidenceAttach(currentPage,currentPage==='progress'?progressView:rewardsView);},1500);
+KryosUI.renders.register('launch','launch.marketing-source',{order:-10,before(){marketingEvidenceProjection=marketingEvidenceReadSource();},restore(){marketingEvidenceProjection=null;}});
+for(const page of ['launch','progress','rewards'])KryosUI.renders.register(page,page+'.marketing-evidence',{order:40,after(){marketingEvidenceAttach(page,page==='launch'?launchView:page==='progress'?progressView:rewardsView);}});
+let marketingEvidencePending=false,marketingEvidenceScheduled=false;
+function marketingEvidenceRefresh(){
+ marketingEvidencePending=true;
+ if(marketingEvidenceScheduled)return;
+ marketingEvidenceScheduled=true;
+ requestAnimationFrame(()=>{
+  marketingEvidenceScheduled=false;
+  if(!marketingEvidencePending)return;
+  if(currentPage==='settings'){const live=settingsView?.querySelector('.settings-flow-live');if(live?.contains(document.activeElement))return;marketingEvidencePending=false;if(typeof settingsFlowRefreshStatus==='function')settingsFlowRefreshStatus();return;}
+  if(!['launch','progress','rewards'].includes(currentPage))return;
+  const root=currentPage==='launch'?launchView:currentPage==='progress'?progressView:rewardsView;
+  if(document.querySelector('#launch-dialog[open]')||root?.querySelector('.marketing-integration')?.contains(document.activeElement)||currentPage==='launch'&&root?.contains(document.activeElement)&&document.activeElement.matches('input,textarea,select'))return;
+  marketingEvidencePending=false;
+  if(currentPage==='launch')renderLaunchView();else if(marketingEvidenceAttach(currentPage,root)===false)marketingEvidencePending=true;
+ });
+}
+window.addEventListener('kryos:marketing-state',marketingEvidenceRefresh);
+document.addEventListener('focusout',()=>{if(marketingEvidencePending)marketingEvidenceRefresh();});
+document.addEventListener('close',()=>{if(marketingEvidencePending)marketingEvidenceRefresh();},true);
+// Compatibility only: older local clients do not emit transition notifications.
+if(typeof marketingLocalEventsVersion==='undefined'&&document.body?.dataset.kryosStorage==='laptop')setInterval(marketingEvidenceRefresh,1500);
 document.addEventListener('click',event=>{const b=event.target.closest('[data-marketing-evidence-date]');if(!b)return;event.preventDefault();const date=b.dataset.marketingEvidenceDate;if(marketingEvidenceValidDate(date)&&typeof KryosDayContext!=='undefined')KryosDayContext.set(date);});
 if(typeof currentPage!=='undefined'&&['launch','progress','rewards'].includes(currentPage))render();
