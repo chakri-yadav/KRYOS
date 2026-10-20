@@ -28,6 +28,7 @@ function commandTaskCard(task,life,date,future,nextId) {
 KryosUI.renders.setBase('command','command.reading',renderCommandReading);
 function commandDraftKey(date){return JSON.stringify([typeof accountMode==='string'?accountMode:'personal',typeof syncState==='object'?syncState.userId||'':'',date]);}
 function renderCommandReading() {
+  const selected=commitmentSelected();if(selected<KryosCommitment.cycle.dayZero||selected>KryosCommitment.cycle.endDate)return '<section class="command-paper"><h2>No battle in this cycle for the selected day</h2><p>Choose a day within the 48-day cycle to review its battle. Other dated records remain available.</p></section>';
   const life=commitmentLife(),date=commitmentSelected(),today=KryosCommitment.today(),d=KryosCommitment.day(life,date),result=KryosCommitment.evaluate(life,date),n=KryosCommitment.number(date),future=date>today;
   const items=KryosCommitment.items.filter(i=>i.type!=='guidance'),confirmed=items.filter(i=>!!d.items[i.id]).length,next=d.tasks.find(t=>t.id===commandFocusedTasks.get(date)&&!KryosCommitment.taskComplete(t,life,date))||d.tasks.find(t=>!KryosCommitment.taskComplete(t,life,date));
   const pending=d.tasks.filter(t=>!KryosCommitment.taskComplete(t,life,date)),completed=d.tasks.filter(t=>KryosCommitment.taskComplete(t,life,date));

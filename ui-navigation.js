@@ -83,6 +83,8 @@
     }
   });
   window.KryosNavigation={ready:true,...nav};
+  document.addEventListener('keydown',event=>{if(event.key==='Tab')nav.cancelRestore();},true);
+  document.addEventListener('pointerdown',()=>nav.cancelRestore(),true);
   // One navigation event owner for sidebar and inline links in both app variants.
   document.addEventListener('click',event=>{
     const marketingOpen=event.target.closest?.('[data-marketing-open]'),marketingBack=event.target.closest?.('[data-marketing-back]');

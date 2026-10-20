@@ -1,0 +1,2 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs');
+test('entry dialogs have explicit titles and Escape uses the existing cancel owner',()=>{for(const name of ['money','launch']){const s=fs.readFileSync(name+'.js','utf8');assert.ok(s.includes('aria-labelledby="'+name+'-dialog-title"'));assert.ok(s.includes('id="'+name+'-dialog-title"'));assert.match(s,/addEventListener\('cancel'/);assert.ok(s.includes(name+'CloseDialog();'));}});

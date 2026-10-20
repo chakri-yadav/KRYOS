@@ -30,7 +30,7 @@
       io.schedule(()=>{if(token!==generation||io.current()!==page)return;io.restore(saved||{windowY:0,mainY:0},page,target);});
       return true;
     }
-    return {navigate,route:hash=>route(hash,io.pages,io.current()),clear(){positions.clear();generation++;}};
+    return {navigate,route:hash=>route(hash,io.pages,io.current()),cancelRestore(){generation++;},clear(){positions.clear();generation++;}};
   }
   function composeRender(steps){
     const view=steps.capture?.();

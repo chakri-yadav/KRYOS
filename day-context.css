@@ -17,3 +17,5 @@
 .journal-edit-form [role="status"]{color:var(--danger,#a12f31)}
 .journal-corrections summary{cursor:pointer;min-height:36px;padding:8px 0}
 .journal-corrections article{padding:12px;border-left:2px solid var(--border,#cbd5e1)}
+.shared-day-context input:focus{outline:3px solid var(--kryos-focus);outline-offset:3px}
+.shared-day-controls label:focus-within{outline:3px solid var(--kryos-focus);outline-offset:3px;border-radius:var(--kryos-radius-control)}

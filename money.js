@@ -82,6 +82,7 @@ function moneyIcon(name) { return typeof rhythmIcon === 'function' ? rhythmIcon(
 
 function moneyOpenDialog(type) { moneyDialog = type; renderMoneyView(); setTimeout(() => document.querySelector('#money-dialog')?.showModal(), 0); }
 function moneyCloseDialog() { document.querySelector('#money-dialog')?.close(); moneyDialog = ''; renderMoneyView(); }
+document.addEventListener('cancel',event=>{if(event.target?.id==='money-dialog'){event.preventDefault();moneyCloseDialog();}},true);
 
 function moneyResolutionRing() {
   const store = moneyStore(), owed = moneyCurrentOwed(), recovered = moneyRecovered();
@@ -260,7 +261,7 @@ function renderMoneyDialog(){
     'ledger-rate':`<input type="hidden" name="type" value="ledger-rate"><label>APR effective date<input name="date" type="date" required></label><label>Purchase APR on your statement (%)<input name="apr" type="number" min="0" max="100" step=".01" required></label><label>Verified statement close date<input name="statementCloseDate" type="date" required></label><label class="wide">Statement reference<textarea name="note" maxlength="400" required></textarea></label><p class="money-form-error wide" role="alert" hidden></p>`,
     adjustment:`<input type="hidden" name="type" value="adjustment"><label>Date<input name="date" type="date" value="${moneyEntryDate()}" max="${toDateKey()}" required></label><label>Type<select name="kind"><option value="interest">Interest or fee</option><option value="correction">Balance correction</option></select></label><label>Amount added<input name="amount" type="number" step=".01" required></label><label class="wide">Verification note<textarea name="note" maxlength="400" required></textarea></label>`,
   };
-  return `<dialog id="money-dialog" class="money-dialog"><form id="money-form"><header><div><p class="section-kicker">MONEY / ${moneyDialog.toUpperCase()}</p><h2>${moneyDialog==='settlement'?'Reconciled statement checkpoint':moneyDialog==='setup'?'Verified responsibility':moneyDialog==='contact'?'Log the conversation':moneyDialog==='payment'?'Record received money':moneyDialog==='card'?'Update card position':'Verified adjustment'}</h2></div><button type="button" data-money-close aria-label="Close">×</button></header><div class="money-form-grid">${forms[moneyDialog]}</div><footer><button type="button" class="secondary-button" data-money-close>Cancel</button><button class="primary-button">Save record</button></footer></form></dialog>`;
+  return `<dialog id="money-dialog" aria-labelledby="money-dialog-title" class="money-dialog"><form id="money-form"><header><div><p class="section-kicker">MONEY / ${moneyDialog.toUpperCase()}</p><h2 id="money-dialog-title">${moneyDialog==='settlement'?'Reconciled statement checkpoint':moneyDialog==='setup'?'Verified responsibility':moneyDialog==='contact'?'Log the conversation':moneyDialog==='payment'?'Record received money':moneyDialog==='card'?'Update card position':'Verified adjustment'}</h2></div><button type="button" data-money-close aria-label="Close">×</button></header><div class="money-form-grid">${forms[moneyDialog]}</div><footer><button type="button" class="secondary-button" data-money-close>Cancel</button><button class="primary-button">Save record</button></footer></form></dialog>`;
 }
 
 document.addEventListener('click',event=>{

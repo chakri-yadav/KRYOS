@@ -13,6 +13,7 @@ function setup(date){
   context.KryosDailyPresentation=globalThis.KryosDailyPresentation;vm.createContext(context);uiTestRuntime.runInContext(fs.readFileSync(new URL('../commitment-premium.js',import.meta.url),'utf8'),context);
   return {context,life,handlers,writes};
 }
+test('history outside the configured cycle remains readable without evaluating a cycle day',()=>{const {context}=setup('2026-10-14');assert.match(context.renderContainmentCovenant(),/No battle in this cycle/);});
 test('preparation hides the internal start hour; first day shows the correct Sunday',()=>{
   const zero=setup('2026-10-17'),first=setup('2026-10-18');
   assert.match(zero.context.renderInnerCommandPurpose(),/Preparation/);

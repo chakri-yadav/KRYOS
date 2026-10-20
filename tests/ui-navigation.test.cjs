@@ -63,3 +63,4 @@ test('runtime loads before owners and router loads after the final page adapter'
  assert.match(source,/popstate/);assert.match(source,/hashchange/);assert.match(source,/aria-current/);
  assert.doesNotMatch(source,/saveTasks|marketingWrite|localStorage|supabase\./);
 });
+test('new keyboard or pointer intent cancels delayed focus restoration without losing saved positions',()=>{const h=harness();h.position({windowY:123,mainY:7});h.nav.navigate('career');h.nav.cancelRestore();h.flush();assert.equal(h.restores.length,0);h.nav.navigate('journal');h.flush();assert.equal(h.restores[0][0].windowY,123);});
