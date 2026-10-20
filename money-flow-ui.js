@@ -3,7 +3,6 @@ if(typeof KryosUI!=='undefined')KryosUI.claim('money.view','money-flow-ui.js',["
 function moneyFlowNavigationMarkup(sections){
  return '<nav class="money-flow-navigation" aria-label="Money sections"><p class="section-kicker">FIND WHAT YOU NEED</p><div>'+sections.map(s=>'<button type="button" class="secondary-button" data-money-section="'+escapeHtml(s.id)+'">'+escapeHtml(s.title)+'</button>').join('')+'</div></nav>';
 }
-const moneyFlowOriginalRenderer=renderMoneyView;
 function moneyFlowNextModel(configured,settled,follow,nextDate){
  if(!configured)return {title:'Set a verified baseline',note:'Use the existing setup form to record the starting amount.',dialog:'setup',label:'Set baseline'};
  if(settled)return {title:'Recorded balance is settled',note:'Review the dated history or record a new verified event when needed.',dialog:'contact',label:'Record contact'};
@@ -14,8 +13,8 @@ function moneyFlowDatedMarkup(store,date){
  const contacts=(store.contacts||[]).filter(r=>r.date===date),payments=(store.payments||[]).filter(r=>r.date===date),ledger=(store.ledgerEvents||[]).filter(r=>r.date===date&&!r.voidedAt);
  return '<details class="money-dated-records"><summary>'+escapeHtml(date)+' · '+contacts.length+' contacts · '+payments.length+' received payments · '+ledger.length+' ledger entries</summary><p>Recorded events for the selected day. The current balance above includes all saved dates.</p>'+contacts.map(r=>'<article><time>'+escapeHtml(r.date)+'</time><strong>'+escapeHtml(r.method+' · '+r.outcome)+'</strong><p>'+escapeHtml(r.note||'No additional note')+'</p></article>').join('')+payments.map(r=>'<article><time>'+escapeHtml(r.date)+'</time><strong>Payment received · '+escapeHtml(moneyAmount(r.amountCents))+'</strong><p>'+escapeHtml(r.note||'No additional note')+'</p></article>').join('')+ledger.map(r=>'<article><time>'+escapeHtml(r.date)+'</time><strong>'+escapeHtml(r.type)+' · '+escapeHtml(moneyAmount(r.amountCents))+'</strong><p>'+escapeHtml(r.note||'Recorded ledger event')+'</p></article>').join('')+(!contacts.length&&!payments.length&&!ledger.length?'<p>No contact or received payment recorded for this day.</p>':'')+'</details>';
 }
-renderMoneyView=function(){
- moneyFlowOriginalRenderer();
+KryosUI.renders.register('money','money.presentation',{order:10,after(){
+
  if(!moneyView)return;
  const sections=[...moneyView.querySelectorAll('.money-surface')].map((panel,index)=>{
  const heading=panel.querySelector('h2');if(!heading)return null;
@@ -38,7 +37,7 @@ renderMoneyView=function(){
  if(anchor&&typeof moneyEntryDate==='function')anchor.insertAdjacentHTML('afterend',moneyFlowDatedMarkup(moneyStore(),moneyEntryDate()));
  const grid=moneyView.querySelector('.money-contact-grid');
  if(grid){grid.setAttribute('role','img');grid.setAttribute('aria-label','Contact history: '+[...grid.querySelectorAll('[title]')].map(c=>c.title).join('; '));}
-};
+}});
 document.addEventListener('click',event=>{
  const button=event.target.closest('[data-money-section]');if(!button)return;
  const panel=document.getElementById(button.dataset.moneySection);if(!panel)return;

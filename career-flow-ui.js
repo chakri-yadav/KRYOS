@@ -55,13 +55,14 @@ function careerFlowOpenContext(roadmap,moduleId,topicId){
  for(let parent=target.parentElement;parent&&panel.contains(parent);parent=parent.parentElement)if(parent.tagName==='DETAILS')parent.open=true;
  target.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});(check||panel.querySelector('summary'))?.focus({preventScroll:true});
 }
-const careerFlowPreviousRenderer=renderCareerView;
-renderCareerView=function(){
+KryosUI.renders.register('career','career.context',{order:10,capture(){
  const old=document.querySelector('#career-view .career-studio'),oldId=old?.dataset.flowRoadmap;
  if(oldId)careerFlowCapture(old);
  const active=document.activeElement,checkId=active?.dataset?.careerCheck,field=active?.dataset?.workflowField,moduleId=active?.dataset?.workflowModule;
  const nextCard=!!active?.closest('.studio-next'),y=window.scrollY,main=document.querySelector('#app'),scroll=main?.scrollTop||0;
- careerFlowPreviousRenderer();
+
+return {oldId,active,checkId,field,moduleId,nextCard,y,main,scroll};
+},after({oldId,active,checkId,field,moduleId,nextCard,y,main,scroll}){
  const roadmap=findRoadmap(selectedRoadmapId),studio=document.querySelector('#career-view .career-studio');
  if(!roadmap||!studio)return;
  studio.dataset.flowRoadmap=roadmap.id;
@@ -80,8 +81,8 @@ renderCareerView=function(){
  const navigation=studio.querySelector('.career-flow-navigation');
  if(navigation){navigation.insertAdjacentHTML('beforeend',`<p class="career-flow-memory">Context stays in this browser only. Notes save when you leave the field; unfinished typing survives navigation, not reload.</p>${resume?`<button type="button" class="secondary-button" data-career-flow-resume>Reopen ${escapeHtml(resume.topic?.title||resume.module.title)}</button>`:''}`);}
  studio.querySelectorAll('[data-workflow-field]').forEach(input=>{const key=[careerFlowContextKey(roadmap.id),input.dataset.workflowModule,input.dataset.workflowField].join('|');if(careerFlowDrafts.has(key)){input.value=careerFlowDrafts.get(key);for(let parent=input.parentElement;parent&&studio.contains(parent);parent=parent.parentElement)if(parent.tagName==='DETAILS')parent.open=true;}});
- if(oldId===roadmap.id)requestAnimationFrame(()=>{if(main)main.scrollTop=scroll;window.scrollTo({top:y,behavior:'instant'});const selector=checkId?`${nextCard?'.studio-next ':''}[data-career-check="${CSS.escape(checkId)}"]`:field?`[data-workflow-field="${CSS.escape(field)}"][data-workflow-module="${CSS.escape(moduleId)}"]`:null;if(selector)studio.querySelector(selector)?.focus({preventScroll:true});});
-};
+ if(oldId===roadmap.id)KryosUI.renders.schedule('career',()=>{if(main)main.scrollTop=scroll;window.scrollTo({top:y,behavior:'instant'});const selector=checkId?`${nextCard?'.studio-next ':''}[data-career-check="${CSS.escape(checkId)}"]`:field?`[data-workflow-field="${CSS.escape(field)}"][data-workflow-module="${CSS.escape(moduleId)}"]`:null;if(selector)studio.querySelector(selector)?.focus({preventScroll:true});});
+}});
 document.addEventListener('input',event=>{const input=event.target;if(!input.dataset.workflowField)return;careerFlowDrafts.set([careerFlowContextKey(input.dataset.workflowRoadmap),input.dataset.workflowModule,input.dataset.workflowField].join('|'),input.value);});
 document.addEventListener('focusin',event=>{const input=event.target;if(input.dataset.careerCheck&&input.dataset.roadmapId)careerFlowRemember(input.dataset.roadmapId,{moduleId:input.dataset.moduleId,topicId:input.dataset.topicId});else if(input.dataset.workflowField)careerFlowRemember(input.dataset.workflowRoadmap,{moduleId:input.dataset.workflowModule});});
 document.addEventListener('toggle',event=>{const panel=event.target;if(!panel.matches?.('details')||!panel.isConnected)return;careerFlowCapture(panel.closest('.career-studio'));},true);

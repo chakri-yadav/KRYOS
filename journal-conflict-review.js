@@ -44,7 +44,6 @@
  function recoveryBackup(){try{const value=JSON.parse(getModeStorageValue(backupKey)||'null');return value?.owner===syncState.userId?value:null;}catch{return null;}}
  function download(value,name){const blob=new Blob([JSON.stringify(value,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=name;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
  function localBlock(key){const block=SYNC_BLOCKS.find(b=>b.key===key);return createSyncPayloadPreview().blocks[block?.payloadKey||key]?.value||{};}
- const original=renderSettingsView;
  function confirmationMarkup(){
   if(!choice)return '';
   const area=snapshot?.areas.find(a=>a.key===choice.key);if(!area)return '';
@@ -91,7 +90,7 @@
   }).join('');
   settingsView.insertAdjacentHTML('beforeend','<section id="journal-conflict-review" class="journal-conflict-review"><p class="section-kicker">PRESERVE BOTH COPIES</p><h2>Review journal sync differences</h2><p>Compare browser and cloud journal data before choosing a direction. Comparison is read-only. Resolution requires a backup and explicit confirmation. Marketing and Career are excluded.</p><div class="journal-conflict-actions"><button type="button" class="secondary-button" data-journal-conflict="read" '+(busy?'disabled':'')+'>'+(busy?'Checking copies…':'Compare latest copies')+'</button>'+(snapshot?'<button type="button" class="secondary-button" data-journal-conflict="export">Download both copies</button>':'')+(recoveryBackup()?'<button type="button" class="secondary-button" data-journal-conflict="recovery-export">Download last recovery backup</button>':'')+'</div><p role="status">'+escapeHtml(notice)+'</p>'+details+confirmationMarkup()+(snapshot?'<p class="journal-conflict-note">Snapshot checked '+escapeHtml(snapshot.capturedAt)+'. Download contains private journal and task-block data. Keep it on your device. Copies can change after this check.</p>':'')+'</section>');
  }
- renderSettingsView=function(){original();renderPanel();};
+ KryosUI.renders.register('settings','settings.conflict-review',{order:20,after:renderPanel});
  document.addEventListener('click',async event=>{
   const button=event.target.closest('[data-journal-conflict]');if(!button)return;
   if(busy)return;

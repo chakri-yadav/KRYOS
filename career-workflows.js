@@ -125,7 +125,7 @@ if(typeof document!=="undefined"){
     }
     return null;
   };
-  renderCareerView=function(){
+  KryosUI.renders.setBase('career','career.workflow',function(){
     if(!findRoadmap(selectedRoadmapId))selectedRoadmapId=careerState.roadmaps[0]?.id;
     const roadmap=findRoadmap(selectedRoadmapId),identity=careerVisualIdentity(roadmap),next=getNextCareerItem(roadmap),progress=careerCoreProgress(roadmap),stats=getCareerStats();
     careerView.innerHTML=`<div class="career-studio tone-${identity.tone}">
@@ -137,7 +137,7 @@ if(typeof document!=="undefined"){
       ${roadmap?.referenceSections?.length?`<section class="studio-reference"><h2>Debugging field guide</h2><p>Use faulty code. Diagnose, fix and verify—do not restart by solving the original problem.</p>${roadmap.referenceSections.map(s=>`<details class="career-workflow-guidance"><summary>${escapeHtml(s.title)}</summary><p>${escapeHtml(s.lines.join("\n"))}</p></details>`).join("")}</section>`:""}
       <details class="studio-insights"><summary><span>Progress & planning</span><small>${stats.weekActions} completed steps this week</small></summary><section class="career-section"><div class="career-section-head"><h2>Weekly evidence</h2><span>Current rhythm: ${stats.currentStreak} days · best ${stats.bestStreak}</span></div><div class="career-week-pulse">${getCareerWeekPulse().map(renderCareerPulseDay).join("")}</div></section><div class="career-dashboard-grid"><section class="career-section">${renderCareerTruthBars(stats.progress,getCareerConfidence())}<p>Coverage and confidence stay separate.</p></section><section class="career-section">${renderCareerHeatmap()}</section></div><div id="career-deadlines">${renderCareerDeadlinePanel(getCareerDeadlineStats())}</div><div class="quick-add"><input id="new-roadmap-title" placeholder="New skill roadmap" aria-label="New skill roadmap"><button class="primary-button" data-career-add="roadmap" type="button">Add roadmap</button></div></details>
     </div>`;
-  };
+  });
   document.addEventListener("click",event=>{
     const button=event.target.closest("[data-studio-module], [data-studio-plan]");if(!button)return;
     event.preventDefault();const moduleId=button.dataset.studioModule;
@@ -147,8 +147,7 @@ if(typeof document!=="undefined"){
     const focus=target.querySelector("summary, input, button");focus?.focus({preventScroll:true});
   });
 
-  const originalCareerRenderer=renderCareerView;
-  renderCareerView=function(){originalCareerRenderer();document.querySelector('#career-view .studio-insights')?.insertAdjacentHTML('beforeend','<details class="career-workflow-guidance"><summary>Roadmap updates</summary><label>Import roadmap package<input type="file" accept=".json,application/json" data-career-package></label><p data-career-package-status role="status">Personal roadmap files are saved through Career, not published to GitHub.</p></details>');};
+  KryosUI.renders.register('career','career.package-control',{order:5,after(){document.querySelector('#career-view .studio-insights')?.insertAdjacentHTML('beforeend','<details class="career-workflow-guidance"><summary>Roadmap updates</summary><label>Import roadmap package<input type="file" accept=".json,application/json" data-career-package></label><p data-career-package-status role="status">Personal roadmap files are saved through Career, not published to GitHub.</p></details>');}});
   document.addEventListener('change',async event=>{
     const input=event.target.closest('[data-career-package]');if(!input?.files?.[0])return;
     const status=document.querySelector('[data-career-package-status]');
@@ -165,8 +164,8 @@ if(typeof document!=="undefined"){
   });
   const originalModuleStats=getModuleStats;
   getModuleStats=function(module){return originalModuleStats({...module,topics:module.topics.filter(t=>!t.optional)});};
-  const originalModuleRenderer=renderModuleBlock;
-  renderModuleBlock=function(roadmap,module,isEditing){
+  const originalModuleRenderer=renderModuleBlockBase;
+  KryosUI.renders.setBase('career.module','career.workflow',function(roadmap,module,isEditing){
     if(isEditing)return originalModuleRenderer(roadmap,module,isEditing);
     if(!roadmap.workflowVersion){
       const active=getNextCareerItem(roadmap)?.module===module,stats=getModuleStats(module);
@@ -182,7 +181,7 @@ if(typeof document!=="undefined"){
     const active=next&&module===roadmap.modules.find(m=>m.topics.some(t=>!t.optional&&t.checklist.some(c=>!c.done)));
     const phaseStart=module.phase&&roadmap.modules[index-2]?.phase!==module.phase;
     return `${phaseStart?`<div class="studio-phase-heading"><p class="section-kicker">${escapeHtml(module.phase)}</p><span>Learn · Practice · Rehearse · Verify</span></div>`:""}<details class="career-workflow-module ${active?"is-current":""}" id="workflow-${escapeHtml(module.id)}" ${active?"open":""}><summary><span class="studio-module-number">${String(index).padStart(2,"0")}</span><span class="studio-module-title"><small>${active?"CONTINUE HERE":percent===100?"CORE COMPLETE":"LEARNING MODULE"}</small><strong>${escapeHtml(module.title)}</strong></span><span class="studio-module-meter"><small>${done}/${checks.length} core steps</small><span class="studio-track"><i style="width:${percent}%"></i></span></span></summary><div class="studio-module-body">${module.goal?`<p>${escapeHtml(module.goal)}</p>`:""}<p class="career-workflow-next">${next?`Next: ${escapeHtml(next.checklist.find(c=>!c.done).text)}`:"Core steps complete. Extra practice is optional."}</p>${topics.filter(t=>!t.optional).map(renderTopic).join("")}${evidence}${topics.some(t=>t.optional)?`<details class="career-workflow-extra"><summary>Extra practice · optional</summary>${topics.filter(t=>t.optional).map(renderTopic).join("")}</details>`:""}</div></details>`;
-  };
+  });
   function careerOwnerLinks(reference){const buttons=[];for(const line of reference.split("\n")){const title=line.startsWith("HLD")?"System Design":"API DESIGN";const nums=line.match(/\d+/g)||[];for(const num of nums)buttons.push(`<button type="button" data-career-owner-title="${title}" data-career-owner-module="${Number(num)}">${title} · Module ${Number(num)}</button>`);}return buttons.join("");}
   document.addEventListener("click",event=>{const b=event.target.closest("[data-career-owner-title]");if(!b)return;const r=careerState.roadmaps.find(r=>r.title===b.dataset.careerOwnerTitle);const m=r?.modules.find(m=>m.title.startsWith(`MODULE ${String(b.dataset.careerOwnerModule).padStart(2,"0")} —`));if(!r||!m)return;selectedRoadmapId=r.id;render();const panel=document.getElementById(`workflow-${m.id}`);if(panel){panel.open=true;panel.scrollIntoView({block:"start",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});}});
   document.addEventListener("change",event=>{const input=event.target.closest("[data-workflow-field]");if(!input)return;const module=careerState.roadmaps.find(r=>r.id===input.dataset.workflowRoadmap)?.modules.find(m=>m.id===input.dataset.workflowModule);if(!module)return;module.workflowEvidence={...(module.workflowEvidence||{}),[input.dataset.workflowField]:input.value};saveCareer();});

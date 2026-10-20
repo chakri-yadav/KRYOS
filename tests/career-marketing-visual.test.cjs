@@ -5,7 +5,7 @@ test('Career presentation uses semantic colors and keeps module reading lanes',(
  assert.match(css,/\.check-item \.check-text\{font-size:16px;line-height:1\.8/);
  assert.match(css,/prefers-reduced-motion/);
  const js=fs.readFileSync('career-flow-ui.js','utf8');
- assert.match(js,/careerFlowPreviousRenderer\(\)/);
+ assert.match(js,/KryosUI\.renders\.register\('career','career\.context'/);
  assert.doesNotMatch(js,/fetch\(|\.done\s*=(?!=)/);
 });
 test('Marketing presentation preserves its separate storage surface',()=>{

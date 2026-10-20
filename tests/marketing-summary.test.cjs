@@ -1,5 +1,5 @@
 const test=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
-const context={document:{addEventListener(){}},Map,Date,Number};vm.createContext(context);vm.runInContext(fs.readFileSync('marketing-summary.js','utf8'),context);
+const context={document:{addEventListener(){}},Map,Date,Number};vm.createContext(context);require('./ui-test-runtime.cjs').runInContext(fs.readFileSync('marketing-summary.js','utf8'),context);
 test('aggregate dashboard replaces older revisions and preserves unknown versus recorded zero',()=>{
  const model=context.marketingSummaryModel([{date:'2026-10-12',revision:1,submittedCount:9},{date:'2026-10-12',revision:2,submittedCount:0},{date:'2026-10-01',revision:1,submittedCount:40}], '2026-10-13','week');
  assert.equal(model.total,0);assert.equal(model.today,undefined);assert.equal(model.selected.length,1);assert.equal(model.selected[0].revision,2);
@@ -32,7 +32,7 @@ test('renderer returns HTML for the main navigation render contract',()=>{
 test('grouped bars, dated snapshot drilldown and safe export agree including corrected zero',()=>{
  const rows=[{date:'2026-09-01',submittedCount:4,revision:1,company:'must not export'},{date:'2026-10-12',submittedCount:9,revision:1},{date:'2026-10-12',submittedCount:0,revision:2},{date:'2026-10-14',submittedCount:3,revision:2}];
  const m=context.marketingSummaryModel(rows,'2026-10-19',{from:'2026-09-01',to:'2026-10-19'});
- for(const bar of m.chart){vm.runInContext('marketingSummarySelection='+JSON.stringify({from:bar.date,to:bar.to}),context);assert.equal(context.marketingSummaryContributors(m).reduce((n,r)=>n+r.submittedCount,0),bar.count||0);}
+ for(const bar of m.chart){require('./ui-test-runtime.cjs').runInContext('marketingSummarySelection='+JSON.stringify({from:bar.date,to:bar.to}),context);assert.equal(context.marketingSummaryContributors(m).reduce((n,r)=>n+r.submittedCount,0),bar.count||0);}
  const out=context.marketingSummaryExport(m);assert.equal(out.rows.length,3);assert.equal(out.rows.reduce((n,r)=>n+r.submittedCount,0),7);assert.equal(out.rows.find(r=>r.date==='2026-10-12').submittedCount,0);assert.doesNotMatch(JSON.stringify(out),/company|must not export/);assert.deepEqual(Object.keys(out.rows[0]),['date','workspaceId','revision','submittedCount']);
- vm.runInContext('marketingSummarySelection=null',context);
+ require('./ui-test-runtime.cjs').runInContext('marketingSummarySelection=null',context);
 });

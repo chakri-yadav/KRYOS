@@ -1,5 +1,5 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const vm=require('node:vm');
-function load(){const c=vm.createContext({Date,Map,String});vm.runInContext(fs.readFileSync('career-workflows.js','utf8'),c);return c;}
+function load(){const c=vm.createContext({Date,Map,String});require('./ui-test-runtime.cjs').runInContext(fs.readFileSync('career-workflows.js','utf8'),c);return c;}
 test('Debugging preserves eight modules, numbered exercises and nested fault hints without scoring references',()=>{
  const c=load();let source='SDE-2 INTERVIEW DEBUGGING ROADMAP\nPURPOSE\nLearn from faulty code.\n';
  for(let i=1;i<=8;i++)source+='MODULE '+i+' — EXAMPLE\nTOPICS\n1. Observe state\nPRACTICE\n'+(i===8?'SESSION 1 — EASY\nChoose one buggy:\n- array\n- string\n':'1. Debug an example\n   - inspect the update\n')+'EXTRA PRACTICE\nRepeat with another input.\n';
@@ -43,7 +43,7 @@ function uiLoad(){
  renderTopicBlock:(r,m,t)=>'<article>'+t.title+'</article>',careerView:{innerHTML:''},selectedRoadmapId:'r',careerSyncState:'local',
  getCareerWeekPulse:()=>[],renderCareerPulseDay:()=>'',careerSyncLabel:()=> 'Saved on laptop',getCareerStats:()=>({weekActions:0,progress:0}),getCareerConfidence:()=>0,
  renderCareerTruthBars:()=>'',renderCareerHeatmap:()=>'',getCareerDeadlineStats:()=>({}),renderCareerDeadlinePanel:()=>'',emptyState:()=>'<p>Empty</p>'});
- vm.runInContext(fs.readFileSync('career-workflows.js','utf8'),c);c.findRoadmap=id=>c.careerState.roadmaps.find(r=>r.id===id);
+ require('./ui-test-runtime.cjs').runInContext(fs.readFileSync('career-workflows.js','utf8'),c);c.findRoadmap=id=>c.careerState.roadmaps.find(r=>r.id===id);
  c.renderRoadmapDetail=r=>r.modules.map(m=>c.renderModuleBlock(r,m,false)).join('');return c;
 }
 test('core next action skips optional work and UI preserves IDs, source and editing fallback',()=>{
