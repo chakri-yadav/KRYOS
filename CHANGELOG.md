@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.52.0 — Explicit page lifecycle and notified evidence refresh
+
+- Replace page-render wrapper chains with ordered, unique section owners and stable domain entries.
+- Preserve scoped editing context, focus, selection and reading position; cancel stale restoration work.
+- Notify local evidence consumers on source-state transitions, with safe deferral and legacy fallback.
+- Preserve domain JSON, scoring, financial calculations, curricula and local/hosted storage boundaries.
+
 ## 0.51.1 — Explicit Settings render lifecycle
 
 - Replace the Settings render wrapper with capture, model, base, owned sections and restore steps.
