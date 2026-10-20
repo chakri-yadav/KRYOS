@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.50.0 — Scoped analytics and compact evidence
+
+- Aggregate charts expose contributing dated snapshots and distinguish unknown dates from received zeroes.
+- Calendar-week and custom reporting preserve valid views and input focus; exports contain dated counts only.
+- Compact cross-page evidence preserves expanded source details and reports receipt/save state.
+- Paired local release 0.33.0 adds exact submission drilldown; application records and files stay local.
+
 ## Local 0.32.0 — Local document versions and retrieval
 
 - Atomic local document metadata/file commits with revision checks, retry receipts and rollback.

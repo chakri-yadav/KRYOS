@@ -109,8 +109,9 @@ function bestDayRecord() {
 function compactCareerProgress() {
   const stats = getCareerStats();
   const primary = careerState.roadmaps.find(roadmap => roadmap.id === selectedRoadmapId) || careerState.roadmaps[0];
+  const core = getChecklistStats((primary?.modules||[]).flatMap(module=>(module.topics||[]).filter(topic=>!topic.optional&&topic.lane!=='extra').flatMap(topic=>topic.checklist||[])));
   const next = getNextCareerItem(primary);
-  return `<section class="progress-career-band"><div><p class="section-kicker">CAREER SKILLS</p><h2>${primary ? escapeHtml(primary.title) : 'No skill roadmap yet'}</h2><p>${next ? `Next: ${escapeHtml(next.item.text)}` : 'Create or review the next evidence step.'}</p></div><div class="progress-career-stat"><strong>${stats.weekActions}</strong><span>steps this week</span></div><div class="progress-career-stat"><strong>${stats.currentStreak}</strong><span>day rhythm</span></div><div class="progress-career-stat"><strong>${stats.progress}%</strong><span>coverage</span></div><button type="button" data-page="career">View Career</button></section>`;
+  return `<section class="progress-career-band"><div><p class="section-kicker">CAREER SKILLS</p><h2>${primary ? escapeHtml(primary.title) : 'No skill roadmap yet'}</h2><p>${next ? `Next: ${escapeHtml(next.item.text)}` : 'Create or review the next evidence step.'}</p></div><div class="progress-career-stat"><strong>${stats.weekActions}</strong><span>steps this week · all roadmaps</span></div><div class="progress-career-stat"><strong>${stats.currentStreak}</strong><span>activity rhythm · all roadmaps</span></div><div class="progress-career-stat"><strong>${core.percent}%</strong><span>${core.done} / ${core.total} core checks · this roadmap</span></div><button type="button" data-page="career">View Career</button></section>`;
 }
 
 function progressDeadlineTracker() {

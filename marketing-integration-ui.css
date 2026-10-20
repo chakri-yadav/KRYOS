@@ -1,7 +1,9 @@
 /* Dated source panel shared by Launch, Progress and Rewards. */
 .marketing-integration{padding:24px;margin:24px 0;border:1px solid var(--kryos-divider);border-radius:var(--kryos-radius-surface);background:var(--kryos-surface);color:var(--kryos-text)}
 .marketing-integration header{display:flex;justify-content:space-between;align-items:start;gap:20px;flex-wrap:wrap}
-.marketing-integration h2{font-size:24px;line-height:1.5;margin:8px 0 20px;color:var(--kryos-text)}
+.marketing-integration h2{font-size:22px;line-height:1.5;margin:6px 0;color:var(--kryos-text)}
+.marketing-integration h2 span{font-size:15px;font-weight:500;color:var(--kryos-text-secondary)}
+.marketing-evidence-freshness{font-size:14px;margin:4px 0;color:var(--kryos-text-secondary);line-height:1.6}
 .marketing-integration-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
 .marketing-integration-metrics>div{display:grid;gap:8px;padding:18px;border-radius:10px;background:var(--kryos-information-surface);min-width:0}
 .marketing-integration-metrics strong{font-size:28px;font-variant-numeric:tabular-nums;color:var(--kryos-information)}

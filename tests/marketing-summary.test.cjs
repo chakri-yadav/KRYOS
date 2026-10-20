@@ -29,3 +29,10 @@ test('renderer returns HTML for the main navigation render contract',()=>{
  context.document.getElementById=()=>({});context.toDateKey=()=> '2026-10-17';context.lifeStore=()=>({marketingSummaries:[]});context.marketingEscape=String;
  const html=context.renderMarketingView();assert.equal(typeof html,'string');assert.match(html,/Application progress/);assert.match(html,/No handoff recorded yet/);
 });
+test('grouped bars, dated snapshot drilldown and safe export agree including corrected zero',()=>{
+ const rows=[{date:'2026-09-01',submittedCount:4,revision:1,company:'must not export'},{date:'2026-10-12',submittedCount:9,revision:1},{date:'2026-10-12',submittedCount:0,revision:2},{date:'2026-10-14',submittedCount:3,revision:2}];
+ const m=context.marketingSummaryModel(rows,'2026-10-19',{from:'2026-09-01',to:'2026-10-19'});
+ for(const bar of m.chart){vm.runInContext('marketingSummarySelection='+JSON.stringify({from:bar.date,to:bar.to}),context);assert.equal(context.marketingSummaryContributors(m).reduce((n,r)=>n+r.submittedCount,0),bar.count||0);}
+ const out=context.marketingSummaryExport(m);assert.equal(out.rows.length,3);assert.equal(out.rows.reduce((n,r)=>n+r.submittedCount,0),7);assert.equal(out.rows.find(r=>r.date==='2026-10-12').submittedCount,0);assert.doesNotMatch(JSON.stringify(out),/company|must not export/);assert.deepEqual(Object.keys(out.rows[0]),['date','workspaceId','revision','submittedCount']);
+ vm.runInContext('marketingSummarySelection=null',context);
+});

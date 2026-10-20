@@ -7,3 +7,13 @@ test('invalid snapshots and wrong workspaces are excluded',()=>{assert.equal(c.m
 test('laptop projection excludes demos, deduplicates URLs and preserves source',()=>{const state={batches:[{demo:true,roles:[{id:'demo',application:{status:'Applied',applied_date:'2026-10-13'}}]},{roles:[{id:'a',source_url:'https://example.invalid/a',application:{status:'Interview',applied_date:'2026-10-13'}},{id:'b',source_url:'https://example.invalid/a',application:{status:'Applied',applied_date:'2026-10-13'}}]}]};const before=JSON.stringify(state);assert.equal(c.marketingEvidenceLocalRows(state,3)[0].submittedCount,1);assert.equal(JSON.stringify(state),before);});
 test('draft posts and voided logs do not count as exposure',()=>{const m=c.marketingEvidenceModel('2026-10-13',[],[{date:'2026-10-13',type:'post',status:'draft'},{date:'2026-10-13',type:'message',voidedAt:'now'},{date:'2026-10-13',type:'post',status:'published'}]);assert.equal(m.marketActions,1);});
 test('integration projects counts without importing, saving or reading documents',()=>{for(const file of ['marketing-evidence.js','marketing-integration-ui.js']){const s=fs.readFileSync(file,'utf8');assert.doesNotMatch(s,/fetch\(|saveTasks\(|marketingWrite\(|localStorage|resume_attachment|contact_email/);}const html=fs.readFileSync('index.html','utf8');assert.ok(html.indexOf('marketing-evidence.js')<html.indexOf('launch.js'));assert.ok(html.indexOf('marketing-integration-ui.js')>html.indexOf('day-context.js'));});
+test('compact source panel separates unknown, received zero, unconfirmed receipt and pending save',()=>{
+ const cx=vm.createContext({document:{addEventListener(){}},renderLaunchView(){},renderLifeProgress(){},renderRewardV5(){},renderJournalRewards(){},setInterval(){},toDateKey:()=> '2026-10-19',escapeHtml:String,lifeStore:()=>({marketingSummaries:[]})});
+ vm.runInContext(['marketing-submissions.js','marketing-evidence.js','marketing-integration-ui.js'].map(f=>fs.readFileSync(f,'utf8')).join(';'),cx);
+ const markup=source=>{cx.testSource=source;vm.runInContext('marketingEvidenceSource=()=>testSource',cx);return cx.marketingEvidenceMarkup('progress');};
+ assert.match(markup({laptop:false,rows:[]}),/— applications/);
+ const row={date:'2026-10-19',revision:3,submittedCount:0};
+ const pending=markup({laptop:false,rows:[row]});assert.match(pending,/0 applications/);assert.match(pending,/receipt unconfirmed/);assert.doesNotMatch(pending,/data-evidence-disclosure="source" open/);
+ assert.match(markup({laptop:false,rows:[{...row,receivedAt:'2026-10-19T18:00:00Z'}]}),/Saved snapshot/);
+ assert.match(markup({laptop:true,connected:true,ready:true,dirty:true,revision:4,rows:[row]}),/Local save pending/);
+});
