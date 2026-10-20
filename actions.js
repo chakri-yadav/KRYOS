@@ -110,6 +110,7 @@ async function flushTaskCloudSync() {
     };
     saveSyncState();
     actionSyncState = 'synced';
+    globalThis.KryosVisualFoundation?.recordConfirmation?.('tasks',syncState.userId,accountMode,new Date().toISOString());
   } catch (error) {
     console.warn('KRYOS action auto-sync failed.', error);
     actionSyncState = 'error';

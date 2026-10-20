@@ -15,7 +15,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.50.0";
+const APP_VERSION = "0.51.0";
 const APP_STAGE = "Learning context and launch continuity";
 const APP_RELEASE_DATE = "2026-10-19";
 const APP_STATUS = "Remembered learning context and explicit next-action routes";
@@ -2823,6 +2823,7 @@ async function flushCareerCloudSync() {
     };
     saveSyncState();
     careerSyncState = "synced";
+    globalThis.KryosVisualFoundation?.recordConfirmation?.('career',syncState.userId,accountMode,new Date().toISOString());
   } catch (error) {
     console.warn("KRYOS career auto-sync failed.", error);
     careerSyncState = "error";
@@ -7585,10 +7586,12 @@ async function refreshCloudData({ automatic = false } = {}) {
           pendingCareerMigrationSync = false;
         }
         careerSyncState = "synced";
+        globalThis.KryosVisualFoundation?.recordConfirmation?.('career',syncState.userId,accountMode,new Date().toISOString());
       }
       if (updatedKeys.includes("tasks")) {
         taskState = loadTasks();
         if (typeof actionSyncState !== "undefined") actionSyncState = "synced";
+        globalThis.KryosVisualFoundation?.recordConfirmation?.('tasks',syncState.userId,accountMode,new Date().toISOString());
       }
       if (updatedKeys.includes("journal")) journalState = loadJournal();
       if (updatedKeys.includes("marketing")) {
@@ -8119,6 +8122,7 @@ function exportBackup() {
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
+  globalThis.kryosBackupDownloadReceipt={requestedAt:backup.exportedAt,formatVersion:backup.version,appVersion:APP_VERSION,accountMode};
   showSettingsNotice(`${getModeLabel()} backup exported.`);
 }
 

@@ -74,3 +74,13 @@
 #money-dialog input,#money-dialog select,#money-dialog textarea{border-color:var(--kryos-control-border);color:var(--kryos-text);background:var(--kryos-surface)}
 #money-dialog .money-form-error{color:var(--kryos-error);line-height:1.7}
 @media(max-width:760px){#money-view .money-command>div{padding:20px}#money-view .money-next-action{padding:20px}#money-view .money-premium-metrics{grid-template-columns:minmax(0,1fr)}#money-dialog .money-form-grid{grid-template-columns:minmax(0,1fr)}}
+/* Current balances and dated records remain visibly separate. */
+#money-view .money-next-action{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:24px;background:var(--kryos-positive-surface);border:1px solid var(--kryos-control-border);border-radius:var(--kryos-radius-surface);margin-block:20px}
+#money-view .money-next-action h2{font-size:25px;line-height:1.4;margin:8px 0;color:var(--kryos-text)}
+#money-view .money-next-action p{max-width:75ch;line-height:1.75;color:var(--kryos-text-secondary);font-size:15px}
+#money-view .money-record-tools summary,#money-view .money-dated-records summary{min-height:44px;padding-block:12px;cursor:pointer;font-weight:650}
+#money-view .money-dated-records{padding:18px 24px;border:1px solid var(--kryos-divider);border-radius:var(--kryos-radius-surface);background:var(--kryos-surface);margin-block:20px;line-height:1.7}
+#money-view .money-dated-records article{border-top:1px solid var(--kryos-divider);padding-block:16px;overflow-wrap:anywhere}
+#money-view .money-dated-records time{display:block;font-size:13px;color:var(--kryos-text-secondary)}
+#money-view .money-next-action button{min-height:44px;flex-shrink:0}
+@media(max-width:760px){#money-view .money-next-action{align-items:stretch;flex-direction:column;padding:20px}}

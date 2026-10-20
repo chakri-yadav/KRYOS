@@ -58,3 +58,15 @@
 .journal-resolution-confirm{background:var(--kryos-attention-surface);border-color:var(--kryos-attention);color:var(--kryos-text)}
 .journal-conflict-note{font-size:14px;color:var(--kryos-text-secondary);line-height:1.75}
 @media(max-width:760px){#settings-view .product-version-grid{grid-template-columns:minmax(0,1fr)}#settings-view>.product-identity-card,#settings-view .settings-flow-storage{padding:20px}}
+/* Save evidence is scoped to its destination; timestamps come from recorded receipts. */
+#settings-view .settings-storage-table-wrap{max-width:100%;overflow-x:auto;margin-top:20px}
+#settings-view .settings-storage-table{border-collapse:collapse;width:100%;text-align:left;line-height:1.7;font-size:14px}
+#settings-view .settings-storage-table caption{text-align:left;font-weight:650;padding-block:12px}
+#settings-view .settings-storage-table :is(td,th){vertical-align:top;padding:16px 12px;border-bottom:1px solid var(--kryos-divider);overflow-wrap:anywhere}
+#settings-view .settings-storage-table td span,#settings-view .settings-storage-table td small{display:block;margin-top:7px;color:var(--kryos-text-secondary)}
+#settings-view [data-settings-save-state=error] strong{color:var(--kryos-error)}
+#settings-view [data-settings-save-state=saving] strong{color:var(--kryos-attention)}
+#settings-view [data-settings-save-state=synced] strong{color:var(--kryos-positive)}
+#settings-view .settings-backup-evidence{padding-top:16px;margin-top:20px}
+#settings-view .settings-backup-evidence summary{min-height:44px;padding-block:12px;cursor:pointer;font-weight:650}
+#settings-view .settings-backup-evidence p{font-size:14px;line-height:1.8;overflow-wrap:anywhere}

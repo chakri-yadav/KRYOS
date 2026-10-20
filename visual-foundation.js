@@ -15,8 +15,12 @@ if(typeof KryosUI!=='undefined')KryosUI.claim('foundation.status','visual-founda
     if(phase==='synced'&&connected)return {state:'synced',label:'Cloud confirmed',detail:'This workspace’s latest sync completed. Other devices must receive the update before showing it.'};
     return {state:'local',label:connected?'Browser copy · cloud connected':'Browser copy · no cloud',detail:connected?'Signed in, but this workspace has not confirmed a current sync. Connection alone is not a save receipt.':'This workspace is held in this browser. Sign in through Settings to use cloud backup.'};
   }
-  root.KryosVisualFoundation={status};
-  if(typeof module==='object'&&module.exports)module.exports={status};
+  const confirmations=new Map();
+  const confirmationKey=(workspace,account,mode)=>[workspace,account,mode].join('|');
+  function recordConfirmation(workspace,account,mode,at){if(!account||!['tasks','career'].includes(workspace)||!at||!Number.isFinite(Date.parse(at)))return;confirmations.set(confirmationKey(workspace,account,mode),at);}
+  function confirmationFor(workspace,account,mode){return confirmations.get(confirmationKey(workspace,account,mode))||null;}
+  root.KryosVisualFoundation={status,recordConfirmation,confirmationFor};
+  if(typeof module==='object'&&module.exports)module.exports={status,recordConfirmation,confirmationFor};
 })(typeof globalThis!=='undefined'?globalThis:this);
 if(typeof document!=='undefined'){
   function foundationWorkspaceStatus(){
@@ -41,6 +45,7 @@ if(typeof document!=='undefined'){
       if(!details){details=document.createElement('details');details.className='foundation-storage-details';const summary=document.createElement('summary');summary.textContent='Save details';const text=document.createElement('p');details.append(summary,text);badge.insertAdjacentElement('afterend',details);}
       details.querySelector('p').textContent=status.detail;
     });
+    if(typeof settingsFlowRefreshStatus==='function')settingsFlowRefreshStatus();
   };
   actionSyncLabel=function(){return KryosVisualFoundation.status({phase:actionSyncState,dirty:actionSyncDirty,connected:syncState.status==='connected'&&!!syncState.userId,demo:isDemoMode()}).label;};
   careerSyncLabel=function(){return document.body.dataset.kryosStorage==='laptop'?KryosVisualFoundation.status({storage:'laptop',phase:careerSyncState==='error'?'error':careerSyncState==='saving'?'saving':typeof careerLocalReady!=='undefined'&&careerLocalReady?'connected':'checking',demo:isDemoMode()}).label:KryosVisualFoundation.status({phase:careerSyncState,dirty:careerSyncDirty,connected:syncState.status==='connected'&&!!syncState.userId,demo:isDemoMode()}).label;};

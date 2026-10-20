@@ -2,9 +2,9 @@
 
 ## Current scope and release
 
-The shared light-mode foundation, daily-use pages, learning continuity, local document controls and scoped analytics are delivered. Current scope and metric definitions: [analytics and evidence](../design/analytics-evidence.md). Next bounded slice: reward, money and settings clarity; domain rules remain unchanged. Dark-mode activation remains deferred.
+The shared light-mode foundation, daily-use pages, learning continuity, local document controls, scoped analytics and supporting-page clarity are delivered. Current scope: [supporting-page clarity](../design/supporting-page-clarity.md). Next bounded slice: explicit render composition and lifecycle; domain rules remain unchanged. Dark-mode activation remains deferred.
 
-Hosted application: **0.50.0**. Laptop application: **0.33.0**.
+Hosted application: **0.51.0**. Laptop application: **0.34.0**.
 These are independent release lines, not competing versions of the same deployment.
 
 The selected-day, journal-correction and guarded-conflict-resolution phase is **complete for the agreed desktop scope**. Phone acceptance is explicitly deferred by the owner and does not block desktop completion. This does not mean the entire product is finished or every legacy workflow has been revalidated.

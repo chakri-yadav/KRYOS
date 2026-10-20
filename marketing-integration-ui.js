@@ -21,7 +21,7 @@ function marketingEvidenceAttach(page,root){
  if(previous)previous.querySelectorAll('[data-evidence-disclosure]').forEach(d=>marketingEvidenceDisclosures.set(marketingEvidenceDisclosureKey(page,previous.dataset.evidenceDay,d.dataset.evidenceDisclosure),d.open));
  const html=marketingEvidenceMarkup(page);
  if(previous&&previous.outerHTML===html)return;
- const anchor=root.querySelector(page==='launch'?'.launch-flow-focus':page==='rewards'?'.reward-hero':'.progress-title');
+ const anchor=page==='rewards'?(root.querySelector('.reward-day-summary')||root.querySelector('.reward-hero')):root.querySelector(page==='launch'?'.launch-flow-focus':'.progress-title');
  if(!anchor)return;
  previous?.remove();anchor.insertAdjacentHTML('afterend',html);
 }

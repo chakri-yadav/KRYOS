@@ -223,6 +223,9 @@ function moneyCallFocus(settlement) {
 function renderMoneyView() {
   if (!moneyView) return;
   const settlement = moneySettlement(), live = settlement ? KryosMoneyEngine.position(settlement,moneyStore().ledgerEvents) : null, card = moneyLatestCard(), follow = moneyContactStatus(), contact = moneyLatestContact(), promise = moneyActivePromise();
+  moneyView.dataset.currentOwedCents=String(moneyCurrentOwed());
+  moneyView.dataset.currentResponsibility=String(!!settlement||moneyStore().responsibility.baselineOwedCents>0);
+  moneyView.dataset.currentBalanceSettled=String(live?live.friendCardCents===0&&live.directCents===0:moneyCurrentOwed()===0);
   if (moneyFocus === 'call') {
     moneyView.innerHTML = moneyCallFocus(settlement) + renderMoneyDialog();
   } else {

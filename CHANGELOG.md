@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.51.0 — Reward, finance and storage clarity
+
+- Reuse the shared selected-day summary beside current reward eligibility; show all blocking conditions and retained assessment changes.
+- Distinguish current finance positions from selected entry dates, retaining each distribution's existing ledger controls and exact cents.
+- Show destination-scoped save states, account-scoped confirmation times, backup receipts and honest restore-verification status.
+- Keep earning rules, catalogue, redemption retry protocol, financial calculations and storage boundaries unchanged.
+
 ## 0.50.0 — Scoped analytics and compact evidence
 
 - Aggregate charts expose contributing dated snapshots and distinguish unknown dates from received zeroes.
