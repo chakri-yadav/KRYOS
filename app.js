@@ -15,11 +15,11 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.51.0";
-const APP_STAGE = "Learning context and launch continuity";
+const APP_VERSION = "0.51.1";
+const APP_STAGE = "Explicit Settings render lifecycle";
 const APP_RELEASE_DATE = "2026-10-19";
-const APP_STATUS = "Remembered learning context and explicit next-action routes";
-const APP_NEXT_MILESTONE = "Application detail and document retrieval refinement";
+const APP_STATUS = "Stable editing context and single-owner Settings composition";
+const APP_NEXT_MILESTONE = "Continue page-by-page render lifecycle migration";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
   "Career remembers browser-only module/topic context and expanded panels, preserves session note drafts and resumes existing core steps without changing roadmap content. Launch offers an explicit work focus, routes speaking through existing rehearsal records and connects Marketing entry/Back through the shared router. Records, reward rules and storage boundaries are unchanged.",
@@ -7772,6 +7772,11 @@ function runSyncDryRun() {
 }
 
 function renderSettingsView() {
+  if(typeof settingsFlowRender==='function')return settingsFlowRender(renderSettingsBase);
+  return renderSettingsBase();
+}
+
+function renderSettingsBase() {
   settingsView.innerHTML = `
     <article class="settings-hero">
       <div>

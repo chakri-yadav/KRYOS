@@ -32,7 +32,12 @@
     }
     return {navigate,route:hash=>route(hash,io.pages,io.current()),clear(){positions.clear();generation++;}};
   }
-  const api=createOwnership();Object.assign(api,{createOwnership,createNavigation,route});
+  function composeRender(steps){
+    const view=steps.capture?.();
+    try{const model=steps.read?.();steps.base(model);steps.sections?.(model,view);}
+    finally{steps.restore?.(view);}
+  }
+  const api=createOwnership();Object.assign(api,{createOwnership,createNavigation,route,composeRender});
   root.KryosUI=api;
   if(typeof module==='object'&&module.exports)module.exports=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

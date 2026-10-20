@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.51.1 — Explicit Settings render lifecycle
+
+- Replace the Settings render wrapper with capture, model, base, owned sections and restore steps.
+- Preserve active editing drafts, text selection, focus, reading position and existing disclosures during refresh.
+- Keep session drafts account-scoped and preserve all domain save, scoring and storage behavior.
+- Begin the page-by-page composition migration; other page adapters and evidence polling remain unchanged.
+
 ## 0.51.0 — Reward, finance and storage clarity
 
 - Reuse the shared selected-day summary beside current reward eligibility; show all blocking conditions and retained assessment changes.

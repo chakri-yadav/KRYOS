@@ -38,19 +38,34 @@ function settingsFlowRefreshStatus(){
  const open=live.querySelector('.settings-backup-evidence')?.open;
  live.innerHTML=settingsFlowStateMarkup(settingsFlowSnapshot());if(open)live.querySelector('.settings-backup-evidence').open=true;
 }
-const settingsFlowOriginalRenderer=renderSettingsView;
-renderSettingsView=function(){
- const releaseOpen=settingsView?.querySelector('.settings-flow-release')?.open||false,backupOpen=settingsView?.querySelector('.settings-backup-evidence')?.open||false;
- settingsFlowOriginalRenderer();
+function settingsFlowCapture(){
+ const active=document.activeElement,inside=settingsView?.contains(active),fields=[];
+ if(inside&&active.matches('input,textarea'))for(const node of settingsView.querySelectorAll('input[id],textarea[id]')){
+  if(['file','checkbox','radio','button','submit','hidden'].includes(node.type))continue;
+  if(node===active||node.value!==node.defaultValue)fields.push({id:node.id,value:node.value,start:node.selectionStart,end:node.selectionEnd});
+ }
+ return {scope:settingsView?.dataset.settingsScope||'',fields,focus:inside?active.id:null,scroll:typeof currentPage!=='undefined'&&currentPage==='settings'?{x:window.scrollX,y:window.scrollY}:null,releaseOpen:settingsView?.querySelector('.settings-flow-release')?.open||false,backupOpen:settingsView?.querySelector('.settings-backup-evidence')?.open||false};
+}
+function settingsFlowRestore(view){
+ if(!view||view.scope!==((typeof accountMode==='string'?accountMode:'personal')+'|'+(typeof syncState==='object'?syncState.userId||'':'')))return;
+ for(const field of view.fields){const node=document.getElementById(field.id);if(!node||!settingsView.contains(node))continue;node.value=field.value;try{node.setSelectionRange(field.start,field.end);}catch{}}
+ const focus=view.focus&&document.getElementById(view.focus);if(focus&&settingsView.contains(focus))focus.focus({preventScroll:true});
+ if(view.scroll)window.scrollTo({left:view.scroll.x,top:view.scroll.y,behavior:'instant'});
+}
+function settingsFlowSections(snapshot,view){
  if(!settingsView)return;
+ settingsView.dataset.settingsScope=(typeof accountMode==='string'?accountMode:'personal')+'|'+(typeof syncState==='object'?syncState.userId||'':'');
  const identity=settingsView.querySelector('.product-identity-card');
  if(identity)settingsView.prepend(identity);
- identity?.insertAdjacentHTML('afterend',settingsFlowStorageMarkup(document.body.dataset.kryosStorage==='laptop',settingsFlowSnapshot()));
- if(backupOpen)settingsView.querySelector('.settings-backup-evidence').open=true;
+ identity?.insertAdjacentHTML('afterend',settingsFlowStorageMarkup(snapshot.laptop,snapshot));
+ if(view.backupOpen)settingsView.querySelector('.settings-backup-evidence').open=true;
  const notes=identity?.querySelector('.release-note-panel');
- if(notes)notes.outerHTML='<details class="settings-flow-release" '+(releaseOpen?'open':'')+'><summary>What changed in this release</summary>'+notes.outerHTML+'</details>';
+ if(notes)notes.outerHTML='<details class="settings-flow-release" '+(view.releaseOpen?'open':'')+'><summary>What changed in this release</summary>'+notes.outerHTML+'</details>';
  const exportButton=settingsView.querySelector('[data-settings-action="export-backup"]'),importButton=settingsView.querySelector('[data-settings-action="trigger-import"]');
  if(exportButton)exportButton.textContent='Download app-state JSON';if(importButton)importButton.textContent='Import app-state JSON';
  const copy=settingsView.querySelector('.backup-panel .meta');if(copy)copy.textContent='Active profile app-state JSON. Review the storage scopes and backup format above before importing. Laptop Marketing database/files are separate.';
-};
+}
+function settingsFlowRender(base){
+ return KryosUI.composeRender({capture:settingsFlowCapture,read:settingsFlowSnapshot,base,sections:settingsFlowSections,restore:settingsFlowRestore});
+}
 if(typeof settingsView!=='undefined'&&settingsView&&!settingsView.classList.contains('is-hidden'))renderSettingsView();
