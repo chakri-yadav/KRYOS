@@ -48,6 +48,19 @@ does not prove a personal record was saved.
 
 ## Deployment and recovery
 
+The laptop application workspace uses a per-render read snapshot and 50-result
+list windows, not truncated storage. Its IndexedDB recovery cache holds workspace
+JSON/metadata when browser key/value quota is insufficient; the local service
+database and files remain authoritative. Pending cache writes are not accepted
+service receipts. Unchanged revision polls and identifier-only date queries keep
+large workspace transfers bounded. Hosted Marketing does not load this adapter.
+
+The verified restore utility accepts a backup source and a separate new
+destination. It verifies database integrity, revision and document hashes before
+and after staging. Existing or active destinations are rejected. See
+[recovery and scale acceptance](../qa/recovery-scale-acceptance.md) for evidence,
+commands, benchmark limits and desktop-access coverage.
+
 Public changes originate only from the clean public engineering checkout.
 Never merge private pre-cleanup history into public branches. Public metadata
 uses technical feature descriptions and excludes personal imports and paths.

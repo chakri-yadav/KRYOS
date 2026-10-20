@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.52.0";
-const APP_STAGE = "Explicit page rendering and stable refresh";
+const APP_VERSION = "0.53.0";
+const APP_STAGE = "Verified recovery and scalable browsing";
 const APP_RELEASE_DATE = "2026-10-19";
-const APP_STATUS = "Ordered section owners, scoped editing context and notified local evidence";
-const APP_NEXT_MILESTONE = "Scale, recovery and accessibility acceptance";
+const APP_STATUS = "Bounded local results, verified restore and accessible entry dialogs";
+const APP_NEXT_MILESTONE = "User-led feedback and bounded product improvements";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Verified recovery, scalable local browsing and keyboard access. Bounded local result windows retain every matching record; large offline workspaces use a recoverable browser cache while laptop storage stays authoritative. Modal titles, Escape handling and historical date boundaries are corrected. Hosted Marketing remains aggregate-only; records, rules and storage ownership are unchanged.",
   "Pages use explicit, ordered presentation sections with shared editing-context protection. Refresh preserves focus, text selection, reading position and account-scoped drafts. Local application evidence follows saved-state notifications; hosted Marketing remains approved aggregate snapshots only. Scoring, financial calculations and storage ownership are unchanged.",
   "Career remembers browser-only module/topic context and expanded panels, preserves session note drafts and resumes existing core steps without changing roadmap content. Launch offers an explicit work focus, routes speaking through existing rehearsal records and connects Marketing entry/Back through the shared router. Records, reward rules and storage boundaries are unchanged.",
   "Journey cells distinguish unrecorded, edited and confirmed states with icons, dates and current-day outlines. Actions focus is presentation-only and aligns the next-action panel. Whole-row counters explain completion, reset and Undo; records, targets, rewards and storage boundaries are unchanged.",

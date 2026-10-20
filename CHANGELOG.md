@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.53.0 — Verified recovery and desktop access
+
+- Name modal entry dialogs and handle native Escape without stale dialog state.
+- Improve date-control focus and cancel delayed navigation restoration on new user intent.
+- Guard dates outside the configured cycle before reading cycle records.
+- Add a verified separate-directory recovery tool and measured desktop acceptance evidence.
+- Keep hosted Marketing aggregate-only; no local job records or files are published.
+
 ## 0.52.0 — Explicit page lifecycle and notified evidence refresh
 
 - Replace page-render wrapper chains with ordered, unique section owners and stable domain entries.
