@@ -102,7 +102,8 @@ function rewardTargetMessage(target, stats, eligibility) {
   if (eligibility.missingSpan) return `${missing} credits left · ${eligibility.missingSpan} calendar days still needed.`;
   return missing ? `${missing} credits left. Your recorded actions move this forward.` : 'Keep recording the requirement that unlocks this reward.';
 }
-function renderJournalRewards() {
+function renderJournalRewards() { return KryosUI.renders.run('rewards',renderJournalRewardsBase); }
+function renderJournalRewardsBase() {
   if(typeof renderRewardV4==='function')return renderRewardV4();
   if(typeof refreshAutomaticRewardAssessments==='function')refreshAutomaticRewardAssessments();
   const s=journalRewardStore(),stats=journalRewardStats(),c=covenantStats(),date=rewardSelectedDate||latestRewardEvidenceDate(),e=rewardEvidence(date),review=s.dailyAssessments.find(a=>a.date===date),gate=rewardQualification(e);

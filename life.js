@@ -300,7 +300,8 @@ function renderInnerCommandNextStep() {
   const next = innerCommandNextStep();
   return `<section class="command-next"><div><p class="section-kicker">THE NEXT RIGHT ACTION</p><span>${escapeHtml(next.area)}</span><h2>${escapeHtml(next.title)}</h2><p>${escapeHtml(next.detail)}</p></div><button class="primary-button" type="button" data-page="${next.page}"${next.page === 'career' ? ' data-page-target="career-current-focus"' : ''}>${escapeHtml(next.action)} <span aria-hidden="true">→</span></button></section>`;
 }
-function renderContainmentCovenant() {
+function renderContainmentCovenant() { return KryosUI.renders.run('command',renderContainmentCovenantBase); }
+function renderContainmentCovenantBase() {
   const store = lifeStore(), covenant = store.innerCommand.covenant, stats = innerCommandStats();
   const day = innerCommandDayNumber(), todayStatus = innerCommandStatus(toDateKey());
   const visibleDay = Math.max(0, Math.min(covenant.days, day));
@@ -325,7 +326,8 @@ function lifeClearDraft(date,store=lifeStore()){
   store.drafts ||= {};store.drafts[date]='';
   if((store.draftDate||toDateKey())===date)store.draft='';
 }
-function renderLifeJournal() {
+function renderLifeJournal() { return KryosUI.renders.run('journal',renderLifeJournalBase); }
+function renderLifeJournalBase() {
   const store = lifeStore();
   const today = typeof kryosSelectedDate==='function'?kryosSelectedDate():toDateKey();
   if(lifeTimelineDate!==today){lifeTimelineDate=today;lifeTimelineScope='day';lifeTimelineQuery='';}
@@ -373,7 +375,8 @@ function lifeDay(date) {
   const level = outcome ? 3 : minutes >= 25 || completed ? 2 : minutes >= 5 ? 1 : 0;
   return { date, minutes, reported, completed, outcome, level, records };
 }
-function renderLifeProgress() {
+function renderLifeProgress() { return KryosUI.renders.run('progress',renderLifeProgressBase); }
+function renderLifeProgressBase() {
   renderProgressDashboard();
 }
 document.addEventListener('input', e => {

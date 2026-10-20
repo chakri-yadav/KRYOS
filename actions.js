@@ -44,6 +44,9 @@ function actionSummary() {
 }
 
 function renderActionCard(action) {
+  return KryosUI.renders.run('action.card',renderActionCardBase,[action]);
+}
+function renderActionCardBase(action) {
   const deadline = actionDeadline(action);
   const priority = action.priority !== 'normal' ? `<span class="action-priority ${action.priority}">${actionPriorityLabel(action.priority)}</span>` : '';
   return `<article class="action-card priority-${action.priority} status-${action.status}" data-action-id="${action.id}">
@@ -64,6 +67,9 @@ function actionSyncLabel() {
 }
 
 function updateActionSyncIndicator() {
+  return KryosUI.renders.run('action.sync',updateActionSyncIndicatorBase);
+}
+function updateActionSyncIndicatorBase() {
   if (typeof updateGlobalCloudState === 'function') updateGlobalCloudState();
   const indicator = document.querySelector('#action-sync-state');
   if (!indicator) return;
@@ -126,7 +132,8 @@ function actionEditor() {
   return `<dialog class="action-dialog" id="action-edit-dialog"><form id="action-edit-form"><input type="hidden" name="actionId"><header><div><p class="section-kicker">EDIT ACTION</p><h2>Refine the commitment</h2></div><button type="button" class="dialog-close" data-dialog-close aria-label="Close editor" title="Close">&times;</button></header><div class="action-edit-fields"><label class="wide">Action<input name="title" required maxlength="180"></label><label class="wide">Smallest next action<input name="nextAction" maxlength="240"></label><label>Domain<select name="domain">${lifeOptions(LIFE_DOMAINS)}</select></label><label>Priority<select name="priority">${ACTION_PRIORITIES.map(priority => `<option value="${priority}">${actionPriorityLabel(priority)}</option>`).join('')}</select></label><label>Status<select name="status">${ACTION_STATUSES.map(status => `<option value="${status}">${actionStatusLabel(status)}</option>`).join('')}</select></label><label>Real deadline<input name="deadline" type="date"></label></div><footer><button type="button" class="danger-button" data-action-command="archive-editor">Remove from vault</button><span></span><button type="button" class="secondary-button" data-dialog-close>Cancel</button><button type="submit" class="primary-button">Save changes</button></footer></form></dialog>`;
 }
 
-function renderActionVault() {
+function renderActionVault() { return KryosUI.renders.run('actions',renderActionVaultBase); }
+function renderActionVaultBase() {
   const actions = [...actionVault()].sort(actionSort);
   const visible = actionFilter === 'all' ? actions.filter(action => action.status !== 'archived') : actions.filter(action => action.status === actionFilter);
   const summary = actionSummary();

@@ -114,6 +114,9 @@ function rhythmIcon(name) {
 }
 
 function renderRhythmHabit(habit, date) {
+  return KryosUI.renders.run('rhythm.habit',renderRhythmHabitBase,[habit,date]);
+}
+function renderRhythmHabitBase(habit, date) {
   const value = rhythmValue(habit.id, date);
   const target = rhythmTarget(habit);
   const done = value >= target;
@@ -128,6 +131,9 @@ function renderRhythmHabit(habit, date) {
 }
 
 function renderRhythmGroup(title, subtitle, habits, date, optional = false) {
+  return KryosUI.renders.run('rhythm.group',renderRhythmGroupBase,[title,subtitle,habits,date,optional]);
+}
+function renderRhythmGroupBase(title, subtitle, habits, date, optional = false) {
   const completed = habits.filter(habit => rhythmValue(habit.id, date) >= rhythmTarget(habit));
   const guidance = title === 'Care' ? 'Any 2 skincare steps complete this daily gate' : optional ? 'Any 2 distinct practices complete this daily gate' : '2 meals · protein · supplements · 3 L water';
   return `<section class="rhythm-routine-group ${optional ? 'is-optional' : ''}"><div class="rhythm-group-head"><div><span>${title}</span><p>${guidance}</p></div><strong>${completed.length}/${habits.length}</strong></div><div class="rhythm-item-grid">${habits.map(habit => renderRhythmHabit(habit, date)).join('')}</div><p class="rhythm-group-note">${completed.length} recorded · Select a completed tile to correct it.</p></section>`;
@@ -139,7 +145,8 @@ function renderRhythmConstellation() {
   return `<div class="rhythm-constellation" role="img" aria-label="Twenty-eight day Body, Care, and Spirit rhythm"><div class="rhythm-constellation-labels"><span>Body</span><span>Care</span><span>Spirit</span></div><div class="rhythm-constellation-grid">${days.map(day => `<button data-rhythm-date="${day.date}" aria-label="${day.date}: Body ${day.body}%, Care ${day.care}%, Spirit ${day.spirit}%"><i style="--depth:${day.body}%"></i><i style="--depth:${day.care}%"></i><i style="--depth:${day.spirit}%"></i><small>${getDateFromKey(day.date).getDate()}</small></button>`).join('')}</div></div>`;
 }
 
-function renderRhythmView() {
+function renderRhythmView() { return KryosUI.renders.run('rhythm',renderRhythmViewBase); }
+function renderRhythmViewBase() {
   if (!rhythmView) return;
   const today = toDateKey();
   const selectedDate = rhythmSelectedDate || today;

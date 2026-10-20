@@ -273,7 +273,8 @@ function marketingManualRoleForm() {
   </form>`;
 }
 
-function renderMarketingView() {
+function renderMarketingView() { return KryosUI.renders.run('marketing',renderMarketingViewBase); }
+function renderMarketingViewBase() {
   let data = marketingRead();
   if (!data.batches.length && getModeStorageValue(MARKETING_DEMO_DISMISSED_KEY) !== "true") {
     marketingImport({ format: "kryos-marketing-batch", version: 1, name: "10-role feature test batch", demo: true, roles: MARKETING_SAMPLE_ROLES.map(role => ({ ...role, demo: true })) });

@@ -36,8 +36,8 @@ function setup(overrides = {}) {
     getSupabaseClient: overrides.getSupabaseClient || (() => null),
     escapeHtml: String, formatDateKey: String,
   });
-  vm.runInContext(fs.readFileSync('reward-engine.js', 'utf8'), context);
-  vm.runInContext(fs.readFileSync('rewards.js', 'utf8'), context);
+  require('./ui-test-runtime.cjs').runInContext(fs.readFileSync('reward-engine.js', 'utf8'), context);
+  require('./ui-test-runtime.cjs').runInContext(fs.readFileSync('rewards.js', 'utf8'), context);
   return { context, store, taskState };
 }
 
@@ -176,7 +176,7 @@ test('empty cloud ledger reports a successful connection rather than appearing i
     getSupabaseClient: () => ({ rpc: async () => ({ data: { balance: 0, accepted: false }, error: null }) }),
   });
   await context.syncRewardLedger();
-  assert.equal(vm.runInContext('rewardCloudNotice', context), 'Cloud connected. Recorded evidence will sync automatically.');
+  assert.equal(require('./ui-test-runtime.cjs').runInContext('rewardCloudNotice', context), 'Cloud connected. Recorded evidence will sync automatically.');
 });
 
 test('48-day Commitment preserves aligned days without a manual final review', () => {

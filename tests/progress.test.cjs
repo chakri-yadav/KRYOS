@@ -11,8 +11,8 @@ function setup() {
       ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
       : '2026-09-19',
   });
-  vm.runInContext(`function lifeStore(){taskState.life ||= {entries:[],records:[],schedules:[]};return taskState.life}`, context);
-  vm.runInContext(fs.readFileSync('progress.js', 'utf8'), context);
+  require('./ui-test-runtime.cjs').runInContext(`function lifeStore(){taskState.life ||= {entries:[],records:[],schedules:[]};return taskState.life}`, context);
+  require('./ui-test-runtime.cjs').runInContext(fs.readFileSync('progress.js', 'utf8'), context);
   return context;
 }
 

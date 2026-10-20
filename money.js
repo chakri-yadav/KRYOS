@@ -220,7 +220,8 @@ function moneyCallFocus(settlement) {
       <aside class="money-focus-brief"><p class="section-kicker">FACTUAL BRIEF</p><h2>Keep these visible</h2><ol><li><strong>What he owes you directly</strong><span>${directText} exact, from the recorded ledger.</span></li><li><strong>What remains on Amex</strong><span>${live ? `${moneyAmount(live.friendCardCents)} is his recorded card share${live.unresolvedCents ? `; ${moneyAmount(live.unresolvedCents)} remains unresolved` : ''}.` : 'Add a reconciled card split to show this amount.'}</span></li><li><strong>What happens next</strong><span>${follow.label}. ${contact ? `Last contact ${moneyDateLabel(contact.date)}.` : 'No contact recorded yet.'}</span></li></ol>${promise ? `<div class="money-focus-promise">Recorded promise: ${moneyAmount(promise.promisedCents)} by ${moneyDateLabel(promise.promiseDate)} · ${moneyPromiseStatus(promise).label}</div>` : ''}</aside></div>${moneyLivingPosition(settlement)}${moneyCheckpointDetails(settlement)}</section>`;
 }
 
-function renderMoneyView() {
+function renderMoneyView() { return KryosUI.renders.run('money',renderMoneyViewBase); }
+function renderMoneyViewBase() {
   if (!moneyView) return;
   const settlement = moneySettlement(), live = settlement ? KryosMoneyEngine.position(settlement,moneyStore().ledgerEvents) : null, card = moneyLatestCard(), follow = moneyContactStatus(), contact = moneyLatestContact(), promise = moneyActivePromise();
   moneyView.dataset.currentOwedCents=String(moneyCurrentOwed());

@@ -5,7 +5,7 @@ const vm = require('node:vm');
 function setup(today='2026-09-17') {
   let count=0;
   const context = vm.createContext({taskState:{},document:{addEventListener(){}},toDateKey:date=>date?date.toISOString().slice(0,10):today,getDateFromKey:key=>new Date(`${key}T12:00:00`),addDays:(date,days)=>{const next=new Date(date);next.setDate(next.getDate()+days);return next;},createId:()=>String(++count),saveTasks(){},getBehavior:()=>({sessions:[],dailyPlans:{}})});
-  vm.runInContext(fs.readFileSync('life.js','utf8'),context);
+  require('./ui-test-runtime.cjs').runInContext(fs.readFileSync('life.js','utf8'),context);
   return context;
 }
 function pkg() {return {version:1,id:'page-1',date:'2026-09-17',text:'Walked 20 minutes.',records:[{title:'Walk',domain:'Movement',kind:'activity',completed:true,minutes:20,effort:3,evidence:'Walked 20 minutes.'}],actions:[{id:'renew-id',title:'Renew document',domain:'Personal tasks',priority:'important',nextAction:'Find requirements'}]};}

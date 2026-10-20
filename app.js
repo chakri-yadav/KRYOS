@@ -15,13 +15,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOdwQ361h33NsqnVZWRJXg_AJyNUhUk";
 const KRYOS_SYNC_SCHEMA_VERSION = 1;
 const KRYOS_BACKUP_VERSION = 3;
 const KRYOS_DAY_START_HOUR = 7;
-const APP_VERSION = "0.51.1";
-const APP_STAGE = "Explicit Settings render lifecycle";
+const APP_VERSION = "0.52.0";
+const APP_STAGE = "Explicit page rendering and stable refresh";
 const APP_RELEASE_DATE = "2026-10-19";
-const APP_STATUS = "Stable editing context and single-owner Settings composition";
-const APP_NEXT_MILESTONE = "Continue page-by-page render lifecycle migration";
+const APP_STATUS = "Ordered section owners, scoped editing context and notified local evidence";
+const APP_NEXT_MILESTONE = "Scale, recovery and accessibility acceptance";
 const SECURITY_ACTIVITY_WRITE_INTERVAL = 15000;
 const APP_RELEASE_NOTES = [
+  "Pages use explicit, ordered presentation sections with shared editing-context protection. Refresh preserves focus, text selection, reading position and account-scoped drafts. Local application evidence follows saved-state notifications; hosted Marketing remains approved aggregate snapshots only. Scoring, financial calculations and storage ownership are unchanged.",
   "Career remembers browser-only module/topic context and expanded panels, preserves session note drafts and resumes existing core steps without changing roadmap content. Launch offers an explicit work focus, routes speaking through existing rehearsal records and connects Marketing entry/Back through the shared router. Records, reward rules and storage boundaries are unchanged.",
   "Journey cells distinguish unrecorded, edited and confirmed states with icons, dates and current-day outlines. Actions focus is presentation-only and aligns the next-action panel. Whole-row counters explain completion, reset and Undo; records, targets, rewards and storage boundaries are unchanged.",
   "Daily corrections show the captured date and original values, retain drafts through updates, block stale changes and offer explicit refresh. Daily review links missing answers to their controls and refreshes stale result previews. Existing records, rules and synchronization ownership are preserved.",
@@ -4097,7 +4098,8 @@ function setFieldTab(nextTab) {
   renderFieldView();
 }
 
-function render() {
+function render() { return KryosUI.renders.run('app',renderBase); }
+function renderBase() {
   saveUiState();
   document.body.classList.toggle("demo-mode", isDemoMode());
   document.body.classList.toggle("marketing-mode", currentPage === "marketing");
@@ -4690,7 +4692,8 @@ function renderMapRow(item, type) {
   `;
 }
 
-function renderCareerView() {
+function renderCareerView() { return KryosUI.renders.run('career',renderCareerViewBase); }
+function renderCareerViewBase() {
   if (!selectedRoadmapId && careerState.roadmaps.length) {
     selectedRoadmapId = careerState.roadmaps[0].id;
   }
@@ -7771,7 +7774,8 @@ function runSyncDryRun() {
   render();
 }
 
-function renderSettingsView() {
+function renderSettingsView() { return KryosUI.renders.run('settings',renderSettingsViewBase); }
+function renderSettingsViewBase() {
   if(typeof settingsFlowRender==='function')return settingsFlowRender(renderSettingsBase);
   return renderSettingsBase();
 }
@@ -8376,6 +8380,9 @@ function renderRoadmapDetail(roadmap) {
 }
 
 function renderModuleBlock(roadmap, module, isEditing) {
+  return KryosUI.renders.run('career.module',renderModuleBlockBase,[roadmap,module,isEditing]);
+}
+function renderModuleBlockBase(roadmap, module, isEditing) {
   const stats = getModuleStats(module);
   const difficulty = Number(module.difficulty || 0);
   const deadline = getModuleDeadlineState(module);

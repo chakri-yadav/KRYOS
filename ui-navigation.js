@@ -2,8 +2,30 @@
 (function(){
   KryosUI.claim('navigation','ui-navigation.js',['visual-foundation.css']);
   const main=document.getElementById('app');
+  function viewScope(page){return JSON.stringify([typeof accountMode==='string'?accountMode:'personal',typeof syncState==='object'?syncState.userId||'':'',page==='marketing'?'independent':typeof kryosSelectedDate==='function'?kryosSelectedDate():'',page==='career'?selectedRoadmapId:page==='marketing'&&typeof marketingSelectedJobId!=='undefined'?marketingSelectedJobId:'']);}
+  function fieldSelector(node){
+    if(!node)return null;if(node.id)return '#'+CSS.escape(node.id);
+    const attrs=[...node.attributes].filter(a=>a.name==='name'||a.name.startsWith('data-'));
+    if(!attrs.length)return null;
+    let selector=node.tagName.toLowerCase()+attrs.map(a=>'['+a.name+'="'+CSS.escape(a.value)+'"]').join('');
+    const form=node.closest('form[id]');if(form)selector='#'+CSS.escape(form.id)+' '+selector;
+    return selector;
+  }
+  for(const page of APP_PAGES)KryosUI.renders.register(page,'view.editing-context',{order:-100,capture(){
+    const view=document.getElementById(page+'-view'),active=document.activeElement;
+    if(!view)return null;
+    const inside=view.contains(active),editing=inside&&active.matches('input:not([type=file]):not([type=password]):not([type=checkbox]):not([type=radio]),textarea');
+    return {scope:view.dataset.renderViewScope,selector:inside?fieldSelector(active):null,field:editing&&active.value!==active.defaultValue?{value:active.value,start:active.selectionStart,end:active.selectionEnd}:null,scroll:currentPage===page?{x:window.scrollX,y:window.scrollY,main:main?.scrollTop||0}:null,details:[...view.querySelectorAll('details[id]')].map(d=>({id:d.id,open:d.open}))};
+  },after(){const view=document.getElementById(page+'-view');if(view)view.dataset.renderViewScope=viewScope(page);},restore(state){
+    if(!state||state.scope!==viewScope(page))return;
+    const view=document.getElementById(page+'-view');if(!view)return;
+    for(const detail of state.details){const node=document.getElementById(detail.id);if(node&&view.contains(node))node.open=detail.open;}
+    const field=state.selector&&view.querySelector(state.selector);
+    if(field&&currentPage===page){if(state.field){field.value=state.field.value;try{field.setSelectionRange(state.field.start,state.field.end);}catch{}}field.focus({preventScroll:true});}
+    if(state.scroll&&currentPage===page){if(main)main.scrollTop=state.scroll.main;window.scrollTo({left:state.scroll.x,top:state.scroll.y,behavior:'instant'});}
+  }});
   // Only unsubmitted entry forms. Never replay autosaved records, passwords or file inputs.
-  const draftForms='[data-marketing-role-form],[data-marketing-activity-form],#commitment-task-form,#commitment-breach-form';
+  const draftForms='[data-marketing-role-form],[data-marketing-activity-form],#sadhana-task-form,#sadhana-breach-form';
   const formKey=form=>form.id||form.dataset.role||'new-marketing-role';
   function captureDrafts(page){
     const view=document.getElementById(page+'-view');
@@ -27,7 +49,7 @@
   }
   const nav=KryosUI.createNavigation({
     pages:[...APP_PAGES,'today','habits','focus','redirect','project','review'],
-    scope:()=>typeof isDemoMode==='function'&&isDemoMode()?'demo':'personal',
+    scope:()=>JSON.stringify([typeof accountMode==='string'?accountMode:'personal',typeof syncState==='object'?syncState.userId||'':'',typeof kryosSelectedDate==='function'?kryosSelectedDate():'']),
     current:()=>currentPage,
     capture:()=>({windowY:window.scrollY,mainY:main?.scrollTop||0,focusId:document.activeElement?.id||'',drafts:captureDrafts(currentPage)}),
     history:(page,target,replace)=>{
@@ -43,7 +65,7 @@
       document.querySelectorAll('.nav-item,.mobile-nav-item').forEach(button=>{
         if(button.dataset.page===page)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');
       });
-      if(['actions','career','rhythm','journal','settings','marketing'].includes(page))refreshCloudData({automatic:true});
+      if(['actions','career','rhythm','journal','settings'].includes(page))refreshCloudData({automatic:true});
       if(page==='rewards'&&typeof syncRewardLedger==='function')syncRewardLedger();
     },
     schedule:fn=>requestAnimationFrame(()=>requestAnimationFrame(fn)),

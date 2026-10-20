@@ -46,7 +46,7 @@ function loadMarketing(options = {}) {
   };
   context.globalThis = context;
   const source = fs.readFileSync('marketing.js', 'utf8');
-  vm.runInNewContext(`${source}\nglobalThis.__test = { MARKETING_SAMPLE_ROLES, marketingImport, marketingCreateRole, marketingRead, marketingSafeUrl, renderMarketingView, mergeMarketingSyncPayload, marketingValidateAttachment, marketingSaveAttachment, marketingGetFile, marketingRemoveAttachment, marketingFileId };`, context);
+  require('./ui-test-runtime.cjs').runInNewContext(`${source}\nglobalThis.__test = { MARKETING_SAMPLE_ROLES, marketingImport, marketingCreateRole, marketingRead, marketingSafeUrl, renderMarketingView, mergeMarketingSyncPayload, marketingValidateAttachment, marketingSaveAttachment, marketingGetFile, marketingRemoveAttachment, marketingFileId };`, context);
   return { api: context.__test, storage, listeners, blobs, failStorageWrite: value => context.__setStorageFailure(value) };
 }
 
