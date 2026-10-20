@@ -17,8 +17,7 @@
   root.kryosSelectedDate=()=>context.get().selectedDate;
   function connect(){const date=context.get().selectedDate;selectedTaskDate=date;selectedJournalDate=date;lifeSelectedDate=date;rhythmSelectedDate=date;rewardSelectedDate=date;commitmentDate=date;}
   commitmentSelected=()=>context.get().selectedDate;
-  const previousCovenant=renderContainmentCovenant;
-  renderContainmentCovenant=function(){const date=context.get().selectedDate;return date<KryosCommitment.cycle.dayZero||date>KryosCommitment.cycle.endDate?'<section class="command-paper"><h2>No battle in this cycle for the selected day</h2><p>Choose a day within the 48-day cycle to review its battle. Other dated records remain available.</p></section>':previousCovenant();};
+  KryosUI.renders.register('command','command.date-range',{order:10,after(_view,html){const date=context.get().selectedDate;return date<KryosCommitment.cycle.dayZero||date>KryosCommitment.cycle.endDate?'<section class="command-paper"><h2>No battle in this cycle for the selected day</h2><p>Choose a day within the 48-day cycle to review its battle. Other dated records remain available.</p></section>':html;}});
   function paint(){
     let bar=document.getElementById('shared-day-context');
     if(!bar){bar=document.createElement('section');bar.id='shared-day-context';bar.className='shared-day-context';bar.setAttribute('aria-label','Selected day across personal pages');document.querySelector('.topbar')?.after(bar);}
@@ -27,8 +26,7 @@
     bar.dataset.dateMode=state.isHistory?'history':state.isFuture?'future':'today';
     bar.innerHTML=`<div><strong>${state.isHistory?'Reviewing':state.isFuture?'Planning':'Today'} · ${label}</strong><small>${state.isHistory?'Changes belong to this date, not today.':state.isFuture?'Planning this date; completion rules remain unchanged.':'Personal pages share this date.'}</small></div><div class="shared-day-controls"><button type="button" data-shared-day-step="-1" aria-label="Previous day">‹</button><label><span class="sr-only">Choose a day</span><input type="date" data-shared-day-input value="${date}" aria-label="Choose a day"></label><button type="button" data-shared-day-step="1" aria-label="Next day">›</button><button type="button" data-shared-day-today>${state.isHistory||state.isFuture?'Return to today':'Today'}</button></div>`;
   }
-  const previousRender=render;
-  render=function(){connect();previousRender();paint();};
+  KryosUI.renders.register('app','day.context',{order:10,before:connect,after:paint});
   let restoringHistory=false;
   function rememberDay(replace=false){
     const value=context.get(),prior=window.history.state?.kryosDay;

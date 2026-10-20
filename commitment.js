@@ -16,7 +16,7 @@ function renderInnerCommandPurpose() {
   return `<section class="command-purpose"><div class="command-purpose-copy"><p class="section-kicker">MY PROMISE TO PERSONAL COMMITMENT</p><h1>Return with sincerity. Keep the promise.</h1><p>I begin again with sincere effort and structure. By keeping promises, I rebuild trust in myself, entrust my worries to Personal Commitment, take responsibility, and become capable of receiving and sustaining her blessings.</p><blockquote>My progress is internal: consistent practice, responsibility, and detachment. External outcomes do not decide my worth or today's battle.</blockquote></div></section>`;
 }
 function renderContainmentDialog() { return ''; }
-function renderContainmentCovenant() {
+function renderLegacyCommand() {
   const life=commitmentLife(),date=commitmentSelected(),d=KryosCommitment.day(life,date),r=KryosCommitment.evaluate(life,date),n=KryosCommitment.number(date);
   const future=date>KryosCommitment.today(),labels={open:future?'Open · planned day':'Open · '+(date<KryosCommitment.today()?'awaiting review':'in progress'),won:'Battle won','not-won':'Battle not won',preparation:'Day 0 · preparation'};
   const outline=KryosCommitment.items.filter(i=>i.type!=='guidance');
@@ -79,8 +79,6 @@ updateActionStatus=function(action,status){
   }
   return result;
 };
-const commitmentOriginalSyncIndicator=updateActionSyncIndicator;
-updateActionSyncIndicator=function(){commitmentOriginalSyncIndicator();const el=document.querySelector('#commitment-sync');if(el)el.textContent=actionSyncLabel();};
-const commitmentOriginalActionCard=renderActionCard;
-renderActionCard=function(action){const links=Object.values(commitmentLife().s\u0061dhana.days).flatMap(d=>d.tasks.filter(t=>t.actionId===action.id).map(t=>({date:d.date,task:t})));const html=commitmentOriginalActionCard(action);if(!links.length)return html;return html+`<div class="commitment-action-links">${links.map(({date,task})=>`<button class="secondary-button" data-commitment-open="${date}">Must-do · ${escapeHtml(date)}${task.kind==='quantity'?` · ${task.progress?.value||0}/${task.target}`:''}</button>`).join('')}</div>`;};
+KryosUI.renders.register('action.sync','command.sync',{order:10,after(){const el=document.querySelector('#commitment-sync');if(el)el.textContent=actionSyncLabel();}});
+KryosUI.renders.register('action.card','command.links',{order:10,after(_view,html,action){const links=Object.values(commitmentLife().s\u0061dhana.days).flatMap(d=>d.tasks.filter(t=>t.actionId===action.id).map(t=>({date:d.date,task:t})));if(!links.length)return html;return html+`<div class="commitment-action-links">${links.map(({date,task})=>`<button class="secondary-button" data-commitment-open="${date}">Must-do · ${escapeHtml(date)}${task.kind==='quantity'?` · ${task.progress?.value||0}/${task.target}`:''}</button>`).join('')}</div>`;}});
 document.addEventListener('click',event=>{const el=event.target.closest('[data-commitment-open]');if(el){commitmentDate=el.dataset.commitmentOpen;setPage('journal');}});

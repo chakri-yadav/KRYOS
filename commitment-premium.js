@@ -25,13 +25,15 @@ function commandTaskCard(task,life,date,future,nextId) {
   const done=KryosCommitment.taskComplete(task,life,date),value=task.progress?.value||0;
   return `<article class="command-task ${task.id===nextId?'is-next ':''}${done?'is-complete':''}">${task.id===nextId?'<span class="command-task-kicker">ONE NEXT ACTION</span>':''}<label class="command-check"><input type="checkbox" data-commitment-task="${escapeHtml(task.id)}" ${done?'checked':''} ${future?'disabled':''}><span>${escapeHtml(task.title)}</span></label>${task.kind==='quantity'?`<div class="command-quantity"><label><span>Completed total</span><span class="command-stepper"><button type="button" data-command-step="-1" data-task-id="${escapeHtml(task.id)}" ${future||value===0?'disabled':''} aria-label="Decrease ${escapeHtml(task.title)} total">−</button><input type="number" min="0" max="100000" value="${value}" data-commitment-count="${escapeHtml(task.id)}" ${future?'disabled':''} aria-label="Completed total for ${escapeHtml(task.title)}"><button type="button" data-command-step="1" data-task-id="${escapeHtml(task.id)}" ${future||value>=100000?'disabled':''} aria-label="Increase ${escapeHtml(task.title)} total">＋</button></span></label><span class="command-quantity-target">of ${task.target}</span></div><progress max="${task.target}" value="${Math.min(value,task.target)}" aria-label="${escapeHtml(task.title)} progress"></progress><div class="command-task-meta"><span>${Math.max(0,task.target-value)} remaining</span><span>Shared with Actions</span></div>`:'<p class="command-task-meta">One completion check · shared with Actions</p>'}${!done&&task.id!==nextId?`<button type="button" class="command-focus-button" data-command-focus="${escapeHtml(task.id)}">Focus on this</button>`:''}<details id="command-task-${escapeHtml(task.id)}" class="command-task-options"><summary>Task options</summary><button type="button" data-commitment-correct="${escapeHtml(task.id)}">Correct target</button><button type="button" data-page="actions">Open Actions</button></details></article>`;
 }
-function renderContainmentCovenant() {
+KryosUI.renders.setBase('command','command.reading',renderCommandReading);
+function commandDraftKey(date){return JSON.stringify([typeof accountMode==='string'?accountMode:'personal',typeof syncState==='object'?syncState.userId||'':'',date]);}
+function renderCommandReading() {
   const life=commitmentLife(),date=commitmentSelected(),today=KryosCommitment.today(),d=KryosCommitment.day(life,date),result=KryosCommitment.evaluate(life,date),n=KryosCommitment.number(date),future=date>today;
   const items=KryosCommitment.items.filter(i=>i.type!=='guidance'),confirmed=items.filter(i=>!!d.items[i.id]).length,next=d.tasks.find(t=>t.id===commandFocusedTasks.get(date)&&!KryosCommitment.taskComplete(t,life,date))||d.tasks.find(t=>!KryosCommitment.taskComplete(t,life,date));
   const pending=d.tasks.filter(t=>!KryosCommitment.taskComplete(t,life,date)),completed=d.tasks.filter(t=>KryosCommitment.taskComplete(t,life,date));
   const actions=life.actions.filter(a=>a.status!=='archived'&&!d.tasks.some(t=>t.actionId===a.id)),incidents=d.breaches.filter(b=>!b.correctedAt);
   const states={preparation:'Preparation',open:future?'Planned day':date<today?'Awaiting review':'Battle open',won:'Battle won','not-won':'Battle not won'};
-  return `<section class="command-premium-workspace" data-command-date="${date}"><div class="command-feedback" role="status">${escapeHtml(lifeNotice||'')}</div>
+  return `<section class="command-premium-workspace" data-command-date="${date}" data-command-scope="${escapeHtml(commandDraftKey(date))}"><div class="command-feedback" role="status">${escapeHtml(lifeNotice||'')}</div>
     ${n===0?`<div class="command-preparation"><div><strong>Read the promise. Prepare the first day.</strong><p>${escapeHtml(commandDateLabel(KryosCommitment.cycle.startDate))} begins the 48 counted days.</p></div><button type="button" class="primary-button" data-command-plan-first>Plan Day 1</button></div>`:''}
     <div class="command-premium-grid"><section class="command-paper command-must-do"><header><div><p class="section-kicker">${future?'PLAN YOUR COMMITMENTS':date<today?'YOUR RECORDED COMMITMENTS':'TURN THE PROMISE INTO ACTION'}</p><h2>${date<today?"That day's must-do":future?'Plan your must-do':"Today's must-do"}</h2></div><span>${result.complete} / ${result.total} complete</span></header><p class="command-must-do-explainer">Your chosen commitments for ${escapeHtml(commandDateLabel(date))}. Each is shared with Actions.</p>${d.tasks.length?`<div class="command-commitment-progress"><progress max="${d.tasks.length}" value="${completed.length}" aria-label="Completed must-do commitments"></progress><span>${pending.length?`${pending.length} left to finish`:'All commitments complete · daily outline still applies'}</span></div>`:''}
     ${d.tasks.length?`<div class="command-task-list">${[...pending.filter(t=>t.id===next?.id),...pending.filter(t=>t.id!==next?.id)].map(t=>commandTaskCard(t,life,date,future,next?.id)).join('')}${completed.length?`<details id="command-completed-tasks" class="command-completed-tasks"><summary>✓ Completed · ${completed.length}</summary>${completed.map(t=>commandTaskCard(t,life,date,future,null)).join('')}</details>`:''}</div>`:`<div class="command-empty"><span aria-hidden="true">＋</span><h3>${n===0?'Prepare your commitments':'What will you finish on this day?'}</h3><p>Your own commitments belong here. Add a task or link one from Actions.</p></div>`}
@@ -48,25 +50,26 @@ function renderContainmentCovenant() {
     ${renderCommandJourney(life,date,today)}
     <details id="command-history" class="command-history"><summary>Previous Commitment history and corrections</summary>${(life.s\u0061dhana.previousCycles||[]).map(c=>`<p>${escapeHtml(c.covenant.startDate)} – ${escapeHtml(c.covenant.endDate)} · ${c.records.length} preserved records</p>`).join('')}<p>${life.s\u0061dhana.history.length} changes recorded for this cycle.</p></details></section>`;
 }
-const commandPreviousJournalRenderer=renderLifeJournal;
-renderLifeJournal=function(){
+KryosUI.renders.register('journal','command.workspace',{order:10,capture(){
   const previous=document.querySelector('.command-premium-workspace');
   if(previous)commandOpenPanels=new Set([...previous.querySelectorAll('details[open][id]')].map(el=>el.id));
-  const previousDate=previous?.dataset.commandDate;
-  const drafts=commandFormDrafts.get(previousDate)||{};
+  const previousDate=previous?.dataset.commandDate,previousScope=previous?.dataset.commandScope;
+  const drafts=commandFormDrafts.get(previousScope)||{};
   previous?.querySelectorAll('form[id]').forEach(form=>{if(form.id===commandSubmittedForm&&lifeNotice.startsWith('Saved on this device.'))delete drafts[form.id];else drafts[form.id]=[...new FormData(form).entries()];});
-  if(previousDate)commandFormDrafts.set(previousDate,drafts);
+  if(previousScope)commandFormDrafts.set(previousScope,drafts);
   commandSubmittedForm='';
   const active=document.activeElement;let selector=null;
   if(active?.id==='commitment-date')selector='#commitment-date';
   else if(active?.dataset)for(const attr of ['commitmentItem','commitmentTask','commitmentCount','commandStep'])if(active.dataset[attr]){const dashed=attr.replace(/[A-Z]/g,c=>'-'+c.toLowerCase());selector=`[data-${dashed}="${CSS.escape(active.dataset[attr])}"]${active.dataset.taskId?`[data-task-id="${CSS.escape(active.dataset.taskId)}"]`:''}`;break;}
   const y=window.scrollY,main=document.querySelector('#app'),scrollTop=main?.scrollTop||0;
-  commandPreviousJournalRenderer();
+
+return {previous,previousScope,selector,y,main,scrollTop};
+},after({previous,previousScope,selector,y,main,scrollTop}){
   document.querySelector('.command-premium-workspace')?.querySelectorAll('details[id]').forEach(el=>el.open=commandOpenPanels.has(el.id));
-  const restored=commandFormDrafts.get(commitmentSelected())||{};
+  const restored=commandFormDrafts.get(commandDraftKey(commitmentSelected()))||{};
   for(const [id,entries] of Object.entries(restored)){const form=document.getElementById(id);if(!form)continue;for(const element of form.elements){if(!element.name)continue;const values=entries.filter(([name])=>name===element.name).map(([,value])=>value);if(element.type==='checkbox')element.checked=values.includes(element.value);else if(values.length)element.value=values[0];}const target=form.querySelector('.command-target-field');if(target)target.hidden=form.elements.kind.value!=='quantity';}
-  if(previous)requestAnimationFrame(()=>{window.scrollTo({top:y,behavior:'instant'});if(main)main.scrollTop=scrollTop;if(selector)document.querySelector(selector)?.focus({preventScroll:true});});
-};
+  if(previous&&previousScope===commandDraftKey(commitmentSelected()))KryosUI.renders.schedule('journal',()=>{window.scrollTo({top:y,behavior:'instant'});if(main)main.scrollTop=scrollTop;if(selector)document.querySelector(selector)?.focus({preventScroll:true});});
+}});
 document.addEventListener('change',event=>{if(event.target.matches('[data-command-kind]'))event.target.closest('form').querySelector('.command-target-field').hidden=event.target.value!=='quantity';});
 document.addEventListener('submit',event=>{if(event.target.closest('.command-premium-workspace'))commandSubmittedForm=event.target.id;},true);
 if(typeof KryosDailyCorrections!=='undefined')KryosDailyCorrections.install({prefix:'commitment',getDate:commitmentSelected,getDay:date=>KryosCommitment.day(commitmentLife(),date),mutate:commitmentMutate,items:KryosCommitment.items,label:commandDateLabel});

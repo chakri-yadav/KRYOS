@@ -1,3 +1,4 @@
+import uiTestRuntime from './ui-test-runtime.cjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -9,7 +10,7 @@ function setup(date){
   const life={actions:[]};C.ensure(life);
   const handlers=[],writes=[];
   const context={KryosCommitment:{...C,today:()=> '2026-10-19'},commitmentSelected:()=>date,commitmentLife:()=>life,lifeNotice:'',escapeHtml:value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),actionSyncLabel:()=> 'Saved on device',renderLifeJournal(){},renderContainmentCovenant(){},document:{addEventListener:(type,handler)=>handlers.push({type,handler})},commitmentMutate:operation=>writes.push(operation)};
-  context.KryosDailyPresentation=globalThis.KryosDailyPresentation;vm.createContext(context);vm.runInContext(fs.readFileSync(new URL('../commitment-premium.js',import.meta.url),'utf8'),context);
+  context.KryosDailyPresentation=globalThis.KryosDailyPresentation;vm.createContext(context);uiTestRuntime.runInContext(fs.readFileSync(new URL('../commitment-premium.js',import.meta.url),'utf8'),context);
   return {context,life,handlers,writes};
 }
 test('preparation hides the internal start hour; first day shows the correct Sunday',()=>{

@@ -10,7 +10,8 @@ test('routine late entry uses selected day, preserves identity and ignores dupli
  assert.throws(()=>context.rhythmSetValue('water',1,'2026-10-18'));
 });
 test('action completion passes selected occurrence day to linked commitments once',()=>{
- const source=fs.readFileSync('commitment.js','utf8'),start=source.indexOf('const commitmentOriginalActionStatus='),end=source.indexOf('const commitmentOriginalSyncIndicator=',start);
+ const source=fs.readFileSync('commitment.js','utf8'),start=source.indexOf('const commitmentOriginalActionStatus='),end=source.indexOf("KryosUI.renders.register('action.sync'",start);
+ assert.ok(end>start);
  const dates=[],life={},context={updateActionStatus:(action,status)=>{action.status=status;return true;},KryosCommitment:{today:()=> '2026-10-17',actionChanged:(_,action,date)=>{dates.push(date);action.completedDate=date;}},commitmentLife:()=>life,saveTasks(){},kryosSelectedDate:()=> '2026-10-14',alert(){}};
  vm.createContext(context);vm.runInContext(source.slice(start,end),context);
  const action={id:'fixture',status:'open'};context.updateActionStatus(action,'done');context.updateActionStatus(action,'done');

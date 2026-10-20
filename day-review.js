@@ -13,16 +13,15 @@
     return {day,missing,previous,pending,result,error};
   }
   window.KryosDayReview={model};
-  const base=renderContainmentCovenant;
-  renderContainmentCovenant=function(){
-    let html=base(),date=commitmentSelected();
+  KryosUI.renders.register('command','command.review',{order:20,after(_view,html){
+    let date=commitmentSelected();
     if(date<KryosCommitment.cycle.dayZero||date>KryosCommitment.cycle.endDate)return html;
     const m=model(commitmentLife(),date),today=KryosCommitment.today(),preparation=date===KryosCommitment.cycle.dayZero;
     const label=preparation?'Preparation':date>today?'Planned day':date===today?'In progress':m.pending?'Changes need confirmation':m.previous==='won'?'Battle won':m.previous==='not-won'?'Battle not won':m.missing.length||!m.day.planSet?'Needs answers':'Ready to review';
     const start=html.indexOf('<section class="command-battle '),end=html.indexOf('</section>',start);
     if(start>=0&&end>=0)html=html.slice(0,start)+`<section class="command-battle ${m.pending?'open':m.previous||'open'}" data-command-state="${preparation?'preparation':date>today?'planned':date===today?'in-progress':m.pending?'awaiting-review':m.previous||'awaiting-review'}"><div><p class="section-kicker">${escapeHtml(commandDateLabel(date))}</p><h2 role="status">${label}</h2><p class="command-result-summary">${m.day.tasks.filter(t=>KryosCommitment.taskComplete(t,commitmentLife(),date)).length}/${m.day.tasks.length} must-do complete · ${KryosCommitment.items.filter(i=>i.type!=='guidance').length-m.missing.length}/${KryosCommitment.items.filter(i=>i.type!=='guidance').length} daily requirements answered</p><p>${m.pending?'Your edits are recorded for this date. Review and confirm the revised result.':m.previous?'This day has a confirmed result. You can review and correct its records.':'Review your commitments and daily requirements. KRYOS will explain the result.'}</p>${m.pending&&m.previous?`<small>Previous confirmed result: ${m.previous==='won'?'Battle won':'Battle not won'}</small>`:''}${m.previous&&!m.pending&&KryosCommitment.evaluate(commitmentLife(),date).reasons.length?`<ul class="command-result-reasons">${KryosCommitment.evaluate(commitmentLife(),date).reasons.map(reason=>`<li>${escapeHtml(reason)}</li>`).join('')}</ul>`:''}<small>${escapeHtml(actionSyncLabel())}</small></div><div><button class="primary-button" type="button" data-guided-review ${preparation||date>=today?'disabled':''}>${m.previous?'Review this day again':'Review this day'}</button><small>${preparation?'Preparation has no battle result.':date>=today?'Available after this day ends.':'Late entry belongs to the day it happened.'}</small></div></section>`+html.slice(end+10);
     return html;
-  };
+  }});
   const baseJourney=commandJourneyModel;
   commandJourneyModel=function(life,today){return baseJourney(life,today).map(d=>d.date<today&&model(life,d.date).pending?{...d,state:'awaiting-review'}:d);};
   let dialog,date,step=0,previewRevision,returnFocus;

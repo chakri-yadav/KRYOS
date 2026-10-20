@@ -5,7 +5,7 @@ const C=globalThis.KryosCommitment;
 function setup(date='2026-10-18'){
  const life={actions:[]};C.ensure(life);const handlers=[],dates=[];
  const context={KryosDailyPresentation:require('../daily-presentation.js'),KryosCommitment:{...C,today:()=> '2026-10-19'},commitmentSelected:()=>date,commitmentLife:()=>life,lifeNotice:'',escapeHtml:s=>String(s).replaceAll('<','&lt;'),actionSyncLabel:()=> 'Saved in fixture',renderLifeJournal(){},document:{addEventListener:(type,handler)=>handlers.push({type,handler}),querySelector:()=>null},KryosDayContext:{set:d=>dates.push(d)}};
- vm.createContext(context);vm.runInContext(read('commitment-premium.js'),context);return {context,life,handlers,dates};
+ vm.createContext(context);require('./ui-test-runtime.cjs').runInContext(read('commitment-premium.js'),context);return {context,life,handlers,dates};
 }
 test('daily composition places commitments and outline before result and journey',()=>{
  const {context}=setup(),html=context.renderContainmentCovenant();

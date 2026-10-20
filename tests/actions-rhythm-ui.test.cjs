@@ -3,7 +3,7 @@ function setup(){
  const handlers=[],writes=[],habits=[{id:'water',title:'Water',target:3,step:.5},{id:'\u0061\u0064\u0069\u0074\u0079\u0061',title:'Counted Practice B',target:3},{id:'meal',title:'<Meal>',cadence:'daily'},{id:'exercise',title:'Exercise',target:2}];
  const values={water:3,a\u0064itya:3,meal:1,exercise:0};
  const context={KryosDailyPresentation:require('../daily-presentation.js'),document:{addEventListener:(type,handler)=>handlers.push({type,handler})},renderActionCard:a=>`<article><h3>${a.title}</h3>${a.deadline?`<time class="deadline-overdue" datetime="${a.deadline}">1d overdue</time>`:''}${a.nextAction?`<p><span>Next step</span>${a.nextAction}</p>`:''}<div class="action-controls"></div></article><div class="commitment-action-links">shared-id</div>`,renderRhythmView(){},updateActionSyncIndicator(){},rhythmValue:id=>values[id]||0,rhythmTarget:h=>h.target||1,rhythmIcon:()=>'',escapeHtml:s=>String(s).replaceAll('<','&lt;').replaceAll('>','&gt;'),rhythmHabit:id=>habits.find(h=>h.id===id),rhythmSetValue:(id,value,date)=>writes.push({id,value,date}),actionSyncLabel:()=> 'Cloud confirmation pending',actionVault:()=>[],updateActionStatus(){},renderActionVault(){},toDateKey:()=> '2026-10-11',rhythmSelectedDate:'2026-10-10'};
- vm.createContext(context);vm.runInContext(fs.readFileSync(require('node:path').join(__dirname,'../actions-rhythm-ui.js'),'utf8'),context);
+ vm.createContext(context);require('./ui-test-runtime.cjs').runInContext(fs.readFileSync(require('node:path').join(__dirname,'../actions-rhythm-ui.js'),'utf8'),context);
  context.renderRhythmView=()=>{};
  return {context,handlers,writes,habits};
 }
