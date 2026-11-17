@@ -1,0 +1,10 @@
+.hr-directory { padding: 16px 20px; border: 1px solid #d6dfd7; border-radius: 16px; background: #f6f8f4; color: #183326; }
+.hr-directory h2 { margin: 16px 0 10px; }
+.hr-directory [hidden] { display: none !important; }
+.hr-actions,.hr-fields { display: flex; flex-wrap: wrap; gap: 12px; margin-block: 12px; }
+.hr-fields label { flex: 1 1 205px; display: grid; gap: 4px; }
+.hr-directory input,.hr-directory select,.hr-directory textarea { min-height: 42px; padding: 7px 10px; border: 1px solid #8b9d90; border-radius: 8px; background: #fff; color: #183326; }
+.hr-directory button { min-height: 40px; cursor: pointer; }
+.hr-directory form { border: 1px solid #c6d5cb; border-radius: 12px; padding: 16px; margin-block: 16px; background:#fff; }
+.hr-directory pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.hr-result { display: grid; gap: 4px; width:100%; text-align:left; padding: 10px; margin-block: 6px; background:#fff; color:#183326; border:1px solid #c6d5cb; border-radius:8px; }
