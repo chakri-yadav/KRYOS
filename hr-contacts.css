@@ -1,4 +1,20 @@
-.hr-directory { padding: 16px 20px; border: 1px solid #d6dfd7; border-radius: 16px; background: #f6f8f4; color: #183326; }
+.hr-directory {
+  padding: clamp(16px, 3vw, 26px);
+  border: 1px solid #e1e9e5;
+  border-radius: 20px;
+  background: #fff;
+  color: #183326;
+  box-shadow: 0 16px 44px rgb(24 62 46 / 5%);
+}
+.hr-directory:has([data-hr-panel][hidden]) { padding-block: 10px; background: #f6f8f4; box-shadow: none; }
+.hr-heading { padding: 18px 0 4px; }
+.hr-heading p:last-child,.hr-empty,.hr-result span { color: #51665a; }
+.hr-heading h2 { font-size: clamp(1.55rem, 3vw, 2rem); letter-spacing: -.035em; }
+.hr-directory [data-hr-status]:empty { display: none; }
+.hr-directory [data-hr-status] { padding: 10px 14px; background: #edf4ee; border-radius: 8px; }
+.hr-directory :focus-visible { outline: 2px solid #286243; outline-offset: 3px; }
+.hr-result:hover { background: #f1f6f2; border-color: #779683; }
+.hr-empty { padding: 20px 0; }
 .hr-directory h2 { margin: 16px 0 10px; }
 .hr-directory [hidden] { display: none !important; }
 .hr-actions,.hr-fields { display: flex; flex-wrap: wrap; gap: 12px; margin-block: 12px; }

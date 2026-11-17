@@ -4,6 +4,12 @@
   const fields = {name:'Name', company:'Company', role:'Role', email:'Work email', phone:'Phone', linkedin:'LinkedIn URL', note:'How I know them', next:'Next step', due:'Follow-up date'};
   const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   let records = [], selected = '', linkedJob = '', filter = 'active', query = '', session, busy = false;
+  let editingRevision = 0;
+  const canonical = value => Array.isArray(value) ? value.map(canonical)
+    : value && typeof value === 'object'
+      ? Object.fromEntries(Object.keys(value).sort().map(key => [key,canonical(value[key])]))
+      : value;
+  const samePayload = (a,b) => JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));
   const node = () => document.querySelector('[data-hr-directory]');
   const today = () => new Intl.DateTimeFormat('sv-SE',{timeZone:'America/Chicago'}).format(new Date());
   async function local(method = 'GET', body) {
@@ -25,6 +31,8 @@
     }
   }
   async function cloudWrite(id, payload, base) {
+    const active = await getSupabaseSession();
+    if (!session?.user || active?.user?.id !== session.user.id) throw Error('Your account changed. Reopen HR Contacts to continue.');
     const table = getSupabaseClient().from('hr_contacts');
     const owner = session.user.id;
     const write = base ? table.update({payload,revision:base+1}).eq('owner',owner).eq('id',id).eq('revision',base)
@@ -45,6 +53,7 @@
   }
   async function sync() {
     const remote = new Map((await cloudList()).map(row => [row.id,row]));
+    records = await local();
     const account = session.user.id;
     if (records.some(row => row.account && row.account !== account)) throw Error('This directory is connected to a different account.');
     let conflicts = 0;
@@ -52,7 +61,7 @@
       const other = remote.get(row.id);
       remote.delete(row.id);
       if (row.dirty && (other?.revision || 0) !== (row.cloudRevision || 0)) {
-        if (other && JSON.stringify(other.payload,Object.keys(other.payload).sort()) === JSON.stringify(row.payload,Object.keys(row.payload).sort()) && !other.payload.events && !row.payload.events) {
+        if (other && samePayload(other.payload,row.payload)) {
           await local('POST',{...other,expected:row.revision,cloudRevision:other.revision,account,dirty:false});
           continue;
         }
@@ -75,12 +84,13 @@
       && (filter !== 'due' || (p.due && p.due <= today()))
       && [p.name,p.company,p.role,p.email,p.phone,p.linkedin].some(v => String(v || '').toLowerCase().includes(query)))
       .sort((a,b) => filter === 'due' ? a.payload.due.localeCompare(b.payload.due) : label(a.payload).localeCompare(label(b.payload)));
-    list.innerHTML = rows.map(({id,payload:p}) => '<button type="button" class="hr-result" data-hr-open="'+escape(id)+'"><strong>'+escape(label(p))+'</strong><span>'+escape([p.company,p.due && 'Follow up '+p.due,p.dirty && 'Waiting to sync'].filter(Boolean).join(' · ') || p.note || p.role || '')+'</span></button>').join('') || '<p>No contacts in this view.</p>';
+    list.innerHTML = rows.map(({id,dirty,payload:p}) => '<button type="button" class="hr-result" data-hr-open="'+escape(id)+'"><strong>'+escape(label(p))+'</strong><span>'+escape([p.company,p.due && 'Follow up '+p.due,dirty && 'Waiting to sync'].filter(Boolean).join(' · ') || p.note || p.role || '')+'</span></button>').join('') || '<p class="hr-empty">No contacts in this view.</p>';
   }
   const label = p => p.name || p.email || p.phone || p.linkedin || (p.deleted ? 'Pending deletion' : '');
   function edit(id = '') {
     selected = id;
     const row = records.find(item => item.id === id);
+    editingRevision = row?.revision || 0;
     const p = row?.payload || {};
     const form = node().querySelector('[data-hr-form]');
     form.hidden = false;
@@ -97,6 +107,7 @@
   }
   async function save(payload,id = selected,jobIds) {
     const row = records.find(item => item.id === id);
+    if (id === selected && (row?.revision || 0) !== editingRevision) throw Error('This contact changed. Close and reopen it before saving.');
     if (laptop) await local('POST',{id,payload,expected:row?.revision || 0,cloudRevision:row?.cloudRevision || 0,account:row?.account,dirty:true,jobIds});
     else await cloudWrite(id,payload,row?.revision || 0);
     await load();
@@ -105,7 +116,11 @@
   async function run(action) {
     if (busy) return;
     busy = true;
-    try { await action(); } catch(error) { message(error.message); } finally { busy = false; }
+    node()?.setAttribute('aria-busy','true');
+    try { await action(); } catch(error) { message(error.message); } finally {
+      busy = false;
+      node()?.removeAttribute('aria-busy');
+    }
   }
   document.addEventListener('input', e => {
     if (!e.target.matches('[data-hr-search]')) return;
@@ -119,6 +134,7 @@
   });
   document.addEventListener('click', e => {
     const button = e.target.closest('button');
+    if (busy) return;
     if (laptop && button?.dataset.hrLinkJob && node()) {
       linkedJob = button.dataset.hrLinkJob;
       node().querySelector('[data-hr-panel]').hidden = false;
@@ -137,7 +153,13 @@
       filter = node().querySelector('[data-hr-filter]').value;
       query = node().querySelector('[data-hr-search]').value.trim().toLowerCase();
       button.setAttribute('aria-expanded', String(!panel.hidden));
-      if (!panel.hidden) run(load);
+      if (!panel.hidden) {
+        records = [];
+        selected = '';
+        node().querySelector('[data-hr-form]').hidden = true;
+        drawList();
+        run(load);
+      }
     }
     if ('hrAdd' in d) edit();
     if (d.hrOpen) edit(d.hrOpen);
@@ -204,5 +226,5 @@
       node()?.querySelector('[data-hr-add]')?.focus();
     });
   });
-  window.kryosHRContacts = () => '<section class="hr-directory" data-hr-directory><button type="button" class="secondary-button" data-hr-toggle aria-expanded="false">HR Contacts</button><div data-hr-panel hidden><h2>HR Contacts</h2><div class="hr-actions"><button type="button" class="secondary-button" data-hr-add>Add contact</button>'+ (laptop?'<button type="button" data-hr-sync>Sync HR contacts</button>':'')+'</div><p role="status" data-hr-status></p><div class="hr-fields"><label>Search contacts<input type="search" data-hr-search placeholder="Name, company, email or phone"></label><label>View<select data-hr-filter><option value="active">All contacts</option><option value="due">Follow-ups due</option><option value="archive">Archive</option>'+(laptop?'<option value="pending">Waiting to sync</option>':'')+'</select></label></div><form data-hr-form hidden></form><div data-hr-list></div></div></section>';
+  window.kryosHRContacts = () => '<section class="hr-directory" data-hr-directory><button type="button" class="secondary-button" data-hr-toggle aria-expanded="false">HR Contacts</button><div data-hr-panel hidden><header class="hr-heading"><p class="marketing-section-label">RECRUITING DIRECTORY</p><h2>HR Contacts</h2><p>Save recruiters and hiring contacts, then pick up where you left off.</p></header><div class="hr-actions"><button type="button" class="secondary-button" data-hr-add>Add contact</button>'+ (laptop?'<button class="secondary-button" type="button" data-hr-sync>Sync HR contacts</button>':'')+'</div><p role="status" data-hr-status></p><div class="hr-fields"><label>Search contacts<input type="search" data-hr-search placeholder="Name, company, email or phone"></label><label>View<select data-hr-filter><option value="active">All contacts</option><option value="due">Follow-ups due</option><option value="archive">Archive</option>'+(laptop?'<option value="pending">Waiting to sync</option>':'')+'</select></label></div><form data-hr-form hidden></form><div data-hr-list></div></div></section>';
 })();
