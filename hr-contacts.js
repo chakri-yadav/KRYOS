@@ -49,33 +49,7 @@
   async function load() {
     records = laptop ? await local() : await cloudList();
     drawList();
-    message(laptop ? (records.some(row => row.dirty) ? 'Saved on this laptop. Changes available to sync.' : 'Saved on this laptop.') : 'Connected to your account.');
-  }
-  async function sync() {
-    const remote = new Map((await cloudList()).map(row => [row.id,row]));
-    records = await local();
-    const account = session.user.id;
-    if (records.some(row => row.account && row.account !== account)) throw Error('This directory is connected to a different account.');
-    let conflicts = 0;
-    for (const row of records) {
-      const other = remote.get(row.id);
-      remote.delete(row.id);
-      if (row.dirty && (other?.revision || 0) !== (row.cloudRevision || 0)) {
-        if (other && samePayload(other.payload,row.payload)) {
-          await local('POST',{...other,expected:row.revision,cloudRevision:other.revision,account,dirty:false});
-          continue;
-        }
-        conflicts++;
-        continue;
-      }
-      if (row.dirty || !other || other.revision !== row.cloudRevision) {
-        const shared = row.dirty || !other ? await cloudWrite(row.id,row.payload,row.cloudRevision || 0) : other;
-        await local('POST',{...shared,expected:row.revision,cloudRevision:shared.revision,account,dirty:false});
-      }
-    }
-    for (const row of remote.values()) await local('POST',{...row,expected:0,cloudRevision:row.revision,account,dirty:false});
-    await load();
-    message(conflicts ? conflicts+' contacts have competing edits. Open a contact to review and resolve them.' : 'Synced with your account.');
+    message(laptop ? 'Saved on this laptop.' : 'Connected to your account.');
   }
   function drawList() {
     const list = node()?.querySelector('[data-hr-list]');
@@ -84,7 +58,7 @@
       && (filter !== 'due' || (p.due && p.due <= today()))
       && [p.name,p.company,p.role,p.email,p.phone,p.linkedin].some(v => String(v || '').toLowerCase().includes(query)))
       .sort((a,b) => filter === 'due' ? a.payload.due.localeCompare(b.payload.due) : label(a.payload).localeCompare(label(b.payload)));
-    list.innerHTML = rows.map(({id,dirty,payload:p}) => '<button type="button" class="hr-result" data-hr-open="'+escape(id)+'"><strong>'+escape(label(p))+'</strong><span>'+escape([p.company,p.due && 'Follow up '+p.due,dirty && 'Waiting to sync'].filter(Boolean).join(' · ') || p.note || p.role || '')+'</span></button>').join('') || '<p class="hr-empty">No contacts in this view.</p>';
+    list.innerHTML = rows.map(({id,dirty,payload:p}) => '<button type="button" class="hr-result" data-hr-open="'+escape(id)+'"><strong>'+escape(label(p))+'</strong><span>'+escape([p.company,p.due && 'Follow up '+p.due,false].filter(Boolean).join(' · ') || p.note || p.role || '')+'</span></button>').join('') || '<p class="hr-empty">No contacts in this view.</p>';
   }
   const label = p => p.name || p.email || p.phone || p.linkedin || (p.deleted ? 'Pending deletion' : '');
   function edit(id = '') {
@@ -100,7 +74,7 @@
       + (laptop && row?.jobIds?.length ? '<p>Linked jobs: '+escape(row.jobIds.map(jobId=>{const job=marketingRoleById(jobId);return job ? job.company+' · '+job.title : 'Saved job';}).join(', '))+'</p>' : '')
       + '<div class="hr-actions">'+(p.deleted?'':'<button class="secondary-button" type="submit">Save contact</button>')+'<button type="button" data-hr-close>Close</button>'
       + (id ? '<button type="button" data-hr-archive>'+(p.archived?'Restore':'Archive')+'</button><button type="button" data-hr-delete>Delete</button>'
-        +(laptop?'<button type="button" data-hr-resolve>Review cloud version</button>':''):'')+'</div>'
+        :'')+'</div>'
       + (id ? '<section><h4>Interaction history</h4>'+ (p.events || []).slice().reverse().map(e=>'<p><strong>'+escape(e.date+' · '+e.type)+'</strong> '+escape(e.note)+'</p>').join('')
         +'<div class="hr-fields"><label>Interaction<select name="kind"><option>Email</option><option>Call</option><option>Meeting</option><option>Reply</option><option>Note</option></select></label><label>Summary<input name="interaction" maxlength="500"></label></div><button type="button" data-hr-log>Log interaction</button></section>':'');
     form.querySelector('input')?.focus();
@@ -164,7 +138,7 @@
     if ('hrAdd' in d) edit();
     if (d.hrOpen) edit(d.hrOpen);
     if ('hrClose' in d) node().querySelector('[data-hr-form]').hidden = true;
-    if ('hrSync' in d) run(sync);
+
     const form = node().querySelector('[data-hr-form]');
     if ('hrParse' in d) {
       const input = form.elements.paste.value;
@@ -181,30 +155,8 @@
     if ('hrLog' in d) run(async()=>{
       const note = form.elements.interaction.value.trim();
       if (!note) throw Error('Enter an interaction summary.');
-      await save({...row.payload,events:[...(row.payload.events || []),{id:crypto.randomUUID(),date:today(),type:form.elements.kind.value,note}]});
+      await save({...row.payload,...Object.fromEntries(Object.keys(fields).map(key=>[key,form.elements[key].value.trim()])),events:[...(row.payload.events || []),{id:crypto.randomUUID(),date:today(),type:form.elements.kind.value,note}]});
       edit(row.id);
-    });
-    if ('hrResolve' in d) run(async()=>{
-      const other = (await cloudList()).find(item=>item.id===row.id);
-      if (!other || other.revision === row.cloudRevision) return message('No competing cloud version.');
-      if (row.account && row.account !== session.user.id) throw Error('This contact belongs to a different account.');
-      const review = document.createElement('section');
-      const describe = p => p.deleted ? 'Deleted' : Object.entries(fields).filter(([k])=>p[k]).map(([k,v])=>v+': '+p[k]).concat((p.events||[]).map(e=>e.date+' '+e.note)).join('\n');
-      review.innerHTML = '<h4>Choose the version to keep</h4><p>Laptop</p><pre>'+escape(describe(row.payload))+'</pre><p>Cloud</p><pre>'+escape(describe(other.payload))+'</pre>';
-      for (const [title,payload] of [['Keep laptop version',row.payload],['Keep cloud version',other.payload]]) {
-        const choice = document.createElement('button');
-        choice.type = 'button';
-        choice.textContent = title;
-        choice.onclick = () => run(async()=>{
-          const shared = payload === other.payload ? other : await cloudWrite(row.id,payload,other.revision);
-          await local('POST',{...shared,expected:row.revision,cloudRevision:shared.revision,account:session.user.id,dirty:false});
-          await load();
-          if (payload.deleted) form.hidden = true; else edit(row.id);
-          message('Contact conflict resolved.');
-        });
-        review.append(choice);
-      }
-      form.append(review);
     });
   });
   document.addEventListener('submit', e => {
@@ -222,9 +174,9 @@
       await save(payload,id,linkedJob ? [...new Set([...(row?.jobIds||[]),linkedJob])] : undefined);
       linkedJob = '';
       edit(id);
-      e.target.hidden = true;
+      message('Contact saved.');
       node()?.querySelector('[data-hr-add]')?.focus();
     });
   });
-  window.kryosHRContacts = () => '<section class="hr-directory" data-hr-directory><button type="button" class="secondary-button" data-hr-toggle aria-expanded="false">HR Contacts</button><div data-hr-panel hidden><header class="hr-heading"><p class="marketing-section-label">RECRUITING DIRECTORY</p><h2>HR Contacts</h2><p>Save recruiters and hiring contacts, then pick up where you left off.</p></header><div class="hr-actions"><button type="button" class="secondary-button" data-hr-add>Add contact</button>'+ (laptop?'<button class="secondary-button" type="button" data-hr-sync>Sync HR contacts</button>':'')+'</div><p role="status" data-hr-status></p><div class="hr-fields"><label>Search contacts<input type="search" data-hr-search placeholder="Name, company, email or phone"></label><label>View<select data-hr-filter><option value="active">All contacts</option><option value="due">Follow-ups due</option><option value="archive">Archive</option>'+(laptop?'<option value="pending">Waiting to sync</option>':'')+'</select></label></div><form data-hr-form hidden></form><div data-hr-list></div></div></section>';
+  window.kryosHRContacts = () => '<section class="hr-directory" data-hr-directory><button type="button" class="secondary-button" data-hr-toggle aria-expanded="false">HR Contacts</button><div data-hr-panel hidden><header class="hr-heading"><p class="marketing-section-label">RECRUITING DIRECTORY</p><h2>HR Contacts</h2><p>Save recruiters and hiring contacts, then pick up where you left off.</p></header><div class="hr-actions"><button type="button" class="secondary-button" data-hr-add>Add contact</button></div><p role="status" data-hr-status></p><div class="hr-fields"><label>Search contacts<input type="search" data-hr-search placeholder="Name, company, email or phone"></label><label>View<select data-hr-filter><option value="active">All contacts</option><option value="due">Follow-ups due</option><option value="archive">Archive</option></select></label></div><form data-hr-form hidden></form><div data-hr-list></div></div></section>';
 })();
