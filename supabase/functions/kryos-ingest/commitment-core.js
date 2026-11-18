@@ -1,6 +1,6 @@
 /* Shared by the browser and assistant projector. No network or UI dependencies. */
 (function (root) {
-  const cycle = { id: 'cycle-2026-10-18', ruleVersion: 2, title: '48-Day Commitment Cycle', dayZero: '2026-10-17', dayZeroTime: '07:00', startDate: '2026-10-18', endDate: '2026-12-04', days: 48, timezone: 'America/Chicago' };
+  const cycle = { id: 'cycle-2026-11-19', ruleVersion: 2, title: '48-Day Commitment Cycle', dayZero: '2026-11-18', dayZeroTime: '07:00', startDate: '2026-11-19', endDate: '2027-01-05', days: 48, timezone: 'America/Chicago' };
   const items = [
     ['astrology','No astrology','boundary'], ['instagram','No Instagram','boundary'],
     ['snapchat','No Snapchat','boundary'], ['astrology-videos','No astrology videos','boundary'],
