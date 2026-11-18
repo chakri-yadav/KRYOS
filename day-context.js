@@ -17,7 +17,6 @@
   root.kryosSelectedDate=()=>context.get().selectedDate;
   function connect(){const date=context.get().selectedDate;selectedTaskDate=date;selectedJournalDate=date;lifeSelectedDate=date;rhythmSelectedDate=date;rewardSelectedDate=date;commitmentDate=date;}
   commitmentSelected=()=>context.get().selectedDate;
-  KryosUI.renders.register('command','command.date-range',{order:10,after(_view,html){const date=context.get().selectedDate;return date<KryosCommitment.cycle.dayZero||date>KryosCommitment.cycle.endDate?'<section class="command-paper"><h2>No battle in this cycle for the selected day</h2><p>Choose a day within the 48-day cycle to review its battle. Other dated records remain available.</p></section>':html;}});
   function paint(){
     let bar=document.getElementById('shared-day-context');
     if(!bar){bar=document.createElement('section');bar.id='shared-day-context';bar.className='shared-day-context';bar.setAttribute('aria-label','Selected day across personal pages');document.querySelector('.topbar')?.after(bar);}
